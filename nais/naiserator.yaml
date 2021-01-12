@@ -1,0 +1,39 @@
+kind: Application
+apiVersion: nais.io/v1alpha1
+metadata:
+  name: safselvbetjening
+  namespace: teamdokumenthandtering
+  labels:
+    team: teamdokumenthandtering
+spec:
+  env:
+  ingresses:
+    {{#each INGRESSES}}
+       - {{this }}
+      {{/each}}
+  image: {{ image }}
+  liveness:
+    path: /isAlive
+    port: 8080
+    initialDelay: 30
+    failureThreshold: 10
+  port: 8080
+  prometheus:
+    enabled: true
+    path: /actuator/prometheus
+  readiness:
+    path: /isReady
+    port: 8080
+    initialDelay: 30
+    timeout: 3
+  replicas:
+    min: 2
+    max: 4
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2048Mi
+    requests:
+      memory: 1024Mi
+  vault:
+    enabled: false
