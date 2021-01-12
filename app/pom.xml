@@ -27,6 +27,12 @@
                 <configuration>
                     <finalName>app</finalName>
                     <mainClass>no.nav.safselvbetjening.Application</mainClass>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-configuration-processor</artifactId>
+                        </exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>

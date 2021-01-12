@@ -21,8 +21,8 @@
 
     <properties>
         <java.version>11</java.version>
-        <logstash-logback-encoder.version>6.5</logstash-logback-encoder.version>
-        <lombok.version>1.18.12</lombok.version>
+        <logstash-logback-encoder.version>6.6</logstash-logback-encoder.version>
+        <lombok.version>1.18.16</lombok.version>
     </properties>
 
     <dependencyManagement>
