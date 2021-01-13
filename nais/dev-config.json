@@ -1,4 +1,5 @@
 {
+  "SAFSELVBETJENING_ENDPOINTS_PDL": "https://pdl-api.dev.adeo.no/graphql",
   "INGRESSES": [
     "https://safselvbetjening.dev.adeo.no"
   ]

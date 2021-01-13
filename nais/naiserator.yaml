@@ -7,6 +7,8 @@ metadata:
     team: teamdokumenthandtering
 spec:
   env:
+    - name: SAFSELVBETJENING_ENDPOINTS_PDL
+      value: {{ SAFSELVBETJENING_ENDPOINTS_PDL }}
   ingresses:
     {{#each INGRESSES}}
        - {{this }}
