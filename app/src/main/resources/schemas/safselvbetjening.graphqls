@@ -1,46 +1,34 @@
-# todo: Usikkert om skal med?
-# ISO-8601 representasjon for en kalenderdato. YYYY-MM-DD. Eksempel: 2018-01-01.
-scalar Date
-
-# todo: Usikkert om skal med?
 # ISO-8601 representasjon for en kalenderdato med tid, trunkert til nærmeste sekund. YYYY-MM-DD'T'hh:mm:ss. Eksempel: 2018-01-01T12:00:00.
 scalar DateTime
 
 schema {
-    # Alle spørringer mot SafSelvbetjening GraphQL API.
+    # Alle spørringer mot safselvbetjening GraphQL API.
     query: Query
 }
 
-### safselvbetjening!
-input TemaListe {
-    # Filter for tema.
-    # Hvis en tom liste er angitt som argument hentes journalposter på alle tema.
-    tema: [String] = []
-}
-###
-
-# Query roten til SafSelvbetjening GraphQL API.
+# Query roten til safselvbetjening GraphQL API.
 type Query {
-
-    temaer(
-        tema: TemaListe
-    ): Temaer!
-
-    # Tilbakemelding hvis feil oppstår
-    code: String
+    dokumentoversiktSelvbetjening(tema: [Tema]!): Dokumentoversikt!
 }
 
-type Temaer {
+# Dokumentoversikt er en liste av journalposter som tilfredstiller query kriteriene.
+type Dokumentoversikt {
+    # En liste av sakstema
+    sakstema: [Sakstema!]!
 
+    # Feilkode
+    code: String!
+}
+
+type Sakstema {
     # En liste av journalposter.
-    journalposter: [Journalpost]
+    journalposter: [Journalpost]!
 
-    # Temaliste
-    tema: [Tema]
+    # Tre-bokstavs kode for tema. Eksempel: FOR
+    kode : String
 
-    # Temanavn
-    temaNavn: [String]
-
+    # Fullt navn for tema. Eksempel: Foreldrepenger
+    navn: String
 }
 
 # Et sett med metadata som er nødvendig for å gjenfinne et dokument i arkivet. En journalpost kan ha ett eller flere dokumenter.
@@ -125,7 +113,7 @@ type Dokumentvariant {
     # * Dersom verdien er false, vil tilgang bli avslått dersom bruker forsøker å åpne dokumentet.
     brukerHarTilgang: Boolean
 
-    code: [String]
+    code: [String]!
 }
 
 
@@ -319,7 +307,6 @@ enum AvsenderMottakerIdType {
     UKJENT
 }
 
-# todo: Ikke synkronisert med temaoversikt på safselvbetjeningssiden: https://confluence.adeo.no/pages/viewpage.action?pageId=395759329
 # Temaet/Fagområdet som en journalpost og tilhørende sak tilhører, f.eks. **FOR** (foreldrepenger).
 # * I NAV brukes Tema for å klassifisere journalposter i arkivet med tanke på gjenfinning, tilgangsstyring og bevaringstid.
 enum Tema {

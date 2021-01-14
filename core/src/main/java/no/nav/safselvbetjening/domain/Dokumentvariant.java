@@ -1,8 +1,7 @@
-package no.nav.safselvbetjening.domain.visningsmodell;
+package no.nav.safselvbetjening.domain;
 
 import lombok.Builder;
 import lombok.Value;
-import no.nav.safselvbetjening.domain.kode.Variantformat;
 
 
 @Value

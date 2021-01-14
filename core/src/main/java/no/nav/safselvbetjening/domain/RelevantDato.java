@@ -1,4 +1,4 @@
-package no.nav.safselvbetjening.domain.visningsmodell;
+package no.nav.safselvbetjening.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

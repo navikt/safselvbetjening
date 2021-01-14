@@ -1,4 +1,4 @@
-package no.nav.safselvbetjening.domain.kode;
+package no.nav.safselvbetjening.domain;
 
 import java.util.Arrays;
 import java.util.List;

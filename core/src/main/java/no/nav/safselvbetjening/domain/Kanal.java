@@ -1,4 +1,4 @@
-package no.nav.safselvbetjening.domain.kode;
+package no.nav.safselvbetjening.domain;
 
 public enum Kanal {
 	ALTINN("Altinn"),

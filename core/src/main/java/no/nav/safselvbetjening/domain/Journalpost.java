@@ -1,10 +1,7 @@
-package no.nav.safselvbetjening.domain.visningsmodell;
+package no.nav.safselvbetjening.domain;
 
 import lombok.Builder;
 import lombok.Value;
-import no.nav.safselvbetjening.domain.kode.Journalposttype;
-import no.nav.safselvbetjening.domain.kode.Journalstatus;
-import no.nav.safselvbetjening.domain.kode.Kanal;
 
 import java.util.ArrayList;
 import java.util.List;
