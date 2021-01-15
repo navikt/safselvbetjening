@@ -16,6 +16,8 @@ public class Journalpost {
 	private final Journalstatus journalstatus;
 	private final AvsenderMottaker avsenderMottaker;
 	private final Kanal kanal;
+	@Builder.Default
 	private final List<RelevantDato> relevanteDatoer = new ArrayList<>();
+	@Builder.Default
 	private final List<DokumentInfo> dokumenter = new ArrayList<>();
 }
