@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Value
+@Builder
 public class Dokumentoversikt {
     @Builder.Default
     private final List<Sakstema> sakstema = new ArrayList<>();

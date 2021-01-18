@@ -17,10 +17,12 @@
     <modules>
         <module>app</module>
         <module>core</module>
+        <module>dokumentoversiktselvbetjening</module>
     </modules>
 
     <properties>
         <java.version>11</java.version>
+        <graphql-java.version>16.1</graphql-java.version>
         <logstash-logback-encoder.version>6.6</logstash-logback-encoder.version>
         <lombok.version>1.18.16</lombok.version>
     </properties>
@@ -36,6 +38,16 @@
                 <groupId>no.nav.safselvbetjening</groupId>
                 <artifactId>core</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.safselvbetjening</groupId>
+                <artifactId>dokumentoversiktselvbetjening</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.graphql-java</groupId>
+                <artifactId>graphql-java</artifactId>
+                <version>${graphql-java.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.logstash.logback</groupId>
