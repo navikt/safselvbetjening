@@ -1,5 +1,6 @@
 package no.nav.safselvbetjening.dokumentoversikt;
 
+import no.nav.safselvbetjening.consumer.pdl.PdlIdentConsumer;
 import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.AvsenderMottakerIdType;
 import no.nav.safselvbetjening.domain.Datotype;
@@ -19,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Component
@@ -31,7 +31,7 @@ public class DokumentoversiktSelvbetjeningService {
     // FIXME
     Dokumentoversikt stub() {
         return Dokumentoversikt.builder().code("ok")
-                .sakstema(Collections.singletonList(Sakstema.builder()
+                .tema(Collections.singletonList(Sakstema.builder()
                         .kode("FOR")
                         .navn("Foreldrepenger")
                         .journalposter(Collections.singletonList(

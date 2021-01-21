@@ -13,8 +13,8 @@ type Query {
 
 # Dokumentoversikt er en liste av journalposter som tilfredstiller query kriteriene.
 type Dokumentoversikt {
-    # En liste av sakstema
-    sakstema: [Sakstema!]!
+    # En liste av tema knyttet til bruker sine saker.
+    tema: [Sakstema!]!
 
     # Feilkode
     code: String!
@@ -53,6 +53,9 @@ type Journalpost {
     # * Dersom journalposten ikke har noen kjent kanal, returneres verdien "UKJENT"
     kanal: Kanal
 
+    # Liste over datoer som kan være relevante for denne journalposten, f.eks. DATO_EKSPEDERT. Hvilke relevante datoer som returneres, avhenger av journalposttypen.
+    relevanteDatoer: [RelevantDato]!
+
     # Liste over dokumentinfo tilknyttet journalposten.
     # * Dokumentene returneres i følgende sorteringsrekkefølge: Hoveddokumentet først, deretter vedleggene i tilfeldig rekkefølge.
     dokumenter: [DokumentInfo]
@@ -61,13 +64,12 @@ type Journalpost {
 # Dato som kan være relevant for en journalpost. De ulike journalposttypene (inngående, utgående og notat) får returnert ulike relevante datoer.
 # * For eksempel er **DATO_EKSPEDERT** kun relevant for utgående dokumenter, og **DATO_REGISTRERT** kun for inngående.
 type RelevantDato {
+    # ISO-8601 representasjon for en kalenderdato med tid, trunkert til nærmeste sekund. *YYYY-MM-DD'T'hh:mm:ss*.
+    # Eksempel: *2018-01-01T12:00:00*.
+    dato: DateTime!
 
-    datoOpprettet: DateTime
-
-    datoMottat: DateTime
-
-    datoEkspedert: DateTime
-
+    # Markør for hvilken type dato som dato-feltet inneholder.
+    datotype: Datotype!
 }
 
 # En person, organisasjon eller annen samhandler som er mottaker eller avsender av dokumentene på en journalpost.
@@ -256,6 +258,36 @@ enum Kanal {
     UKJENT
 }
 
+# Beskriver en type dato som kan være relevant for en journalpost, for eksempel **DATO_OPPRETTET**. Ulike datotyper returneres for ulike journalstatuser.
+enum Datotype {
+    # * Tidspunktet journalposten er opprettet i joark. Tidspunktet settes automatisk og kan ikke overskrives. Selv om hver journalpost har mange datoer (se relevanteDatoer) er datoOpprettet å anse som "fasit" på journalpostens alder.
+    # * Returneres for alle journalposter
+    DATO_OPPRETTET
+
+    # * Tidspunktet dokumentene på journalposten ble sendt til print.
+    # * Returneres for utgående journalposter
+    DATO_SENDT_PRINT
+
+    # * Tidspunktet dokumentene på journalposten ble sendt til bruker.
+    # * Returneres for utgående journalposter
+    DATO_EKSPEDERT
+
+    # * Tidspunktet journalposten ble journalført (inngående) eller ferdigstilt (utgående).
+    # * Returneres for alle journalposttyper
+    DATO_JOURNALFOERT
+
+    # * Tidspunkt dokumentene i journalposten ble registrert i NAV sine systemer.
+    # * Returneres for inngående journalposter
+    DATO_REGISTRERT
+
+    # * Tidspunkt som dokumentene i journalposten ble sendt på nytt, grunnet retur av opprinnelig forsendelse.
+    # * Returneres for utgående journalposter
+    DATO_AVS_RETUR
+
+    # * Dato på hoveddokumentet i forsendelsen. Registreres i noen tilfeller manuelt av saksbehandler.
+    # * Returneres for alle journalposter
+    DATO_DOKUMENT
+}
 
 # Typen variant som returneres. Dette er normalt **ARKIV**, men kan også være **SLADDET**,**PRODUKSJON**, **PRODUKSJON_DLF** eller **FULLVERSJON**.
 enum Variantformat {

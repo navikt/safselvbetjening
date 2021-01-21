@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 public class Dokumentoversikt {
     @Builder.Default
-    private final List<Sakstema> sakstema = new ArrayList<>();
+    private final List<Sakstema> tema = new ArrayList<>();
     private final String code;
 
     public static Dokumentoversikt empty() {

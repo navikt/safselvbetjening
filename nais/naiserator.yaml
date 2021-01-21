@@ -8,12 +8,12 @@ metadata:
 spec:
   env:
     - name: SAFSELVBETJENING_ENDPOINTS_PDL
-      value: {{ SAFSELVBETJENING_ENDPOINTS_PDL }}
+      value: {{SAFSELVBETJENING_ENDPOINTS_PDL}}
   ingresses:
     {{#each INGRESSES}}
-       - {{this }}
+       - {{this}}
       {{/each}}
-  image: {{ image }}
+  image: {{image}}
   liveness:
     path: /isAlive
     port: 8080
@@ -39,3 +39,8 @@ spec:
       memory: 1024Mi
   vault:
     enabled: false
+  azure:
+    application:
+      enabled: true
+      tenant: {{AZURE_TENANT}}
+  webproxy: true
