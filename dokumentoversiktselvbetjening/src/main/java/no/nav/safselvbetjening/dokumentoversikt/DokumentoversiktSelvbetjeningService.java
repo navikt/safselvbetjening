@@ -1,6 +1,6 @@
 package no.nav.safselvbetjening.dokumentoversikt;
 
-import no.nav.safselvbetjening.consumer.pdl.PdlIdentConsumer;
+import no.nav.safselvbetjening.consumer.pdl.IdentConsumer;
 import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.AvsenderMottakerIdType;
 import no.nav.safselvbetjening.domain.Datotype;
@@ -24,6 +24,12 @@ import java.util.UUID;
 
 @Component
 public class DokumentoversiktSelvbetjeningService {
+    private final IdentConsumer identConsumer;
+
+    public DokumentoversiktSelvbetjeningService(IdentConsumer identConsumer) {
+        this.identConsumer = identConsumer;
+    }
+
     public Dokumentoversikt queryDokumentoversikt(final List<String> tema) {
         return stub();
     }

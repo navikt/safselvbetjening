@@ -1,5 +1,7 @@
 {
   "AZURE_TENANT": "nav.no",
+  "AZURE_APP_TOKEN_URL": "https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/oauth2/v2.0/token",
+  "AZURE_APP_SCOPE": "",
   "SAFSELVBETJENING_ENDPOINTS_PDL": "https://pdl-api.nais.adeo.no/graphql",
   "INGRESSES": [
     "https://safselvbetjening.nais.adeo.no"

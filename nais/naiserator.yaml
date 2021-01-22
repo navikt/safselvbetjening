@@ -7,6 +7,10 @@ metadata:
     team: teamdokumenthandtering
 spec:
   env:
+    - name: AZURE_APP_TOKEN_URL
+      value: {{AZURE_APP_TOKEN_URL}}
+    - name: AZURE_APP_SCOPE
+      value: {{AZURE_APP_SCOPE}}
     - name: SAFSELVBETJENING_ENDPOINTS_PDL
       value: {{SAFSELVBETJENING_ENDPOINTS_PDL}}
   ingresses:
