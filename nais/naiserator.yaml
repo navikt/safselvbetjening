@@ -47,6 +47,9 @@ spec:
       memory: 1024Mi
   vault:
     enabled: true
+    paths:
+      - kvPath: {{SERVICEUSER_VAULT_PATH}}
+        mountPath: "/secrets/serviceuser/srvsafselvbetjening"
   azure:
     application:
       enabled: true
