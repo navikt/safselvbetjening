@@ -1,8 +1,11 @@
 {
+  "SERVICEUSER_VAULT_PATH": "/serviceuser/data/prod/srvsafselvbetjening",
   "AZURE_TENANT": "nav.no",
   "AZURE_APP_TOKEN_URL": "https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/oauth2/v2.0/token",
   "AZURE_APP_SCOPE": "",
   "SAFSELVBETJENING_ENDPOINTS_PDL": "https://pdl-api.nais.adeo.no/graphql",
+  "SAFSELVBETJENING_ENDPOINTS_SAK": "https://sak.nais.adeo.no/api/v1/saker",
+  "SAFSELVBETJENING_ENDPOINTS_FAGARKIV": "https://dokarkiv.nais.adeo.no/hentjournalsakinfo",
   "INGRESSES": [
     "https://safselvbetjening.nais.adeo.no"
   ]

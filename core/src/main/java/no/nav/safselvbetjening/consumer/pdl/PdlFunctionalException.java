@@ -1,9 +1,11 @@
 package no.nav.safselvbetjening.consumer.pdl;
 
+import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
+
 /**
  * @author Joakim Bjørnstad, Jbit AS
  */
-public class PdlFunctionalException extends RuntimeException {
+public class PdlFunctionalException extends ConsumerFunctionalException {
     public PdlFunctionalException(String message) {
         super(message);
     }

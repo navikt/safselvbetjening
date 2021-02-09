@@ -13,6 +13,10 @@ spec:
       value: {{AZURE_APP_SCOPE}}
     - name: SAFSELVBETJENING_ENDPOINTS_PDL
       value: {{SAFSELVBETJENING_ENDPOINTS_PDL}}
+    - name: SAFSELVBETJENING_ENDPOINTS_SAK
+      value: {{SAFSELVBETJENING_ENDPOINTS_SAK}}
+    - name: SAFSELVBETJENING_ENDPOINTS_FAGARKIV
+      value: {{SAFSELVBETJENING_ENDPOINTS_FAGARKIV}}
   ingresses:
     {{#each INGRESSES}}
        - {{this}}
@@ -42,7 +46,10 @@ spec:
     requests:
       memory: 1024Mi
   vault:
-    enabled: false
+    enabled: true
+    paths:
+      - kvPath: {{SERVICEUSER_VAULT_PATH}}
+        mountPath: "/secrets/serviceuser/srvsafselvbetjening"
   azure:
     application:
       enabled: true

@@ -1,8 +1,11 @@
 {
+  "SERVICEUSER_VAULT_PATH": "/serviceuser/data/dev/srvsafselvbetjening",
   "AZURE_TENANT": "trygdeetaten.no",
   "AZURE_APP_TOKEN_URL": "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/oauth2/v2.0/token",
   "AZURE_APP_SCOPE": "api://972814f3-8bdf-44f8-a191-c2ed00020b54/.default",
   "SAFSELVBETJENING_ENDPOINTS_PDL": "https://pdl-api.dev.adeo.no/graphql",
+  "SAFSELVBETJENING_ENDPOINTS_SAK": "https://sak-q1.dev.adeo.no/api/v1/saker",
+  "SAFSELVBETJENING_ENDPOINTS_FAGARKIV": "https://dokarkiv-q1.dev.adeo.no/hentjournalsakinfo",
   "INGRESSES": [
     "https://safselvbetjening.dev.adeo.no"
   ]
