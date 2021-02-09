@@ -46,7 +46,7 @@ spec:
     requests:
       memory: 1024Mi
   vault:
-    enabled: false
+    enabled: true
   azure:
     application:
       enabled: true
