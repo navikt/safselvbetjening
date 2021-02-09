@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 public class DokumentoversiktSelvbetjeningService {
@@ -39,14 +40,14 @@ public class DokumentoversiktSelvbetjeningService {
     }
 
     public Dokumentoversikt queryDokumentoversikt(final String ident, final List<String> tema) {
-        if (ident == null) {
-            return Dokumentoversikt.empty();
+        if (isBlank(ident)) {
+            return Dokumentoversikt.notFound();
         }
         final List<String> aktoerIds = identConsumer.hentAktoerIder(ident);
         if (aktoerIds.isEmpty()) {
             return Dokumentoversikt.notFound();
         }
-        final List<Arkivsak> arkivsaker = arkivsakConsumer.hentSakerByAktoerIds(aktoerIds);
+        final List<Arkivsak> arkivsaker = arkivsakConsumer.hentSakerByAktoerIds(aktoerIds).stream().filter(a -> tema.contains(a.getTema())).collect(Collectors.toList());
         if (arkivsaker.isEmpty()) {
             return Dokumentoversikt.empty();
         }
