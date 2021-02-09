@@ -17,7 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.time.Duration;
 import java.util.HashMap;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -28,7 +28,7 @@ import static java.util.Objects.requireNonNull;
  * @author Joakim Bjørnstad, Jbit AS
  */
 @Component
-public class PdlIdentConsumer implements IdentConsumer {
+class PdlIdentConsumer implements IdentConsumer {
     private static final String HEADER_PDL_NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
     private static final String PERSON_IKKE_FUNNET_CODE = "not_found";
 
@@ -38,7 +38,7 @@ public class PdlIdentConsumer implements IdentConsumer {
 
     public PdlIdentConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
                             final RestTemplateBuilder restTemplateBuilder,
-                            AzureTokenConsumer azureTokenConsumer) {
+                            final AzureTokenConsumer azureTokenConsumer) {
         this.restTemplate = restTemplateBuilder
                 .setConnectTimeout(Duration.ofSeconds(3))
                 .setReadTimeout(Duration.ofSeconds(20))
@@ -51,14 +51,14 @@ public class PdlIdentConsumer implements IdentConsumer {
             include = HttpServerErrorException.class
     )
     @Override
-    public Set<String> hentAktoerIder(final String folkeregisterIdent) throws PersonIkkeFunnetException {
+    public List<String> hentAktoerIder(final String folkeregisterIdent) throws PersonIkkeFunnetException {
         try {
             final RequestEntity<PdlRequest> requestEntity = baseRequest()
                     .body(mapHentAktoerIdForFolkeregisterident(folkeregisterIdent));
             final PdlResponse pdlResponse = requireNonNull(restTemplate.exchange(requestEntity, PdlResponse.class).getBody());
 
             if (pdlResponse.getErrors() == null || pdlResponse.getErrors().isEmpty()) {
-                return pdlResponse.getData().getHentIdenter().getIdenter().stream().map(PdlResponse.PdlIdent::getIdent).collect(Collectors.toSet());
+                return pdlResponse.getData().getHentIdenter().getIdenter().stream().map(PdlResponse.PdlIdent::getIdent).collect(Collectors.toList());
             } else {
                 if (PERSON_IKKE_FUNNET_CODE.equals(pdlResponse.getErrors().get(0).getExtensions().getCode())) {
                     throw new PersonIkkeFunnetException("Fant ikke aktørid for person i pdl.");
@@ -83,14 +83,14 @@ public class PdlIdentConsumer implements IdentConsumer {
             include = HttpServerErrorException.class
     )
     @Override
-    public Set<String> hentFolkeregisterIdenter(final String aktoerId) throws PersonIkkeFunnetException {
+    public List<String> hentFolkeregisterIdenter(final String aktoerId) throws PersonIkkeFunnetException {
         try {
             final RequestEntity<PdlRequest> requestEntity = baseRequest()
                     .body(mapHentFolkeregisterIdentForAktoerId(aktoerId));
             final PdlResponse pdlResponse = requireNonNull(restTemplate.exchange(requestEntity, PdlResponse.class).getBody());
 
             if (pdlResponse.getErrors() == null || pdlResponse.getErrors().isEmpty()) {
-                return pdlResponse.getData().getHentIdenter().getIdenter().stream().map(PdlResponse.PdlIdent::getIdent).collect(Collectors.toSet());
+                return pdlResponse.getData().getHentIdenter().getIdenter().stream().map(PdlResponse.PdlIdent::getIdent).collect(Collectors.toList());
             } else {
                 if (PERSON_IKKE_FUNNET_CODE.equals(pdlResponse.getErrors().get(0).getExtensions().getCode())) {
                     throw new PersonIkkeFunnetException("Fant ikke folkeregisterident for person i pdl.");

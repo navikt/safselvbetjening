@@ -8,7 +8,7 @@ schema {
 
 # Query roten til safselvbetjening GraphQL API.
 type Query {
-    dokumentoversiktSelvbetjening(tema: [Tema]!): Dokumentoversikt!
+    dokumentoversiktSelvbetjening(ident: String!, tema: [Tema]!): Dokumentoversikt!
 }
 
 # Dokumentoversikt er en liste av journalposter som tilfredstiller query kriteriene.

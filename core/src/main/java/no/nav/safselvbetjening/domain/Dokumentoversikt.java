@@ -16,4 +16,8 @@ public class Dokumentoversikt {
     public static Dokumentoversikt empty() {
         return new Dokumentoversikt(new ArrayList<>(), "ok");
     }
+
+    public static Dokumentoversikt notFound() {
+        return new Dokumentoversikt(new ArrayList<>(), "not_found");
+    }
 }

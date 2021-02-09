@@ -1,13 +1,11 @@
 package no.nav.safselvbetjening.graphql;
 
 import graphql.schema.idl.RuntimeWiring;
-import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.dokumentoversikt.DokumentoversiktSelvbetjeningService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 /**
  * @author Joakim Bjørnstad, Jbit AS
@@ -25,7 +23,9 @@ public class GraphQLWiring {
         return RuntimeWiring.newRuntimeWiring()
                 .scalar(DateTimeScalar.DATE_TIME)
                 .type("Query", typeWiring -> typeWiring.dataFetcher("dokumentoversiktSelvbetjening", environment -> {
-                    return dokumentoversiktSelvbetjeningService.queryDokumentoversikt(environment.getArgumentOrDefault("tema", new ArrayList<>()));
+                    return dokumentoversiktSelvbetjeningService.queryDokumentoversikt(
+                            environment.getArgumentOrDefault("ident", null),
+                            environment.getArgumentOrDefault("tema", new ArrayList<>()));
                 }))
                 .build();
     }
