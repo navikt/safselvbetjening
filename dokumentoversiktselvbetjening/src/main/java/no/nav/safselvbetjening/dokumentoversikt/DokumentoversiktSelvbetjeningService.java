@@ -1,5 +1,6 @@
 package no.nav.safselvbetjening.dokumentoversikt;
 
+import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.fagarkiv.FagarkivConsumer;
 import no.nav.safselvbetjening.consumer.fagarkiv.FinnJournalposterRequestTo;
 import no.nav.safselvbetjening.consumer.fagarkiv.FinnJournalposterResponseTo;
@@ -15,8 +16,10 @@ import no.nav.safselvbetjening.domain.Sakstema;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -24,15 +27,18 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 public class DokumentoversiktSelvbetjeningService {
+    private final SafSelvbetjeningProperties safSelvbetjeningProperties;
     private final IdentConsumer identConsumer;
     private final ArkivsakConsumer arkivsakConsumer;
     private final FagarkivConsumer fagarkivConsumer;
     private final JournalpostMapper journalpostMapper;
 
-    public DokumentoversiktSelvbetjeningService(final IdentConsumer identConsumer,
+    public DokumentoversiktSelvbetjeningService(final SafSelvbetjeningProperties safSelvbetjeningProperties,
+                                                final IdentConsumer identConsumer,
                                                 final ArkivsakConsumer arkivsakConsumer,
                                                 final FagarkivConsumer fagarkivConsumer,
                                                 final JournalpostMapper journalpostMapper) {
+        this.safSelvbetjeningProperties = safSelvbetjeningProperties;
         this.identConsumer = identConsumer;
         this.arkivsakConsumer = arkivsakConsumer;
         this.fagarkivConsumer = fagarkivConsumer;
@@ -47,25 +53,31 @@ public class DokumentoversiktSelvbetjeningService {
         if (aktoerIds.isEmpty()) {
             return Dokumentoversikt.notFound();
         }
-        final List<Arkivsak> arkivsaker = arkivsakConsumer.hentSakerByAktoerIds(aktoerIds).stream().filter(a -> tema.contains(a.getTema())).collect(Collectors.toList());
+        // FIXME hent pensjonssaker
+        final List<Arkivsak> arkivsaker = arkivsakConsumer.hentSaker(aktoerIds, tema);
         if (arkivsaker.isEmpty()) {
             return Dokumentoversikt.empty();
         }
+
         FinnJournalposterResponseTo finnJournalposterResponseTo = fagarkivConsumer.finnJournalposter(FinnJournalposterRequestTo.builder()
+                .alleIdenter(Collections.singletonList(ident))
                 .gsakSakIds(arkivsaker.stream().map(s -> s.getId().toString()).collect(Collectors.toList()))
-                .fraDato("2016-06-04")
+                .fraDato(safSelvbetjeningProperties.getTidligstInnsynDato())
                 .inkluderJournalpostType(Arrays.asList(JournalpostTypeCode.values()))
-                .inkluderJournalStatus(Arrays.asList(JournalStatusCode.J, JournalStatusCode.E, JournalStatusCode.FL, JournalStatusCode.FS))
+                .inkluderJournalStatus(Arrays.asList(JournalStatusCode.MO, JournalStatusCode.MO, JournalStatusCode.J, JournalStatusCode.E, JournalStatusCode.FL, JournalStatusCode.FS))
                 .foerste(9999)
                 .visFeilregistrerte(false)
                 .build());
 
-        Map<FagomradeCode, List<JournalpostDto>> temaMap = finnJournalposterResponseTo.getTilgangJournalposter().stream().collect(groupingBy(JournalpostDto::getFagomrade));
+        Map<FagomradeCode, List<JournalpostDto>> temaMap = finnJournalposterResponseTo.getTilgangJournalposter().stream()
+                .collect(groupingBy(JournalpostDto::getFagomrade));
         List<Sakstema> sakstema = temaMap.entrySet().stream().map(fagomradeCodeListEntry ->
                 Sakstema.builder()
                         .kode(fagomradeCodeListEntry.getKey().name())
                         .navn("TODO")
-                        .journalposter(fagomradeCodeListEntry.getValue().stream().map(journalpostMapper::map).collect(Collectors.toList()))
+                        .journalposter(fagomradeCodeListEntry.getValue().stream()
+                                .filter(Objects::nonNull)
+                                .map(journalpostMapper::map).collect(Collectors.toList()))
                         .build()
         ).collect(Collectors.toList());
         return Dokumentoversikt.builder()

@@ -39,9 +39,10 @@ public class ArkivsakConsumer {
                 .build();
     }
 
-    public List<Arkivsak> hentSakerByAktoerIds(final List<String> aktoerId) {
-        UriComponentsBuilder uri = UriComponentsBuilder.fromHttpUrl(sakUrl)
-                .queryParam("aktoerId", aktoerId);
+    public List<Arkivsak> hentSaker(final List<String> aktoerId, final List<String> tema) {
+        final UriComponentsBuilder uri = UriComponentsBuilder.fromHttpUrl(sakUrl)
+                .queryParam("aktoerId", aktoerId)
+                .queryParam("tema", tema);
         return hentSaker(uri.toUriString());
     }
 

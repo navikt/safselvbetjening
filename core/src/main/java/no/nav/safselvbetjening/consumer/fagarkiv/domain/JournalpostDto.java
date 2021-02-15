@@ -53,4 +53,8 @@ public class JournalpostDto {
 	public boolean isTilknyttetSak() {
 		return saksrelasjon != null && saksrelasjon.getSakId() != null;
 	}
+
+	public boolean isMidlertidig() {
+		return journalstatus == JournalStatusCode.M || journalstatus == JournalStatusCode.MO;
+	}
 }

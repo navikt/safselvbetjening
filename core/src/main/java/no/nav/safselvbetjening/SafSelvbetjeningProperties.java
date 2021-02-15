@@ -15,13 +15,28 @@ public class SafSelvbetjeningProperties {
     private final Endpoints endpoints = new Endpoints();
     private final Serviceuser serviceuser = new Serviceuser();
 
+    /**
+     * Cut-off dato for innsyn fra innbygger. Dokumenter før denne dato skal ikke hentes eller vises.
+     */
+    @NotEmpty
+    private String tidligstInnsynDato;
+
     @Data
     @Validated
     public static class Endpoints {
+        /**
+         * URL til PDL (Persondataløsningen).
+         */
         @NotEmpty
         private String pdl;
+        /**
+         * URL til sak API.
+         */
         @NotEmpty
         private String sak;
+        /**
+         * URL til oppslagstjenesten i fagarkivet.
+         */
         @NotEmpty
         private String fagarkiv;
     }
@@ -29,9 +44,15 @@ public class SafSelvbetjeningProperties {
     @Data
     @Validated
     public static class Serviceuser {
+        /**
+         * Brukernavn til onprem AD servicebruker.
+         */
         @NotEmpty
         @ToString.Exclude
         private String username;
+        /**
+         * Passord til onprem AD servicebruker.
+         */
         @NotEmpty
         @ToString.Exclude
         private String password;
