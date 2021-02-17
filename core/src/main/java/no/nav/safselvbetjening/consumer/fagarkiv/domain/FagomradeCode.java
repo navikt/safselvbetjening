@@ -1,5 +1,7 @@
 package no.nav.safselvbetjening.consumer.fagarkiv.domain;
 
+import no.nav.safselvbetjening.domain.Tema;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -251,7 +253,7 @@ public enum FagomradeCode {
 
 	// Vennligst se https://jira.adeo.no/browse/MMA-3142
 	// Tema CON har data i joark men temaet skal ikke vises.
-	private static Map<FagomradeCode, Boolean> INVALID_TEMA = new HashMap<>();
+	private static final Map<FagomradeCode, Boolean> INVALID_TEMA = new HashMap<>();
 
 	static {
 		INVALID_TEMA.put(FagomradeCode.CON, true);
@@ -259,5 +261,14 @@ public enum FagomradeCode {
 
 	public static boolean isValid(FagomradeCode joarkFagomradeCode) {
 		return !INVALID_TEMA.containsKey(joarkFagomradeCode);
+	}
+
+	public static Tema toTema(FagomradeCode joarkFagomradeCode) {
+		// Vennligst se https://jira.adeo.no/browse/MMA-3076 . Tema OKO korrigeres til Tema STO
+		if(joarkFagomradeCode == OKO) {
+			return Tema.STO;
+		}
+		// Hvis tema er null så faller man tilbake til UKJ
+		return joarkFagomradeCode == null ? Tema.UKJ : Tema.valueOf(joarkFagomradeCode.name());
 	}
 }

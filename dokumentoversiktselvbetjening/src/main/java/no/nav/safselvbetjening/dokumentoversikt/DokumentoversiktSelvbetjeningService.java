@@ -13,10 +13,12 @@ import no.nav.safselvbetjening.consumer.sak.Arkivsak;
 import no.nav.safselvbetjening.consumer.sak.ArkivsakConsumer;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Sakstema;
+import no.nav.safselvbetjening.domain.Tema;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,18 +73,24 @@ public class DokumentoversiktSelvbetjeningService {
 
         Map<FagomradeCode, List<JournalpostDto>> temaMap = finnJournalposterResponseTo.getTilgangJournalposter().stream()
                 .collect(groupingBy(JournalpostDto::getFagomrade));
-        List<Sakstema> sakstema = temaMap.entrySet().stream().map(fagomradeCodeListEntry ->
-                Sakstema.builder()
-                        .kode(fagomradeCodeListEntry.getKey().name())
-                        .navn("TODO")
-                        .journalposter(fagomradeCodeListEntry.getValue().stream()
-                                .filter(Objects::nonNull)
-                                .map(journalpostMapper::map).collect(Collectors.toList()))
-                        .build()
-        ).collect(Collectors.toList());
+        List<Sakstema> sakstema = temaMap.entrySet().stream()
+                .map(this::mapSakstema)
+                .sorted(Comparator.comparing(Sakstema::getKode))
+                .collect(Collectors.toList());
         return Dokumentoversikt.builder()
                 .tema(sakstema)
                 .code("ok")
                 .build();
+    }
+
+    private Sakstema mapSakstema(Map.Entry<FagomradeCode, List<JournalpostDto>> fagomradeCodeListEntry) {
+        final Tema tema = FagomradeCode.toTema(fagomradeCodeListEntry.getKey());
+        return Sakstema.builder()
+                        .kode(tema.name())
+                        .navn(tema.getTemanavn())
+                        .journalposter(fagomradeCodeListEntry.getValue().stream()
+                                .filter(Objects::nonNull)
+                                .map(journalpostMapper::map).collect(Collectors.toList()))
+                        .build();
     }
 }

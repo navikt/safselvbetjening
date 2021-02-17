@@ -3,8 +3,6 @@ package no.nav.safselvbetjening.graphql;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
-import graphql.execution.AsyncExecutionStrategy;
-import graphql.execution.AsyncSerialExecutionStrategy;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.SchemaGenerator;
 import graphql.schema.idl.SchemaParser;
@@ -46,10 +44,8 @@ public class GraphQLController {
     @ResponseBody
     public Map<String, Object> graphQLRequest(@RequestBody GraphQLRequest request) {
         ExecutionResult executionResult =
-                GraphQL.newGraphQL(graphQLSchema)
-                        .mutationExecutionStrategy(new AsyncSerialExecutionStrategy())
-                        .queryExecutionStrategy(new AsyncExecutionStrategy())
-                        .build().execute(ExecutionInput.newExecutionInput()
+                GraphQL.newGraphQL(graphQLSchema).build()
+                        .execute(ExecutionInput.newExecutionInput()
                         .query(request.getQuery())
                         .operationName(request.getOperationName())
                         .variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
