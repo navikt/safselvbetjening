@@ -1,5 +1,6 @@
 package no.nav.safselvbetjening.dokumentoversikt;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.fagarkiv.FagarkivConsumer;
 import no.nav.safselvbetjening.consumer.fagarkiv.FinnJournalposterRequestTo;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.groupingBy;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+@Slf4j
 @Component
 public class DokumentoversiktSelvbetjeningService {
     private final SafSelvbetjeningProperties safSelvbetjeningProperties;
@@ -48,6 +50,7 @@ public class DokumentoversiktSelvbetjeningService {
     }
 
     public Dokumentoversikt queryDokumentoversikt(final String ident, final List<String> tema) {
+        log.info("dokumentoversiktSelvbetjening henter dokumentoversikt til person.");
         if (isBlank(ident)) {
             return Dokumentoversikt.notFound();
         }
@@ -77,6 +80,8 @@ public class DokumentoversiktSelvbetjeningService {
                 .map(this::mapSakstema)
                 .sorted(Comparator.comparing(Sakstema::getKode))
                 .collect(Collectors.toList());
+        log.info("dokumentoversiktSelvbetjening hentet dokumentoversikt til person. sakstema={}, journalposter={}", sakstema.size(),
+                finnJournalposterResponseTo.getTilgangJournalposter().size());
         return Dokumentoversikt.builder()
                 .tema(sakstema)
                 .code("ok")
