@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.consumer.pdl;
 
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
+import no.nav.safselvbetjening.consumer.PersonIkkeFunnetException;
 import no.nav.safselvbetjening.consumer.azure.AzureTokenConsumer;
 import no.nav.safselvbetjening.consumer.azure.TokenResponse;
 import org.springframework.boot.web.client.RestTemplateBuilder;

@@ -1,5 +1,7 @@
 package no.nav.safselvbetjening.consumer.pdl;
 
+import no.nav.safselvbetjening.consumer.PersonIkkeFunnetException;
+
 import java.util.List;
 
 /**
