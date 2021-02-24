@@ -14,6 +14,7 @@ import no.nav.safselvbetjening.consumer.sak.ArkivsakConsumer;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
+import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -34,17 +35,20 @@ public class DokumentoversiktSelvbetjeningService {
     private final ArkivsakConsumer arkivsakConsumer;
     private final FagarkivConsumer fagarkivConsumer;
     private final JournalpostMapper journalpostMapper;
+    private final UtledTilgangService utledTilgangService;
 
     public DokumentoversiktSelvbetjeningService(final SafSelvbetjeningProperties safSelvbetjeningProperties,
                                                 final IdentConsumer identConsumer,
                                                 final ArkivsakConsumer arkivsakConsumer,
                                                 final FagarkivConsumer fagarkivConsumer,
-                                                final JournalpostMapper journalpostMapper) {
+                                                final JournalpostMapper journalpostMapper,
+                                                final UtledTilgangService utledTilgangService) {
         this.safSelvbetjeningProperties = safSelvbetjeningProperties;
         this.identConsumer = identConsumer;
         this.arkivsakConsumer = arkivsakConsumer;
         this.fagarkivConsumer = fagarkivConsumer;
         this.journalpostMapper = journalpostMapper;
+        this.utledTilgangService = utledTilgangService;
     }
 
     public Dokumentoversikt queryDokumentoversikt(final String ident, final List<String> tema) {
@@ -70,6 +74,9 @@ public class DokumentoversiktSelvbetjeningService {
                 .foerste(9999)
                 .visFeilregistrerte(false)
                 .build());
+
+        //todo: Legg til utledtilgnagsservice + liste av aktoerIds
+        //utledTilgangService.utledTilgangJournalpost(finnJournalposterResponseTo, aktoerIds);
 
         Map<FagomradeCode, List<JournalpostDto>> temaMap = finnJournalposterResponseTo.getTilgangJournalposter().stream()
                 .collect(groupingBy(JournalpostDto::getFagomrade));
