@@ -10,15 +10,17 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.pdl.IdentConsumer;
-import no.nav.safselvbetjening.consumer.sak.Arkivsak;
 import no.nav.safselvbetjening.consumer.sak.ArkivsakConsumer;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
+import no.nav.safselvbetjening.service.BrukerIdenter;
+import no.nav.safselvbetjening.service.IdentService;
+import no.nav.safselvbetjening.service.Sak;
+import no.nav.safselvbetjening.service.SakService;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -34,17 +36,23 @@ public class DokumentoversiktSelvbetjeningService {
     private final SafSelvbetjeningProperties safSelvbetjeningProperties;
     private final IdentConsumer identConsumer;
     private final ArkivsakConsumer arkivsakConsumer;
+    private final IdentService identService;
+    private final SakService sakService;
     private final FagarkivConsumer fagarkivConsumer;
     private final JournalpostMapper journalpostMapper;
 
     public DokumentoversiktSelvbetjeningService(final SafSelvbetjeningProperties safSelvbetjeningProperties,
                                                 final IdentConsumer identConsumer,
                                                 final ArkivsakConsumer arkivsakConsumer,
+                                                final IdentService identService,
+                                                final SakService sakService,
                                                 final FagarkivConsumer fagarkivConsumer,
                                                 final JournalpostMapper journalpostMapper) {
         this.safSelvbetjeningProperties = safSelvbetjeningProperties;
         this.identConsumer = identConsumer;
         this.arkivsakConsumer = arkivsakConsumer;
+        this.identService = identService;
+        this.sakService = sakService;
         this.fagarkivConsumer = fagarkivConsumer;
         this.journalpostMapper = journalpostMapper;
     }
@@ -54,25 +62,27 @@ public class DokumentoversiktSelvbetjeningService {
         if (isBlank(ident)) {
             return Dokumentoversikt.notFound();
         }
-        final List<String> aktoerIds = identConsumer.hentAktoerIder(ident);
-        if (aktoerIds.isEmpty()) {
+
+        BrukerIdenter brukerIdenter = identService.hentIdenter(ident);
+        if (brukerIdenter.isEmpty()) {
             return Dokumentoversikt.notFound();
         }
-        // FIXME hent pensjonssaker
-        final List<Arkivsak> arkivsaker = arkivsakConsumer.hentSaker(aktoerIds, tema);
-        if (arkivsaker.isEmpty()) {
+        final List<Sak> saker = sakService.hentSaker(brukerIdenter, tema);
+        if (saker.isEmpty()) {
             return Dokumentoversikt.empty();
         }
 
         FinnJournalposterResponseTo finnJournalposterResponseTo = fagarkivConsumer.finnJournalposter(FinnJournalposterRequestTo.builder()
-                .alleIdenter(Collections.singletonList(ident))
-                .gsakSakIds(arkivsaker.stream().map(s -> s.getId().toString()).collect(Collectors.toList()))
+                .alleIdenter(brukerIdenter.getFoedselsnummer())
+                .gsakSakIds(saker.stream().map(s -> s.getArkivsakId()).collect(Collectors.toList()))
                 .fraDato(safSelvbetjeningProperties.getTidligstInnsynDato())
                 .inkluderJournalpostType(Arrays.asList(JournalpostTypeCode.values()))
                 .inkluderJournalStatus(Arrays.asList(JournalStatusCode.MO, JournalStatusCode.MO, JournalStatusCode.J, JournalStatusCode.E, JournalStatusCode.FL, JournalStatusCode.FS))
                 .foerste(9999)
                 .visFeilregistrerte(false)
                 .build());
+
+        // tilgangskontroll
 
         Map<FagomradeCode, List<JournalpostDto>> temaMap = finnJournalposterResponseTo.getTilgangJournalposter().stream()
                 .collect(groupingBy(JournalpostDto::getFagomrade));
