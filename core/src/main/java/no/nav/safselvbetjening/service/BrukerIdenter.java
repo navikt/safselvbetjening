@@ -1,15 +1,14 @@
 package no.nav.safselvbetjening.service;
 
-import lombok.Getter;
 import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Joakim Bjørnstad, Jbit AS
  */
-@Getter
 public class BrukerIdenter {
     private final List<String> aktoerIds = new ArrayList<>();
     private final List<String> foedselsnummer = new ArrayList<>();
@@ -28,6 +27,14 @@ public class BrukerIdenter {
                     break;
             }
         }
+    }
+
+    public List<String> getAktoerIds() {
+        return Collections.unmodifiableList(aktoerIds);
+    }
+
+    public List<String> getFoedselsnummer() {
+        return Collections.unmodifiableList(aktoerIds);
     }
 
     public boolean isEmpty() {

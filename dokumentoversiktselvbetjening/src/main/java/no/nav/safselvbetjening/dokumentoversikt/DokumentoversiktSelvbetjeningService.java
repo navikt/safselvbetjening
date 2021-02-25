@@ -16,8 +16,8 @@ import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
-import no.nav.safselvbetjening.service.Sak;
 import no.nav.safselvbetjening.service.SakService;
+import no.nav.safselvbetjening.service.Saker;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -63,18 +63,19 @@ public class DokumentoversiktSelvbetjeningService {
             return Dokumentoversikt.notFound();
         }
 
-        BrukerIdenter brukerIdenter = identService.hentIdenter(ident);
+        final BrukerIdenter brukerIdenter = identService.hentIdenter(ident);
         if (brukerIdenter.isEmpty()) {
             return Dokumentoversikt.notFound();
         }
-        final List<Sak> saker = sakService.hentSaker(brukerIdenter, tema);
-        if (saker.isEmpty()) {
+        final Saker saker = sakService.hentSaker(brukerIdenter, tema);
+        if (saker.isNone()) {
             return Dokumentoversikt.empty();
         }
 
         FinnJournalposterResponseTo finnJournalposterResponseTo = fagarkivConsumer.finnJournalposter(FinnJournalposterRequestTo.builder()
                 .alleIdenter(brukerIdenter.getFoedselsnummer())
-                .gsakSakIds(saker.stream().map(s -> s.getArkivsakId()).collect(Collectors.toList()))
+                .psakSakIds(saker.getPensjonSakIds())
+                .gsakSakIds(saker.getArkivSakIds())
                 .fraDato(safSelvbetjeningProperties.getTidligstInnsynDato())
                 .inkluderJournalpostType(Arrays.asList(JournalpostTypeCode.values()))
                 .inkluderJournalStatus(Arrays.asList(JournalStatusCode.MO, JournalStatusCode.MO, JournalStatusCode.J, JournalStatusCode.E, JournalStatusCode.FL, JournalStatusCode.FS))
