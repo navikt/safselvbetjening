@@ -34,7 +34,7 @@ public class BrukerIdenter {
     }
 
     public List<String> getFoedselsnummer() {
-        return Collections.unmodifiableList(aktoerIds);
+        return Collections.unmodifiableList(foedselsnummer);
     }
 
     public boolean isEmpty() {

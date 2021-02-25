@@ -17,8 +17,8 @@ public class Saker {
         this.arkivsaker = arkivsaker.stream()
                 .map(s -> Sak.builder().arkivsakId(s.getId().toString()).tema(s.getTema()).build())
                 .collect(Collectors.toList());
-        this.pensjonsaker = arkivsaker.stream()
-                .map(s -> Sak.builder().arkivsakId(s.getId().toString()).tema(s.getTema()).build())
+        this.pensjonsaker = pensjonsaker.stream()
+                .map(s -> Sak.builder().arkivsakId(s.getSakNr()).tema(s.getTema()).build())
                 .collect(Collectors.toList());
     }
 
