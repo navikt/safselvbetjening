@@ -27,6 +27,7 @@
         <pensjon-sak-v1-tjenestespesifikasjon.version>1.2019.09.25-00.21-49b69f0625e0
         </pensjon-sak-v1-tjenestespesifikasjon.version>
         <cxf.version>3.4.2</cxf.version>
+        <jakarta.xml.ws-api.version>2.3.3</jakarta.xml.ws-api.version>
         <lombok.version>1.18.16</lombok.version>
     </properties>
 
@@ -71,6 +72,11 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-security</artifactId>
                 <version>${cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.ws</groupId>
+                <artifactId>jakarta.xml.ws-api</artifactId>
+                <version>${jakarta.xml.ws-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
