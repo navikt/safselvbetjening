@@ -6,6 +6,8 @@
   "SAFSELVBETJENING_ENDPOINTS_PDL": "https://pdl-api.nais.adeo.no/graphql",
   "SAFSELVBETJENING_ENDPOINTS_SAK": "https://sak.nais.adeo.no/api/v1/saker",
   "SAFSELVBETJENING_ENDPOINTS_FAGARKIV": "https://dokarkiv.nais.adeo.no/hentjournalsakinfo",
+  "SAFSELVBETJENING_ENDPOINTS_PENSJON": "https://pensjon-pen.nais.adeo.no/pen/services/PensjonSak_v1",
+  "SAFSELVBETJENING_ENDPOINTS_SAMLSTS": "https://sts.adeo.no/SecurityTokenServiceProvider/",
   "INGRESSES": [
     "https://safselvbetjening.nais.adeo.no"
   ]
