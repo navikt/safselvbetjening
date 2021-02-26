@@ -9,8 +9,6 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
-import no.nav.safselvbetjening.consumer.pdl.IdentConsumer;
-import no.nav.safselvbetjening.consumer.sak.ArkivsakConsumer;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
@@ -34,23 +32,17 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Component
 public class DokumentoversiktSelvbetjeningService {
     private final SafSelvbetjeningProperties safSelvbetjeningProperties;
-    private final IdentConsumer identConsumer;
-    private final ArkivsakConsumer arkivsakConsumer;
     private final IdentService identService;
     private final SakService sakService;
     private final FagarkivConsumer fagarkivConsumer;
     private final JournalpostMapper journalpostMapper;
 
     public DokumentoversiktSelvbetjeningService(final SafSelvbetjeningProperties safSelvbetjeningProperties,
-                                                final IdentConsumer identConsumer,
-                                                final ArkivsakConsumer arkivsakConsumer,
                                                 final IdentService identService,
                                                 final SakService sakService,
                                                 final FagarkivConsumer fagarkivConsumer,
                                                 final JournalpostMapper journalpostMapper) {
         this.safSelvbetjeningProperties = safSelvbetjeningProperties;
-        this.identConsumer = identConsumer;
-        this.arkivsakConsumer = arkivsakConsumer;
         this.identService = identService;
         this.sakService = sakService;
         this.fagarkivConsumer = fagarkivConsumer;
