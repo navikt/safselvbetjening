@@ -41,7 +41,7 @@ public class SakService {
         try {
             return arkivsakConsumer.hentSaker(aktoerIds, tema);
         } catch (ConsumerFunctionalException | ConsumerTechnicalException e) {
-            log.info("Henting av arkivsaker feilet. ", e);
+            log.warn("Henting av arkivsaker feilet. ", e);
             return new ArrayList<>();
         }
     }
@@ -58,7 +58,7 @@ public class SakService {
             }
             return allePensjonSaker;
         } catch (ConsumerFunctionalException | ConsumerTechnicalException e) {
-            log.info("Henting av pensjonssaker feilet. ", e);
+            log.warn("Henting av pensjonssaker feilet. ", e);
             return new ArrayList<>();
         }
     }

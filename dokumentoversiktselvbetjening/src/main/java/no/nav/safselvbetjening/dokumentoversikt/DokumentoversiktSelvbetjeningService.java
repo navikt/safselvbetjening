@@ -91,7 +91,7 @@ public class DokumentoversiktSelvbetjeningService {
                 .map(this::mapSakstema)
                 .sorted(Comparator.comparing(Sakstema::getKode))
                 .collect(Collectors.toList());
-        log.info("dokumentoversiktSelvbetjening hentet dokumentoversikt til person. sakstema={}, journalposter={}", sakstema.size(),
+        log.info("dokumentoversiktSelvbetjening hentet dokumentoversikt til person. antall_tema={}, antall_journalposter={}", sakstema.size(),
                 finnJournalposterResponseTo.getTilgangJournalposter().size());
         return Dokumentoversikt.builder()
                 .tema(sakstema)
