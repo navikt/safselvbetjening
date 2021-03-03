@@ -17,6 +17,10 @@
             <groupId>no.nav.safselvbetjening</groupId>
             <artifactId>dokumentoversiktselvbetjening</artifactId>
         </dependency>
+        <dependency>
+            <groupId>no.nav.safselvbetjening</groupId>
+            <artifactId>hentdokument</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

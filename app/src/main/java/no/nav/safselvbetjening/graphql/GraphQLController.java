@@ -46,10 +46,10 @@ public class GraphQLController {
         ExecutionResult executionResult =
                 GraphQL.newGraphQL(graphQLSchema).build()
                         .execute(ExecutionInput.newExecutionInput()
-                        .query(request.getQuery())
-                        .operationName(request.getOperationName())
-                        .variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
-                        .build());
+                                .query(request.getQuery())
+                                .operationName(request.getOperationName())
+                                .variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
+                                .build());
         return executionResult.toSpecification();
     }
 }

@@ -18,12 +18,16 @@
         <module>app</module>
         <module>core</module>
         <module>dokumentoversiktselvbetjening</module>
+        <module>hentdokument</module>
     </modules>
 
     <properties>
         <java.version>11</java.version>
         <graphql-java.version>16.1</graphql-java.version>
         <logstash-logback-encoder.version>6.6</logstash-logback-encoder.version>
+        <pensjon-sak-v1-tjenestespesifikasjon.version>1.2019.09.25-00.21-49b69f0625e0
+        </pensjon-sak-v1-tjenestespesifikasjon.version>
+        <cxf.version>3.4.2</cxf.version>
         <lombok.version>1.18.16</lombok.version>
     </properties>
 
@@ -45,6 +49,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>no.nav.safselvbetjening</groupId>
+                <artifactId>hentdokument</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.graphql-java</groupId>
                 <artifactId>graphql-java</artifactId>
                 <version>${graphql-java.version}</version>
@@ -53,6 +62,21 @@
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>
                 <version>${logstash-logback-encoder.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.tjenestespesifikasjoner</groupId>
+                <artifactId>pensjon-sak-v1-tjenestespesifikasjon</artifactId>
+                <version>${pensjon-sak-v1-tjenestespesifikasjon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-spring-boot-starter-jaxws</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-ws-security</artifactId>
+                <version>${cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>

@@ -39,6 +39,16 @@ public class SafSelvbetjeningProperties {
          */
         @NotEmpty
         private String fagarkiv;
+        /**
+         * URL til PensjonSak_v1 SOAP tjenesten.
+         */
+        @NotEmpty
+        private String pensjon;
+        /**
+         * URL til SAML STS tjenesten. Veksler UsernameToken til SAML token.
+         */
+        @NotEmpty
+        private String samlsts;
     }
 
     @Data
