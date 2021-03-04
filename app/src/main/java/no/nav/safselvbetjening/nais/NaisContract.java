@@ -3,6 +3,7 @@ package no.nav.safselvbetjening.nais;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RestController
+@Unprotected
 public class NaisContract {
     private static final String APPLICATION_ALIVE = "Application is alive!";
     private static final String APPLICATION_READY = "Application is ready for traffic!";

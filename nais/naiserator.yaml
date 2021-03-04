@@ -58,4 +58,12 @@ spec:
     application:
       enabled: true
       tenant: {{AZURE_TENANT}}
+  tokenx:
+    enabled: true
+    accessPolicy:
+      inbound:
+        rules:
+          - application: mine-saker-api
+            namespace: personbruker
+            cluster: {{GCP_CLUSTER}}
   webproxy: true

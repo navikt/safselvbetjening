@@ -8,6 +8,7 @@
   "SAFSELVBETJENING_ENDPOINTS_FAGARKIV": "https://dokarkiv.nais.adeo.no/hentjournalsakinfo",
   "SAFSELVBETJENING_ENDPOINTS_PENSJON": "https://pensjon-pen.nais.adeo.no/pen/services/PensjonSak_v1",
   "SAFSELVBETJENING_ENDPOINTS_SAMLSTS": "https://sts.adeo.no/SecurityTokenServiceProvider/",
+  "GCP_CLUSTER": "prod-gcp",
   "INGRESSES": [
     "https://safselvbetjening.nais.adeo.no"
   ]
