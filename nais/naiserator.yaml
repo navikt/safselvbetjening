@@ -24,7 +24,7 @@ spec:
     - name: SAFSELVBETJENING_PROXY_HOST
       value: {{SAFSELVBETJENING_PROXY_HOST}}
     - name: SAFSELVBETJENING_PROXY_PORT
-      value: {{SAFSELVBETJENING_PROXY_PORT}}
+      value: "{{SAFSELVBETJENING_PROXY_PORT}}"
   ingresses:
     {{#each INGRESSES}}
        - {{this}}
