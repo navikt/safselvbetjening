@@ -21,6 +21,10 @@ spec:
       value: {{SAFSELVBETJENING_ENDPOINTS_PENSJON}}
     - name: SAFSELVBETJENING_ENDPOINTS_SAMLSTS
       value: {{SAFSELVBETJENING_ENDPOINTS_SAMLSTS}}
+    - name: SAFSELVBETJENING_PROXY_HOST
+      value: {{SAFSELVBETJENING_PROXY_HOST}}
+    - name: SAFSELVBETJENING_PROXY_PORT
+      value: {{SAFSELVBETJENING_PROXY_PORT}}
   ingresses:
     {{#each INGRESSES}}
        - {{this}}
@@ -66,4 +70,3 @@ spec:
           - application: mine-saker-api
             namespace: personbruker
             cluster: {{GCP_CLUSTER}}
-  webproxy: true
