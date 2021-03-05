@@ -9,12 +9,16 @@ import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.RelevantDato;
+import no.nav.safselvbetjening.tilgang.UtledTilgangDokumentService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.STATUS_OK;
 
 /**
  * Mapper fra fagarkivet sitt domene til safselvbetjening sitt domene.
@@ -23,10 +27,13 @@ import java.util.stream.Collectors;
  */
 @Component
 public class JournalpostMapper {
-    private final AvsenderMottakerMapper avsenderMottakerMapper;
 
-    public JournalpostMapper(AvsenderMottakerMapper avsenderMottakerMapper) {
+    private final AvsenderMottakerMapper avsenderMottakerMapper;
+    private final UtledTilgangDokumentService utledTilgangDokumentService;
+
+    public JournalpostMapper(AvsenderMottakerMapper avsenderMottakerMapper, UtledTilgangDokumentService utledTilgangDokumentService) {
         this.avsenderMottakerMapper = avsenderMottakerMapper;
+        this.utledTilgangDokumentService = utledTilgangDokumentService;
     }
 
     Journalpost map(JournalpostDto journalpostDto) {
@@ -38,26 +45,28 @@ public class JournalpostMapper {
                 .kanal(mapKanal(journalpostDto))
                 .avsenderMottaker(avsenderMottakerMapper.map(journalpostDto))
                 .relevanteDatoer(mapRelevanteDatoer(journalpostDto))
-                .dokumenter(mapDokumenter(journalpostDto.getDokumenter()))
+                .dokumenter(mapDokumenter(journalpostDto))
                 .build();
     }
 
-    private List<DokumentInfo> mapDokumenter(List<DokumentInfoDto> dokumenter) {
+    private List<DokumentInfo> mapDokumenter(JournalpostDto journalpostDto) {
+        List<DokumentInfoDto> dokumenter = journalpostDto.getDokumenter();
         return dokumenter.stream().map(d -> DokumentInfo.builder()
                 .dokumentInfoId(d.getDokumentInfoId())
-                .dokumentvarianter(mapDokumentVarianter(d.getVarianter()))
+                .dokumentvarianter(mapDokumentVarianter(d, journalpostDto))
                 .tittel(d.getTittel())
                 .brevkode(d.getBrevkode())
         .build()).collect(Collectors.toList());
     }
 
-    private List<Dokumentvariant> mapDokumentVarianter(List<VariantDto> varianter) {
+    private List<Dokumentvariant> mapDokumentVarianter(DokumentInfoDto dokumentInfoDto, JournalpostDto journalpostDto) {
+        List<VariantDto> varianter = dokumentInfoDto.getVarianter();
+
         return varianter.stream().map(v -> Dokumentvariant.builder()
                 .variantformat(v.getVariantf().getSafVariantformat())
                 .filuuid(v.getFiluuid())
-                // FIXME tilgangskontroll
-                .brukerHarTilgang(true)
-                .code(Arrays.asList("ok"))
+                .brukerHarTilgang(hasBrukerTilgang(journalpostDto, dokumentInfoDto))
+                .code(returnFeilmeldingListe(journalpostDto, dokumentInfoDto))
                 .build()).collect(Collectors.toList());
     }
 
@@ -122,5 +131,14 @@ public class JournalpostMapper {
                 return relevanteDatoer;
         }
         return relevanteDatoer;
+    }
+
+    private boolean hasBrukerTilgang(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto){
+        return utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto).isEmpty();
+    }
+
+    private List<String> returnFeilmeldingListe(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto){
+        return utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto).isEmpty()
+                ? Collections.singletonList(STATUS_OK) : utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto);
     }
 }

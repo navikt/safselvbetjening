@@ -16,7 +16,7 @@ import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.service.SakService;
 import no.nav.safselvbetjening.service.Saker;
-import no.nav.safselvbetjening.tilgang.UtledTilgangService;
+import no.nav.safselvbetjening.tilgang.UtledTilgangJournalpostService;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -37,20 +37,20 @@ public class DokumentoversiktSelvbetjeningService {
     private final SakService sakService;
     private final FagarkivConsumer fagarkivConsumer;
     private final JournalpostMapper journalpostMapper;
-    private final UtledTilgangService utledTilgangService;
+    private final UtledTilgangJournalpostService utledTilgangJournalpostService;
 
     public DokumentoversiktSelvbetjeningService(final SafSelvbetjeningProperties safSelvbetjeningProperties,
                                                 final IdentService identService,
                                                 final SakService sakService,
                                                 final FagarkivConsumer fagarkivConsumer,
                                                 final JournalpostMapper journalpostMapper,
-                                                final UtledTilgangService utledTilgangService) {
+                                                final UtledTilgangJournalpostService utledTilgangJournalpostService) {
         this.safSelvbetjeningProperties = safSelvbetjeningProperties;
         this.identService = identService;
         this.sakService = sakService;
         this.fagarkivConsumer = fagarkivConsumer;
         this.journalpostMapper = journalpostMapper;
-        this.utledTilgangService = utledTilgangService;
+        this.utledTilgangJournalpostService = utledTilgangJournalpostService;
     }
 
     public Dokumentoversikt queryDokumentoversikt(final String ident, final List<String> tema) {
@@ -79,10 +79,7 @@ public class DokumentoversiktSelvbetjeningService {
                 .visFeilregistrerte(false)
                 .build());
 
-        // tilgangskontroll
-
-        //todo: Legg til utledtilgnagsservice + liste av aktoerIds
-        //utledTilgangService.utledTilgangJournalpost(finnJournalposterResponseTo, aktoerIds);
+        finnJournalposterResponseTo.setTilgangJournalposter(utledTilgangJournalpostService.utledTilgangJournalpost(finnJournalposterResponseTo.getTilgangJournalposter(), brukerIdenter));
 
         Map<FagomradeCode, List<JournalpostDto>> temaMap = finnJournalposterResponseTo.getTilgangJournalposter().stream()
                 .collect(groupingBy(JournalpostDto::getFagomrade));
