@@ -12,6 +12,7 @@
   "SAFSELVBETJENING_PROXY_PORT": "8088",
   "GCP_CLUSTER": "prod-gcp",
   "INGRESSES": [
-    "https://safselvbetjening.nais.adeo.no"
+    "https://safselvbetjening.nais.adeo.no",
+    "https://safselvbetjening.prod-fss-pub.nais.io"
   ]
 }
