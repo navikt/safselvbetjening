@@ -3,6 +3,7 @@ package no.nav.safselvbetjening.rest;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.hentdokument.HentDokument;
 import no.nav.safselvbetjening.hentdokument.HentDokumentService;
+import no.nav.security.token.support.core.api.Protected;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 @RestController
 @RequestMapping("rest/")
 @Slf4j
+@Protected
 public class HentDokumentController {
 	private final HentDokumentService hentDokumentService;
 
