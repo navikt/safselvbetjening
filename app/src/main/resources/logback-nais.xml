@@ -23,12 +23,4 @@
     <logger name="no.nav.safselvbetjening" level="INFO" additivity="false">
         <appender-ref ref="stdout_json"/>
     </logger>
-
-    <logger name="no.nav" level="DEBUG" additivity="false">
-        <appender-ref ref="stdout_json"/>
-    </logger>
-
-    <logger name="com.nimbusds" level="DEBUG" additivity="false">
-        <appender-ref ref="stdout_json"/>
-    </logger>
 </included>
