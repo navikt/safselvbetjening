@@ -8,14 +8,12 @@ import graphql.schema.idl.SchemaGenerator;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.security.token.support.core.api.Unprotected;
+import no.nav.security.token.support.core.api.Protected;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.InputStreamReader;
@@ -30,32 +28,30 @@ import java.util.Objects;
  */
 @Controller
 @Slf4j
-@Unprotected
+@Protected
 public class GraphQLController {
-    private final GraphQLSchema graphQLSchema;
+	private final GraphQLSchema graphQLSchema;
 
-    @Autowired
-    public GraphQLController(GraphQLWiring graphQLWiring) {
-        SchemaParser schemaParser = new SchemaParser();
-        InputStreamReader schema = new InputStreamReader(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("schemas/safselvbetjening.graphqls")));
+	@Autowired
+	public GraphQLController(GraphQLWiring graphQLWiring) {
+		SchemaParser schemaParser = new SchemaParser();
+		InputStreamReader schema = new InputStreamReader(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("schemas/safselvbetjening.graphqls")));
 
-        TypeDefinitionRegistry typeRegistry = schemaParser.parse(schema);
-        SchemaGenerator schemaGenerator = new SchemaGenerator();
-        this.graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, graphQLWiring.createRuntimeWiring());
-    }
+		TypeDefinitionRegistry typeRegistry = schemaParser.parse(schema);
+		SchemaGenerator schemaGenerator = new SchemaGenerator();
+		this.graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, graphQLWiring.createRuntimeWiring());
+	}
 
-    @PostMapping(value = "/graphql", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public Map<String, Object> graphQLRequest(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-            @RequestBody GraphQLRequest request) {
-        log.info("{}", token);
-        ExecutionResult executionResult =
-                GraphQL.newGraphQL(graphQLSchema).build()
-                        .execute(ExecutionInput.newExecutionInput()
-                                .query(request.getQuery())
-                                .operationName(request.getOperationName())
-                                .variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
-                                .build());
-        return executionResult.toSpecification();
-    }
+	@PostMapping(value = "/graphql", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Map<String, Object> graphQLRequest(@RequestBody GraphQLRequest request) {
+		ExecutionResult executionResult =
+				GraphQL.newGraphQL(graphQLSchema).build()
+						.execute(ExecutionInput.newExecutionInput()
+								.query(request.getQuery())
+								.operationName(request.getOperationName())
+								.variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
+								.build());
+		return executionResult.toSpecification();
+	}
 }
