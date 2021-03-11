@@ -30,28 +30,28 @@ import java.util.Objects;
 @Slf4j
 @Protected
 public class GraphQLController {
-    private final GraphQLSchema graphQLSchema;
+	private final GraphQLSchema graphQLSchema;
 
-    @Autowired
-    public GraphQLController(GraphQLWiring graphQLWiring) {
-        SchemaParser schemaParser = new SchemaParser();
-        InputStreamReader schema = new InputStreamReader(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("schemas/safselvbetjening.graphqls")));
+	@Autowired
+	public GraphQLController(GraphQLWiring graphQLWiring) {
+		SchemaParser schemaParser = new SchemaParser();
+		InputStreamReader schema = new InputStreamReader(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("schemas/safselvbetjening.graphqls")));
 
-        TypeDefinitionRegistry typeRegistry = schemaParser.parse(schema);
-        SchemaGenerator schemaGenerator = new SchemaGenerator();
-        this.graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, graphQLWiring.createRuntimeWiring());
-    }
+		TypeDefinitionRegistry typeRegistry = schemaParser.parse(schema);
+		SchemaGenerator schemaGenerator = new SchemaGenerator();
+		this.graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, graphQLWiring.createRuntimeWiring());
+	}
 
-    @PostMapping(value = "/graphql", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public Map<String, Object> graphQLRequest(@RequestBody GraphQLRequest request) {
-        ExecutionResult executionResult =
-                GraphQL.newGraphQL(graphQLSchema).build()
-                        .execute(ExecutionInput.newExecutionInput()
-                                .query(request.getQuery())
-                                .operationName(request.getOperationName())
-                                .variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
-                                .build());
-        return executionResult.toSpecification();
-    }
+	@PostMapping(value = "/graphql", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Map<String, Object> graphQLRequest(@RequestBody GraphQLRequest request) {
+		ExecutionResult executionResult =
+				GraphQL.newGraphQL(graphQLSchema).build()
+						.execute(ExecutionInput.newExecutionInput()
+								.query(request.getQuery())
+								.operationName(request.getOperationName())
+								.variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
+								.build());
+		return executionResult.toSpecification();
+	}
 }
