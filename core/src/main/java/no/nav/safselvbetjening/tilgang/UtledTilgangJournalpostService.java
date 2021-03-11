@@ -5,25 +5,37 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.domain.Tema;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import org.springframework.stereotype.Component;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.FS22;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.E;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FL;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FS;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.J;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.M;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.MO;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode.N;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode.FEIL;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode.POL;
 
+
+/**
+ * Regler for tilgangskontroll for journalposter: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
+ */
 @Component
 public class UtledTilgangJournalpostService {
+
+	private static final EnumSet<JournalStatusCode> JOURNALSTATUS_FERDIGSTILT = EnumSet.of(FL, FS, J, E);
+	private static final EnumSet<JournalStatusCode> JOURNALSTATUS_MIDLERTIDIG = EnumSet.of(M, MO);
+	private static final EnumSet<SkjermingTypeCode> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
 
 	public UtledTilgangJournalpostService() {
 	}
@@ -31,63 +43,76 @@ public class UtledTilgangJournalpostService {
 	public List<JournalpostDto> utledTilgangJournalpost(List<JournalpostDto> journalpostDtoList, BrukerIdenter identer) {
 
 		return journalpostDtoList.stream()
-				.filter(journalpostDto -> isBrukerPart(journalpostDto, identer.getIdenter()))
-				.filter(journalpostDto -> isJournalpostFerdigstiltOrMidlertidig(journalpostDto.getJournalstatus()))
-				.filter(journalpostDto -> !isJournalpostKontrollsak(journalpostDto))
-				.filter(journalpostDto -> !isJournalpostGDPRRestricted(journalpostDto.getSkjerming()))
-				.filter(journalpostDto -> !isJournalpostForvantningsnotat(journalpostDto))
-				.filter(journalpostDto -> !isJournalpostOrganInternt(journalpostDto))
+				.filter(journalpostDto -> isBrukerPart(journalpostDto, identer))
+				.filter(this::isNotJournalpostGDPRRestricted)
+				.filter(this::isJournalpostFerdigstiltOrMidlertidig)
+				.filter(this::isNotJournalpostKontrollsak)
+				.filter(this::isNotJournalpostForvaltningsnotat)
+				.filter(this::isNotJournalpostOrganInternt)
 				.collect(Collectors.toList());
 	}
 
-	private boolean isBrukerPart(JournalpostDto journalpostDto, List<String> aktoerIds) {
+	/**
+	 * 1a) Bruker må være part for å se journalposter
+	 */
+	private boolean isBrukerPart(JournalpostDto journalpostDto, BrukerIdenter identer) {
 
 		JournalStatusCode journalStatusCode = journalpostDto.getJournalstatus();
 
-		if (journalStatusCode == M || journalStatusCode == MO) {
-			return aktoerIds.contains(journalpostDto.getBruker().getBrukerId());
-		} else if (journalStatusCode == FS || journalStatusCode == FL || journalStatusCode == J || journalStatusCode == E) {
-			if (journalpostDto.getSaksrelasjon().getFagsystem() == FagsystemCode.FS22) {
-				return aktoerIds.contains(journalpostDto.getSaksrelasjon().getAktoerId());
+		if (JOURNALSTATUS_MIDLERTIDIG.contains(journalStatusCode)) {
+			return identer.getIdenter().contains(journalpostDto.getBruker().getBrukerId());
+		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalStatusCode)) {
+			if (journalpostDto.getSaksrelasjon().getFagsystem() == FS22) {
+				return identer.getIdenter().contains(journalpostDto.getSaksrelasjon().getAktoerId());
 			} else if (journalpostDto.getSaksrelasjon().getFagsystem() == FagsystemCode.PEN) {
-				//todo: Sjekk brukers identer mot PSAK-ident (hva er PSAK-ident?) Riktig?
-				return aktoerIds.contains(journalpostDto.getBruker().getBrukerId());
+				return identer.getFoedselsnummer().contains(journalpostDto.getBruker().getBrukerId());
 			}
 		}
 		return false;
 	}
 
-	private boolean isJournalpostFerdigstiltOrMidlertidig(JournalStatusCode journalStatusCode) {
-		return journalStatusCode == M || journalStatusCode == MO || journalStatusCode == J || journalStatusCode == FS
-				|| journalStatusCode == FL || journalStatusCode == E;
+	/**
+	 * 1c) Bruker får kun se ferdigstilte journalposter
+	 */
+	private boolean isJournalpostFerdigstiltOrMidlertidig(JournalpostDto journalpostDto) {
+		return JOURNALSTATUS_FERDIGSTILT.contains(journalpostDto.getJournalstatus()) || JOURNALSTATUS_MIDLERTIDIG.contains(journalpostDto.getJournalstatus());
 	}
 
-	private boolean isJournalpostKontrollsak(JournalpostDto journalpostDto) {
+	/**
+	 * 1e) Bruker får ikke innsyn i kontrollsaker
+	 */
+	private boolean isNotJournalpostKontrollsak(JournalpostDto journalpostDto) {
 		JournalStatusCode journalStatusCode = journalpostDto.getJournalstatus();
 
-		if (journalStatusCode == M || journalStatusCode == MO) {
-			return journalpostDto.getFagomrade() == FagomradeCode.KTR;
-		} else if (journalStatusCode == FL || journalStatusCode == J || journalStatusCode == FS || journalStatusCode == E) {
-			return journalpostDto.getSaksrelasjon().getTema().equals(Tema.KTR.toString());
+		if (JOURNALSTATUS_MIDLERTIDIG.contains(journalStatusCode)) {
+			return journalpostDto.getFagomrade() != FagomradeCode.KTR;
+		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalStatusCode)) {
+			return !journalpostDto.getSaksrelasjon().getTema().equals(Tema.KTR.toString());
 		}
-		return false;
+		return true;
 	}
 
-	private boolean isJournalpostGDPRRestricted(SkjermingTypeCode skjermingTypeCode) {
-		return skjermingTypeCode == SkjermingTypeCode.POL || skjermingTypeCode == SkjermingTypeCode.FEIL;
+	/**
+	 * 1f) Bruker kan ikke få se journalposter som er begrenset ihht. gdpr
+	 */
+	private boolean isNotJournalpostGDPRRestricted(JournalpostDto journalpostDto) {
+		return !GDPR_SKJERMING_TYPE.contains(journalpostDto.getSkjerming());
 	}
 
-	private boolean isJournalpostForvantningsnotat(JournalpostDto journalpostDto) {
-		if (journalpostDto.getJournalposttype() == JournalpostTypeCode.N) {
-			return FORVALTNINGSNOTAT.equals(journalpostDto.getDokumenter().get(0).getKategori());
-			//sjekkes om noen av underliggende dokumenter har dokumentkategori "forvaltningsnotat"
-			//Isåfall journalpost + dokumenter ikke vises
-			//NB: Alle notater har kun ett dokument, så dette kan enten implementeres som en "sjekk alle underliggende dokumenter" eller "sjekk hoveddokument"-regel - gjør det enkleste.
+	/**
+	 * 1g) Hvis journalpost er notat må hoveddokumentet være markert som "forvaltningsnotat" for å vise journalposten.
+	 */
+	private boolean isNotJournalpostForvaltningsnotat(JournalpostDto journalpostDto) {
+		if (journalpostDto.getJournalposttype() == N) {
+			return !FORVALTNINGSNOTAT.equals(journalpostDto.getDokumenter().get(0).getKategori());
 		}
-		return false;
+		return true;
 	}
 
-	private boolean isJournalpostOrganInternt(JournalpostDto journalpostDto) {
-		return journalpostDto.getDokumenter().stream().anyMatch(DokumentInfoDto::getOrganInternt);
+	/**
+	 * 1h) Journalposter som har organinterne dokumenter skal ikke vises
+	 */
+	private boolean isNotJournalpostOrganInternt(JournalpostDto journalpostDto) {
+		return journalpostDto.getDokumenter().stream().noneMatch(DokumentInfoDto::getOrganInternt);
 	}
 }

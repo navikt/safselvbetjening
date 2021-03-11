@@ -39,8 +39,9 @@ public class BrukerIdenter {
         return Collections.unmodifiableList(foedselsnummer);
     }
 
-    public List<String> getIdenter() { return Stream.concat(getAktoerIds().stream(), getFoedselsnummer().stream())
-            .collect(Collectors.toList());}
+    public List<String> getIdenter() {
+    	return Stream.concat(getAktoerIds().stream(), getFoedselsnummer().stream()).collect(Collectors.toList());
+    }
 
     public boolean isEmpty() {
         return aktoerIds.isEmpty() && foedselsnummer.isEmpty();

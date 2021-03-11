@@ -6,38 +6,36 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.service.BrukerIdenter;
-import no.nav.safselvbetjening.service.IdentService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode.SKAN_IM;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode.SKAN_NETS;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode.SKAN_PEN;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode.FEIL;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode.POL;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.GDPR;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INNSKRENKET_PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.KASSERT;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKANNET_DOKUMENT;
 
+/**
+ * Regler for tilgangskontroll for journalposter: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
+ */
 @Component
 public class UtledTilgangDokumentService {
 
-	private final IdentService identService;
+	private static final EnumSet<MottaksKanalCode> ACCAPTED_MOTTAKS_KANAL = EnumSet.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
+	private static final EnumSet<SkjermingTypeCode> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
 
-
-	public UtledTilgangDokumentService(IdentService identService) {
-		this.identService = identService;
-	}
-
-	public List<String> utledTilgangDokument(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto) {
+	public List<String> utledTilgangDokument(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto, BrukerIdenter brukerIdenter) {
 		List<String> feilmeldinger = new ArrayList<>();
 
-		//Todo: Blir dette riktige identer?
-		BrukerIdenter brukerIdenter = identService.hentIdenter(journalpostDto.getBruker().getBrukerId());
-
-		if (!isAvsenderMotakerPart(journalpostDto, brukerIdenter.getIdenter())) {
+		if (!isAvsenderMottakerPart(journalpostDto, brukerIdenter.getIdenter())) {
 			feilmeldinger.add(PARTSINNSYN);
 		}
 		if (isSkannetDokument(journalpostDto)) {
@@ -56,40 +54,42 @@ public class UtledTilgangDokumentService {
 		return feilmeldinger;
 	}
 
-	/*public List<DokumentInfoDto> utledTilgangDokumenter(JournalpostDto journalpostDto, List<String> idents) {
-		List<DokumentInfoDto> dokumentInfoDtoList = journalpostDto.getDokumenter();
-		return dokumentInfoDtoList.stream()
-				.filter(dokumentInfoDto -> isAvsenderMotakerPart(journalpostDto, idents))
-				.filter(dokumentInfoDto -> !isSkannetDokument(journalpostDto))
-				.filter(this::isDokumentInnskrenketPartsinnsyn)
-				.filter(this::isDokumentGDPRRestricted)
-				.filter(this::isDokumentKassert)
-				.collect(Collectors.toList());
-	}*/
-
-	private boolean isAvsenderMotakerPart(JournalpostDto journalpostDto, List<String> idents) {
+	/**
+	 * 2a) Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
+	 */
+	private boolean isAvsenderMottakerPart(JournalpostDto journalpostDto, List<String> idents) {
 		if (journalpostDto.getJournalposttype() != JournalpostTypeCode.N) {
 			return idents.contains(journalpostDto.getAvsenderMottakerId());
 		}
 		return true;
 	}
 
+	/**
+	 * 2b) Bruker får ikke se skannede dokumenter
+	 */
 	private boolean isSkannetDokument(JournalpostDto journalpostDto) {
-		MottaksKanalCode mottaksKanalCode = journalpostDto.getMottakskanal();
-		return mottaksKanalCode == SKAN_IM || mottaksKanalCode == SKAN_NETS || mottaksKanalCode == SKAN_PEN;
+		return ACCAPTED_MOTTAKS_KANAL.contains(journalpostDto.getMottakskanal());
 	}
 
+	/**
+	 * 2d) Dokumenter markert som innskrenketPartsinnsyn skal ikke vises
+	 */
 	private boolean isDokumentInnskrenketPartsinnsyn(DokumentInfoDto dokumentInfoDto) {
-		return dokumentInfoDto.getInnskrPartsinnsyn();
-		//todo: Mangler innskr_partsinnsyn_tredjepart
-		//Dersom innskr_partsinnsyn eller innskr_partsinnsyn_tredjepart er satt på dokumentet, skal det ikke vises.
+		return (dokumentInfoDto.getInnskrPartsinnsyn() != null && dokumentInfoDto.getInnskrPartsinnsyn()) ||
+				(dokumentInfoDto.getInnskrTredjepart() != null && dokumentInfoDto.getInnskrTredjepart());
 	}
 
+	/**
+	 * 2e) Dokumenter som er begrenset ihht. gdpr skal ikke vises
+	 */
 	private boolean isDokumentGDPRRestricted(DokumentInfoDto dokumentInfoDto) {
-		return dokumentInfoDto.getVarianter().stream().anyMatch(variantDto -> (variantDto.getSkjerming() == SkjermingTypeCode.POL || variantDto.getSkjerming() == SkjermingTypeCode.FEIL));
+		return dokumentInfoDto.getVarianter().stream().anyMatch(variantDto -> GDPR_SKJERMING_TYPE.contains(variantDto.getSkjerming()));
 	}
 
+	/**
+	 * 2f) Kasserte dokumenter skal ikke vises
+	 */
 	private boolean isDokumentKassert(DokumentInfoDto dokumentInfoDto) {
-		return dokumentInfoDto.getKassert();
+		return dokumentInfoDto.getKassert() != null && dokumentInfoDto.getKassert();
 	}
 }
