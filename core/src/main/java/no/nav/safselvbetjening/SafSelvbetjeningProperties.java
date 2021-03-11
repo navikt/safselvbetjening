@@ -7,6 +7,8 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 @Data
 @ConfigurationProperties("safselvbetjening")
 @Validated
@@ -14,6 +16,7 @@ public class SafSelvbetjeningProperties {
 
     private final Endpoints endpoints = new Endpoints();
     private final Serviceuser serviceuser = new Serviceuser();
+    private final Proxy proxy = new Proxy();
 
     /**
      * Cut-off dato for innsyn fra innbygger. Dokumenter før denne dato skal ikke hentes eller vises.
@@ -66,5 +69,16 @@ public class SafSelvbetjeningProperties {
         @NotEmpty
         @ToString.Exclude
         private String password;
+    }
+
+    @Data
+    @Validated
+    public static class Proxy {
+        private String host;
+        private int port;
+
+        public boolean isSet() {
+            return isNotBlank(host);
+        }
     }
 }
