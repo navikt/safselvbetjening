@@ -57,15 +57,18 @@ public class DokumentoversiktSelvbetjeningService {
     public Dokumentoversikt queryDokumentoversikt(final String ident, final List<String> tema) {
         log.info("dokumentoversiktSelvbetjening henter dokumentoversikt til person.");
         if (isBlank(ident)) {
+            log.info("dokumentoversiktSelvbetjening hentet dokumentoversikt til person. Ingen ident i input til query.");
             return Dokumentoversikt.notFound();
         }
 
         final BrukerIdenter brukerIdenter = identService.hentIdenter(ident);
         if (brukerIdenter.isEmpty()) {
+            log.info("dokumentoversiktSelvbetjening hentet dokumentoversikt til person. Finner ingen identer på person.");
             return Dokumentoversikt.notFound();
         }
         final Saker saker = sakService.hentSaker(brukerIdenter, tema);
         if (saker.isNone()) {
+            log.info("dokumentoversiktSelvbetjening hentet dokumentoversikt til person. Person har ingen saker.");
             return Dokumentoversikt.empty();
         }
 
