@@ -29,7 +29,7 @@ import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKANNET_DOK
 @Component
 public class UtledTilgangDokumentService {
 
-	private static final EnumSet<MottaksKanalCode> ACCAPTED_MOTTAKS_KANAL = EnumSet.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
+	private static final EnumSet<MottaksKanalCode> ACCEPTED_MOTTAKS_KANAL = EnumSet.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
 	private static final EnumSet<SkjermingTypeCode> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
 
 	public List<String> utledTilgangDokument(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto, BrukerIdenter brukerIdenter) {
@@ -68,7 +68,7 @@ public class UtledTilgangDokumentService {
 	 * 2b) Bruker får ikke se skannede dokumenter
 	 */
 	private boolean isSkannetDokument(JournalpostDto journalpostDto) {
-		return ACCAPTED_MOTTAKS_KANAL.contains(journalpostDto.getMottakskanal());
+		return ACCEPTED_MOTTAKS_KANAL.contains(journalpostDto.getMottakskanal());
 	}
 
 	/**
