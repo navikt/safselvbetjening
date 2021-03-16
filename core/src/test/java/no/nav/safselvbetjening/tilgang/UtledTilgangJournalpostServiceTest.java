@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.tilgang;
 
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.BrukerDto;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -8,8 +9,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.B;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.BID;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.KTR;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.FS22;
@@ -31,7 +30,6 @@ import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.IDENT;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_KTR;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_PEN;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.brukerIdenter;
-import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.createDokumentinfoDtoJournalpost;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.createJournalpostDtoBase;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.createJournalpostDtoJournalpost;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.createJournalpostDtoWithJournalstatus;
@@ -114,9 +112,8 @@ class UtledTilgangJournalpostServiceTest {
 	}
 
 	@Test
-	void shouldNotReturnJournalpostWhenJournalpostIsForvaltningsnotat() {
+	void shouldNotReturnJournalpostWhenJournalpostIsNotatAndNotForvaltningsnotat() {
 		JournalpostDto journalpostDto = createJournalpostDtoJournalpost(M, TEMA_PEN, PEN, IDENT, BID, N);
-		journalpostDto.setDokumenter(List.of(createDokumentinfoDtoJournalpost(false, FORVALTNINGSNOTAT)));
 
 		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(journalpostDto), brukerIdenter);
 
@@ -126,7 +123,7 @@ class UtledTilgangJournalpostServiceTest {
 	@Test
 	void shouldNotReturnJournalpostWhenJournalpostIsOrganinternt() {
 		JournalpostDto journalpostDto = createJournalpostDtoBase();
-		journalpostDto.setDokumenter(List.of(createDokumentinfoDtoJournalpost(true, B)));
+		journalpostDto.setDokumenter(List.of(DokumentInfoDto.builder().organInternt(true).build()));
 
 		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(journalpostDto), brukerIdenter);
 

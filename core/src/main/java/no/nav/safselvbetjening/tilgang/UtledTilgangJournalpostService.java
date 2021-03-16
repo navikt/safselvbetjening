@@ -1,6 +1,5 @@
 package no.nav.safselvbetjening.tilgang;
 
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
@@ -44,7 +43,7 @@ public class UtledTilgangJournalpostService {
 				.filter(this::isNotJournalpostGDPRRestricted)
 				.filter(this::isJournalpostFerdigstiltOrMidlertidig)
 				.filter(this::isNotJournalpostKontrollsak)
-				.filter(this::isNotJournalpostForvaltningsnotat)
+				.filter(this::isJournalpostForvaltningsnotat)
 				.filter(this::isNotJournalpostOrganInternt)
 				.collect(Collectors.toList());
 	}
@@ -99,9 +98,9 @@ public class UtledTilgangJournalpostService {
 	/**
 	 * 1g) Hvis journalpost er notat må hoveddokumentet være markert som "forvaltningsnotat" for å vise journalposten.
 	 */
-	private boolean isNotJournalpostForvaltningsnotat(JournalpostDto journalpostDto) {
+	private boolean isJournalpostForvaltningsnotat(JournalpostDto journalpostDto) {
 		if (journalpostDto.getJournalposttype() == N) {
-			return !FORVALTNINGSNOTAT.equals(journalpostDto.getDokumenter().get(0).getKategori());
+			return FORVALTNINGSNOTAT.equals(journalpostDto.getDokumenter().get(0).getKategori());
 		}
 		return true;
 	}
@@ -110,6 +109,6 @@ public class UtledTilgangJournalpostService {
 	 * 1h) Journalposter som har organinterne dokumenter skal ikke vises
 	 */
 	private boolean isNotJournalpostOrganInternt(JournalpostDto journalpostDto) {
-		return journalpostDto.getDokumenter().stream().noneMatch(DokumentInfoDto::getOrganInternt);
+		return journalpostDto.getDokumenter().stream().noneMatch(dokumentInfoDto -> dokumentInfoDto.getOrganInternt() != null && dokumentInfoDto.getOrganInternt());
 	}
 }

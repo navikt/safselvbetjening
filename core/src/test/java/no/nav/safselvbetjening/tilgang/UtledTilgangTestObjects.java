@@ -2,7 +2,6 @@ package no.nav.safselvbetjening.tilgang;
 
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.BrukerDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
@@ -59,7 +58,10 @@ public class UtledTilgangTestObjects {
 				.bruker(BrukerDto.builder()
 						.brukerId(brukerId)
 						.build())
-				.dokumenter(List.of(createDokumentinfoDtoJournalpost(false, SOK)))
+				.dokumenter(List.of(DokumentInfoDto.builder()
+						.organInternt(false)
+						.kategori(SOK)
+						.build()))
 				.build();
 	}
 
@@ -76,7 +78,10 @@ public class UtledTilgangTestObjects {
 				.bruker(BrukerDto.builder()
 						.brukerId(IDENT)
 						.build())
-				.dokumenter(List.of(createDokumentinfoDtoJournalpost(false, SOK)))
+				.dokumenter(List.of(DokumentInfoDto.builder()
+						.organInternt(false)
+						.kategori(SOK)
+						.build()))
 				.build();
 	}
 
@@ -94,13 +99,6 @@ public class UtledTilgangTestObjects {
 						.skjerming(skjermingTypeCode)
 						.build()))
 				.kassert(kassert)
-				.build();
-	}
-
-	static DokumentInfoDto createDokumentinfoDtoJournalpost(boolean organinternt, DokumentKategoriCode dokumentKategoriCode) {
-		return DokumentInfoDto.builder()
-				.organInternt(organinternt)
-				.kategori(dokumentKategoriCode)
 				.build();
 	}
 }
