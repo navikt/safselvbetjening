@@ -37,9 +37,6 @@ public class UtledTilgangJournalpostService {
 	private static final EnumSet<JournalStatusCode> JOURNALSTATUS_MIDLERTIDIG = EnumSet.of(M, MO);
 	private static final EnumSet<SkjermingTypeCode> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
 
-	public UtledTilgangJournalpostService() {
-	}
-
 	public List<JournalpostDto> utledTilgangJournalpost(List<JournalpostDto> journalpostDtoList, BrukerIdenter identer) {
 
 		return journalpostDtoList.stream()
