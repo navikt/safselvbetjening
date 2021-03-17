@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.FS22;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.E;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FL;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FS;
@@ -38,7 +39,7 @@ public class UtledTilgangJournalpostService {
 	private static final EnumSet<JournalStatusCode> JOURNALSTATUS_MIDLERTIDIG = EnumSet.of(M, MO);
 	private static final EnumSet<SkjermingTypeCode> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
 
-	public List<JournalpostDto> utledTilgangJournalpost(List<JournalpostDto> journalpostDtoList, BrukerIdenter identer) {
+	public List<JournalpostDto> utledTilgangJournalposter(List<JournalpostDto> journalpostDtoList, BrukerIdenter identer) {
 
 		return journalpostDtoList.stream()
 				.filter(journalpostDto -> isBrukerPart(journalpostDto, identer))
@@ -62,7 +63,7 @@ public class UtledTilgangJournalpostService {
 		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalStatusCode)) {
 			if (journalpostDto.getSaksrelasjon().getFagsystem() == FS22) {
 				return identer.getIdenter().contains(journalpostDto.getSaksrelasjon().getAktoerId());
-			} else if (journalpostDto.getSaksrelasjon().getFagsystem() == FagsystemCode.PEN) {
+			} else if (journalpostDto.getSaksrelasjon().getFagsystem() == PEN) {
 				return identer.getFoedselsnummer().contains(journalpostDto.getBruker().getBrukerId());
 			}
 		}

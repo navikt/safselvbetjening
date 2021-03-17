@@ -37,7 +37,8 @@ public class HentDokumentController {
 			@PathVariable String variantFormat,
 			@RequestHeader(value = NAV_CALLID, required = false) String navCallid) {
 		log.info("hentdokument har mottatt kall. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
-		HentDokument response = hentDokumentService.hentDokument(journalpostId, dokumentInfoId, variantFormat);
+		String ident = null; //todo: Må få inn ident på en eller annen måte
+		HentDokument response = hentDokumentService.hentDokument(journalpostId, dokumentInfoId, variantFormat, ident);
 		log.info("hentDokument hentet dokument. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
 
 		return ResponseEntity.ok()
