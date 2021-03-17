@@ -16,10 +16,12 @@ import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.service.SakService;
 import no.nav.safselvbetjening.service.Saker;
+import no.nav.safselvbetjening.tilgang.UtledTilgangJournalpostService;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,17 +38,20 @@ public class DokumentoversiktSelvbetjeningService {
     private final SakService sakService;
     private final FagarkivConsumer fagarkivConsumer;
     private final JournalpostMapper journalpostMapper;
+    private final UtledTilgangJournalpostService utledTilgangJournalpostService;
 
     public DokumentoversiktSelvbetjeningService(final SafSelvbetjeningProperties safSelvbetjeningProperties,
                                                 final IdentService identService,
                                                 final SakService sakService,
                                                 final FagarkivConsumer fagarkivConsumer,
-                                                final JournalpostMapper journalpostMapper) {
+                                                final JournalpostMapper journalpostMapper,
+                                                final UtledTilgangJournalpostService utledTilgangJournalpostService) {
         this.safSelvbetjeningProperties = safSelvbetjeningProperties;
         this.identService = identService;
         this.sakService = sakService;
         this.fagarkivConsumer = fagarkivConsumer;
         this.journalpostMapper = journalpostMapper;
+        this.utledTilgangJournalpostService = utledTilgangJournalpostService;
     }
 
     public Dokumentoversikt queryDokumentoversikt(final String ident, final List<String> tema) {
@@ -67,6 +72,11 @@ public class DokumentoversiktSelvbetjeningService {
             return Dokumentoversikt.empty();
         }
 
+        /**
+         * Regler tilgangskontroll journalpost: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
+         * 1b) Bruker får ikke se journalposter som er opprettet før 04.06.2016
+         * 1d) Bruker får ikke se feilregistrerte journalposter
+         */
         FinnJournalposterResponseTo finnJournalposterResponseTo = fagarkivConsumer.finnJournalposter(FinnJournalposterRequestTo.builder()
                 .alleIdenter(brukerIdenter.getFoedselsnummer())
                 .psakSakIds(saker.getPensjonSakIds())
@@ -78,30 +88,33 @@ public class DokumentoversiktSelvbetjeningService {
                 .visFeilregistrerte(false)
                 .build());
 
-        // tilgangskontroll
+        FinnJournalposterResponseTo finnJournalposterWithTilgang = new FinnJournalposterResponseTo();
 
-        Map<FagomradeCode, List<JournalpostDto>> temaMap = finnJournalposterResponseTo.getTilgangJournalposter().stream()
+        finnJournalposterWithTilgang.setTilgangJournalposter(utledTilgangJournalpostService.utledTilgangJournalpost(finnJournalposterResponseTo.getTilgangJournalposter(), brukerIdenter));
+
+        Map<FagomradeCode, List<JournalpostDto>> temaMap = finnJournalposterWithTilgang.getTilgangJournalposter().stream()
                 .collect(groupingBy(JournalpostDto::getFagomrade));
         List<Sakstema> sakstema = temaMap.entrySet().stream()
-                .map(this::mapSakstema)
+                .map(saksTema -> mapSakstema(saksTema, brukerIdenter))
                 .sorted(Comparator.comparing(Sakstema::getKode))
                 .collect(Collectors.toList());
         log.info("dokumentoversiktSelvbetjening hentet dokumentoversikt til person. antall_tema={}, antall_journalposter={}", sakstema.size(),
-                finnJournalposterResponseTo.getTilgangJournalposter().size());
+                finnJournalposterWithTilgang.getTilgangJournalposter().size());
         return Dokumentoversikt.builder()
                 .tema(sakstema)
                 .code("ok")
                 .build();
     }
 
-    private Sakstema mapSakstema(Map.Entry<FagomradeCode, List<JournalpostDto>> fagomradeCodeListEntry) {
+    private Sakstema mapSakstema(Map.Entry<FagomradeCode, List<JournalpostDto>> fagomradeCodeListEntry, BrukerIdenter brukerIdenter) {
         final Tema tema = FagomradeCode.toTema(fagomradeCodeListEntry.getKey());
         return Sakstema.builder()
                         .kode(tema.name())
                         .navn(tema.getTemanavn())
                         .journalposter(fagomradeCodeListEntry.getValue().stream()
                                 .filter(Objects::nonNull)
-                                .map(journalpostMapper::map).collect(Collectors.toList()))
+                                .map(journalpostDto -> journalpostMapper.map(journalpostDto, brukerIdenter))
+                                .collect(Collectors.toList()))
                         .build();
     }
 }

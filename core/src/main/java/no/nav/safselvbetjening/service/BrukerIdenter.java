@@ -5,6 +5,8 @@ import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Joakim Bjørnstad, Jbit AS
@@ -35,6 +37,10 @@ public class BrukerIdenter {
 
     public List<String> getFoedselsnummer() {
         return Collections.unmodifiableList(foedselsnummer);
+    }
+
+    public List<String> getIdenter() {
+    	return Stream.concat(getAktoerIds().stream(), getFoedselsnummer().stream()).collect(Collectors.toList());
     }
 
     public boolean isEmpty() {
