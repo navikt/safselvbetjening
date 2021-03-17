@@ -25,15 +25,17 @@ public class UtledTilgangTestObjects {
 
 	static final String IDENT = "12345678911";
 	static final String ANNEN_PART = "23456789101";
+	static final String AKTOER_ID = "10000000000";
+	static final String ANNEN_AKTOER_ID = "12000000000";
 	static final String TEMA_KTR = KTR.toString();
 	static final String TEMA_PEN = PEN.toString();
-	static final List<String> IDENT_LIST = List.of(IDENT);
+	static final List<String> IDENT_LIST = List.of(IDENT, AKTOER_ID);
 
 	static final BrukerIdenter brukerIdenter = Mockito.mock(BrukerIdenter.class);
 
 	static void mockBrukerIdenter() {
 		when(brukerIdenter.getIdenter()).thenReturn(IDENT_LIST);
-		when(brukerIdenter.getFoedselsnummer()).thenReturn(IDENT_LIST);
+		when(brukerIdenter.getFoedselsnummer()).thenReturn(List.of(IDENT));
 	}
 
 	static JournalpostDto createJournalpostDtoDokument(JournalpostTypeCode journalpostTypeCode, String avsenderMottakerId, MottaksKanalCode mottaksKanalCode) {
@@ -45,7 +47,7 @@ public class UtledTilgangTestObjects {
 	}
 
 	static JournalpostDto createJournalpostDtoJournalpost(JournalStatusCode journalStatusCode, String tema, FagsystemCode fagsystemCode,
-														  String brukerId, FagomradeCode fagomradeCode, JournalpostTypeCode journalpostTypeCode) {
+														  String brukerId, String aktoerId, FagomradeCode fagomradeCode, JournalpostTypeCode journalpostTypeCode) {
 		return JournalpostDto.builder()
 				.journalstatus(journalStatusCode)
 				.fagomrade(fagomradeCode)
@@ -53,7 +55,7 @@ public class UtledTilgangTestObjects {
 				.saksrelasjon(SaksrelasjonDto.builder()
 						.tema(tema)
 						.fagsystem(fagsystemCode)
-						.aktoerId(brukerId)
+						.aktoerId(aktoerId)
 						.build())
 				.bruker(BrukerDto.builder()
 						.brukerId(brukerId)
@@ -65,7 +67,7 @@ public class UtledTilgangTestObjects {
 				.build();
 	}
 
-	static JournalpostDto createJournalpostDtoBase() {
+	static JournalpostDto.JournalpostDtoBuilder createJournalpostDtoBase() {
 		return JournalpostDto.builder()
 				.journalstatus(JournalStatusCode.M)
 				.fagomrade(FagomradeCode.BID)
@@ -73,7 +75,7 @@ public class UtledTilgangTestObjects {
 				.saksrelasjon(SaksrelasjonDto.builder()
 						.tema(TEMA_PEN)
 						.fagsystem(FagsystemCode.PEN)
-						.aktoerId(IDENT)
+						.aktoerId(AKTOER_ID)
 						.build())
 				.bruker(BrukerDto.builder()
 						.brukerId(IDENT)
@@ -81,14 +83,11 @@ public class UtledTilgangTestObjects {
 				.dokumenter(List.of(DokumentInfoDto.builder()
 						.organInternt(false)
 						.kategori(SOK)
-						.build()))
-				.build();
+						.build()));
 	}
 
 	static JournalpostDto createJournalpostDtoWithJournalstatus(JournalStatusCode journalStatusCode) {
-		JournalpostDto journalpostDto = createJournalpostDtoBase();
-		journalpostDto.setJournalstatus(journalStatusCode);
-		return journalpostDto;
+		return createJournalpostDtoBase().journalstatus(journalStatusCode).build();
 	}
 
 	static DokumentInfoDto createDokumentinfoDtoDokument(boolean innskrenketPartsinnsyn, boolean innskrenketTredjepart, boolean kassert, SkjermingTypeCode skjermingTypeCode) {

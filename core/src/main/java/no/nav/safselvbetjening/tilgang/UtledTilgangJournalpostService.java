@@ -1,5 +1,6 @@
 package no.nav.safselvbetjening.tilgang;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
@@ -30,6 +31,7 @@ import static no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode
  * Regler for tilgangskontroll for journalposter: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
  */
 @Component
+@Slf4j
 public class UtledTilgangJournalpostService {
 
 	private static final EnumSet<JournalStatusCode> JOURNALSTATUS_FERDIGSTILT = EnumSet.of(FL, FS, J, E);
@@ -84,8 +86,10 @@ public class UtledTilgangJournalpostService {
 			return journalpostDto.getFagomrade() != FagomradeCode.KTR;
 		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalStatusCode)) {
 			return !journalpostDto.getSaksrelasjon().getTema().equals(Tema.KTR.toString());
+		} else {
+			log.warn("Journalpost med journalpostId={} har status={} og tilgang blir derfor avvist. Journalposter må ha status midlertidig eller ferdigstilt for at bruker skal få tilgang.", journalpostDto.getJournalpostId(), journalpostDto.getJournalstatus());
+			return false;
 		}
-		return true;
 	}
 
 	/**

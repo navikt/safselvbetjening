@@ -25,6 +25,8 @@ import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode.I;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode.N;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode.POL;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.AKTOER_ID;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_AKTOER_ID;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_PART;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.IDENT;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_KTR;
@@ -47,15 +49,14 @@ class UtledTilgangJournalpostServiceTest {
 
 	@Test
 	void UtledTilgangHappyPath() {
-		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(createJournalpostDtoBase()), brukerIdenter);
+		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(createJournalpostDtoBase().build()), brukerIdenter);
 
 		assertEquals(1, reducedJournalpostDtoList.size());
 	}
 
 	@Test
 	void shouldNotReturnJournalpostWhenJournalstatusMidlertidigAndBrukerNotPart() {
-		JournalpostDto journalpostDto = createJournalpostDtoBase();
-		journalpostDto.setBruker(BrukerDto.builder().brukerId(ANNEN_PART).build());
+		JournalpostDto journalpostDto = createJournalpostDtoBase().bruker(BrukerDto.builder().brukerId(ANNEN_PART).build()).build();
 
 		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(journalpostDto), brukerIdenter);
 
@@ -66,8 +67,8 @@ class UtledTilgangJournalpostServiceTest {
 	void shouldNotReturnJournalpostWhenJournalpostFerdigstiltAndBrukerNotPart() {
 		List<JournalpostDto> journalpostDtoList = new ArrayList<>();
 
-		journalpostDtoList.add(createJournalpostDtoJournalpost(FL, TEMA_PEN, FS22, ANNEN_PART, BID, I));
-		journalpostDtoList.add(createJournalpostDtoJournalpost(FS, TEMA_PEN, PEN, ANNEN_PART, BID, I));
+		journalpostDtoList.add(createJournalpostDtoJournalpost(FL, TEMA_PEN, FS22, ANNEN_PART, ANNEN_AKTOER_ID, BID, I));
+		journalpostDtoList.add(createJournalpostDtoJournalpost(FS, TEMA_PEN, PEN, ANNEN_PART, AKTOER_ID, BID, I));
 
 		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(journalpostDtoList, brukerIdenter);
 
@@ -76,8 +77,7 @@ class UtledTilgangJournalpostServiceTest {
 
 	@Test
 	void shouldNotReturnJournalpostWhenJournalpostGDPRRestricted() {
-		JournalpostDto journalpostDto = createJournalpostDtoBase();
-		journalpostDto.setSkjerming(POL);
+		JournalpostDto journalpostDto = createJournalpostDtoBase().skjerming(POL).build();
 
 		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(journalpostDto), brukerIdenter);
 
@@ -103,8 +103,8 @@ class UtledTilgangJournalpostServiceTest {
 	void shouldNotReturnJournalpostWhenJournalpostIsKontrollsak() {
 		List<JournalpostDto> journalpostDtoList = new ArrayList<>();
 
-		journalpostDtoList.add(createJournalpostDtoJournalpost(FS, TEMA_KTR, PEN, IDENT, BID, I));
-		journalpostDtoList.add(createJournalpostDtoJournalpost(MO, TEMA_PEN, PEN, IDENT, KTR, I));
+		journalpostDtoList.add(createJournalpostDtoJournalpost(FS, TEMA_KTR, PEN, IDENT, AKTOER_ID, BID, I));
+		journalpostDtoList.add(createJournalpostDtoJournalpost(MO, TEMA_PEN, PEN, IDENT, AKTOER_ID, KTR, I));
 
 		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(journalpostDtoList, brukerIdenter);
 
@@ -113,7 +113,7 @@ class UtledTilgangJournalpostServiceTest {
 
 	@Test
 	void shouldNotReturnJournalpostWhenJournalpostIsNotatAndNotForvaltningsnotat() {
-		JournalpostDto journalpostDto = createJournalpostDtoJournalpost(M, TEMA_PEN, PEN, IDENT, BID, N);
+		JournalpostDto journalpostDto = createJournalpostDtoJournalpost(M, TEMA_PEN, PEN, IDENT, AKTOER_ID, BID, N);
 
 		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(journalpostDto), brukerIdenter);
 
@@ -122,8 +122,7 @@ class UtledTilgangJournalpostServiceTest {
 
 	@Test
 	void shouldNotReturnJournalpostWhenJournalpostIsOrganinternt() {
-		JournalpostDto journalpostDto = createJournalpostDtoBase();
-		journalpostDto.setDokumenter(List.of(DokumentInfoDto.builder().organInternt(true).build()));
+		JournalpostDto journalpostDto = createJournalpostDtoBase().dokumenter(List.of(DokumentInfoDto.builder().organInternt(true).build())).build();
 
 		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(journalpostDto), brukerIdenter);
 
