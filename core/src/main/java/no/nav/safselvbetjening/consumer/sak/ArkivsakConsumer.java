@@ -1,5 +1,7 @@
 package no.nav.safselvbetjening.consumer.sak;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
@@ -23,6 +25,7 @@ import java.util.UUID;
 @Slf4j
 @Component
 public class ArkivsakConsumer {
+    private static final String ARKIVSAK_INSTANCE = "arkivsak";
     private static final String HEADER_SAK_CORRELATION_ID = "X-Correlation-ID";
 
     private final RestTemplate restTemplate;
@@ -39,6 +42,8 @@ public class ArkivsakConsumer {
                 .build();
     }
 
+    @Retry(name = ARKIVSAK_INSTANCE)
+    @CircuitBreaker(name = ARKIVSAK_INSTANCE)
     public List<Arkivsak> hentSaker(final List<String> aktoerId, final List<String> tema) {
         final UriComponentsBuilder uri = UriComponentsBuilder.fromHttpUrl(sakUrl)
                 .queryParam("aktoerId", aktoerId)

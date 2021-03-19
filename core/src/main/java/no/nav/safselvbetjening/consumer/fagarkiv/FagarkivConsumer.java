@@ -1,7 +1,9 @@
 package no.nav.safselvbetjening.consumer.fagarkiv;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import no.nav.safselvbetjening.NavHeaders;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
+import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
@@ -20,6 +23,7 @@ import java.util.UUID;
  */
 @Component
 public class FagarkivConsumer {
+	private static final String FAGARKIV_INSTANCE = "fagarkiv";
 	private final RestTemplate restTemplate;
 
 	@Autowired
@@ -34,14 +38,20 @@ public class FagarkivConsumer {
 				.build();
 	}
 
+	@CircuitBreaker(name = FAGARKIV_INSTANCE)
 	public FinnJournalposterResponseTo finnJournalposter(final FinnJournalposterRequestTo request) {
-		HttpEntity<FinnJournalposterRequestTo> requestEntity = new HttpEntity<>(request, createCorrelationIdHeader());
-		return restTemplate.exchange("/finnjournalposter",
-				HttpMethod.POST,
-				requestEntity,
-				FinnJournalposterResponseTo.class).getBody();
+		try {
+			HttpEntity<FinnJournalposterRequestTo> requestEntity = new HttpEntity<>(request, createCorrelationIdHeader());
+			return restTemplate.exchange("/finnjournalposter",
+					HttpMethod.POST,
+					requestEntity,
+					FinnJournalposterResponseTo.class).getBody();
+		} catch (HttpServerErrorException e) {
+			throw new ConsumerTechnicalException("Teknisk feil ved å finne journalpost for " + request, e);
+		}
 	}
 
+	@CircuitBreaker(name = FAGARKIV_INSTANCE)
 	public TilgangJournalpostResponseTo tilgangJournalpost(final String journalpostId, final String dokumentInfoId, final String variantFormat) {
 		return restTemplate.exchange("/henttilgangjournalpost/{journalpostId}/{dokumentInfoId}/{variantFormat}",
 				HttpMethod.GET,

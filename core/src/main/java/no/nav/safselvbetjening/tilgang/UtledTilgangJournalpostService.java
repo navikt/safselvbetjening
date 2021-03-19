@@ -85,7 +85,7 @@ public class UtledTilgangJournalpostService {
 		if (JOURNALSTATUS_MIDLERTIDIG.contains(journalStatusCode)) {
 			return journalpostDto.getFagomrade() != FagomradeCode.KTR;
 		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalStatusCode)) {
-			return !journalpostDto.getSaksrelasjon().getTema().equals(Tema.KTR.toString());
+			return !Tema.KTR.toString().equals(journalpostDto.getSaksrelasjon().getTema());
 		} else {
 			log.warn("Journalpost med journalpostId={} har status={} og tilgang blir derfor avvist. Journalposter må ha status midlertidig eller ferdigstilt for at bruker skal få tilgang.", journalpostDto.getJournalpostId(), journalpostDto.getJournalstatus());
 			return false;

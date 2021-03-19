@@ -1,5 +1,7 @@
 package no.nav.safselvbetjening.consumer.pdl;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.PersonIkkeFunnetException;
 import no.nav.safselvbetjening.consumer.azure.AzureTokenConsumer;
@@ -8,10 +10,8 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -29,6 +29,7 @@ import static java.util.Objects.requireNonNull;
  */
 @Component
 class PdlIdentConsumer implements IdentConsumer {
+    private static final String PDL_INSTANCE = "pdl";
     private static final String HEADER_PDL_NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
     private static final String PERSON_IKKE_FUNNET_CODE = "not_found";
 
@@ -47,9 +48,8 @@ class PdlIdentConsumer implements IdentConsumer {
         this.azureTokenConsumer = azureTokenConsumer;
     }
 
-    @Retryable(
-            include = HttpServerErrorException.class
-    )
+    @Retry(name = PDL_INSTANCE)
+    @CircuitBreaker(name = PDL_INSTANCE)
     @Override
     public List<PdlResponse.PdlIdent> hentIdenter(final String ident) throws PersonIkkeFunnetException {
         try {
