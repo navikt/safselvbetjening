@@ -5,6 +5,7 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +33,7 @@ public class UtledTilgangDokumentService {
 	private static final EnumSet<MottaksKanalCode> ACCEPTED_MOTTAKS_KANAL = EnumSet.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
 	private static final EnumSet<SkjermingTypeCode> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
 
-	public List<String> utledTilgangDokument(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto, BrukerIdenter brukerIdenter) {
+	public List<String> utledTilgangDokument(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto, BrukerIdenter brukerIdenter, VariantDto variantDto) {
 		List<String> feilmeldinger = new ArrayList<>();
 
 		if (!isAvsenderMottakerPart(journalpostDto, brukerIdenter.getIdenter())) {
@@ -44,7 +45,7 @@ public class UtledTilgangDokumentService {
 		if (isDokumentInnskrenketPartsinnsyn(dokumentInfoDto)) {
 			feilmeldinger.add(INNSKRENKET_PARTSINNSYN);
 		}
-		if (isDokumentGDPRRestricted(dokumentInfoDto)) {
+		if (isDokumentGDPRRestricted(variantDto)) {
 			feilmeldinger.add(GDPR);
 		}
 		if (isDokumentKassert(dokumentInfoDto)) {
@@ -82,8 +83,9 @@ public class UtledTilgangDokumentService {
 	/**
 	 * 2e) Dokumenter som er begrenset ihht. gdpr skal ikke vises
 	 */
-	private boolean isDokumentGDPRRestricted(DokumentInfoDto dokumentInfoDto) {
-		return dokumentInfoDto.getVarianter().stream().anyMatch(variantDto -> GDPR_SKJERMING_TYPE.contains(variantDto.getSkjerming()));
+	//todo: Skal være ulikt for variantformatet
+	private boolean isDokumentGDPRRestricted(VariantDto variantDto) {
+		return GDPR_SKJERMING_TYPE.contains(variantDto.getSkjerming());
 	}
 
 	/**

@@ -2,7 +2,6 @@ package no.nav.safselvbetjening.tilgang;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.FS22;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.E;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FL;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FS;
@@ -44,7 +42,6 @@ public class UtledTilgangJournalpostService {
 		return journalpostDtoList.stream()
 				.filter(journalpostDto -> isBrukerPart(journalpostDto, identer))
 				.filter(this::isNotJournalpostGDPRRestricted)
-				.filter(this::isJournalpostFerdigstiltOrMidlertidig)
 				.filter(this::isNotJournalpostKontrollsak)
 				.filter(this::isJournalpostForvaltningsnotat)
 				.filter(this::isNotJournalpostOrganInternt)
@@ -63,34 +60,25 @@ public class UtledTilgangJournalpostService {
 		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalStatusCode)) {
 			if (journalpostDto.getSaksrelasjon().getFagsystem() == FS22) {
 				return identer.getIdenter().contains(journalpostDto.getSaksrelasjon().getAktoerId());
-			} else if (journalpostDto.getSaksrelasjon().getFagsystem() == PEN) {
-				return identer.getFoedselsnummer().contains(journalpostDto.getBruker().getBrukerId());
-			}
+			} /*else if (journalpostDto.getSaksrelasjon().getFagsystem() == PEN) {
+				return identer.getFoedselsnummer().contains();//psakID);
+			}*///todo: psak ident er allerede hentet ut??
 		}
 		return false;
 	}
 
 	/**
-	 * 1c) Bruker får kun se ferdigstilte journalposter
-	 */
-	private boolean isJournalpostFerdigstiltOrMidlertidig(JournalpostDto journalpostDto) {
-		return JOURNALSTATUS_FERDIGSTILT.contains(journalpostDto.getJournalstatus()) || JOURNALSTATUS_MIDLERTIDIG.contains(journalpostDto.getJournalstatus());
-	}
-
-	/**
 	 * 1e) Bruker får ikke innsyn i kontrollsaker
 	 */
-	private boolean isNotJournalpostKontrollsak(JournalpostDto journalpostDto) {
+	private boolean isNotJournalpostKontrollsak(JournalpostDto journalpostDto) {		//finnes kun i FS22
 		JournalStatusCode journalStatusCode = journalpostDto.getJournalstatus();
 
 		if (JOURNALSTATUS_MIDLERTIDIG.contains(journalStatusCode)) {
 			return journalpostDto.getFagomrade() != FagomradeCode.KTR;
 		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalStatusCode)) {
 			return !journalpostDto.getSaksrelasjon().getTema().equals(Tema.KTR.toString());
-		} else {
-			log.warn("Journalpost med journalpostId={} har status={} og tilgang blir derfor avvist. Journalposter må ha status midlertidig eller ferdigstilt for at bruker skal få tilgang.", journalpostDto.getJournalpostId(), journalpostDto.getJournalstatus());
-			return false;
 		}
+		return false;
 	}
 
 	/**

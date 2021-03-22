@@ -40,7 +40,7 @@ class UtledTilgangDokumentServiceTest {
 		JournalpostDto journalpostDto = createJournalpostDtoDokument(I, IDENT, NAV_NO);
 		DokumentInfoDto dokumentInfoDto = createDokumentinfoDtoDokument(false, false, false, null);
 
-		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter);
+		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, dokumentInfoDto.getVarianter().get(0));
 
 		assertTrue(feilmeldinger.isEmpty());
 	}
@@ -50,7 +50,7 @@ class UtledTilgangDokumentServiceTest {
 		JournalpostDto journalpostDto = createJournalpostDtoDokument(N, ANNEN_PART, NAV_NO);
 		DokumentInfoDto dokumentInfoDto = createDokumentinfoDtoDokument(false, false, false, null);
 
-		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter);
+		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, dokumentInfoDto.getVarianter().get(0));
 
 		assertTrue(feilmeldinger.isEmpty());
 	}
@@ -60,7 +60,7 @@ class UtledTilgangDokumentServiceTest {
 		JournalpostDto journalpostDto = createJournalpostDtoDokument(I, ANNEN_PART, NAV_NO);
 		DokumentInfoDto dokumentInfoDto = createDokumentinfoDtoDokument(false, false, false, null);
 
-		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter);
+		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, dokumentInfoDto.getVarianter().get(0));
 
 		assertEquals(1, feilmeldinger.size());
 		assertEquals(PARTSINNSYN, feilmeldinger.get(0));
@@ -71,7 +71,7 @@ class UtledTilgangDokumentServiceTest {
 		JournalpostDto journalpostDto = createJournalpostDtoDokument(N, IDENT, SKAN_NETS);
 		DokumentInfoDto dokumentInfoDto = createDokumentinfoDtoDokument(false, false, false, null);
 
-		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter);
+		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, dokumentInfoDto.getVarianter().get(0));
 
 		assertEquals(1, feilmeldinger.size());
 		assertEquals(SKANNET_DOKUMENT, feilmeldinger.get(0));
@@ -82,7 +82,7 @@ class UtledTilgangDokumentServiceTest {
 		JournalpostDto journalpostDto = createJournalpostDtoDokument(N, IDENT, NAV_NO);
 		DokumentInfoDto dokumentInfoDto = createDokumentinfoDtoDokument(false, true, false, null);
 
-		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter);
+		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, dokumentInfoDto.getVarianter().get(0));
 
 		assertEquals(1, feilmeldinger.size());
 		assertEquals(INNSKRENKET_PARTSINNSYN, feilmeldinger.get(0));
@@ -93,7 +93,7 @@ class UtledTilgangDokumentServiceTest {
 		JournalpostDto journalpostDto = createJournalpostDtoDokument(N, IDENT, NAV_NO);
 		DokumentInfoDto dokumentInfoDto = createDokumentinfoDtoDokument(false, false, false, POL);
 
-		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter);
+		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, dokumentInfoDto.getVarianter().get(0));
 		assertEquals(1, feilmeldinger.size());
 		assertEquals(GDPR, feilmeldinger.get(0));
 	}
@@ -103,7 +103,7 @@ class UtledTilgangDokumentServiceTest {
 		JournalpostDto journalpostDto = createJournalpostDtoDokument(N, IDENT, NAV_NO);
 		DokumentInfoDto dokumentInfoDto = createDokumentinfoDtoDokument(false, false, true, null);
 
-		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter);
+		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, dokumentInfoDto.getVarianter().get(0));
 		assertEquals(1, feilmeldinger.size());
 		assertEquals(KASSERT, feilmeldinger.get(0));
 	}
@@ -113,7 +113,7 @@ class UtledTilgangDokumentServiceTest {
 		JournalpostDto journalpostDto = createJournalpostDtoDokument(I, ANNEN_PART, SKAN_NETS);
 		DokumentInfoDto dokumentInfoDto = createDokumentinfoDtoDokument(true, true, true, POL);
 
-		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter);
+		List<String> feilmeldinger = utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, dokumentInfoDto.getVarianter().get(0));
 		assertEquals(5, feilmeldinger.size());
 		assertTrue(feilmeldinger.contains(PARTSINNSYN));
 		assertTrue(feilmeldinger.contains(SKANNET_DOKUMENT));

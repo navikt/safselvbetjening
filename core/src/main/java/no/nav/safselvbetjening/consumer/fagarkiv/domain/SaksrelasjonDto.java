@@ -15,11 +15,11 @@ import java.time.ZonedDateTime;
 public class SaksrelasjonDto {
 	private String sakId;
 	private Boolean feilregistrert;
-	private FagsystemCode fagsystem;
+	private FagsystemCode fagsystem;	//arkivsaksystem - hvor finner du mer informasjon om saken
 	private final String aktoerId;
 	private final String tema;
 	private final String fagsakNr;
-	private final String applikasjon;
+	private final String applikasjon;	//fagsaksystem - finnes kun om fagsystem er FS22
 	private final String orgnr;
 	private final String opprettetAv;
 	private final ZonedDateTime opprettetTidspunkt;

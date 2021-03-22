@@ -74,6 +74,7 @@ public class DokumentoversiktSelvbetjeningService {
         /**
          * Regler tilgangskontroll journalpost: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
          * 1b) Bruker får ikke se journalposter som er opprettet før 04.06.2016
+         * 1c) Bruker får kun se ferdigstilte journalposter
          * 1d) Bruker får ikke se feilregistrerte journalposter
          */
         FinnJournalposterResponseTo finnJournalposterResponseTo = fagarkivConsumer.finnJournalposter(FinnJournalposterRequestTo.builder()
@@ -82,7 +83,7 @@ public class DokumentoversiktSelvbetjeningService {
                 .gsakSakIds(saker.getArkivSakIds())
                 .fraDato(safSelvbetjeningProperties.getTidligstInnsynDato())
                 .inkluderJournalpostType(Arrays.asList(JournalpostTypeCode.values()))
-                .inkluderJournalStatus(Arrays.asList(JournalStatusCode.MO, JournalStatusCode.MO, JournalStatusCode.J, JournalStatusCode.E, JournalStatusCode.FL, JournalStatusCode.FS))
+                .inkluderJournalStatus(Arrays.asList(JournalStatusCode.MO, JournalStatusCode.M, JournalStatusCode.J, JournalStatusCode.E, JournalStatusCode.FL, JournalStatusCode.FS))
                 .foerste(9999)
                 .visFeilregistrerte(false)
                 .build());

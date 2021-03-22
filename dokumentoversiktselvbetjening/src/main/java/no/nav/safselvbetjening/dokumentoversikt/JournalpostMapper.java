@@ -66,8 +66,8 @@ public class JournalpostMapper {
         return varianter.stream().map(v -> Dokumentvariant.builder()
                 .variantformat(v.getVariantf().getSafVariantformat())
                 .filuuid(v.getFiluuid())
-                .brukerHarTilgang(hasBrukerTilgang(journalpostDto, dokumentInfoDto, brukerIdenter))
-                .code(returnFeilmeldingListe(journalpostDto, dokumentInfoDto, brukerIdenter))
+                .brukerHarTilgang(hasBrukerTilgang(journalpostDto, dokumentInfoDto, brukerIdenter, v))
+                .code(returnFeilmeldingListe(journalpostDto, dokumentInfoDto, brukerIdenter, v))
                 .build()).collect(Collectors.toList());
     }
 
@@ -134,12 +134,12 @@ public class JournalpostMapper {
         return relevanteDatoer;
     }
 
-    private boolean hasBrukerTilgang(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto, BrukerIdenter brukerIdenter){
-        return utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter).isEmpty();
+    private boolean hasBrukerTilgang(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto, BrukerIdenter brukerIdenter, VariantDto variantDto){
+        return utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto).isEmpty();
     }
 
-    private List<String> returnFeilmeldingListe(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto, BrukerIdenter brukerIdenter){
-        return utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter).isEmpty()
-                ? Collections.singletonList(STATUS_OK) : utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter);
+    private List<String> returnFeilmeldingListe(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto, BrukerIdenter brukerIdenter, VariantDto variantDto){
+        return utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto).isEmpty()
+                ? Collections.singletonList(STATUS_OK) : utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto);
     }
 }
