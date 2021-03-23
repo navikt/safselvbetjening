@@ -9,14 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
-import java.util.UUID;
+
+import static no.nav.safselvbetjening.MDCUtils.getCallId;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 
 /**
  * @author Joakim Bjørnstad, Jbit AS
@@ -43,7 +45,7 @@ public class FagarkivConsumer {
 		try {
 			HttpEntity<FinnJournalposterRequestTo> requestEntity = new HttpEntity<>(request, createCorrelationIdHeader());
 			return restTemplate.exchange("/finnjournalposter",
-					HttpMethod.POST,
+					POST,
 					requestEntity,
 					FinnJournalposterResponseTo.class).getBody();
 		} catch (HttpServerErrorException e) {
@@ -54,7 +56,7 @@ public class FagarkivConsumer {
 	@CircuitBreaker(name = FAGARKIV_INSTANCE)
 	public TilgangJournalpostResponseTo tilgangJournalpost(final String journalpostId, final String dokumentInfoId, final String variantFormat) {
 		return restTemplate.exchange("/henttilgangjournalpost/{journalpostId}/{dokumentInfoId}/{variantFormat}",
-				HttpMethod.GET,
+				GET,
 				new HttpEntity<>(createCorrelationIdHeader()),
 				TilgangJournalpostResponseTo.class,
 				journalpostId, dokumentInfoId, variantFormat).getBody();
@@ -62,7 +64,7 @@ public class FagarkivConsumer {
 
 	public HentDokumentResponseTo hentDokument(final String dokumentInfoId, final String variantFormat) {
 		ResponseEntity<String> responseEntity = restTemplate.exchange("/hentdokument/{dokumentInfoId}/{variantFormat}",
-				HttpMethod.GET,
+				GET,
 				new HttpEntity<>(createCorrelationIdHeader()), String.class, dokumentInfoId, variantFormat);
 		return HentDokumentResponseTo.builder()
 				.dokument(responseEntity.getBody())
@@ -72,7 +74,7 @@ public class FagarkivConsumer {
 
 	private HttpHeaders createCorrelationIdHeader() {
 		HttpHeaders headers = new HttpHeaders();
-		headers.set(NavHeaders.NAV_CALLID, UUID.randomUUID().toString());
+		headers.set(NavHeaders.NAV_CALLID, getCallId());
 		return headers;
 	}
 }

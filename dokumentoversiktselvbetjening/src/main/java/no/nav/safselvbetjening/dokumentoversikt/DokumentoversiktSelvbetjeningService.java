@@ -14,7 +14,6 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
-import no.nav.safselvbetjening.graphql.ErrorCode;
 import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
@@ -34,6 +33,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
@@ -65,17 +65,17 @@ public class DokumentoversiktSelvbetjeningService {
 
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(ident);
 		if (brukerIdenter.isEmpty()) {
-			throw GraphQLException.of(ErrorCode.NOT_FOUND, environment, "Finner ingen identer på person.");
+			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen identer på person.");
 		}
 		final Saker saker = sakService.hentSaker(brukerIdenter, tema);
 		if (saker.isNone()) {
-			throw GraphQLException.of(ErrorCode.NOT_FOUND, environment, "Finner ingen saker på person.");
+			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen saker på person.");
 		}
 
-		/**
-		 * Regler tilgangskontroll journalpost: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
-		 * 1b) Bruker får ikke se journalposter som er opprettet før 04.06.2016
-		 * 1d) Bruker får ikke se feilregistrerte journalposter
+		/*
+		  Regler tilgangskontroll journalpost: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
+		  1b) Bruker får ikke se journalposter som er opprettet før 04.06.2016
+		  1d) Bruker får ikke se feilregistrerte journalposter
 		 */
 		FinnJournalposterResponseTo finnJournalposterResponseTo = fagarkivConsumer.finnJournalposter(FinnJournalposterRequestTo.builder()
 				.alleIdenter(brukerIdenter.getFoedselsnummer())
@@ -87,7 +87,6 @@ public class DokumentoversiktSelvbetjeningService {
 				.foerste(9999)
 				.visFeilregistrerte(false)
 				.build());
-
 
 		List<JournalpostDto> filtrerteJournalposter = utledTilgangJournalpostService.utledTilgangJournalpost(finnJournalposterResponseTo.getTilgangJournalposter(), brukerIdenter);
 

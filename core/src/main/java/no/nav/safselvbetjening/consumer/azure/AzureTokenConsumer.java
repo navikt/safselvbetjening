@@ -13,8 +13,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -23,6 +21,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 import java.util.Collections;
+
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 
 @Component
@@ -64,7 +66,7 @@ public class AzureTokenConsumer {
 					azureProperties.getClientId() + "&client_secret=" + azureProperties.getClientSecret();
 			HttpEntity<String> requestEntity = new HttpEntity<>(form, headers);
 
-			return restTemplate.exchange(azureProperties.getTokenUrl(), HttpMethod.POST, requestEntity, TokenResponse.class)
+			return restTemplate.exchange(azureProperties.getTokenUrl(), POST, requestEntity, TokenResponse.class)
 					.getBody();
 		} catch (HttpClientErrorException | HttpServerErrorException e) {
 			throw new AzureTokenException(String.format("Klarte ikke hente token fra Azure. Feilet med httpstatus=%s. Feilmelding=%s", e.getStatusCode(), e.getMessage()), e);
@@ -73,8 +75,8 @@ public class AzureTokenConsumer {
 
 	private HttpHeaders createHeaders() {
 		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.setContentType(APPLICATION_FORM_URLENCODED);
+		headers.setAccept(Collections.singletonList(APPLICATION_JSON));
 		return headers;
 	}
 }

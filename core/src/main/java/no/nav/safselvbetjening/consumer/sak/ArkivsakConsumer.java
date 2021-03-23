@@ -10,7 +10,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -20,7 +19,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.UUID;
+
+import static no.nav.safselvbetjening.MDCUtils.getCallId;
+import static org.springframework.http.HttpMethod.GET;
 
 @Slf4j
 @Component
@@ -54,8 +55,8 @@ public class ArkivsakConsumer {
     private List<Arkivsak> hentSaker(final String uri) {
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.set(HEADER_SAK_CORRELATION_ID, getOrGenerateCorrelationId());
-            ResponseEntity<List<Arkivsak>> response = restTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), new ParameterizedTypeReference<>() {
+            headers.set(HEADER_SAK_CORRELATION_ID, getCallId());
+            ResponseEntity<List<Arkivsak>> response = restTemplate.exchange(uri, GET, new HttpEntity<>(headers), new ParameterizedTypeReference<>() {
             });
             return response.getBody();
         } catch (HttpServerErrorException e) {
@@ -63,9 +64,5 @@ public class ArkivsakConsumer {
         } catch (HttpClientErrorException e) {
             throw new ConsumerFunctionalException("Funksjonell feil. Kunne ikke hente saker for bruker fra sak.", e);
         }
-    }
-
-    private String getOrGenerateCorrelationId() {
-        return UUID.randomUUID().toString();
     }
 }

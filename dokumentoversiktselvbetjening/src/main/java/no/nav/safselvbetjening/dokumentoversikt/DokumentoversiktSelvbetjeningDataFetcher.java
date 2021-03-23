@@ -6,7 +6,6 @@ import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Tema;
-import no.nav.safselvbetjening.graphql.ErrorCode;
 import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.graphql.GraphQLRequestContext;
 import org.slf4j.MDC;
@@ -17,6 +16,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static no.nav.safselvbetjening.MDCUtils.MDC_CALL_ID;
+import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
+import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
 
@@ -38,7 +40,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	public Object get(DataFetchingEnvironment environment) throws Exception {
 		try {
 			final GraphQLRequestContext graphQLRequestContext = environment.getContext();
-			MDC.put("callId", graphQLRequestContext.getNavCallId());
+			MDC.put(MDC_CALL_ID, graphQLRequestContext.getNavCallId());
 			final String ident = environment.getArgument("ident");
 			validateIdent(ident, environment);
 			final List<String> tema = temaArgument(environment);
@@ -53,7 +55,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		} catch (Exception e) {
 			log.error("Ukjent teknisk feil", e);
 			return DataFetcherResult.newResult()
-					.error(ErrorCode.SERVER_ERROR.construct(environment, "Ukjent teknisk feil."))
+					.error(SERVER_ERROR.construct(environment, "Ukjent teknisk feil."))
 					.build();
 		} finally {
 			MDC.clear();
@@ -62,11 +64,11 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 
 	private void validateIdent(final String ident, DataFetchingEnvironment environment) {
 		if (isBlank(ident)) {
-			throw GraphQLException.of(ErrorCode.BAD_REQUEST, environment, "Ident argumentet er blankt.");
+			throw GraphQLException.of(BAD_REQUEST, environment, "Ident argumentet er blankt.");
 		}
 
 		if (!isNumeric(ident)) {
-			throw GraphQLException.of(ErrorCode.BAD_REQUEST, environment, "Ident argumentet er ugyldig. " +
+			throw GraphQLException.of(BAD_REQUEST, environment, "Ident argumentet er ugyldig. " +
 					"Det må være et fødselsnummer eller en aktørid.");
 		}
 	}

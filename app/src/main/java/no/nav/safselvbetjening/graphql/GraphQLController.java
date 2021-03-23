@@ -8,10 +8,9 @@ import graphql.schema.idl.SchemaGenerator;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.security.token.support.core.api.Protected;
+import no.nav.security.token.support.core.api.Unprotected;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +25,7 @@ import java.util.UUID;
 
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * GraphQL endepunktet til applikasjonen.
@@ -34,7 +34,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  */
 @Controller
 @Slf4j
-@Protected
+@Unprotected
 public class GraphQLController {
 	private final GraphQLSchema graphQLSchema;
 	private final TokenValidationContextHolder tokenValidationContextHolder;
@@ -50,7 +50,7 @@ public class GraphQLController {
 		this.graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, graphQLWiring.createRuntimeWiring());
 	}
 
-	@PostMapping(value = "/graphql", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/graphql", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Map<String, Object> graphQLRequest(@RequestBody final GraphQLRequest request, final WebRequest webRequest) {
 			ExecutionResult executionResult =
