@@ -9,6 +9,7 @@ import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.token.support.core.api.Protected;
+import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -28,7 +29,7 @@ import java.util.Objects;
  */
 @Controller
 @Slf4j
-@Protected
+@Unprotected
 public class GraphQLController {
 	private final GraphQLSchema graphQLSchema;
 

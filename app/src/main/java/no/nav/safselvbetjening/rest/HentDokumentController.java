@@ -3,6 +3,7 @@ package no.nav.safselvbetjening.rest;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.hentdokument.HentDokument;
 import no.nav.safselvbetjening.hentdokument.HentDokumentService;
+import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.security.token.support.core.api.Protected;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -37,13 +38,17 @@ public class HentDokumentController {
 			@PathVariable String variantFormat,
 			@RequestHeader(value = NAV_CALLID, required = false) String navCallid) {
 		log.info("hentdokument har mottatt kall. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
-		String ident = null; //todo: Må få inn ident på en eller annen måte
-		HentDokument response = hentDokumentService.hentDokument(journalpostId, dokumentInfoId, variantFormat, ident);
-		log.info("hentDokument hentet dokument. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
+		try {
+			HentDokument response = hentDokumentService.hentDokument(journalpostId, dokumentInfoId, variantFormat);
+			log.info("hentDokument hentet dokument. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
 
-		return ResponseEntity.ok()
-				.contentType(response.getMediaType())
-				.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + dokumentInfoId + "_" + variantFormat + response.getExtension())
-				.body(response.getDokument());
+			return ResponseEntity.ok()
+					.contentType(response.getMediaType())
+					.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + dokumentInfoId + "_" + variantFormat + response.getExtension())
+					.body(response.getDokument());
+		} catch (HentTilgangDokumentException e) {
+			log.warn("Tilgang til dokument avvist. journalpostId={}, dokumentInfoId={}, variantFormat={}. Feilmelding={}", journalpostId, dokumentInfoId, variantFormat, e.getMessage());
+			throw e;
+		}
 	}
 }

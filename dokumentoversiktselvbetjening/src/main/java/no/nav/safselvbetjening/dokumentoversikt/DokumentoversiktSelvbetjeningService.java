@@ -16,7 +16,7 @@ import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.service.SakService;
 import no.nav.safselvbetjening.service.Saker;
-import no.nav.safselvbetjening.tilgang.UtledTilgangJournalpostService;
+import no.nav.safselvbetjening.tilgang.UtledTilgangDokumentoversiktService;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -37,20 +37,20 @@ public class DokumentoversiktSelvbetjeningService {
     private final SakService sakService;
     private final FagarkivConsumer fagarkivConsumer;
     private final JournalpostMapper journalpostMapper;
-    private final UtledTilgangJournalpostService utledTilgangJournalpostService;
+    private final UtledTilgangDokumentoversiktService utledTilgangDokumentoversiktService;
 
     public DokumentoversiktSelvbetjeningService(final SafSelvbetjeningProperties safSelvbetjeningProperties,
                                                 final IdentService identService,
                                                 final SakService sakService,
                                                 final FagarkivConsumer fagarkivConsumer,
                                                 final JournalpostMapper journalpostMapper,
-                                                final UtledTilgangJournalpostService utledTilgangJournalpostService) {
+                                                final UtledTilgangDokumentoversiktService utledTilgangDokumentoversiktService) {
         this.safSelvbetjeningProperties = safSelvbetjeningProperties;
         this.identService = identService;
         this.sakService = sakService;
         this.fagarkivConsumer = fagarkivConsumer;
         this.journalpostMapper = journalpostMapper;
-        this.utledTilgangJournalpostService = utledTilgangJournalpostService;
+        this.utledTilgangDokumentoversiktService = utledTilgangDokumentoversiktService;
     }
 
     public Dokumentoversikt queryDokumentoversikt(final String ident, final List<String> tema) {
@@ -65,6 +65,7 @@ public class DokumentoversiktSelvbetjeningService {
             log.info("dokumentoversiktSelvbetjening hentet dokumentoversikt til person. Finner ingen identer på person.");
             return Dokumentoversikt.notFound();
         }
+
         final Saker saker = sakService.hentSaker(brukerIdenter, tema);
         if (saker.isNone()) {
             log.info("dokumentoversiktSelvbetjening hentet dokumentoversikt til person. Person har ingen saker.");
@@ -90,7 +91,7 @@ public class DokumentoversiktSelvbetjeningService {
 
         FinnJournalposterResponseTo finnJournalposterWithTilgang = new FinnJournalposterResponseTo();
 
-        finnJournalposterWithTilgang.setTilgangJournalposter(utledTilgangJournalpostService.utledTilgangJournalposter(finnJournalposterResponseTo.getTilgangJournalposter(), brukerIdenter));
+        finnJournalposterWithTilgang.setTilgangJournalposter(utledTilgangDokumentoversiktService.utledTilgangJournalposter(finnJournalposterResponseTo.getTilgangJournalposter(), brukerIdenter));
 
         Map<FagomradeCode, List<JournalpostDto>> temaMap = finnJournalposterWithTilgang.getTilgangJournalposter().stream()
                 .collect(groupingBy(JournalpostDto::getFagomrade));

@@ -10,11 +10,10 @@ import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.RelevantDato;
 import no.nav.safselvbetjening.service.BrukerIdenter;
-import no.nav.safselvbetjening.tilgang.UtledTilgangDokumentService;
+import no.nav.safselvbetjening.tilgang.UtledTilgangDokumentoversiktService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,11 +29,11 @@ import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.STATUS_OK;
 public class JournalpostMapper {
 
     private final AvsenderMottakerMapper avsenderMottakerMapper;
-    private final UtledTilgangDokumentService utledTilgangDokumentService;
+    private final UtledTilgangDokumentoversiktService utledTilgangDokumentoversiktService;
 
-    public JournalpostMapper(AvsenderMottakerMapper avsenderMottakerMapper, UtledTilgangDokumentService utledTilgangDokumentService) {
+    public JournalpostMapper(AvsenderMottakerMapper avsenderMottakerMapper, UtledTilgangDokumentoversiktService utledTilgangDokumentoversiktService) {
         this.avsenderMottakerMapper = avsenderMottakerMapper;
-        this.utledTilgangDokumentService = utledTilgangDokumentService;
+        this.utledTilgangDokumentoversiktService = utledTilgangDokumentoversiktService;
     }
 
     Journalpost map(JournalpostDto journalpostDto, BrukerIdenter brukerIdenter) {
@@ -63,11 +62,11 @@ public class JournalpostMapper {
     private List<Dokumentvariant> mapDokumentVarianter(DokumentInfoDto dokumentInfoDto, JournalpostDto journalpostDto, BrukerIdenter brukerIdenter) {
         List<VariantDto> varianter = dokumentInfoDto.getVarianter();
 
-        return varianter.stream().map(v -> Dokumentvariant.builder()
-                .variantformat(v.getVariantf().getSafVariantformat())
-                .filuuid(v.getFiluuid())
-                .brukerHarTilgang(hasBrukerTilgang(journalpostDto, dokumentInfoDto, brukerIdenter, v))
-                .code(returnFeilmeldingListe(journalpostDto, dokumentInfoDto, brukerIdenter, v))
+        return varianter.stream().map(variantDto -> Dokumentvariant.builder()
+                .variantformat(variantDto.getVariantf().getSafVariantformat())
+                .filuuid(variantDto.getFiluuid())
+                .brukerHarTilgang(hasBrukerTilgang(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto))
+                .code(returnFeilmeldingListe(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto))
                 .build()).collect(Collectors.toList());
     }
 
@@ -135,11 +134,11 @@ public class JournalpostMapper {
     }
 
     private boolean hasBrukerTilgang(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto, BrukerIdenter brukerIdenter, VariantDto variantDto){
-        return utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto).isEmpty();
+        return utledTilgangDokumentoversiktService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto).isEmpty();
     }
 
     private List<String> returnFeilmeldingListe(JournalpostDto journalpostDto, DokumentInfoDto dokumentInfoDto, BrukerIdenter brukerIdenter, VariantDto variantDto){
-        return utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto).isEmpty()
-                ? Collections.singletonList(STATUS_OK) : utledTilgangDokumentService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto);
+        return utledTilgangDokumentoversiktService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto).isEmpty()
+                ? Collections.singletonList(STATUS_OK) : utledTilgangDokumentoversiktService.utledTilgangDokument(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto);
     }
 }

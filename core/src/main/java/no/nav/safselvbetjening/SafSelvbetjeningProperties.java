@@ -52,6 +52,11 @@ public class SafSelvbetjeningProperties {
          */
         @NotEmpty
         private String samlsts;
+        /**
+         * URL til PensjonSakRestconsumer.
+         */
+        @NotEmpty
+        private String pensjonsak;
     }
 
     @Data
