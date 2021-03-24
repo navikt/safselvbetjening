@@ -15,9 +15,6 @@ type Query {
 type Dokumentoversikt {
     # En liste av tema knyttet til bruker sine saker.
     tema: [Sakstema!]!
-
-    # Feilkode
-    code: String!
 }
 
 type Sakstema {
