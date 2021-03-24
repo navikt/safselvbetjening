@@ -2,6 +2,7 @@ package no.nav.safselvbetjening.consumer.fagarkiv;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.ToString;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 
@@ -20,6 +21,7 @@ public class FinnJournalposterRequestTo {
 	private final List<JournalStatusCode> inkluderJournalStatus;
 	private final List<JournalpostTypeCode> inkluderJournalpostType;
 	private final boolean visFeilregistrerte;
+	@ToString.Exclude
 	private final List<String> alleIdenter;
 	private final Integer foerste;
 	private final String etterPeker;

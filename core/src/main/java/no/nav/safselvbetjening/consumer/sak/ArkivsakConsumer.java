@@ -1,5 +1,7 @@
 package no.nav.safselvbetjening.consumer.sak;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
@@ -8,7 +10,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -18,11 +19,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.UUID;
+
+import static no.nav.safselvbetjening.MDCUtils.getCallId;
+import static org.springframework.http.HttpMethod.GET;
 
 @Slf4j
 @Component
 public class ArkivsakConsumer {
+    private static final String ARKIVSAK_INSTANCE = "arkivsak";
     private static final String HEADER_SAK_CORRELATION_ID = "X-Correlation-ID";
 
     private final RestTemplate restTemplate;
@@ -39,6 +43,8 @@ public class ArkivsakConsumer {
                 .build();
     }
 
+    @Retry(name = ARKIVSAK_INSTANCE)
+    @CircuitBreaker(name = ARKIVSAK_INSTANCE)
     public List<Arkivsak> hentSaker(final List<String> aktoerId, final List<String> tema) {
         final UriComponentsBuilder uri = UriComponentsBuilder.fromHttpUrl(sakUrl)
                 .queryParam("aktoerId", aktoerId)
@@ -49,8 +55,8 @@ public class ArkivsakConsumer {
     private List<Arkivsak> hentSaker(final String uri) {
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.set(HEADER_SAK_CORRELATION_ID, getOrGenerateCorrelationId());
-            ResponseEntity<List<Arkivsak>> response = restTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), new ParameterizedTypeReference<>() {
+            headers.set(HEADER_SAK_CORRELATION_ID, getCallId());
+            ResponseEntity<List<Arkivsak>> response = restTemplate.exchange(uri, GET, new HttpEntity<>(headers), new ParameterizedTypeReference<>() {
             });
             return response.getBody();
         } catch (HttpServerErrorException e) {
@@ -58,9 +64,5 @@ public class ArkivsakConsumer {
         } catch (HttpClientErrorException e) {
             throw new ConsumerFunctionalException("Funksjonell feil. Kunne ikke hente saker for bruker fra sak.", e);
         }
-    }
-
-    private String getOrGenerateCorrelationId() {
-        return UUID.randomUUID().toString();
     }
 }
