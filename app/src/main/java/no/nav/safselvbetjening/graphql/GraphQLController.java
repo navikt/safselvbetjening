@@ -9,32 +9,40 @@ import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.token.support.core.api.Protected;
+import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.WebRequest;
 
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
+
+import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * GraphQL endepunktet til applikasjonen.
  *
- * @author Ugur Alpay Cenar, Visma Consulting.
+ * @author Joakim Bjørnstad, Jbit AS
  */
 @Controller
 @Slf4j
-@Unprotected
+@Protected
 public class GraphQLController {
 	private final GraphQLSchema graphQLSchema;
+	private final TokenValidationContextHolder tokenValidationContextHolder;
 
 	@Autowired
-	public GraphQLController(GraphQLWiring graphQLWiring) {
+	public GraphQLController(GraphQLWiring graphQLWiring, TokenValidationContextHolder tokenValidationContextHolder) {
+		this.tokenValidationContextHolder = tokenValidationContextHolder;
 		SchemaParser schemaParser = new SchemaParser();
 		InputStreamReader schema = new InputStreamReader(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("schemas/safselvbetjening.graphqls")));
 
@@ -43,16 +51,24 @@ public class GraphQLController {
 		this.graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, graphQLWiring.createRuntimeWiring());
 	}
 
-	@PostMapping(value = "/graphql", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/graphql", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Map<String, Object> graphQLRequest(@RequestBody GraphQLRequest request) {
-		ExecutionResult executionResult =
-				GraphQL.newGraphQL(graphQLSchema).build()
-						.execute(ExecutionInput.newExecutionInput()
-								.query(request.getQuery())
-								.operationName(request.getOperationName())
-								.variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
-								.build());
-		return executionResult.toSpecification();
+	public Map<String, Object> graphQLRequest(@RequestBody final GraphQLRequest request, final WebRequest webRequest) {
+			ExecutionResult executionResult =
+					GraphQL.newGraphQL(graphQLSchema).build()
+							.execute(ExecutionInput.newExecutionInput()
+									.query(request.getQuery())
+									.operationName(request.getOperationName())
+									.variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
+									.context(createGraphQLContext(webRequest))
+									.build());
+			return executionResult.toSpecification();
+	}
+
+	GraphQLRequestContext createGraphQLContext(final WebRequest webRequest) {
+		return GraphQLRequestContext.builder()
+				.navCallId(isNotBlank(webRequest.getHeader(NAV_CALLID)) ? webRequest.getHeader(NAV_CALLID) : UUID.randomUUID().toString())
+				.tokenValidationContext(tokenValidationContextHolder.getTokenValidationContext())
+				.build();
 	}
 }

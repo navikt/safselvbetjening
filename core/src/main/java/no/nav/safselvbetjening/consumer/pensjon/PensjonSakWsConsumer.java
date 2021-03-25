@@ -1,6 +1,8 @@
 package no.nav.safselvbetjening.consumer.pensjon;
 
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
@@ -13,6 +15,7 @@ import no.nav.tjeneste.virksomhet.pensjonsak.v1.meldinger.WSHentSakSammendragLis
 import org.springframework.stereotype.Component;
 
 import javax.xml.ws.soap.SOAPFaultException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class PensjonSakWsConsumer {
-    private static final String PENSJON_SAK_SOAP_INSTANCE = "pensjonsaksoap";
+    private static final String PENSJON_INSTANCE = "pensjon";
 
     private final PensjonSakV1 pensjonSakV1;
     private static final int MILLI_TO_NANO_CONST = 1000000;
@@ -29,6 +32,8 @@ public class PensjonSakWsConsumer {
         this.pensjonSakV1 = pensjonSakV1;
     }
 
+    @Retry(name = PENSJON_INSTANCE)
+    @CircuitBreaker(name = PENSJON_INSTANCE)
     public List<Pensjonsak> hentSakSammendragListe(final String personident) {
         WSHentSakSammendragListeRequest request = new WSHentSakSammendragListeRequest();
         request.setPersonident(personident);
@@ -60,8 +65,8 @@ public class PensjonSakWsConsumer {
         }
     }
 
-    private static java.time.LocalDateTime jodaToJavaLocalDateTime(org.joda.time.LocalDateTime localDateTime) {
-        return java.time.LocalDateTime.of(
+    private static LocalDateTime jodaToJavaLocalDateTime(org.joda.time.LocalDateTime localDateTime) {
+        return LocalDateTime.of(
                 localDateTime.getYear(),
                 localDateTime.getMonthOfYear(),
                 localDateTime.getDayOfMonth(),

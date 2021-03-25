@@ -1,5 +1,6 @@
 package no.nav.safselvbetjening.service;
 
+import lombok.Getter;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.consumer.sak.Arkivsak;
 
@@ -9,9 +10,11 @@ import java.util.stream.Collectors;
 /**
  * @author Joakim Bjørnstad, Jbit AS
  */
+@Getter
 public class Saker {
     private final List<Sak> arkivsaker;
     private final List<Sak> pensjonsaker;
+
 
     Saker(final List<Arkivsak> arkivsaker, final List<Pensjonsak> pensjonsaker) {
         this.arkivsaker = arkivsaker.stream()
