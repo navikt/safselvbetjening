@@ -36,6 +36,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.Boolean.TRUE;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -80,6 +81,7 @@ public class DokumentoversiktSelvbetjeningService {
 				.map(this::mapSakstema)
 				.sorted(Comparator.comparing(Sakstema::getKode))
 				.collect(Collectors.toList());
+
 		log.info("dokumentoversiktSelvbetjening hentet temaoversikt til person. antall_tema={}", sakstema.size());
 		return Dokumentoversikt.builder()
 				.tema(sakstema)
@@ -172,6 +174,6 @@ public class DokumentoversiktSelvbetjeningService {
 
 	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
 		Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-		return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+		return t -> seen.putIfAbsent(keyExtractor.apply(t), TRUE) == null;
 	}
 }
