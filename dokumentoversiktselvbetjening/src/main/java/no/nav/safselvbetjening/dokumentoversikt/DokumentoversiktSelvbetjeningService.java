@@ -30,9 +30,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.Boolean.TRUE;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -58,6 +62,38 @@ public class DokumentoversiktSelvbetjeningService {
 		this.fagarkivConsumer = fagarkivConsumer;
 		this.journalpostMapper = journalpostMapper;
 		this.utledTilgangJournalpostService = utledTilgangJournalpostService;
+	}
+
+	public Dokumentoversikt queryTema(final String ident, final List<String> tema, DataFetchingEnvironment environment) {
+		log.info("dokumentoversiktSelvbetjening henter temaoversikt til person.");
+
+		final BrukerIdenter brukerIdenter = identService.hentIdenter(ident);
+		if (brukerIdenter.isEmpty()) {
+			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen identer på person.");
+		}
+		final Saker saker = sakService.hentSaker(brukerIdenter, tema);
+		if (saker.isNone()) {
+			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen saker på person.");
+		}
+
+		List<Sakstema> sakstema = Stream.concat(saker.getArkivsaker().stream(), saker.getPensjonsaker().stream())
+				.filter(distinctByKey(Sak::getTema))
+				.map(this::mapSakstema)
+				.sorted(Comparator.comparing(Sakstema::getKode))
+				.collect(Collectors.toList());
+
+		log.info("dokumentoversiktSelvbetjening hentet temaoversikt til person. antall_tema={}", sakstema.size());
+		return Dokumentoversikt.builder()
+				.tema(sakstema)
+				.build();
+	}
+
+	private Sakstema mapSakstema(Sak s) {
+		final Tema tema = Tema.valueOf(s.getTema());
+		return Sakstema.builder()
+				.kode(tema.name())
+				.navn(tema.getTemanavn())
+				.build();
 	}
 
 	public Dokumentoversikt queryDokumentoversikt(final String ident, final List<String> tema, DataFetchingEnvironment environment) {
@@ -134,5 +170,10 @@ public class DokumentoversiktSelvbetjeningService {
 						.map(journalpostDto -> journalpostMapper.map(journalpostDto, brukerIdenter))
 						.collect(Collectors.toList()))
 				.build();
+	}
+
+	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+		Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+		return t -> seen.putIfAbsent(keyExtractor.apply(t), TRUE) == null;
 	}
 }
