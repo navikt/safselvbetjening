@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -117,14 +118,14 @@ public class DokumentoversiktSelvbetjeningService {
                 .alleIdenter(brukerIdenter.getFoedselsnummer())
                 .psakSakIds(saker.getPensjonSakIds())
                 .gsakSakIds(saker.getArkivSakIds())
-                .fraDato(safSelvbetjeningProperties.getTidligstInnsynDato())
+                .fraDato(safSelvbetjeningProperties.getTidligstInnsynDato().toString())
                 .inkluderJournalpostType(Arrays.asList(JournalpostTypeCode.values()))
                 .inkluderJournalStatus(Arrays.asList(JournalStatusCode.MO, JournalStatusCode.M, JournalStatusCode.J, JournalStatusCode.E, JournalStatusCode.FL, JournalStatusCode.FS))
                 .foerste(9999)
                 .visFeilregistrerte(false)
                 .build());
 
-		List<JournalpostDto> filtrerteJournalposter = utledTilgangJournalpostService.utledTilgangJournalpost(finnJournalposterResponseTo.getTilgangJournalposter(), brukerIdenter);
+		List<JournalpostDto> filtrerteJournalposter = utledTilgangDokumentoversiktService.utledTilgangJournalposter(finnJournalposterResponseTo.getTilgangJournalposter(), brukerIdenter);
 
 		Map<FagomradeCode, List<JournalpostDto>> temaMap = groupedByFagomrade(filtrerteJournalposter, saker);
 

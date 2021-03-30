@@ -8,13 +8,15 @@ import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJourn
 import no.nav.safselvbetjening.consumer.pensjon.hentbrukerforsak.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
+import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.safselvbetjening.tilgang.UtledTilgangHentDokumentService;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
 
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.FS22;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.PARTSINNSYN;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * @author Joakim Bjørnstad, Jbit AS
@@ -36,7 +38,6 @@ public class HentDokumentService {
 	}
 
 	public HentDokument hentDokument(final String journalpostId, final String dokumentInfoId, final String variantFormat) {
-
 		doTilgangskontroll(journalpostId, dokumentInfoId, variantFormat);
 
 		final HentDokumentResponseTo hentDokumentResponseTo = fagarkivConsumer.hentDokument(dokumentInfoId, variantFormat);
@@ -51,19 +52,22 @@ public class HentDokumentService {
 		final TilgangJournalpostResponseTo tilgangJournalpostResponseTo = fagarkivConsumer.tilgangJournalpost(journalpostId, dokumentInfoId, variantFormat);
 
 		final String bruker = findBrukerIdent(tilgangJournalpostResponseTo.getTilgangJournalpostDto());
+		if(isBlank(bruker)) {
+			throw new HentTilgangDokumentException(PARTSINNSYN, "Tilgang til dokument avvist fordi bruker ikke kan utledes");
+		}
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(bruker);
 
-		utledTilgangHentDokumentService.utledTilgangHentDokumen(tilgangJournalpostResponseTo.getTilgangJournalpostDto(), brukerIdenter);
+		utledTilgangHentDokumentService.utledTilgangHentDokument(tilgangJournalpostResponseTo.getTilgangJournalpostDto(), brukerIdenter);
 	}
 
 	private String findBrukerIdent(TilgangJournalpostDto tilgangJournalpostDto) {
 		if (JournalStatusCode.getJournalstatusMidlertidig().contains(tilgangJournalpostDto.getJournalStatus())) {
 			return tilgangJournalpostDto.getBruker().getBrukerId();
 		} else if (JournalStatusCode.getJournalstatusFerdigstilt().contains(tilgangJournalpostDto.getJournalStatus())) {
-			if (FS22.toString().equals(tilgangJournalpostDto.getSak().getApplikasjon())) {
-				return tilgangJournalpostDto.getSak().getAktoerId();
-			} else if (PEN.toString().equals(tilgangJournalpostDto.getSak().getApplikasjon())) {
+			if (PEN.toString().equals(tilgangJournalpostDto.getSak().getFagsystem())) {
 				return pensjonSakRestConsumer.hentBrukerForSak(tilgangJournalpostDto.getSak().getSakId()).getFnr();
+			} else {
+				return tilgangJournalpostDto.getSak().getAktoerId();
 			}
 		}
 		return null;

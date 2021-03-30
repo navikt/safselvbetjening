@@ -12,7 +12,7 @@ import no.nav.safselvbetjening.service.BrukerIdenter;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -25,6 +25,17 @@ import static no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode.
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode.SKAN_PEN;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode.FEIL;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode.POL;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.ANNEN_PART;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.FEILREGISTRERT;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.GDPR;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INNSKRENKET_PARTSINNSYN;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INNSYNSDATO;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.KASSERT;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.KONTROLLSAK;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.ORGANINTERNT;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.PARTSINNSYN;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKANNET_DOKUMENT;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.UGYLDIG_JOURNALSTATUS;
 
 
 /**
@@ -36,20 +47,20 @@ public class UtledTilgangHentDokumentService {
 	private static final EnumSet<SkjermingTypeCode> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
 	private static final List<String> ACCEPTED_MOTTAKS_KANAL = List.of(SKAN_IM.toString(), SKAN_NETS.toString(), SKAN_PEN.toString());
 
-	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
+	private final LocalDateTime tidligstInnsynDato;
 
 	public UtledTilgangHentDokumentService(SafSelvbetjeningProperties safSelvbetjeningProperties) {
-		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
+		this.tidligstInnsynDato = safSelvbetjeningProperties.getTidligstInnsynDato().atStartOfDay(ZoneId.systemDefault()).toLocalDateTime();
 	}
 
-	public void utledTilgangHentDokumen(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter) {
+	public void utledTilgangHentDokument(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter) {
 		verifyAccessBrukerPart(tilgangJournalpostDto, brukerIdenter);
 		verifyAccessInnsynsdatoJournalpost(tilgangJournalpostDto);
 		verifyAccessFerdigstilteJournalposter(tilgangJournalpostDto);
 		verifyAccessFeilregistrerteJournalposter(tilgangJournalpostDto);
 		verifyAccessKontrollsakJournalpost(tilgangJournalpostDto);
 		verifyAccessGDPRJournalpost(tilgangJournalpostDto);
-		verifyAccessForvaltningsnottatJournalpost(tilgangJournalpostDto);
+		verifyAccessForvaltningsnotatJournalpost(tilgangJournalpostDto);
 		verifyAccessOrganinternJournalpost(tilgangJournalpostDto);
 
 		verifyAccessAndreParterDokument(tilgangJournalpostDto, brukerIdenter.getIdenter());
@@ -64,8 +75,12 @@ public class UtledTilgangHentDokumentService {
 	 * 1a) Bruker må være part for å se journalposter
 	 */
 	private void verifyAccessBrukerPart(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter identer) {
-		if (!isJournalpostMidlertidigAndBrukerPart(tilgangJournalpostDto, identer) || !isJournalpostFerdigstiltAndBrukerPart(tilgangJournalpostDto, identer)) {
-			throw new HentTilgangDokumentException("Tilgang til journalpost avvist fordi bruker ikke er part");
+		if (JournalStatusCode.getJournalstatusFerdigstilt().contains(tilgangJournalpostDto.getJournalStatus()) &&
+				!isJournalpostFerdigstiltAndBrukerPart(tilgangJournalpostDto, identer)) {
+			throw new HentTilgangDokumentException(PARTSINNSYN, "Tilgang til journalpost avvist fordi bruker ikke er part");
+		} else if (JournalStatusCode.getJournalstatusMidlertidig().contains(tilgangJournalpostDto.getJournalStatus()) &&
+				!isJournalpostMidlertidigAndBrukerPart(tilgangJournalpostDto, identer)) {
+			throw new HentTilgangDokumentException(PARTSINNSYN, "Tilgang til journalpost avvist fordi bruker ikke er part");
 		}
 	}
 
@@ -73,9 +88,8 @@ public class UtledTilgangHentDokumentService {
 	 * 1b) Bruker får ikke se journalposter som er opprettet eller journalført før 04.06.2016 (dato or lansering av innsynsløsningen ble lansert)
 	 */
 	private void verifyAccessInnsynsdatoJournalpost(TilgangJournalpostDto tilgangJournalpostDto) {
-		LocalDateTime tidligstInnsynsdato = LocalDateTime.parse(safSelvbetjeningProperties.getTidligstInnsynDato(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-		if (tidligstInnsynsdato.isAfter(tilgangJournalpostDto.getDatoOpprettet()) || (tilgangJournalpostDto.getJournalfoertDato() != null && tidligstInnsynsdato.isAfter(tilgangJournalpostDto.getJournalfoertDato()))) {
-			throw new HentTilgangDokumentException("Tilgang til journalpost avvist fordi journalposten er opprettet før tidligst innsynsdato");
+		if (tidligstInnsynDato.isAfter(tilgangJournalpostDto.getDatoOpprettet()) || (tilgangJournalpostDto.getJournalfoertDato() != null && tidligstInnsynDato.isAfter(tilgangJournalpostDto.getJournalfoertDato()))) {
+			throw new HentTilgangDokumentException(INNSYNSDATO, "Tilgang til journalpost avvist fordi journalposten er opprettet før tidligst innsynsdato");
 		}
 	}
 
@@ -85,7 +99,7 @@ public class UtledTilgangHentDokumentService {
 	private void verifyAccessFerdigstilteJournalposter(TilgangJournalpostDto tilgangJournalpostDto) {
 		if (!(JournalStatusCode.getJournalstatusFerdigstilt().contains(tilgangJournalpostDto.getJournalStatus()) ||
 				JournalStatusCode.getJournalstatusMidlertidig().contains(tilgangJournalpostDto.getJournalStatus()))) {
-			throw new HentTilgangDokumentException("Tilgang til journalpost avvist fordi journalpost er ikke ferdigstilt eller midlertidig");
+			throw new HentTilgangDokumentException(UGYLDIG_JOURNALSTATUS, "Tilgang til journalpost avvist fordi journalpost er ikke ferdigstilt eller midlertidig");
 		}
 	}
 
@@ -93,8 +107,8 @@ public class UtledTilgangHentDokumentService {
 	 * 1d) Bruker får ikke se feilregistrerte journalposter
 	 */
 	private void verifyAccessFeilregistrerteJournalposter(TilgangJournalpostDto tilgangJournalpostDto) {
-		if (tilgangJournalpostDto.getFeilregistrert()) {
-			throw new HentTilgangDokumentException("Tilgang til journalpost avvist fordi journalpost er feilregistrert");
+		if (tilgangJournalpostDto.getFeilregistrert() != null && tilgangJournalpostDto.getFeilregistrert()) {
+			throw new HentTilgangDokumentException(FEILREGISTRERT, "Tilgang til journalpost avvist fordi journalpost er feilregistrert");
 		}
 	}
 
@@ -106,7 +120,7 @@ public class UtledTilgangHentDokumentService {
 
 		if ((JournalStatusCode.getJournalstatusMidlertidig().contains(journalStatusCode) && tilgangJournalpostDto.getFagomrade() == FagomradeCode.KTR) ||
 				(JournalStatusCode.getJournalstatusFerdigstilt().contains(journalStatusCode) && tilgangJournalpostDto.getSak().getTema().equals(Tema.KTR.toString()))) {
-			throw new HentTilgangDokumentException("Tilgang til journalpost avvist fordi journalpost er markert som kontrollsak");
+			throw new HentTilgangDokumentException(KONTROLLSAK, "Tilgang til journalpost avvist fordi journalpost er markert som kontrollsak");
 		}
 	}
 
@@ -115,16 +129,16 @@ public class UtledTilgangHentDokumentService {
 	 */
 	private void verifyAccessGDPRJournalpost(TilgangJournalpostDto tilgangJournalpostDto) {
 		if (GDPR_SKJERMING_TYPE.contains(tilgangJournalpostDto.getSkjerming())) {
-			throw new HentTilgangDokumentException("Tilgang til journalpost avvist ihht. gdpr");
+			throw new HentTilgangDokumentException(GDPR, "Tilgang til journalpost avvist ihht. gdpr");
 		}
 	}
 
 	/**
 	 * 1g) Hvis journalpost er notat må hoveddokumentet være markert som "forvaltningsnotat" for å vise journalposten.
 	 */
-	private void verifyAccessForvaltningsnottatJournalpost(TilgangJournalpostDto tilgangJournalpostDto) {
+	private void verifyAccessForvaltningsnotatJournalpost(TilgangJournalpostDto tilgangJournalpostDto) {
 		if (tilgangJournalpostDto.getJournalpostType() == N && !FORVALTNINGSNOTAT.equals(tilgangJournalpostDto.getDokument().getKategori())) {
-			throw new HentTilgangDokumentException("Tilgang til journalpost avvist fordi journalpost er notat, men hoveddokumentet er ikke forvaltningsnotat");
+			throw new HentTilgangDokumentException(DokumentTilgangMessage.FORVALTNINGSNOTAT, "Tilgang til journalpost avvist fordi journalpost er notat, men hoveddokumentet er ikke forvaltningsnotat");
 		}
 	}
 
@@ -133,7 +147,7 @@ public class UtledTilgangHentDokumentService {
 	 */
 	private void verifyAccessOrganinternJournalpost(TilgangJournalpostDto tilgangJournalpostDto) {
 		if (tilgangJournalpostDto.getDokument().getOrganinternt() != null && tilgangJournalpostDto.getDokument().getOrganinternt()) {
-			throw new HentTilgangDokumentException("Tilgang til journalpost avvist pga organinterne dokumenter på journalposten");
+			throw new HentTilgangDokumentException(ORGANINTERNT, "Tilgang til journalpost avvist pga organinterne dokumenter på journalposten");
 		}
 	}
 
@@ -143,7 +157,7 @@ public class UtledTilgangHentDokumentService {
 	private void verifyAccessAndreParterDokument(TilgangJournalpostDto tilgangJournalpostDto, List<String> idents) {
 		if ((tilgangJournalpostDto.getJournalpostType() != JournalpostTypeCode.N) &&
 				!idents.contains(tilgangJournalpostDto.getAvsenderMottakerId())) {
-			throw new HentTilgangDokumentException("Tilgang til dokument avvist fordi dokumentet er sendt til/fra andre parter enn bruker");
+			throw new HentTilgangDokumentException(ANNEN_PART, "Tilgang til dokument avvist fordi dokumentet er sendt til/fra andre parter enn bruker");
 		}
 	}
 
@@ -151,8 +165,8 @@ public class UtledTilgangHentDokumentService {
 	 * 2b) Bruker får ikke se skannede dokumenter
 	 */
 	private void verifyAccessSkannetDokument(TilgangJournalpostDto tilgangJournalpostDto) {
-		if (ACCEPTED_MOTTAKS_KANAL.contains(tilgangJournalpostDto.getMottakskanal())) {
-			throw new HentTilgangDokumentException("Tilgang til dokument avvist fordi dokumentet er skannet.");
+		if (tilgangJournalpostDto.getMottakskanal() != null && ACCEPTED_MOTTAKS_KANAL.contains(tilgangJournalpostDto.getMottakskanal())) {
+			throw new HentTilgangDokumentException(SKANNET_DOKUMENT, "Tilgang til dokument avvist fordi dokumentet er skannet.");
 		}
 	}
 
@@ -162,7 +176,7 @@ public class UtledTilgangHentDokumentService {
 	private void verifyAccessInnskrenketPartsinnsynDokument(TilgangDokumentInfoDto tilgangDokumentInfoDto) {
 		if ((tilgangDokumentInfoDto.getInnskrenketPartsinnsyn() != null && tilgangDokumentInfoDto.getInnskrenketPartsinnsyn()) ||
 				(tilgangDokumentInfoDto.getInnskrenketTredjepart() != null && tilgangDokumentInfoDto.getInnskrenketTredjepart())) {
-			throw new HentTilgangDokumentException("Tilgang til dokument avvist fordi dokument er markert med innskrenket partsinnsyn");
+			throw new HentTilgangDokumentException(INNSKRENKET_PARTSINNSYN, "Tilgang til dokument avvist fordi dokument er markert med innskrenket partsinnsyn");
 		}
 	}
 
@@ -171,7 +185,7 @@ public class UtledTilgangHentDokumentService {
 	 */
 	private void verfyAccessGDPRDokument(TilgangDokumentInfoDto tilgangDokumentInfoDto) {
 		if (GDPR_SKJERMING_TYPE.contains(tilgangDokumentInfoDto.getVariant().getSkjerming())) {
-			throw new HentTilgangDokumentException("Tilgang til dokument avvist ihht. gdrp");
+			throw new HentTilgangDokumentException(GDPR, "Tilgang til dokument avvist ihht. gdrp");
 		}
 	}
 
@@ -179,8 +193,8 @@ public class UtledTilgangHentDokumentService {
 	 * 2f) Kasserte dokumenter skal ikke vises
 	 */
 	private void verifyAccessKassertDokument(TilgangJournalpostDto tilgangJournalpostDto) {
-		if (tilgangJournalpostDto.getDokument().getKassert()) {
-			throw new HentTilgangDokumentException("Tilgang til dokument avvist fordi dokumentet er kassert");
+		if (tilgangJournalpostDto.getDokument().getKassert() != null && tilgangJournalpostDto.getDokument().getKassert()) {
+			throw new HentTilgangDokumentException(KASSERT, "Tilgang til dokument avvist fordi dokumentet er kassert");
 		}
 	}
 

@@ -14,14 +14,14 @@ import no.nav.safselvbetjening.domain.Tema;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import org.springframework.stereotype.Component;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.Date.from;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.FS22;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
@@ -48,10 +48,10 @@ public class UtledTilgangDokumentoversiktService {
 	private static final EnumSet<MottaksKanalCode> ACCEPTED_MOTTAKS_KANAL = EnumSet.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
 	private static final EnumSet<SkjermingTypeCode> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
 
-	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
+	private final Date tidligstInnsynDato;
 
 	public UtledTilgangDokumentoversiktService(SafSelvbetjeningProperties safSelvbetjeningProperties) {
-		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
+		this.tidligstInnsynDato = from(safSelvbetjeningProperties.getTidligstInnsynDato().atStartOfDay(ZoneId.systemDefault()).toInstant());
 	}
 
 	public List<JournalpostDto> utledTilgangJournalposter(List<JournalpostDto> journalpostDtoList, BrukerIdenter identer) {
@@ -96,7 +96,6 @@ public class UtledTilgangDokumentoversiktService {
 
 	//Todo: Kan denne bare fjernes?
 	private boolean isBrukerPart(JournalpostDto journalpostDto, BrukerIdenter identer) {
-
 		JournalStatusCode journalStatusCode = journalpostDto.getJournalstatus();
 
 		if (JournalStatusCode.getJournalstatusMidlertidig().contains(journalStatusCode)) {
@@ -118,13 +117,7 @@ public class UtledTilgangDokumentoversiktService {
 		if (journalpostDto.getJournalDato() == null) {
 			return true;
 		} else {
-			try {
-				DateFormat format = new SimpleDateFormat("MMMM d, yyyy");
-				return journalpostDto.getJournalDato().after(format.parse(safSelvbetjeningProperties.getTidligstInnsynDato()));
-			} catch (ParseException e) {
-				log.error("Feil ved parsing av journalDato for journalpost med journalpostId={}.", journalpostDto.getJournalpostId());
-				return false;
-			}
+			return journalpostDto.getJournalDato().after(tidligstInnsynDato);
 		}
 	}
 
