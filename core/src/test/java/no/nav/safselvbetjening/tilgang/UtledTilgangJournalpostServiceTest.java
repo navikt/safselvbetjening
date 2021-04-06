@@ -1,11 +1,13 @@
 package no.nav.safselvbetjening.tilgang;
 
+import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.BrukerDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +42,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UtledTilgangJournalpostServiceTest {
 
-	private final UtledTilgangJournalpostService utledTilgangJournalpostService = new UtledTilgangJournalpostService();
+	private final UtledTilgangDokumentoversiktService utledTilgangDokumentoversiktService;
+
+	UtledTilgangJournalpostServiceTest() {
+		SafSelvbetjeningProperties safSelvbetjeningProperties = new SafSelvbetjeningProperties();
+		safSelvbetjeningProperties.setTidligstInnsynDato(LocalDate.of(2016, 6, 4));
+		utledTilgangDokumentoversiktService = new UtledTilgangDokumentoversiktService(safSelvbetjeningProperties);
+	}
 
 	@BeforeAll
 	static void setup() {
@@ -49,7 +57,7 @@ class UtledTilgangJournalpostServiceTest {
 
 	@Test
 	void UtledTilgangHappyPath() {
-		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(createJournalpostDtoBase().build()), brukerIdenter);
+		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangDokumentoversiktService.utledTilgangJournalposter(List.of(createJournalpostDtoBase().build()), brukerIdenter);
 
 		assertEquals(1, reducedJournalpostDtoList.size());
 	}
@@ -58,7 +66,7 @@ class UtledTilgangJournalpostServiceTest {
 	void shouldNotReturnJournalpostWhenJournalstatusMidlertidigAndBrukerNotPart() {
 		JournalpostDto journalpostDto = createJournalpostDtoBase().bruker(BrukerDto.builder().brukerId(ANNEN_PART).build()).build();
 
-		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(journalpostDto), brukerIdenter);
+		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangDokumentoversiktService.utledTilgangJournalposter(List.of(journalpostDto), brukerIdenter);
 
 		assertEquals(0, reducedJournalpostDtoList.size());
 	}
@@ -70,7 +78,7 @@ class UtledTilgangJournalpostServiceTest {
 		journalpostDtoList.add(createJournalpostDtoJournalpost(FL, TEMA_PEN, FS22, ANNEN_PART, ANNEN_AKTOER_ID, BID, I));
 		journalpostDtoList.add(createJournalpostDtoJournalpost(FS, TEMA_PEN, PEN, ANNEN_PART, AKTOER_ID, BID, I));
 
-		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(journalpostDtoList, brukerIdenter);
+		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangDokumentoversiktService.utledTilgangJournalposter(journalpostDtoList, brukerIdenter);
 
 		assertEquals(0, reducedJournalpostDtoList.size());
 	}
@@ -79,7 +87,7 @@ class UtledTilgangJournalpostServiceTest {
 	void shouldNotReturnJournalpostWhenJournalpostGDPRRestricted() {
 		JournalpostDto journalpostDto = createJournalpostDtoBase().skjerming(POL).build();
 
-		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(journalpostDto), brukerIdenter);
+		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangDokumentoversiktService.utledTilgangJournalposter(List.of(journalpostDto), brukerIdenter);
 
 		assertEquals(0, reducedJournalpostDtoList.size());
 	}
@@ -94,7 +102,7 @@ class UtledTilgangJournalpostServiceTest {
 		journalpostDtoList.add(createJournalpostDtoWithJournalstatus(OD));
 		journalpostDtoList.add(createJournalpostDtoWithJournalstatus(D));
 
-		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(journalpostDtoList, brukerIdenter);
+		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangDokumentoversiktService.utledTilgangJournalposter(journalpostDtoList, brukerIdenter);
 
 		assertEquals(0, reducedJournalpostDtoList.size());
 	}
@@ -106,7 +114,7 @@ class UtledTilgangJournalpostServiceTest {
 		journalpostDtoList.add(createJournalpostDtoJournalpost(FS, TEMA_KTR, PEN, IDENT, AKTOER_ID, BID, I));
 		journalpostDtoList.add(createJournalpostDtoJournalpost(MO, TEMA_PEN, PEN, IDENT, AKTOER_ID, KTR, I));
 
-		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(journalpostDtoList, brukerIdenter);
+		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangDokumentoversiktService.utledTilgangJournalposter(journalpostDtoList, brukerIdenter);
 
 		assertEquals(0, reducedJournalpostDtoList.size());
 	}
@@ -115,7 +123,7 @@ class UtledTilgangJournalpostServiceTest {
 	void shouldNotReturnJournalpostWhenJournalpostIsNotatAndNotForvaltningsnotat() {
 		JournalpostDto journalpostDto = createJournalpostDtoJournalpost(M, TEMA_PEN, PEN, IDENT, AKTOER_ID, BID, N);
 
-		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(journalpostDto), brukerIdenter);
+		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangDokumentoversiktService.utledTilgangJournalposter(List.of(journalpostDto), brukerIdenter);
 
 		assertEquals(0, reducedJournalpostDtoList.size());
 	}
@@ -124,7 +132,7 @@ class UtledTilgangJournalpostServiceTest {
 	void shouldNotReturnJournalpostWhenJournalpostIsOrganinternt() {
 		JournalpostDto journalpostDto = createJournalpostDtoBase().dokumenter(List.of(DokumentInfoDto.builder().organInternt(true).build())).build();
 
-		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangJournalpostService.utledTilgangJournalpost(List.of(journalpostDto), brukerIdenter);
+		List<JournalpostDto> reducedJournalpostDtoList = utledTilgangDokumentoversiktService.utledTilgangJournalposter(List.of(journalpostDto), brukerIdenter);
 
 		assertEquals(0, reducedJournalpostDtoList.size());
 	}

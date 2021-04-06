@@ -3,7 +3,9 @@ package no.nav.safselvbetjening.consumer.fagarkiv.domain;
 import no.nav.safselvbetjening.domain.Journalstatus;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 public enum JournalStatusCode {
 	/**
@@ -67,5 +69,13 @@ public enum JournalStatusCode {
 
 	public static List<JournalStatusCode> asList() {
 		return Arrays.asList(values());
+	}
+
+	public static Set<JournalStatusCode> getJournalstatusFerdigstilt() {
+		return EnumSet.of(FL, FS, J, E);
+	}
+
+	public static Set<JournalStatusCode> getJournalstatusMidlertidig() {
+		return EnumSet.of(M, MO);
 	}
 }

@@ -3,9 +3,12 @@ package no.nav.safselvbetjening;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -21,8 +24,9 @@ public class SafSelvbetjeningProperties {
     /**
      * Cut-off dato for innsyn fra innbygger. Dokumenter før denne dato skal ikke hentes eller vises.
      */
-    @NotEmpty
-    private String tidligstInnsynDato;
+    @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate tidligstInnsynDato;
 
     @Data
     @Validated
@@ -52,6 +56,11 @@ public class SafSelvbetjeningProperties {
          */
         @NotEmpty
         private String samlsts;
+        /**
+         * URL til PensjonSakRestconsumer.
+         */
+        @NotEmpty
+        private String pensjonsak;
     }
 
     @Data

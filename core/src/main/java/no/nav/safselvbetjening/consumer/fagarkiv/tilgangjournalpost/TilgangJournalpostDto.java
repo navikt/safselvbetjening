@@ -22,10 +22,12 @@ public class TilgangJournalpostDto {
 	private JournalpostTypeCode journalpostType;
 	private FagomradeCode fagomrade;
 	private LocalDateTime datoOpprettet;
+	private LocalDateTime journalfoertDato;
 	private String mottakskanal;
 	private String avsenderMottakerId;
 	private TilgangBrukerDto bruker;
 	private TilgangSakDto sak;
 	private SkjermingTypeCode skjerming;
 	private TilgangDokumentInfoDto dokument;
+	private Boolean feilregistrert;
 }
