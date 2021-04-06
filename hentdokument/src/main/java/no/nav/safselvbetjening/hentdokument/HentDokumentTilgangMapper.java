@@ -10,9 +10,11 @@ import no.nav.safselvbetjening.tilgang.domain.UtledTilgangDokument;
 import no.nav.safselvbetjening.tilgang.domain.UtledTilgangJournalpost;
 import no.nav.safselvbetjening.tilgang.domain.UtledTilgangSak;
 import no.nav.safselvbetjening.tilgang.domain.UtledTilgangVariant;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
+@Component
 public class HentDokumentTilgangMapper {
 
 	public UtledTilgangJournalpost map(TilgangJournalpostDto tilgangJournalpostDto) {
