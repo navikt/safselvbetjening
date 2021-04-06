@@ -129,8 +129,12 @@ public class UtledTilgangDokumentoversiktService {
 
 		if (JournalStatusCode.getJournalstatusMidlertidig().contains(journalStatusCode)) {
 			return journalpostDto.getFagomrade() != FagomradeCode.KTR;
-		} else if (JournalStatusCode.getJournalstatusFerdigstilt().contains(journalStatusCode)) {
-			return !journalpostDto.getSaksrelasjon().getTema().equals(Tema.KTR.toString());
+		} else if (JournalStatusCode.getJournalstatusFerdigstilt().contains(journalStatusCode) &&
+				journalpostDto.getSaksrelasjon() != null) {
+			return !Tema.KTR.toString().equals(journalpostDto.getSaksrelasjon().getTema());
+		} else if(JournalStatusCode.getJournalstatusFerdigstilt().contains(journalStatusCode) &&
+				journalpostDto.getSaksrelasjon() == null) {
+			return journalpostDto.getFagomrade() != FagomradeCode.KTR;
 		}
 		return false;
 	}
