@@ -45,7 +45,13 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			validateIdent(ident, environment);
 			final List<String> tema = temaArgument(environment);
 
-			Dokumentoversikt dokumentoversikt = dokumentoversiktSelvbetjeningService.queryDokumentoversikt(ident, tema, environment);
+			if (environment.getSelectionSet().contains("tema/journalposter")) {
+				Dokumentoversikt dokumentoversikt = dokumentoversiktSelvbetjeningService.queryDokumentoversikt(ident, tema, environment);
+				return DataFetcherResult.newResult()
+						.data(dokumentoversikt)
+						.build();
+			}
+			Dokumentoversikt dokumentoversikt = dokumentoversiktSelvbetjeningService.queryTema(ident, tema, environment);
 			return DataFetcherResult.newResult()
 					.data(dokumentoversikt)
 					.build();

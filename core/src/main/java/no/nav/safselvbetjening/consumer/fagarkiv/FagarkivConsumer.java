@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.consumer.fagarkiv;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.NavHeaders;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,6 +25,7 @@ import static org.springframework.http.HttpMethod.POST;
 /**
  * @author Joakim Bjørnstad, Jbit AS
  */
+@Slf4j
 @Component
 public class FagarkivConsumer {
 	private static final String FAGARKIV_INSTANCE = "fagarkiv";
@@ -55,21 +58,31 @@ public class FagarkivConsumer {
 
 	@CircuitBreaker(name = FAGARKIV_INSTANCE)
 	public TilgangJournalpostResponseTo tilgangJournalpost(final String journalpostId, final String dokumentInfoId, final String variantFormat) {
-		return restTemplate.exchange("/henttilgangjournalpost/{journalpostId}/{dokumentInfoId}/{variantFormat}",
-				GET,
-				new HttpEntity<>(createCorrelationIdHeader()),
-				TilgangJournalpostResponseTo.class,
-				journalpostId, dokumentInfoId, variantFormat).getBody();
+		try {
+			return restTemplate.exchange("/henttilgangjournalpost/{journalpostId}/{dokumentInfoId}/{variantFormat}",
+					GET,
+					new HttpEntity<>(createCorrelationIdHeader()),
+					TilgangJournalpostResponseTo.class,
+					journalpostId, dokumentInfoId, variantFormat).getBody();
+		} catch (HttpClientErrorException.NotFound e) {
+			throw new JournalpostIkkeFunnetException("Fant ikke journalpost for tilgangskontroll med journalpostId=" +
+					journalpostId + ", dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
+		}
 	}
 
 	public HentDokumentResponseTo hentDokument(final String dokumentInfoId, final String variantFormat) {
-		ResponseEntity<String> responseEntity = restTemplate.exchange("/hentdokument/{dokumentInfoId}/{variantFormat}",
-				GET,
-				new HttpEntity<>(createCorrelationIdHeader()), String.class, dokumentInfoId, variantFormat);
-		return HentDokumentResponseTo.builder()
-				.dokument(responseEntity.getBody())
-				.mediaType(responseEntity.getHeaders().getContentType())
-				.build();
+		try {
+			ResponseEntity<String> responseEntity = restTemplate.exchange("/hentdokument/{dokumentInfoId}/{variantFormat}",
+					GET,
+					new HttpEntity<>(createCorrelationIdHeader()), String.class, dokumentInfoId, variantFormat);
+			return HentDokumentResponseTo.builder()
+					.dokument(responseEntity.getBody())
+					.mediaType(responseEntity.getHeaders().getContentType())
+					.build();
+		} catch (HttpClientErrorException.NotFound e) {
+			throw new DokumentIkkeFunnetException("Fant ikke dokument med dokumentInfoId=" + dokumentInfoId +
+					", variantFormat=" + variantFormat, e);
+		}
 	}
 
 	private HttpHeaders createCorrelationIdHeader() {

@@ -7,6 +7,7 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +42,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UtledTilgangJournalpostServiceTest {
 
-	private final UtledTilgangDokumentoversiktService utledTilgangDokumentoversiktService = new UtledTilgangDokumentoversiktService(new SafSelvbetjeningProperties());
+	private final UtledTilgangDokumentoversiktService utledTilgangDokumentoversiktService;
+
+	UtledTilgangJournalpostServiceTest() {
+		SafSelvbetjeningProperties safSelvbetjeningProperties = new SafSelvbetjeningProperties();
+		safSelvbetjeningProperties.setTidligstInnsynDato(LocalDate.of(2016, 6, 4));
+		utledTilgangDokumentoversiktService = new UtledTilgangDokumentoversiktService(safSelvbetjeningProperties);
+	}
 
 	@BeforeAll
 	static void setup() {
