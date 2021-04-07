@@ -2,37 +2,42 @@ package no.nav.safselvbetjening.tilgang;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
+import no.nav.safselvbetjening.domain.DokumentInfo;
+import no.nav.safselvbetjening.domain.Dokumentvariant;
+import no.nav.safselvbetjening.domain.Journalpost;
+import no.nav.safselvbetjening.domain.Journalstatus;
+import no.nav.safselvbetjening.domain.Kanal;
+import no.nav.safselvbetjening.domain.SkjermingType;
 import no.nav.safselvbetjening.domain.Tema;
+import no.nav.safselvbetjening.domain.Variantformat;
 import no.nav.safselvbetjening.service.BrukerIdenter;
-import no.nav.safselvbetjening.tilgang.domain.UtledTilgangDokument;
-import no.nav.safselvbetjening.tilgang.domain.UtledTilgangJournalpost;
-import no.nav.safselvbetjening.tilgang.domain.UtledTilgangVariant;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.FS22;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.E;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FL;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FS;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.J;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.M;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.MO;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode.N;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode.SKAN_IM;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode.SKAN_NETS;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode.SKAN_PEN;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode.FEIL;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode.POL;
+import static no.nav.safselvbetjening.domain.Journalposttype.N;
+import static no.nav.safselvbetjening.domain.Journalstatus.EKSPEDERT;
+import static no.nav.safselvbetjening.domain.Journalstatus.FERDIGSTILT;
+import static no.nav.safselvbetjening.domain.Journalstatus.JOURNALFOERT;
+import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;
+import static no.nav.safselvbetjening.domain.Kanal.SKAN_IM;
+import static no.nav.safselvbetjening.domain.Kanal.SKAN_NETS;
+import static no.nav.safselvbetjening.domain.Kanal.SKAN_PEN;
+import static no.nav.safselvbetjening.domain.SkjermingType.FEIL;
+import static no.nav.safselvbetjening.domain.SkjermingType.POL;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.ANNEN_PART;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.FEILREGISTRERT;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.GDPR;
@@ -52,10 +57,9 @@ import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.UGYLDIG_JOU
 @Component
 public class UtledTilgangService {
 
-	private static final EnumSet<SkjermingTypeCode> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
-	private static final List<String> ACCEPTED_MOTTAKS_KANAL = List.of(SKAN_IM.toString(), SKAN_NETS.toString(), SKAN_PEN.toString());
-	private static final EnumSet<JournalStatusCode> JOURNALSTATUS_FERDIGSTILT = EnumSet.of(FL, FS, J, E);
-	private static final EnumSet<JournalStatusCode> JOURNALSTATUS_MIDLERTIDIG = EnumSet.of(M, MO);
+	private static final EnumSet<SkjermingType> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
+	private static final List<Kanal> ACCEPTED_MOTTAKS_KANAL = List.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
+	private static final EnumSet<Journalstatus> JOURNALSTATUS_FERDIGSTILT = EnumSet.of(FERDIGSTILT, JOURNALFOERT, EKSPEDERT);
 
 	private final LocalDateTime tidligstInnsynDato;
 
@@ -63,44 +67,80 @@ public class UtledTilgangService {
 		this.tidligstInnsynDato = safSelvbetjeningProperties.getTidligstInnsynDato().atStartOfDay(ZoneId.systemDefault()).toLocalDateTime();
 	}
 
-	public void utledTilgangHentDokument(UtledTilgangJournalpost utledTilgangJournalpost, BrukerIdenter brukerIdenter) {
-		if (!isBrukerPart(utledTilgangJournalpost, brukerIdenter)) {
+	public List<String> utledTilgangDokument(Journalpost journalpost, DokumentInfo dokumentInfo, BrukerIdenter brukerIdenter, Dokumentvariant dokumentvariant) {
+		List<String> feilmeldinger = new ArrayList<>();
+
+		if (!isAvsenderMottakerPart(journalpost, brukerIdenter.getIdenter())) {
+			feilmeldinger.add(PARTSINNSYN);
+		}
+		if (!isJournalfoertDatoAfterInnsynsdato(journalpost)) {
+			feilmeldinger.add(INNSYNSDATO);
+		}
+		if (isSkannetDokument(journalpost)) {
+			feilmeldinger.add(SKANNET_DOKUMENT);
+		}
+		if (isDokumentInnskrenketPartsinnsyn(dokumentInfo.getTilgangDokument())) {
+			feilmeldinger.add(INNSKRENKET_PARTSINNSYN);
+		}
+		if (isDokumentGDPRRestricted(dokumentvariant.getTilgangVariant())) {
+			feilmeldinger.add(GDPR);
+		}
+		if (isDokumentKassert(dokumentInfo.getTilgangDokument())) {
+			feilmeldinger.add(KASSERT);
+		}
+
+		return feilmeldinger;
+	}
+
+	public List<Journalpost> utledTilgangJournalposter(List<Journalpost> journalpostList, BrukerIdenter identer) {
+
+		return journalpostList.stream()
+				.filter(journalpost -> isBrukerPart(journalpost, identer))
+				.filter(this::isJournalpostNotGDPRRestricted)
+				.filter(this::isJournalpostNotKontrollsak)
+				.filter(this::isJournalpostForvaltningsnotat)
+				.filter(this::isJournalpostNotOrganInternt)
+				.collect(Collectors.toList());
+	}
+
+	public void utledTilgangHentDokument(Journalpost journalpost, BrukerIdenter brukerIdenter) {
+		if (!isBrukerPart(journalpost, brukerIdenter)) {
 			throw new HentTilgangDokumentException(PARTSINNSYN, "Tilgang til journalpost avvist fordi bruker ikke er part");
 		}
-		if (!isJournalfoertDatoAfterInnsynsdato(utledTilgangJournalpost)) {
+		if (!isJournalfoertDatoAfterInnsynsdato(journalpost)) {
 			throw new HentTilgangDokumentException(INNSYNSDATO, "Tilgang til journalpost avvist fordi journalposten er opprettet før tidligst innsynsdato");
 		}
-		if (!isJournalpostFerdigstiltOrMidlertidig(utledTilgangJournalpost)) {
+		if (!isJournalpostFerdigstiltOrMidlertidig(journalpost)) {
 			throw new HentTilgangDokumentException(UGYLDIG_JOURNALSTATUS, "Tilgang til journalpost avvist fordi journalpost er ikke ferdigstilt eller midlertidig");
 		}
-		if (isJournalpostFeilregistrert(utledTilgangJournalpost)) {
+		if (isJournalpostFeilregistrert(journalpost)) {
 			throw new HentTilgangDokumentException(FEILREGISTRERT, "Tilgang til journalpost avvist fordi journalpost er feilregistrert");
 		}
-		if (isJournalpostKontrollsak(utledTilgangJournalpost)) {
+		if (!isJournalpostNotKontrollsak(journalpost)) {
 			throw new HentTilgangDokumentException(KONTROLLSAK, "Tilgang til journalpost avvist fordi journalpost er markert som kontrollsak");
 		}
-		if (isJournalpostGDPRRestricted(utledTilgangJournalpost)) {
+		if (!isJournalpostNotGDPRRestricted(journalpost)) {
 			throw new HentTilgangDokumentException(GDPR, "Tilgang til journalpost avvist ihht. gdpr");
 		}
-		if (!isJournalpostForvaltningsnotat(utledTilgangJournalpost)) {
+		if (!isJournalpostForvaltningsnotat(journalpost)) {
 			throw new HentTilgangDokumentException(DokumentTilgangMessage.FORVALTNINGSNOTAT, "Tilgang til journalpost avvist fordi journalpost er notat, men hoveddokumentet er ikke forvaltningsnotat");
 		}
-		if (!isNotJournalpostOrganInternt(utledTilgangJournalpost)) {
+		if (!isJournalpostNotOrganInternt(journalpost)) {
 			throw new HentTilgangDokumentException(ORGANINTERNT, "Tilgang til journalpost avvist pga organinterne dokumenter på journalposten");
 		}
-		if (!isAvsenderMottakerPart(utledTilgangJournalpost, brukerIdenter.getIdenter())) {
+		if (!isAvsenderMottakerPart(journalpost, brukerIdenter.getIdenter())) {
 			throw new HentTilgangDokumentException(ANNEN_PART, "Tilgang til dokument avvist fordi dokumentet er sendt til/fra andre parter enn bruker");
 		}
-		if (isSkannetDokument(utledTilgangJournalpost)) {
+		if (isSkannetDokument(journalpost)) {
 			throw new HentTilgangDokumentException(SKANNET_DOKUMENT, "Tilgang til dokument avvist fordi dokumentet er skannet.");
 		}
-		if (isDokumentInnskrenketPartsinnsyn(utledTilgangJournalpost.getUtledTilgangDokumentList().get(0))) {
+		if (isDokumentInnskrenketPartsinnsyn(journalpost.getDokumenter().get(0).getTilgangDokument())) {
 			throw new HentTilgangDokumentException(INNSKRENKET_PARTSINNSYN, "Tilgang til dokument avvist fordi dokument er markert med innskrenket partsinnsyn");
 		}
-		if (isDokumentGDPRRestricted(utledTilgangJournalpost.getUtledTilgangDokumentList().get(0).getVariantList().get(0))) {
+		if (isDokumentGDPRRestricted(journalpost.getDokumenter().get(0).getDokumentvarianter().get(0).getTilgangVariant())) {
 			throw new HentTilgangDokumentException(GDPR, "Tilgang til dokument avvist ihht. gdrp");
 		}
-		if (isDokumentKassert(utledTilgangJournalpost.getUtledTilgangDokumentList().get(0))) {
+		if (isDokumentKassert(journalpost.getDokumenter().get(0).getTilgangDokument())) {
 			throw new HentTilgangDokumentException(KASSERT, "Tilgang til dokument avvist fordi dokumentet er kassert");
 		}
 	}
@@ -108,17 +148,17 @@ public class UtledTilgangService {
 	/**
 	 * 1a) Bruker må være part for å se journalposter
 	 */
-	private boolean isBrukerPart(UtledTilgangJournalpost utledTilgangJournalpost, BrukerIdenter identer) {
+	public boolean isBrukerPart(Journalpost journalpost, BrukerIdenter identer) {
 
-		JournalStatusCode journalStatusCode = utledTilgangJournalpost.getJournalstatusCode();
+		Journalstatus journalstatus = journalpost.getJournalstatus();
 
-		if (JournalStatusCode.getJournalstatusMidlertidig().contains(journalStatusCode)) {
-			return identer.getIdenter().contains(utledTilgangJournalpost.getUtledTilgangBruker().getBrukerId());
-		} else if (JournalStatusCode.getJournalstatusFerdigstilt().contains(journalStatusCode)) {
-			if (FS22.toString().equals(utledTilgangJournalpost.getUtledTilgangSak().getFagsystem())) {
-				return identer.getIdenter().contains(utledTilgangJournalpost.getUtledTilgangSak().getAktoerId());
-			} else if (FagsystemCode.PEN.toString().equals(utledTilgangJournalpost.getUtledTilgangSak().getFagsystem())) {
-				return identer.getFoedselsnummer().contains(utledTilgangJournalpost.getUtledTilgangBruker().getBrukerId());
+		if (MOTTATT.equals(journalstatus)) {
+			return identer.getIdenter().contains(journalpost.getTilgang().getTilgangBruker().getBrukerId());
+		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus)) {
+			if (FS22.toString().equals(journalpost.getTilgang().getTilgangSak().getFagsystem())) {
+				return identer.getIdenter().contains(journalpost.getTilgang().getTilgangSak().getAktoerId());
+			} else if (FagsystemCode.PEN.toString().equals(journalpost.getTilgang().getTilgangSak().getFagsystem())) {
+				return identer.getFoedselsnummer().contains(journalpost.getTilgang().getTilgangBruker().getBrukerId());
 			}
 		}
 		return false;
@@ -127,42 +167,42 @@ public class UtledTilgangService {
 	/**
 	 * 1b) Bruker får ikke se journalposter som er journalført før 04.06.2016
 	 */
-	private boolean isJournalfoertDatoAfterInnsynsdato(UtledTilgangJournalpost utledTilgangJournalpost) {
-		if (utledTilgangJournalpost.getJournalfoertDato() == null) {
+	private boolean isJournalfoertDatoAfterInnsynsdato(Journalpost journalpost) {
+		if (journalpost.getTilgang().getJournalfoertDato() == null) {
 			return true;
 		} else {
-			return utledTilgangJournalpost.getJournalfoertDato().isAfter(tidligstInnsynDato);
+			return journalpost.getTilgang().getJournalfoertDato().isAfter(tidligstInnsynDato);
 		}
 	}
 
 	/**
 	 * 1c) Bruker får kun se ferdigstilte journalposter
 	 */
-	private boolean isJournalpostFerdigstiltOrMidlertidig(UtledTilgangJournalpost utledTilgangJournalpost) {
-		return JOURNALSTATUS_FERDIGSTILT.contains(utledTilgangJournalpost.getJournalstatusCode()) || JOURNALSTATUS_MIDLERTIDIG.contains(utledTilgangJournalpost.getJournalstatusCode());
+	private boolean isJournalpostFerdigstiltOrMidlertidig(Journalpost journalpost) {
+		return JOURNALSTATUS_FERDIGSTILT.contains(journalpost.getJournalstatus()) || MOTTATT.equals(journalpost.getJournalstatus());
 	}
 
 	/**
 	 * 1d) Bruker får ikke se feilregistrerte journalposter
 	 */
-	private boolean isJournalpostFeilregistrert(UtledTilgangJournalpost utledTilgangJournalpost) {
-		return utledTilgangJournalpost.isFeilregistrert();
+	private boolean isJournalpostFeilregistrert(Journalpost journalpost) {
+		return journalpost.getTilgang().getTilgangSak().isFeilregistrert();
 	}
 
 	/**
 	 * 1e) Bruker får ikke innsyn i kontrollsaker
 	 */
-	private boolean isJournalpostKontrollsak(UtledTilgangJournalpost utledTilgangJournalpost) {
-		JournalStatusCode journalStatusCode = utledTilgangJournalpost.getJournalstatusCode();
+	public boolean isJournalpostNotKontrollsak(Journalpost journalpost) {
+		Journalstatus journalstatus = journalpost.getJournalstatus();
 
-		if (JOURNALSTATUS_MIDLERTIDIG.contains(journalStatusCode)) {
-			return utledTilgangJournalpost.getFagomradeCode() == FagomradeCode.KTR;
-		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalStatusCode)) {
-			if (utledTilgangJournalpost.getUtledTilgangSak() != null) {
-				return Tema.KTR.toString().equals(utledTilgangJournalpost.getUtledTilgangSak().getTema());
-			} else {
-				return utledTilgangJournalpost.getFagomradeCode() == FagomradeCode.KTR;
-			}
+		if (MOTTATT.equals(journalstatus)) {
+			return FagomradeCode.KTR.toString().equals(journalpost.getTilgang().getFagomradeCode());
+		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) &&
+				journalpost.getTilgang().getTilgangSak() != null) {
+			return Tema.KTR.toString().equals(journalpost.getTilgang().getTilgangSak().getTema());
+		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) &&
+				journalpost.getTilgang().getTilgangSak() == null) {
+			return FagomradeCode.KTR.toString().equals(journalpost.getTilgang().getFagomradeCode());
 		}
 		return true;
 	}
@@ -170,16 +210,16 @@ public class UtledTilgangService {
 	/**
 	 * 1f) Bruker kan ikke få se journalposter som er begrenset ihht. gdpr
 	 */
-	private boolean isJournalpostGDPRRestricted(UtledTilgangJournalpost utledTilgangJournalpost) {
-		return GDPR_SKJERMING_TYPE.contains(utledTilgangJournalpost.getSkjerming());
+	public boolean isJournalpostNotGDPRRestricted(Journalpost journalpost) {
+		return GDPR_SKJERMING_TYPE.contains(journalpost.getTilgang().getSkjerming());
 	}
 
 	/**
 	 * 1g) Hvis journalpost er notat må hoveddokumentet være markert som "forvaltningsnotat" for å vise journalposten.
 	 */
-	private boolean isJournalpostForvaltningsnotat(UtledTilgangJournalpost utledTilgangJournalpost) {
-		if (utledTilgangJournalpost.getJournalpostType() == N) {
-			return FORVALTNINGSNOTAT.equals(utledTilgangJournalpost.getUtledTilgangDokumentList().get(0).getKategori());
+	public boolean isJournalpostForvaltningsnotat(Journalpost journalpost) {
+		if (journalpost.getJournalposttype() == N) {
+			return FORVALTNINGSNOTAT.toString().equals(journalpost.getDokumenter().get(0).getTilgangDokument().getKategori());
 		}
 		return true;
 	}
@@ -187,16 +227,16 @@ public class UtledTilgangService {
 	/**
 	 * 1h) Journalposter som har organinterne dokumenter skal ikke vises
 	 */
-	private boolean isNotJournalpostOrganInternt(UtledTilgangJournalpost utledTilgangJournalpost) {
-		return utledTilgangJournalpost.getUtledTilgangDokumentList().stream().noneMatch(UtledTilgangDokument::isOrganinternt);
+	public boolean isJournalpostNotOrganInternt(Journalpost journalpost) {
+		return journalpost.getDokumenter().stream().noneMatch(dokumentInfo -> dokumentInfo.getTilgangDokument().isOrganinternt());
 	}
 
 	/**
 	 * 2a) Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	 */
-	private boolean isAvsenderMottakerPart(UtledTilgangJournalpost utledTilgangJournalpost, List<String> idents) {
-		if (utledTilgangJournalpost.getJournalpostType() != JournalpostTypeCode.N) {
-			return idents.contains(utledTilgangJournalpost.getAvsenderMottakerId());
+	private boolean isAvsenderMottakerPart(Journalpost journalpost, List<String> idents) {
+		if (journalpost.getJournalposttype() != N) {
+			return idents.contains(journalpost.getAvsenderMottaker().getId());
 		}
 		return true;
 	}
@@ -204,28 +244,28 @@ public class UtledTilgangService {
 	/**
 	 * 2b) Bruker får ikke se skannede dokumenter
 	 */
-	private boolean isSkannetDokument(UtledTilgangJournalpost utledTilgangJournalpost) {
-		return ACCEPTED_MOTTAKS_KANAL.contains(utledTilgangJournalpost.getMottaksKanalCode());
+	private boolean isSkannetDokument(Journalpost journalpost) {
+		return ACCEPTED_MOTTAKS_KANAL.contains(journalpost.getKanal());
 	}
 
 	/**
 	 * 2d) Dokumenter markert som innskrenketPartsinnsyn skal ikke vises
 	 */
-	private boolean isDokumentInnskrenketPartsinnsyn(UtledTilgangDokument utledTilgangDokument) {
-		return (utledTilgangDokument.isInnskrenketPartsinnsyn() || utledTilgangDokument.isInnskrenketTredjepart());
+	private boolean isDokumentInnskrenketPartsinnsyn(DokumentInfo.TilgangDokument tilgangDokument) {
+		return (tilgangDokument.isInnskrenketPartsinnsyn() || tilgangDokument.isInnskrenketTredjepart());
 	}
 
 	/**
 	 * 2e) Dokumenter som er begrenset ihht. gdpr skal ikke vises
 	 */
-	private boolean isDokumentGDPRRestricted(UtledTilgangVariant utledTilgangVariant) {
-		return GDPR_SKJERMING_TYPE.contains(utledTilgangVariant.getSkjerming());
+	private boolean isDokumentGDPRRestricted(Dokumentvariant.TilgangVariant tilgangVariant) {
+		return GDPR_SKJERMING_TYPE.contains(tilgangVariant.getSkjerming());
 	}
 
 	/**
 	 * 2f) Kasserte dokumenter skal ikke vises
 	 */
-	private boolean isDokumentKassert(UtledTilgangDokument utledTilgangDokument) {
-		return utledTilgangDokument.isKassert();
+	private boolean isDokumentKassert(DokumentInfo.TilgangDokument tilgangDokument) {
+		return tilgangDokument.isKassert();
 	}
 }

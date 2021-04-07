@@ -1,15 +1,16 @@
 package no.nav.safselvbetjening.hentdokument;
 
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangBrukerDto;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangDokumentInfoDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangSakDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangVariantDto;
-import no.nav.safselvbetjening.tilgang.domain.UtledTilgangBruker;
-import no.nav.safselvbetjening.tilgang.domain.UtledTilgangDokument;
-import no.nav.safselvbetjening.tilgang.domain.UtledTilgangJournalpost;
-import no.nav.safselvbetjening.tilgang.domain.UtledTilgangSak;
-import no.nav.safselvbetjening.tilgang.domain.UtledTilgangVariant;
+import no.nav.safselvbetjening.domain.AvsenderMottaker;
+import no.nav.safselvbetjening.domain.DokumentInfo;
+import no.nav.safselvbetjening.domain.Dokumentvariant;
+import no.nav.safselvbetjening.domain.Journalpost;
+import no.nav.safselvbetjening.domain.Kanal;
+import no.nav.safselvbetjening.domain.SkjermingType;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -17,47 +18,100 @@ import java.util.Collections;
 @Component
 public class HentDokumentTilgangMapper {
 
-	public UtledTilgangJournalpost map(TilgangJournalpostDto tilgangJournalpostDto) {
-		return UtledTilgangJournalpost.builder()
-				.avsenderMottakerId(tilgangJournalpostDto.getAvsenderMottakerId())
-				.datoOpprettet(tilgangJournalpostDto.getDatoOpprettet())
-				.fagomradeCode(tilgangJournalpostDto.getFagomrade())
-				.feilregistrert(tilgangJournalpostDto.getFeilregistrert())
-				.journalfoertDato(tilgangJournalpostDto.getJournalfoertDato())
-				.journalpostType(tilgangJournalpostDto.getJournalpostType())
-				.journalstatusCode(tilgangJournalpostDto.getJournalStatus())
-				.mottaksKanalCode(tilgangJournalpostDto.getMottakskanal())
-				.skjerming(tilgangJournalpostDto.getSkjerming())
-				.utledTilgangBruker(mapBruker(tilgangJournalpostDto.getBruker()))
-				.utledTilgangDokumentList(Collections.singletonList(mapDokument(tilgangJournalpostDto.getDokument())))
-				.utledTilgangSak(mapSak(tilgangJournalpostDto.getSak()))
+	public Journalpost map(TilgangJournalpostDto tilgangJournalpostDto) {
+		return Journalpost.builder()
+				.journalpostId(tilgangJournalpostDto.getJournalpostId())
+				.avsenderMottaker(AvsenderMottaker.builder().id(tilgangJournalpostDto.getAvsenderMottakerId()).build())
+				.journalposttype(tilgangJournalpostDto.getJournalpostType().toSafJournalposttype())
+				.journalstatus(tilgangJournalpostDto.getJournalStatus().toSafJournalstatus())
+				.kanal(mapKanal(tilgangJournalpostDto))
+				.tilgang(mapJournalpostTilgang(tilgangJournalpostDto))
+				.dokumenter(Collections.singletonList(mapDokumenter(tilgangJournalpostDto.getDokument())))
 				.build();
 	}
 
-	private UtledTilgangSak mapSak(TilgangSakDto tilgangSakDto) {
-		return UtledTilgangSak.builder()
+	private DokumentInfo mapDokumenter(TilgangDokumentInfoDto tilgangDokumentInfoDto) {
+		return DokumentInfo.builder()
+				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+						.innskrenketPartsinnsyn(tilgangDokumentInfoDto.getInnskrenketPartsinnsyn())
+						.innskrenketTredjepart(tilgangDokumentInfoDto.getInnskrenketTredjepart())
+						.kassert(tilgangDokumentInfoDto.getKassert())
+						.kategori(tilgangDokumentInfoDto.getKategori().toString())
+						.organinternt(tilgangDokumentInfoDto.getOrganinternt())
+						.build())
+				.dokumentvarianter(Collections.singletonList(mapDokumentVarianter(tilgangDokumentInfoDto.getVariant())))
+				.build();
+	}
+
+	private Dokumentvariant mapDokumentVarianter(TilgangVariantDto tilgangVariantDto) {
+
+		return Dokumentvariant.builder()
+				.tilgangVariant(Dokumentvariant.TilgangVariant.builder()
+						.skjerming(mapSkjermingType(tilgangVariantDto.getSkjerming()))
+						.build())
+				.build();
+	}
+
+	private Journalpost.TilgangJournalpost mapJournalpostTilgang(TilgangJournalpostDto tilgangJournalpostDto) {
+		return Journalpost.TilgangJournalpost.builder()
+				.datoOpprettet(tilgangJournalpostDto.getDatoOpprettet())
+				.fagomradeCode(tilgangJournalpostDto.getFagomrade().toString())
+				.journalfoertDato(tilgangJournalpostDto.getJournalfoertDato())
+				.skjerming(mapSkjermingType(tilgangJournalpostDto.getSkjerming()))
+				.tilgangBruker(Journalpost.TilgangBruker.builder().brukerId(tilgangJournalpostDto.getBruker().getBrukerId()).build())
+				.tilgangSak(mapTilgangSak(tilgangJournalpostDto.getSak()))
+				.build();
+	}
+
+	private Journalpost.TilgangSak mapTilgangSak(TilgangSakDto tilgangSakDto) {
+		return Journalpost.TilgangSak.builder()
 				.aktoerId(tilgangSakDto.getAktoerId())
 				.fagsystem(tilgangSakDto.getFagsystem())
+				.feilregistrert(tilgangSakDto.getFeilregistrert())
 				.tema(tilgangSakDto.getTema())
 				.build();
 	}
 
-	private UtledTilgangDokument mapDokument(TilgangDokumentInfoDto tilgangDokumentInfoDto) {
-		return UtledTilgangDokument.builder()
-				.innskrenketPartsinnsyn(tilgangDokumentInfoDto.getInnskrenketPartsinnsyn())
-				.innskrenketTredjepart(tilgangDokumentInfoDto.getInnskrenketTredjepart())
-				.kassert(tilgangDokumentInfoDto.getKassert())
-				.kategori(tilgangDokumentInfoDto.getKategori())
-				.organinternt(tilgangDokumentInfoDto.getOrganinternt())
-				.variantList(Collections.singletonList(mapVariant(tilgangDokumentInfoDto.getVariant())))
-				.build();
+	private SkjermingType mapSkjermingType(SkjermingTypeCode skjermingTypeCode) {
+		switch (skjermingTypeCode) {
+			case POL:
+				return SkjermingType.POL;
+			case FEIL:
+				return SkjermingType.FEIL;
+			default:
+				return null;
+		}
 	}
 
-	private UtledTilgangVariant mapVariant(TilgangVariantDto tilgangVariantDto) {
-		return UtledTilgangVariant.builder().skjerming(tilgangVariantDto.getSkjerming()).build();
+	private Kanal mapKanal(TilgangJournalpostDto tilgangJournalpostDto) {
+		switch (tilgangJournalpostDto.getJournalpostType()) {
+			case I:
+				if (tilgangJournalpostDto.getMottakskanal() == null) {
+					return Kanal.UKJENT;
+				}
+				return tilgangJournalpostDto.getMottakskanal().getSafKanal();
+			case U:
+				if (tilgangJournalpostDto.getMottakskanal() == null) {
+					return mapManglendeUtsendingskanal(tilgangJournalpostDto);
+				}
+				return tilgangJournalpostDto.getMottakskanal().getSafKanal();
+			case N:
+				return Kanal.INGEN_DISTRIBUSJON;
+			default:
+				return null;
+		}
 	}
 
-	private UtledTilgangBruker mapBruker(TilgangBrukerDto tilgangBrukerDto) {
-		return UtledTilgangBruker.builder().brukerId(tilgangBrukerDto.getBrukerId()).build();
+	private Kanal mapManglendeUtsendingskanal(TilgangJournalpostDto tilgangJournalpostDto) {
+		switch (tilgangJournalpostDto.getJournalStatus()) {
+			case FL:
+				return Kanal.LOKAL_UTSKRIFT;
+			case FS:
+				return Kanal.SENTRAL_UTSKRIFT;
+			case E:
+				return Kanal.SENTRAL_UTSKRIFT;
+			default:
+				return null;
+		}
 	}
 }

@@ -17,6 +17,7 @@ import java.time.ZonedDateTime;
 public class TilgangSakDto {
 	private String sakId;
 	private String fagsystem;
+	private Boolean feilregistrert;
 	private String aktoerId;
 	private String tema;
 	private String fagsakNr;
