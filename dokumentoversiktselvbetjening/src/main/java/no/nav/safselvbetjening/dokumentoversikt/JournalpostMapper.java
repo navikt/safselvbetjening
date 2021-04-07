@@ -33,14 +33,11 @@ import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.STATUS_OK;
 public class JournalpostMapper {
 
 	private final AvsenderMottakerMapper avsenderMottakerMapper;
-	private final UtledTilgangDokumentoversiktService utledTilgangDokumentoversiktService;
 	private final UtledTilgangService utledTilgangService;
 
 	public JournalpostMapper(AvsenderMottakerMapper avsenderMottakerMapper,
-							 UtledTilgangDokumentoversiktService utledTilgangDokumentoversiktService,
 							 UtledTilgangService utledTilgangService) {
 		this.avsenderMottakerMapper = avsenderMottakerMapper;
-		this.utledTilgangDokumentoversiktService = utledTilgangDokumentoversiktService;
 		this.utledTilgangService = utledTilgangService;
 	}
 
@@ -181,14 +178,5 @@ public class JournalpostMapper {
 				return relevanteDatoer;
 		}
 		return relevanteDatoer;
-	}
-
-	private boolean hasBrukerTilgang(Journalpost journalpost, DokumentInfo dokumentInfo, BrukerIdenter brukerIdenter, Dokumentvariant dokumentvariant) {
-		return utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, brukerIdenter, dokumentvariant).isEmpty();
-	}
-
-	private List<String> returnFeilmeldingListe(Journalpost journalpost, DokumentInfo dokumentInfo, BrukerIdenter brukerIdenter, Dokumentvariant dokumentvariant) {
-		return utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, brukerIdenter, dokumentvariant).isEmpty()
-				? Collections.singletonList(STATUS_OK) : utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, brukerIdenter, dokumentvariant);
 	}
 }

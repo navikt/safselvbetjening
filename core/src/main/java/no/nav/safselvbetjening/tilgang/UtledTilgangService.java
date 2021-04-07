@@ -2,12 +2,8 @@ package no.nav.safselvbetjening.tilgang;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -15,7 +11,6 @@ import no.nav.safselvbetjening.domain.Journalstatus;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.SkjermingType;
 import no.nav.safselvbetjening.domain.Tema;
-import no.nav.safselvbetjening.domain.Variantformat;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +19,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.FS22;
@@ -67,7 +61,7 @@ public class UtledTilgangService {
 		this.tidligstInnsynDato = safSelvbetjeningProperties.getTidligstInnsynDato().atStartOfDay(ZoneId.systemDefault()).toLocalDateTime();
 	}
 
-	public List<String> utledTilgangDokument(Journalpost journalpost, DokumentInfo dokumentInfo, BrukerIdenter brukerIdenter, Dokumentvariant dokumentvariant) {
+	public List<String> utledTilgangDokument(Journalpost journalpost, DokumentInfo dokumentInfo, Dokumentvariant dokumentvariant, BrukerIdenter brukerIdenter) {
 		List<String> feilmeldinger = new ArrayList<>();
 
 		if (!isAvsenderMottakerPart(journalpost, brukerIdenter.getIdenter())) {
@@ -90,17 +84,6 @@ public class UtledTilgangService {
 		}
 
 		return feilmeldinger;
-	}
-
-	public List<Journalpost> utledTilgangJournalposter(List<Journalpost> journalpostList, BrukerIdenter identer) {
-
-		return journalpostList.stream()
-				.filter(journalpost -> isBrukerPart(journalpost, identer))
-				.filter(this::isJournalpostNotGDPRRestricted)
-				.filter(this::isJournalpostNotKontrollsak)
-				.filter(this::isJournalpostForvaltningsnotat)
-				.filter(this::isJournalpostNotOrganInternt)
-				.collect(Collectors.toList());
 	}
 
 	public void utledTilgangHentDokument(Journalpost journalpost, BrukerIdenter brukerIdenter) {
