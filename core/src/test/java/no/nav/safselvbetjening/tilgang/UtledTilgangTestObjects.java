@@ -13,7 +13,6 @@ import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.RelevantDato;
 import no.nav.safselvbetjening.domain.Variantformat;
 import no.nav.safselvbetjening.service.BrukerIdenter;
-import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -34,9 +33,6 @@ public class UtledTilgangTestObjects {
 	static final String TEMA_DAGPENGER = DAG.name();
 	static final String ARKIVSAKSYSTEM_GOSYS = "FS22";
 	static final String ARKIVSAKSYSTEM_PENSJON = "PEN";
-	static final List<String> IDENT_LIST = List.of(IDENT, AKTOER_ID);
-
-	static final BrukerIdenter brukerIdenter = Mockito.mock(BrukerIdenter.class);
 
 	static Journalpost.JournalpostBuilder baseJournalpost() {
 		return Journalpost.builder()

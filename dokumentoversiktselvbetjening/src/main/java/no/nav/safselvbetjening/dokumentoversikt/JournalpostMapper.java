@@ -1,5 +1,6 @@
 package no.nav.safselvbetjening.dokumentoversikt;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
@@ -14,8 +15,10 @@ import no.nav.safselvbetjening.domain.RelevantDato;
 import no.nav.safselvbetjening.domain.SkjermingType;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
  *
  * @author Joakim Bjørnstad, Jbit AS
  */
+@Slf4j
 @Component
 public class JournalpostMapper {
 
@@ -34,40 +38,62 @@ public class JournalpostMapper {
 	}
 
 	Journalpost map(JournalpostDto journalpostDto) {
-		return Journalpost.builder()
-				.journalpostId(journalpostDto.getJournalpostId().toString())
-				.journalposttype(journalpostDto.getJournalposttype().toSafJournalposttype())
-				.journalstatus(journalpostDto.getJournalstatus().toSafJournalstatus())
-				.tittel(journalpostDto.getInnhold())
-				.kanal(mapKanal(journalpostDto))
-				.avsenderMottaker(avsenderMottakerMapper.map(journalpostDto))
-				.relevanteDatoer(mapRelevanteDatoer(journalpostDto))
-				.dokumenter(mapDokumenter(journalpostDto))
-				.tilgang(mapJournalpostTilgang(journalpostDto))
-				.build();
+		try {
+			return Journalpost.builder()
+					.journalpostId(journalpostDto.getJournalpostId().toString())
+					.journalposttype(journalpostDto.getJournalposttype().toSafJournalposttype())
+					.journalstatus(journalpostDto.getJournalstatus().toSafJournalstatus())
+					.tittel(journalpostDto.getInnhold())
+					.kanal(mapKanal(journalpostDto))
+					.avsenderMottaker(avsenderMottakerMapper.map(journalpostDto))
+					.relevanteDatoer(mapRelevanteDatoer(journalpostDto))
+					.dokumenter(mapDokumenter(journalpostDto))
+					.tilgang(mapJournalpostTilgang(journalpostDto))
+					.build();
+		} catch (Exception e) {
+			log.error("Teknisk feil under mapping av journalpost med journalpostId={}.", journalpostDto.getJournalpostId(), e);
+			return null;
+		}
 	}
 
 	private Journalpost.TilgangJournalpost mapJournalpostTilgang(JournalpostDto journalpostDto) {
+		String brukerId = journalpostDto.getBruker() == null ? null : journalpostDto.getBruker().getBrukerId();
+
 		return Journalpost.TilgangJournalpost.builder()
-				.datoOpprettet(journalpostDto.getDatoOpprettet().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+				.datoOpprettet(mapDato(journalpostDto.getDatoOpprettet()))
 				.fagomradeCode(journalpostDto.getFagomrade().toString())
-				.journalfoertDato(journalpostDto.getJournalDato().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+				.journalfoertDato(mapDato(journalpostDto.getJournalDato()))
 				.skjerming(mapSkjermingType(journalpostDto.getSkjerming()))
-				.tilgangBruker(Journalpost.TilgangBruker.builder().brukerId(journalpostDto.getBruker().getBrukerId()).build())
+				.tilgangBruker(Journalpost.TilgangBruker.builder().brukerId(brukerId).build())
 				.tilgangSak(mapTilgangSak(journalpostDto.getSaksrelasjon()))
 				.build();
 	}
 
+	private LocalDateTime mapDato(Date dato) {
+		if (dato == null) {
+			return null;
+		}
+		return dato.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+	}
+
 	private Journalpost.TilgangSak mapTilgangSak(SaksrelasjonDto saksrelasjonDto) {
+		if (saksrelasjonDto == null) {
+			return Journalpost.TilgangSak.builder().build();
+		}
+
 		return Journalpost.TilgangSak.builder()
 				.aktoerId(saksrelasjonDto.getAktoerId())
-				.fagsystem(saksrelasjonDto.getFagsystem().toString())
+				.fagsystem(saksrelasjonDto.getFagsystem() == null ? null : saksrelasjonDto.getFagsystem().toString())
 				.feilregistrert(saksrelasjonDto.getFeilregistrert() != null && saksrelasjonDto.getFeilregistrert())
 				.tema(saksrelasjonDto.getTema())
 				.build();
 	}
 
 	private SkjermingType mapSkjermingType(SkjermingTypeCode skjermingTypeCode) {
+		if (skjermingTypeCode == null) {
+			return null;
+		}
+
 		switch (skjermingTypeCode) {
 			case POL:
 				return SkjermingType.POL;
@@ -89,7 +115,7 @@ public class JournalpostMapper {
 						.innskrenketPartsinnsyn(dokument.getInnskrPartsinnsyn() != null && dokument.getInnskrPartsinnsyn())
 						.innskrenketTredjepart(dokument.getInnskrTredjepart() != null && dokument.getInnskrTredjepart())
 						.kassert(dokument.getKassert() != null && dokument.getKassert())
-						.kategori(dokument.getKategori().toString())
+						.kategori(dokument.getKategori() == null ? null : dokument.getKategori().toString())
 						.organinternt(dokument.getOrganInternt() != null && dokument.getOrganInternt())
 						.build())
 				.build()).collect(Collectors.toList());

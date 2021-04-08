@@ -63,6 +63,10 @@ public class UtledTilgangService {
 
 	public boolean utledTilgangJournalpost(Journalpost journalpost, BrukerIdenter brukerIdenter) {
 		try {
+			if(journalpost == null) {
+				return false;
+			}
+
 			return isBrukerPart(journalpost, brukerIdenter) && isJournalpostNotGDPRRestricted(journalpost) &&
 					isJournalpostNotKontrollsak(journalpost) && isJournalpostForvaltningsnotat(journalpost) &&
 					isJournalpostNotOrganInternt(journalpost);
