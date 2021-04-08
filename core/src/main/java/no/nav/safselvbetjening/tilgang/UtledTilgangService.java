@@ -149,7 +149,7 @@ public class UtledTilgangService {
 	/**
 	 * 1b) Bruker får ikke se journalposter som er journalført før 04.06.2016
 	 */
-	private boolean isJournalfoertDatoBeforeInnsynsdato(Journalpost journalpost) {
+	boolean isJournalfoertDatoBeforeInnsynsdato(Journalpost journalpost) {
 		if (journalpost.getTilgang().getJournalfoertDato() == null) {
 			return false;
 		} else {
@@ -160,19 +160,18 @@ public class UtledTilgangService {
 	/**
 	 * 1c) Bruker får kun se ferdigstilte journalposter
 	 */
-	private boolean isJournalpostFerdigstiltOrMidlertidig(Journalpost journalpost) {
+	boolean isJournalpostFerdigstiltOrMidlertidig(Journalpost journalpost) {
 		return JOURNALSTATUS_FERDIGSTILT.contains(journalpost.getJournalstatus()) || MOTTATT.equals(journalpost.getJournalstatus());
 	}
 
 	/**
 	 * 1d) Bruker får ikke se feilregistrerte journalposter
 	 */
-	private boolean isJournalpostFeilregistrert(Journalpost journalpost) {
+	boolean isJournalpostFeilregistrert(Journalpost journalpost) {
 		if (journalpost.getTilgang().getTilgangSak() != null) {
 			return journalpost.getTilgang().getTilgangSak().isFeilregistrert();
 		}
 		return false;
-	}
 
 	/**
 	 * 1e) Bruker får ikke innsyn i kontrollsaker
@@ -219,7 +218,7 @@ public class UtledTilgangService {
 	/**
 	 * 2a) Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	 */
-	private boolean isAvsenderMottakerNotPart(Journalpost journalpost, List<String> idents) {
+	boolean isAvsenderMottakerNotPart(Journalpost journalpost, List<String> idents) {
 		if (journalpost.getJournalposttype() != N) {
 			return !idents.contains(journalpost.getAvsenderMottaker().getId());
 		}
@@ -229,28 +228,28 @@ public class UtledTilgangService {
 	/**
 	 * 2b) Bruker får ikke se skannede dokumenter
 	 */
-	private boolean isSkannetDokument(Journalpost journalpost) {
+	boolean isSkannetDokument(Journalpost journalpost) {
 		return ACCEPTED_MOTTAKS_KANAL.contains(journalpost.getKanal());
 	}
 
 	/**
 	 * 2d) Dokumenter markert som innskrenketPartsinnsyn skal ikke vises
 	 */
-	private boolean isDokumentInnskrenketPartsinnsyn(DokumentInfo.TilgangDokument tilgangDokument) {
+	boolean isDokumentInnskrenketPartsinnsyn(DokumentInfo.TilgangDokument tilgangDokument) {
 		return (tilgangDokument.isInnskrenketPartsinnsyn() || tilgangDokument.isInnskrenketTredjepart());
 	}
 
 	/**
 	 * 2e) Dokumenter som er begrenset ihht. gdpr skal ikke vises
 	 */
-	private boolean isDokumentGDPRRestricted(Dokumentvariant.TilgangVariant tilgangVariant) {
+	boolean isDokumentGDPRRestricted(Dokumentvariant.TilgangVariant tilgangVariant) {
 		return GDPR_SKJERMING_TYPE.contains(tilgangVariant.getSkjerming());
 	}
 
 	/**
 	 * 2f) Kasserte dokumenter skal ikke vises
 	 */
-	private boolean isDokumentKassert(DokumentInfo.TilgangDokument tilgangDokument) {
+	boolean isDokumentKassert(DokumentInfo.TilgangDokument tilgangDokument) {
 		return tilgangDokument.isKassert();
 	}
 }

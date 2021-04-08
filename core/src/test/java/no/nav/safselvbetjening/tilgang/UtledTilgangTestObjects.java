@@ -1,25 +1,27 @@
 package no.nav.safselvbetjening.tilgang;
 
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.BrukerDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
+import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
+import no.nav.safselvbetjening.domain.AvsenderMottaker;
+import no.nav.safselvbetjening.domain.AvsenderMottakerIdType;
+import no.nav.safselvbetjening.domain.Datotype;
+import no.nav.safselvbetjening.domain.DokumentInfo;
+import no.nav.safselvbetjening.domain.Dokumentvariant;
+import no.nav.safselvbetjening.domain.Journalpost;
+import no.nav.safselvbetjening.domain.Journalposttype;
+import no.nav.safselvbetjening.domain.Journalstatus;
+import no.nav.safselvbetjening.domain.Kanal;
+import no.nav.safselvbetjening.domain.RelevantDato;
+import no.nav.safselvbetjening.domain.Variantformat;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import org.mockito.Mockito;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.SOK;
+import static no.nav.safselvbetjening.domain.Tema.DAG;
 import static no.nav.safselvbetjening.domain.Tema.KTR;
 import static no.nav.safselvbetjening.domain.Tema.PEN;
-import static org.mockito.Mockito.when;
 
 public class UtledTilgangTestObjects {
 
@@ -27,77 +29,85 @@ public class UtledTilgangTestObjects {
 	static final String ANNEN_PART = "23456789101";
 	static final String AKTOER_ID = "10000000000";
 	static final String ANNEN_AKTOER_ID = "12000000000";
-	static final String TEMA_KTR = KTR.toString();
-	static final String TEMA_PEN = PEN.toString();
+	static final String TEMA_KONTROLL = KTR.toString();
+	static final String TEMA_PENSJON = PEN.toString();
+	static final String TEMA_DAGPENGER = DAG.name();
+	static final String ARKIVSAKSYSTEM_GOSYS = "FS22";
+	static final String ARKIVSAKSYSTEM_PENSJON = "PEN";
 	static final List<String> IDENT_LIST = List.of(IDENT, AKTOER_ID);
 
 	static final BrukerIdenter brukerIdenter = Mockito.mock(BrukerIdenter.class);
 
-	static void mockBrukerIdenter() {
-		when(brukerIdenter.getIdenter()).thenReturn(IDENT_LIST);
-		when(brukerIdenter.getFoedselsnummer()).thenReturn(List.of(IDENT));
-	}
-
-	static JournalpostDto createJournalpostDtoDokument(JournalpostTypeCode journalpostTypeCode, String avsenderMottakerId, MottaksKanalCode mottaksKanalCode) {
-		return JournalpostDto.builder()
-				.journalposttype(journalpostTypeCode)
-				.avsenderMottakerId(avsenderMottakerId)
-				.mottakskanal(mottaksKanalCode)
-				.build();
-	}
-
-	static JournalpostDto createJournalpostDtoJournalpost(JournalStatusCode journalStatusCode, String tema, FagsystemCode fagsystemCode,
-														  String brukerId, String aktoerId, FagomradeCode fagomradeCode, JournalpostTypeCode journalpostTypeCode) {
-		return JournalpostDto.builder()
-				.journalstatus(journalStatusCode)
-				.fagomrade(fagomradeCode)
-				.journalposttype(journalpostTypeCode)
-				.saksrelasjon(SaksrelasjonDto.builder()
-						.tema(tema)
-						.fagsystem(fagsystemCode)
-						.aktoerId(aktoerId)
+	static Journalpost.JournalpostBuilder baseJournalpost() {
+		return Journalpost.builder()
+				.journalpostId("40000000")
+				.tittel("Søknad om dagpenger")
+				.journalstatus(Journalstatus.JOURNALFOERT)
+				.kanal(Kanal.NAV_NO)
+				.journalposttype(Journalposttype.I)
+				.avsenderMottaker(AvsenderMottaker.builder()
+						.id(IDENT)
+						.type(AvsenderMottakerIdType.FNR)
 						.build())
-				.bruker(BrukerDto.builder()
-						.brukerId(brukerId)
+				.relevanteDatoer(List.of(new RelevantDato(LocalDateTime.now(), Datotype.DATO_JOURNALFOERT)))
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.tilgangBruker(Journalpost.TilgangBruker.builder()
+								.brukerId(IDENT)
+								.build())
+						.datoOpprettet(LocalDateTime.now())
+						.fagomradeCode(TEMA_DAGPENGER)
+						.journalfoertDato(LocalDateTime.now())
+						.tilgangSak(Journalpost.TilgangSak.builder()
+								.aktoerId(AKTOER_ID)
+								.fagsystem(ARKIVSAKSYSTEM_GOSYS)
+								.feilregistrert(false)
+								.tema(TEMA_DAGPENGER)
+								.build())
 						.build())
-				.dokumenter(List.of(DokumentInfoDto.builder()
-						.organInternt(false)
-						.kategori(SOK)
-						.build()))
-				.build();
-	}
-
-	static JournalpostDto.JournalpostDtoBuilder createJournalpostDtoBase() {
-		return JournalpostDto.builder()
-				.journalstatus(JournalStatusCode.M)
-				.fagomrade(FagomradeCode.BID)
-				.journalposttype(JournalpostTypeCode.I)
-				.saksrelasjon(SaksrelasjonDto.builder()
-						.tema(TEMA_PEN)
-						.fagsystem(FagsystemCode.PEN)
-						.aktoerId(AKTOER_ID)
-						.build())
-				.bruker(BrukerDto.builder()
-						.brukerId(IDENT)
-						.build())
-				.dokumenter(List.of(DokumentInfoDto.builder()
-						.organInternt(false)
-						.kategori(SOK)
+				.dokumenter(List.of(DokumentInfo.builder()
+						.dokumentInfoId("40000000")
+						.tittel("Søknad om dagpenger")
+						.brevkode("Dagpenger-01")
+						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+								.innskrenketPartsinnsyn(false)
+								.innskrenketTredjepart(false)
+								.kassert(false)
+								.kategori("ES")
+								.organinternt(false)
+								.build())
+						.dokumentvarianter(List.of(Dokumentvariant.builder()
+								.filuuid("aaa-bbb-ccc-ddd")
+								.variantformat(Variantformat.ARKIV)
+								.tilgangVariant(Dokumentvariant.TilgangVariant.builder()
+										.build())
+								.build()))
 						.build()));
 	}
 
-	static JournalpostDto createJournalpostDtoWithJournalstatus(JournalStatusCode journalStatusCode) {
-		return createJournalpostDtoBase().journalstatus(journalStatusCode).build();
+	static Journalpost.JournalpostBuilder baseJournalfoertJournalpost() {
+		return baseJournalpost().journalstatus(Journalstatus.JOURNALFOERT);
 	}
 
-	static DokumentInfoDto createDokumentinfoDtoDokument(boolean innskrenketPartsinnsyn, boolean innskrenketTredjepart, boolean kassert, SkjermingTypeCode skjermingTypeCode) {
-		return DokumentInfoDto.builder()
-				.innskrPartsinnsyn(innskrenketPartsinnsyn)
-				.innskrTredjepart(innskrenketTredjepart)
-				.varianter(List.of(VariantDto.builder()
-						.skjerming(skjermingTypeCode)
-						.build()))
-				.kassert(kassert)
-				.build();
+	static Journalpost.JournalpostBuilder baseMottattJournalpost() {
+		return baseJournalpost().journalstatus(Journalstatus.MOTTATT)
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.tilgangBruker(null)
+						.datoOpprettet(LocalDateTime.now())
+						.fagomradeCode(TEMA_DAGPENGER)
+						.journalfoertDato(null)
+						.tilgangSak(null)
+						.build());
+	}
+
+	static BrukerIdenter defaultBrukerIdenter() {
+		PdlResponse.PdlIdent fnr = new PdlResponse.PdlIdent();
+		fnr.setGruppe(PdlResponse.PdlGruppe.FOLKEREGISTERIDENT);
+		fnr.setHistorisk(false);
+		fnr.setIdent(IDENT);
+		PdlResponse.PdlIdent aktoerId = new PdlResponse.PdlIdent();
+		aktoerId.setGruppe(PdlResponse.PdlGruppe.AKTORID);
+		aktoerId.setHistorisk(false);
+		aktoerId.setIdent(AKTOER_ID);
+		return new BrukerIdenter(Arrays.asList(fnr, aktoerId));
 	}
 }
