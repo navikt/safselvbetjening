@@ -67,7 +67,7 @@ public class UtledTilgangService {
 		if (isAvsenderMottakerNotPart(journalpost, brukerIdenter.getIdenter())) {
 			feilmeldinger.add(PARTSINNSYN);
 		}
-		if (isJournalfoertDatoBeforeInnsynsdato(journalpost)) {
+		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdato(journalpost)) {
 			feilmeldinger.add(INNSYNSDATO);
 		}
 		if (isSkannetDokument(journalpost)) {
@@ -89,7 +89,7 @@ public class UtledTilgangService {
 		if (!isBrukerPart(journalpost, brukerIdenter)) {
 			throw new HentTilgangDokumentException(PARTSINNSYN, "Tilgang til journalpost avvist fordi bruker ikke er part");
 		}
-		if (isJournalfoertDatoBeforeInnsynsdato(journalpost)) {
+		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdato(journalpost)) {
 			throw new HentTilgangDokumentException(INNSYNSDATO, "Tilgang til journalpost avvist fordi journalposten er opprettet før tidligst innsynsdato");
 		}
 		if (!isJournalpostFerdigstiltOrMidlertidig(journalpost)) {
@@ -135,7 +135,11 @@ public class UtledTilgangService {
 		Journalstatus journalstatus = journalpost.getJournalstatus();
 
 		if (MOTTATT.equals(journalstatus)) {
-			return identer.getIdenter().contains(journalpost.getTilgang().getTilgangBruker().getBrukerId());
+			if (journalpost.getTilgang().getTilgangBruker() != null) {
+				return identer.getIdenter().contains(journalpost.getTilgang().getTilgangBruker().getBrukerId());
+			} else {
+				return true;
+			}
 		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus)) {
 			if (FS22.toString().equals(journalpost.getTilgang().getTilgangSak().getFagsystem())) {
 				return identer.getIdenter().contains(journalpost.getTilgang().getTilgangSak().getAktoerId());
@@ -149,11 +153,12 @@ public class UtledTilgangService {
 	/**
 	 * 1b) Bruker får ikke se journalposter som er journalført før 04.06.2016
 	 */
-	boolean isJournalfoertDatoBeforeInnsynsdato(Journalpost journalpost) {
+	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdato(Journalpost journalpost) {
 		if (journalpost.getTilgang().getJournalfoertDato() == null) {
-			return false;
+			return journalpost.getTilgang().getDatoOpprettet().isBefore(tidligstInnsynDato);
 		} else {
-			return journalpost.getTilgang().getJournalfoertDato().isBefore(tidligstInnsynDato);
+			return journalpost.getTilgang().getJournalfoertDato().isBefore(tidligstInnsynDato) ||
+					journalpost.getTilgang().getDatoOpprettet().isBefore(tidligstInnsynDato);
 		}
 	}
 
@@ -172,6 +177,7 @@ public class UtledTilgangService {
 			return journalpost.getTilgang().getTilgangSak().isFeilregistrert();
 		}
 		return false;
+	}
 
 	/**
 	 * 1e) Bruker får ikke innsyn i kontrollsaker

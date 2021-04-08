@@ -169,28 +169,28 @@ class UtledTilgangServiceTest {
 	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
 	// Journalført før innsynsdato
 	@Test
-	void shouldReturnFalseWhenJournalfoertBeforeInnsynsdato() {
+	void shouldReturnTrueWhenJournalfoertBeforeInnsynsdato() {
 		Journalpost journalpost = baseJournalfoertJournalpost()
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.journalfoertDato(LocalDateTime.of(2016, 5, 6, 0, 0))
 						.build())
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoAfterInnsynsdato(journalpost);
-		assertThat(actual).isFalse();
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdato(journalpost);
+		assertThat(actual).isTrue();
 	}
 
 	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
 	// Opprettet før innsynsdato
 	@Test
-	void shouldReturnFalseWhenOpprettetBeforeInnsynsdato() {
+	void shouldReturnTrueWhenOpprettetBeforeInnsynsdato() {
 		Journalpost journalpost = baseJournalfoertJournalpost()
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.journalfoertDato(LocalDateTime.of(2017, 5, 6, 0, 0))
 						.datoOpprettet(LocalDateTime.of(2015, 5, 6, 0, 0))
 						.build())
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoAfterInnsynsdato(journalpost);
-		assertThat(actual).isFalse();
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdato(journalpost);
+		assertThat(actual).isTrue();
 	}
 
 	//	1c - Bruker får kun se midlertidige og ferdigstilte journalposter
@@ -310,15 +310,15 @@ class UtledTilgangServiceTest {
 
 	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	@Test
-	void shouldReturnFalseWhenAvsenderMottakerIdIsAnnenPart() {
+	void shouldReturnTrueWhenAvsenderMottakerIdIsAnnenPart() {
 		Journalpost journalpost = baseJournalfoertJournalpost()
 				.avsenderMottaker(AvsenderMottaker.builder()
 						.id(ANNEN_PART)
 						.type(FNR)
 						.build())
 				.build();
-		boolean actual = utledTilgangService.isAvsenderMottakerPart(journalpost, defaultBrukerIdenter().getIdenter());
-		assertThat(actual).isFalse();
+		boolean actual = utledTilgangService.isAvsenderMottakerNotPart(journalpost, defaultBrukerIdenter().getIdenter());
+		assertThat(actual).isTrue();
 	}
 
 	//	2b - Bruker får ikke se skannede dokumenter
