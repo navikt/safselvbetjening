@@ -15,7 +15,7 @@ public class BrukerIdenter {
     private final List<String> aktoerIds = new ArrayList<>();
     private final List<String> foedselsnummer = new ArrayList<>();
 
-    BrukerIdenter(final List<PdlResponse.PdlIdent> pdlIdenter) {
+    public BrukerIdenter(final List<PdlResponse.PdlIdent> pdlIdenter) {
         for(PdlResponse.PdlIdent pdlIdent : pdlIdenter) {
             switch(pdlIdent.getGruppe()) {
                 case AKTORID:
