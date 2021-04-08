@@ -13,6 +13,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TilgangJournalpostResponseTo {
-
 	private TilgangJournalpostDto tilgangJournalpostDto;
 }

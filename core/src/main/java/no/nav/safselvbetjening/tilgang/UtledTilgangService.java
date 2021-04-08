@@ -64,10 +64,10 @@ public class UtledTilgangService {
 	public List<String> utledTilgangDokument(Journalpost journalpost, DokumentInfo dokumentInfo, Dokumentvariant dokumentvariant, BrukerIdenter brukerIdenter) {
 		List<String> feilmeldinger = new ArrayList<>();
 
-		if (!isAvsenderMottakerPart(journalpost, brukerIdenter.getIdenter())) {
+		if (isAvsenderMottakerNotPart(journalpost, brukerIdenter.getIdenter())) {
 			feilmeldinger.add(PARTSINNSYN);
 		}
-		if (!isJournalfoertDatoAfterInnsynsdato(journalpost)) {
+		if (isJournalfoertDatoBeforeInnsynsdato(journalpost)) {
 			feilmeldinger.add(INNSYNSDATO);
 		}
 		if (isSkannetDokument(journalpost)) {
@@ -82,7 +82,6 @@ public class UtledTilgangService {
 		if (isDokumentKassert(dokumentInfo.getTilgangDokument())) {
 			feilmeldinger.add(KASSERT);
 		}
-
 		return feilmeldinger;
 	}
 
@@ -90,7 +89,7 @@ public class UtledTilgangService {
 		if (!isBrukerPart(journalpost, brukerIdenter)) {
 			throw new HentTilgangDokumentException(PARTSINNSYN, "Tilgang til journalpost avvist fordi bruker ikke er part");
 		}
-		if (!isJournalfoertDatoAfterInnsynsdato(journalpost)) {
+		if (isJournalfoertDatoBeforeInnsynsdato(journalpost)) {
 			throw new HentTilgangDokumentException(INNSYNSDATO, "Tilgang til journalpost avvist fordi journalposten er opprettet før tidligst innsynsdato");
 		}
 		if (!isJournalpostFerdigstiltOrMidlertidig(journalpost)) {
@@ -111,7 +110,7 @@ public class UtledTilgangService {
 		if (!isJournalpostNotOrganInternt(journalpost)) {
 			throw new HentTilgangDokumentException(ORGANINTERNT, "Tilgang til journalpost avvist pga organinterne dokumenter på journalposten");
 		}
-		if (!isAvsenderMottakerPart(journalpost, brukerIdenter.getIdenter())) {
+		if (isAvsenderMottakerNotPart(journalpost, brukerIdenter.getIdenter())) {
 			throw new HentTilgangDokumentException(ANNEN_PART, "Tilgang til dokument avvist fordi dokumentet er sendt til/fra andre parter enn bruker");
 		}
 		if (isSkannetDokument(journalpost)) {
@@ -150,11 +149,11 @@ public class UtledTilgangService {
 	/**
 	 * 1b) Bruker får ikke se journalposter som er journalført før 04.06.2016
 	 */
-	private boolean isJournalfoertDatoAfterInnsynsdato(Journalpost journalpost) {
+	private boolean isJournalfoertDatoBeforeInnsynsdato(Journalpost journalpost) {
 		if (journalpost.getTilgang().getJournalfoertDato() == null) {
-			return true;
+			return false;
 		} else {
-			return journalpost.getTilgang().getJournalfoertDato().isAfter(tidligstInnsynDato);
+			return journalpost.getTilgang().getJournalfoertDato().isBefore(tidligstInnsynDato);
 		}
 	}
 
@@ -169,7 +168,10 @@ public class UtledTilgangService {
 	 * 1d) Bruker får ikke se feilregistrerte journalposter
 	 */
 	private boolean isJournalpostFeilregistrert(Journalpost journalpost) {
-		return journalpost.getTilgang().getTilgangSak().isFeilregistrert();
+		if (journalpost.getTilgang().getTilgangSak() != null) {
+			return journalpost.getTilgang().getTilgangSak().isFeilregistrert();
+		}
+		return false;
 	}
 
 	/**
@@ -179,13 +181,13 @@ public class UtledTilgangService {
 		Journalstatus journalstatus = journalpost.getJournalstatus();
 
 		if (MOTTATT.equals(journalstatus)) {
-			return FagomradeCode.KTR.toString().equals(journalpost.getTilgang().getFagomradeCode());
+			return !FagomradeCode.KTR.toString().equals(journalpost.getTilgang().getFagomradeCode());
 		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) &&
 				journalpost.getTilgang().getTilgangSak() != null) {
-			return Tema.KTR.toString().equals(journalpost.getTilgang().getTilgangSak().getTema());
+			return !Tema.KTR.toString().equals(journalpost.getTilgang().getTilgangSak().getTema());
 		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) &&
 				journalpost.getTilgang().getTilgangSak() == null) {
-			return FagomradeCode.KTR.toString().equals(journalpost.getTilgang().getFagomradeCode());
+			return !FagomradeCode.KTR.toString().equals(journalpost.getTilgang().getFagomradeCode());
 		}
 		return true;
 	}
@@ -194,7 +196,7 @@ public class UtledTilgangService {
 	 * 1f) Bruker kan ikke få se journalposter som er begrenset ihht. gdpr
 	 */
 	public boolean isJournalpostNotGDPRRestricted(Journalpost journalpost) {
-		return GDPR_SKJERMING_TYPE.contains(journalpost.getTilgang().getSkjerming());
+		return !GDPR_SKJERMING_TYPE.contains(journalpost.getTilgang().getSkjerming());
 	}
 
 	/**
@@ -217,11 +219,11 @@ public class UtledTilgangService {
 	/**
 	 * 2a) Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	 */
-	private boolean isAvsenderMottakerPart(Journalpost journalpost, List<String> idents) {
+	private boolean isAvsenderMottakerNotPart(Journalpost journalpost, List<String> idents) {
 		if (journalpost.getJournalposttype() != N) {
-			return idents.contains(journalpost.getAvsenderMottaker().getId());
+			return !idents.contains(journalpost.getAvsenderMottaker().getId());
 		}
-		return true;
+		return false;
 	}
 
 	/**

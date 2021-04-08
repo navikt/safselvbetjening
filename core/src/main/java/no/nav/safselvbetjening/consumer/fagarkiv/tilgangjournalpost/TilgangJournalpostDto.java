@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 public class TilgangJournalpostDto {
-
 	private String journalpostId;
 	private JournalStatusCode journalStatus;
 	private JournalpostTypeCode journalpostType;
