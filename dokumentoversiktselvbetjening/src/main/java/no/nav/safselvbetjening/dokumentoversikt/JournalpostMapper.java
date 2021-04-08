@@ -12,17 +12,12 @@ import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.RelevantDato;
 import no.nav.safselvbetjening.domain.SkjermingType;
-import no.nav.safselvbetjening.service.BrukerIdenter;
-import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.STATUS_OK;
 
 /**
  * Mapper fra fagarkivet sitt domene til safselvbetjening sitt domene.
@@ -33,15 +28,12 @@ import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.STATUS_OK;
 public class JournalpostMapper {
 
 	private final AvsenderMottakerMapper avsenderMottakerMapper;
-	private final UtledTilgangService utledTilgangService;
 
-	public JournalpostMapper(AvsenderMottakerMapper avsenderMottakerMapper,
-							 UtledTilgangService utledTilgangService) {
+	public JournalpostMapper(AvsenderMottakerMapper avsenderMottakerMapper) {
 		this.avsenderMottakerMapper = avsenderMottakerMapper;
-		this.utledTilgangService = utledTilgangService;
 	}
 
-	Journalpost map(JournalpostDto journalpostDto, BrukerIdenter brukerIdenter) {
+	Journalpost map(JournalpostDto journalpostDto) {
 		return Journalpost.builder()
 				.journalpostId(journalpostDto.getJournalpostId().toString())
 				.journalposttype(journalpostDto.getJournalposttype().toSafJournalposttype())
@@ -50,7 +42,7 @@ public class JournalpostMapper {
 				.kanal(mapKanal(journalpostDto))
 				.avsenderMottaker(avsenderMottakerMapper.map(journalpostDto))
 				.relevanteDatoer(mapRelevanteDatoer(journalpostDto))
-				.dokumenter(mapDokumenter(journalpostDto, brukerIdenter))
+				.dokumenter(mapDokumenter(journalpostDto))
 				.tilgang(mapJournalpostTilgang(journalpostDto))
 				.build();
 	}
@@ -70,7 +62,7 @@ public class JournalpostMapper {
 		return Journalpost.TilgangSak.builder()
 				.aktoerId(saksrelasjonDto.getAktoerId())
 				.fagsystem(saksrelasjonDto.getFagsystem().toString())
-				.feilregistrert(saksrelasjonDto.getFeilregistrert())
+				.feilregistrert(saksrelasjonDto.getFeilregistrert() != null && saksrelasjonDto.getFeilregistrert())
 				.tema(saksrelasjonDto.getTema())
 				.build();
 	}
@@ -86,35 +78,31 @@ public class JournalpostMapper {
 		}
 	}
 
-	private List<DokumentInfo> mapDokumenter(JournalpostDto journalpostDto, BrukerIdenter brukerIdenter) {
+	private List<DokumentInfo> mapDokumenter(JournalpostDto journalpostDto) {
 		List<DokumentInfoDto> dokumenter = journalpostDto.getDokumenter();
 		return dokumenter.stream().map(dokument -> DokumentInfo.builder()
 				.dokumentInfoId(dokument.getDokumentInfoId())
-				.dokumentvarianter(mapDokumentVarianter(dokument, journalpostDto, brukerIdenter))
+				.dokumentvarianter(mapDokumentVarianter(dokument))
 				.tittel(dokument.getTittel())
 				.brevkode(dokument.getBrevkode())
 				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-						.innskrenketPartsinnsyn(dokument.getInnskrPartsinnsyn())
-						.innskrenketTredjepart(dokument.getInnskrTredjepart())
-						.kassert(dokument.getKassert())
+						.innskrenketPartsinnsyn(dokument.getInnskrPartsinnsyn() != null && dokument.getInnskrPartsinnsyn())
+						.innskrenketTredjepart(dokument.getInnskrTredjepart() != null && dokument.getInnskrTredjepart())
+						.kassert(dokument.getKassert() != null && dokument.getKassert())
 						.kategori(dokument.getKategori().toString())
-						.organinternt(dokument.getOrganInternt())
+						.organinternt(dokument.getOrganInternt() != null && dokument.getOrganInternt())
 						.build())
 				.build()).collect(Collectors.toList());
 	}
 
-	private List<Dokumentvariant> mapDokumentVarianter(DokumentInfoDto dokumentInfoDto, JournalpostDto journalpostDto, BrukerIdenter brukerIdenter) {
+	private List<Dokumentvariant> mapDokumentVarianter(DokumentInfoDto dokumentInfoDto) {
 		List<VariantDto> varianter = dokumentInfoDto.getVarianter();
 
 		return varianter.stream().map(variantDto -> Dokumentvariant.builder()
 				.variantformat(variantDto.getVariantf().getSafVariantformat())
 				.filuuid(variantDto.getFiluuid())
-				//.brukerHarTilgang(hasBrukerTilgang(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto))
-				//.code(returnFeilmeldingListe(journalpostDto, dokumentInfoDto, brukerIdenter, variantDto))
 				.tilgangVariant(Dokumentvariant.TilgangVariant.builder().skjerming(mapSkjermingType(variantDto.getSkjerming())).build())
 				.build()).collect(Collectors.toList());
-
-		//Filtrering etter mapping
 	}
 
 	private Kanal mapKanal(JournalpostDto journalpostDto) {

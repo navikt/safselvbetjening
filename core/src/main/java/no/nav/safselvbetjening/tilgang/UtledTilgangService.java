@@ -61,6 +61,17 @@ public class UtledTilgangService {
 		this.tidligstInnsynDato = safSelvbetjeningProperties.getTidligstInnsynDato().atStartOfDay(ZoneId.systemDefault()).toLocalDateTime();
 	}
 
+	public boolean utledTilgangJournalpost(Journalpost journalpost, BrukerIdenter brukerIdenter) {
+		try {
+			return isBrukerPart(journalpost, brukerIdenter) && isJournalpostNotGDPRRestricted(journalpost) &&
+					isJournalpostNotKontrollsak(journalpost) && isJournalpostForvaltningsnotat(journalpost) &&
+					isJournalpostNotOrganInternt(journalpost);
+		} catch (Exception e) {
+			log.error("Feil oppstått i utledTilgangJournalpost for journalpost med journalpostId={}.", journalpost.getJournalpostId(), e);
+			return false;
+		}
+	}
+
 	public List<String> utledTilgangDokument(Journalpost journalpost, DokumentInfo dokumentInfo, Dokumentvariant dokumentvariant, BrukerIdenter brukerIdenter) {
 		List<String> feilmeldinger = new ArrayList<>();
 
@@ -73,13 +84,13 @@ public class UtledTilgangService {
 		if (isSkannetDokument(journalpost)) {
 			feilmeldinger.add(SKANNET_DOKUMENT);
 		}
-		if (isDokumentInnskrenketPartsinnsyn(dokumentInfo.getTilgangDokument())) {
+		if (isDokumentInnskrenketPartsinnsyn(dokumentInfo)) {
 			feilmeldinger.add(INNSKRENKET_PARTSINNSYN);
 		}
-		if (isDokumentGDPRRestricted(dokumentvariant.getTilgangVariant())) {
+		if (isDokumentGDPRRestricted(dokumentvariant)) {
 			feilmeldinger.add(GDPR);
 		}
-		if (isDokumentKassert(dokumentInfo.getTilgangDokument())) {
+		if (isDokumentKassert(dokumentInfo)) {
 			feilmeldinger.add(KASSERT);
 		}
 		return feilmeldinger;
@@ -116,13 +127,13 @@ public class UtledTilgangService {
 		if (isSkannetDokument(journalpost)) {
 			throw new HentTilgangDokumentException(SKANNET_DOKUMENT, "Tilgang til dokument avvist fordi dokumentet er skannet.");
 		}
-		if (isDokumentInnskrenketPartsinnsyn(journalpost.getDokumenter().get(0).getTilgangDokument())) {
+		if (isDokumentInnskrenketPartsinnsyn(journalpost.getDokumenter().get(0))) {
 			throw new HentTilgangDokumentException(INNSKRENKET_PARTSINNSYN, "Tilgang til dokument avvist fordi dokument er markert med innskrenket partsinnsyn");
 		}
-		if (isDokumentGDPRRestricted(journalpost.getDokumenter().get(0).getDokumentvarianter().get(0).getTilgangVariant())) {
+		if (isDokumentGDPRRestricted(journalpost.getDokumenter().get(0).getDokumentvarianter().get(0))) {
 			throw new HentTilgangDokumentException(GDPR, "Tilgang til dokument avvist ihht. gdrp");
 		}
-		if (isDokumentKassert(journalpost.getDokumenter().get(0).getTilgangDokument())) {
+		if (isDokumentKassert(journalpost.getDokumenter().get(0))) {
 			throw new HentTilgangDokumentException(KASSERT, "Tilgang til dokument avvist fordi dokumentet er kassert");
 		}
 	}
@@ -140,10 +151,10 @@ public class UtledTilgangService {
 			} else {
 				return true;
 			}
-		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus)) {
+		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) && journalpost.getTilgang().getTilgangSak() != null) {
 			if (FS22.toString().equals(journalpost.getTilgang().getTilgangSak().getFagsystem())) {
 				return identer.getIdenter().contains(journalpost.getTilgang().getTilgangSak().getAktoerId());
-			} else if (FagsystemCode.PEN.toString().equals(journalpost.getTilgang().getTilgangSak().getFagsystem())) {
+			} else if (FagsystemCode.PEN.toString().equals(journalpost.getTilgang().getTilgangSak().getFagsystem()) && journalpost.getTilgang().getTilgangBruker() != null) {
 				return identer.getFoedselsnummer().contains(journalpost.getTilgang().getTilgangBruker().getBrukerId());
 			}
 		}
@@ -185,14 +196,16 @@ public class UtledTilgangService {
 	public boolean isJournalpostNotKontrollsak(Journalpost journalpost) {
 		Journalstatus journalstatus = journalpost.getJournalstatus();
 
-		if (MOTTATT.equals(journalstatus)) {
-			return !FagomradeCode.KTR.toString().equals(journalpost.getTilgang().getFagomradeCode());
-		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) &&
-				journalpost.getTilgang().getTilgangSak() != null) {
-			return !Tema.KTR.toString().equals(journalpost.getTilgang().getTilgangSak().getTema());
-		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) &&
-				journalpost.getTilgang().getTilgangSak() == null) {
-			return !FagomradeCode.KTR.toString().equals(journalpost.getTilgang().getFagomradeCode());
+		if (journalstatus != null) {
+			if (MOTTATT.equals(journalstatus)) {
+				return !FagomradeCode.KTR.toString().equals(journalpost.getTilgang().getFagomradeCode());
+			} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) &&
+					journalpost.getTilgang().getTilgangSak() != null) {
+				return !Tema.KTR.toString().equals(journalpost.getTilgang().getTilgangSak().getTema());
+			} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) &&
+					journalpost.getTilgang().getTilgangSak() == null) {
+				return !FagomradeCode.KTR.toString().equals(journalpost.getTilgang().getFagomradeCode());
+			}
 		}
 		return true;
 	}
@@ -208,7 +221,7 @@ public class UtledTilgangService {
 	 * 1g) Hvis journalpost er notat må hoveddokumentet være markert som "forvaltningsnotat" for å vise journalposten.
 	 */
 	public boolean isJournalpostForvaltningsnotat(Journalpost journalpost) {
-		if (journalpost.getJournalposttype() == N) {
+		if (journalpost.getJournalposttype() == N && !journalpost.getDokumenter().isEmpty() && journalpost.getDokumenter().get(0).getTilgangDokument() != null) {
 			return FORVALTNINGSNOTAT.toString().equals(journalpost.getDokumenter().get(0).getTilgangDokument().getKategori());
 		}
 		return true;
@@ -218,14 +231,21 @@ public class UtledTilgangService {
 	 * 1h) Journalposter som har organinterne dokumenter skal ikke vises
 	 */
 	public boolean isJournalpostNotOrganInternt(Journalpost journalpost) {
-		return journalpost.getDokumenter().stream().noneMatch(dokumentInfo -> dokumentInfo.getTilgangDokument().isOrganinternt());
+		if (!journalpost.getDokumenter().isEmpty()) {
+			for (DokumentInfo dokumentInfo : journalpost.getDokumenter()) {
+				if (dokumentInfo.getTilgangDokument() != null && dokumentInfo.getTilgangDokument().isOrganinternt()) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	/**
 	 * 2a) Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	 */
 	boolean isAvsenderMottakerNotPart(Journalpost journalpost, List<String> idents) {
-		if (journalpost.getJournalposttype() != N) {
+		if (journalpost.getJournalposttype() != N && journalpost.getAvsenderMottaker() != null) {
 			return !idents.contains(journalpost.getAvsenderMottaker().getId());
 		}
 		return false;
@@ -235,27 +255,30 @@ public class UtledTilgangService {
 	 * 2b) Bruker får ikke se skannede dokumenter
 	 */
 	boolean isSkannetDokument(Journalpost journalpost) {
-		return ACCEPTED_MOTTAKS_KANAL.contains(journalpost.getKanal());
+		if (journalpost.getKanal() != null) {
+			return ACCEPTED_MOTTAKS_KANAL.contains(journalpost.getKanal());
+		}
+		return false;
 	}
 
 	/**
 	 * 2d) Dokumenter markert som innskrenketPartsinnsyn skal ikke vises
 	 */
-	boolean isDokumentInnskrenketPartsinnsyn(DokumentInfo.TilgangDokument tilgangDokument) {
-		return (tilgangDokument.isInnskrenketPartsinnsyn() || tilgangDokument.isInnskrenketTredjepart());
+	boolean isDokumentInnskrenketPartsinnsyn(DokumentInfo dokumentInfo) {
+		return (dokumentInfo.getTilgangDokument().isInnskrenketPartsinnsyn() || dokumentInfo.getTilgangDokument().isInnskrenketTredjepart());
 	}
 
 	/**
 	 * 2e) Dokumenter som er begrenset ihht. gdpr skal ikke vises
 	 */
-	boolean isDokumentGDPRRestricted(Dokumentvariant.TilgangVariant tilgangVariant) {
-		return GDPR_SKJERMING_TYPE.contains(tilgangVariant.getSkjerming());
+	boolean isDokumentGDPRRestricted(Dokumentvariant dokumentvariant) {
+		return GDPR_SKJERMING_TYPE.contains(dokumentvariant.getTilgangVariant().getSkjerming());
 	}
 
 	/**
 	 * 2f) Kasserte dokumenter skal ikke vises
 	 */
-	boolean isDokumentKassert(DokumentInfo.TilgangDokument tilgangDokument) {
-		return tilgangDokument.isKassert();
+	boolean isDokumentKassert(DokumentInfo dokumentInfo) {
+		return dokumentInfo.getTilgangDokument().isKassert();
 	}
 }

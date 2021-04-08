@@ -332,8 +332,10 @@ class UtledTilgangServiceTest {
 	//	2d - Dokumenter markert som innskrenketPartsinnsyn skal ikke vises
 	@Test
 	void shouldReturnTrueWhenDokumentIsInnskrenketpartsinnsyn() {
-		boolean actual = utledTilgangService.isDokumentInnskrenketPartsinnsyn(DokumentInfo.TilgangDokument.builder()
-				.innskrenketPartsinnsyn(true)
+		boolean actual = utledTilgangService.isDokumentInnskrenketPartsinnsyn(DokumentInfo.builder()
+				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+						.innskrenketPartsinnsyn(true)
+						.build())
 				.build());
 		assertThat(actual).isTrue();
 	}
@@ -341,8 +343,10 @@ class UtledTilgangServiceTest {
 	//	2e - Dokumenter som er begrenset ihht. gdpr
 	@Test
 	void shouldReturnTrueWhenDokumentIsPolSkjermet() {
-		boolean actual = utledTilgangService.isDokumentGDPRRestricted(Dokumentvariant.TilgangVariant.builder()
-				.skjerming(SkjermingType.POL)
+		boolean actual = utledTilgangService.isDokumentGDPRRestricted(Dokumentvariant.builder()
+				.tilgangVariant(Dokumentvariant.TilgangVariant.builder()
+						.skjerming(SkjermingType.POL)
+						.build())
 				.build());
 		assertThat(actual).isTrue();
 	}
@@ -350,8 +354,10 @@ class UtledTilgangServiceTest {
 	//	2f - Kasserte dokumenter skal ikke vises
 	@Test
 	void shouldReturnWhenDokumentIsKassert() {
-		boolean actual = utledTilgangService.isDokumentKassert(DokumentInfo.TilgangDokument.builder()
-				.kassert(true)
+		boolean actual = utledTilgangService.isDokumentKassert(DokumentInfo.builder().tilgangDokument(
+				DokumentInfo.TilgangDokument.builder()
+						.kassert(true)
+						.build())
 				.build());
 		assertThat(actual).isTrue();
 	}

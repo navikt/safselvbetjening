@@ -166,17 +166,14 @@ public class DokumentoversiktSelvbetjeningService {
 
 	private Sakstema mapSakstema(Map.Entry<FagomradeCode, List<JournalpostDto>> fagomradeCodeListEntry, BrukerIdenter brukerIdenter) {
 		final Tema tema = FagomradeCode.toTema(fagomradeCodeListEntry.getKey());
+
 		return Sakstema.builder()
 				.kode(tema.name())
 				.navn(tema.getTemanavn())
 				.journalposter(fagomradeCodeListEntry.getValue().stream()
 						.filter(Objects::nonNull)
-						.map(journalpostDto -> journalpostMapper.map(journalpostDto, brukerIdenter))
-						.filter(journalpost -> utledTilgangService.isBrukerPart(journalpost, brukerIdenter))
-						.filter(utledTilgangService::isJournalpostNotGDPRRestricted)
-						.filter(utledTilgangService::isJournalpostNotKontrollsak)
-						.filter(utledTilgangService::isJournalpostForvaltningsnotat)
-						.filter(utledTilgangService::isJournalpostNotOrganInternt)
+						.map(journalpostMapper::map)
+						.filter(journalpost -> utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter))
 						.map(journalpost -> setDokumentVariant(journalpost, brukerIdenter))
 						.collect(Collectors.toList()))
 				.build();
