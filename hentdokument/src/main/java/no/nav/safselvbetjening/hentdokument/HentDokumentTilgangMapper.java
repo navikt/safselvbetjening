@@ -33,11 +33,11 @@ public class HentDokumentTilgangMapper {
 	private DokumentInfo mapDokumenter(TilgangDokumentInfoDto tilgangDokumentInfoDto) {
 		return DokumentInfo.builder()
 				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-						.innskrenketPartsinnsyn(tilgangDokumentInfoDto.getInnskrenketPartsinnsyn())
-						.innskrenketTredjepart(tilgangDokumentInfoDto.getInnskrenketTredjepart())
-						.kassert(tilgangDokumentInfoDto.getKassert())
+						.innskrenketPartsinnsyn(tilgangDokumentInfoDto.getInnskrenketPartsinnsyn() != null && tilgangDokumentInfoDto.getInnskrenketPartsinnsyn())
+						.innskrenketTredjepart(tilgangDokumentInfoDto.getInnskrenketTredjepart() != null && tilgangDokumentInfoDto.getInnskrenketTredjepart())
+						.kassert(tilgangDokumentInfoDto.getKassert() != null && tilgangDokumentInfoDto.getKassert())
 						.kategori(tilgangDokumentInfoDto.getKategori().toString())
-						.organinternt(tilgangDokumentInfoDto.getOrganinternt())
+						.organinternt(tilgangDokumentInfoDto.getOrganinternt() != null && tilgangDokumentInfoDto.getOrganinternt())
 						.build())
 				.dokumentvarianter(Collections.singletonList(mapDokumentVarianter(tilgangDokumentInfoDto.getVariant())))
 				.build();
@@ -67,7 +67,7 @@ public class HentDokumentTilgangMapper {
 		return Journalpost.TilgangSak.builder()
 				.aktoerId(tilgangSakDto.getAktoerId())
 				.fagsystem(tilgangSakDto.getFagsystem())
-				.feilregistrert(tilgangSakDto.getFeilregistrert())
+				.feilregistrert(tilgangSakDto.getFeilregistrert() != null && tilgangSakDto.getFeilregistrert())
 				.tema(tilgangSakDto.getTema())
 				.build();
 	}

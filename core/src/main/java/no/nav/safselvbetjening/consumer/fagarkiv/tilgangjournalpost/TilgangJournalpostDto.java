@@ -1,6 +1,8 @@
 package no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
@@ -15,7 +17,9 @@ import java.time.LocalDateTime;
  * @author Sigurd Midttun, Visma Consulting.
  */
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class TilgangJournalpostDto {
 	private String journalpostId;
 	private JournalStatusCode journalStatus;
