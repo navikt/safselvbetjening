@@ -6,8 +6,10 @@ import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Tema;
+import no.nav.safselvbetjening.graphql.ErrorCode;
 import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.graphql.GraphQLRequestContext;
+import no.nav.security.token.support.core.jwt.JwtToken;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
@@ -43,6 +45,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			MDC.put(MDC_CALL_ID, graphQLRequestContext.getNavCallId());
 			final String ident = environment.getArgument("ident");
 			validateIdent(ident, environment);
+			validateTokenIdent(ident, environment);
 			final List<String> tema = temaArgument(environment);
 
 			if (environment.getSelectionSet().contains("tema/journalposter")) {
@@ -76,6 +79,15 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		if (!isNumeric(ident)) {
 			throw GraphQLException.of(BAD_REQUEST, environment, "Ident argumentet er ugyldig. " +
 					"Det må være et fødselsnummer eller en aktørid.");
+		}
+	}
+
+	private void validateTokenIdent(String ident, DataFetchingEnvironment environment) {
+		final GraphQLRequestContext graphQLRequestContext = environment.getContext();
+		JwtToken jwtToken = graphQLRequestContext.getTokenValidationContext().getFirstValidToken()
+				.orElseThrow(() -> GraphQLException.of(ErrorCode.UNAUTHORIZED, environment, "Ingen gyldige tokens i Authorization headeren."));
+		if(!jwtToken.getJwtTokenClaims().containsClaim("pid", ident)) {
+			throw GraphQLException.of(ErrorCode.UNAUTHORIZED, environment, "Brukers ident i token matcher ikke ident i query.");
 		}
 	}
 
