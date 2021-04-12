@@ -15,8 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
-
 public class HentDokumentTestObjects {
 
 	static final String IDENT = "12345678911";
@@ -25,6 +23,7 @@ public class HentDokumentTestObjects {
 	static final String JOURNALPOST_ID = "40000000";
 	static final String FAGSYSTEM = "PEN";
 	static final String TEMA = "FAR";
+	static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
 	static final LocalDateTime DATO_OPPRETTET = LocalDate.of(2018, Month.FEBRUARY, 23).atStartOfDay();
 	static final LocalDateTime DATO_JOURNALFOERT = LocalDate.of(2020, Month.JANUARY, 18).atStartOfDay();
 
@@ -41,7 +40,7 @@ public class HentDokumentTestObjects {
 						.build());
 	}
 
-	public static TilgangJournalpostDto.TilgangJournalpostDtoBuilder createBaseTilgangJournalpost(){
+	public static TilgangJournalpostDto.TilgangJournalpostDtoBuilder createBaseTilgangJournalpost() {
 		return TilgangJournalpostDto.builder()
 				.journalpostId(JOURNALPOST_ID)
 				.avsenderMottakerId(AVSENDER_MOTTAKER_ID)

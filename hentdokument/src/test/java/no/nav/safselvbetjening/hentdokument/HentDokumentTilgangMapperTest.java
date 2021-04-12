@@ -9,7 +9,6 @@ import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.SkjermingType;
 import org.junit.jupiter.api.Test;
 
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.PEN;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FL;
 import static no.nav.safselvbetjening.domain.Journalposttype.I;
@@ -23,6 +22,7 @@ import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.AVSEN
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.DATO_JOURNALFOERT;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.DATO_OPPRETTET;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.FAGSYSTEM;
+import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.IDENT;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.JOURNALPOST_ID;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.TEMA;
@@ -68,7 +68,7 @@ class HentDokumentTilgangMapperTest {
 		assertEquals(SkjermingType.FEIL, dokumentInfo.getDokumentvarianter().get(0).getTilgangVariant().getSkjerming());
 
 		DokumentInfo.TilgangDokument tilgangDokument = dokumentInfo.getTilgangDokument();
-		assertEquals(FORVALTNINGSNOTAT.toString(), tilgangDokument.getKategori());
+		assertEquals(FORVALTNINGSNOTAT, tilgangDokument.getKategori());
 		assertTrue(tilgangDokument.isInnskrenketPartsinnsyn());
 		assertTrue(tilgangDokument.isInnskrenketTredjepart());
 		assertFalse(tilgangDokument.isOrganinternt());
