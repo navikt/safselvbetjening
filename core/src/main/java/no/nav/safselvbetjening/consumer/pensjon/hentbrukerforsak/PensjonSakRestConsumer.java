@@ -1,6 +1,9 @@
 package no.nav.safselvbetjening.consumer.pensjon.hentbrukerforsak;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.safselvbetjening.NavHeaders;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
@@ -14,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 
+import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static org.springframework.http.HttpMethod.GET;
 
 @Slf4j
@@ -24,9 +28,6 @@ public class PensjonSakRestConsumer {
 
 	private final RestTemplate restTemplate;
 
-	//todo: Ta inn når Joakim sin PR er merget
-	//@Retry(name = PENSJON_SAK_REST_INSTANCE)
-	//@CircuitBreaker(name = PENSJON_SAK_REST_INSTANCE)
 	public PensjonSakRestConsumer(RestTemplateBuilder restTemplateBuilder,
 								  final SafSelvbetjeningProperties safSelvbetjeningProperties) {
 		this.restTemplate = restTemplateBuilder
@@ -37,13 +38,13 @@ public class PensjonSakRestConsumer {
 				.setConnectTimeout(Duration.ofSeconds(5))
 				.build();
 	}
-
+	@Retry(name = PENSJON_SAK_REST_INSTANCE)
+	@CircuitBreaker(name = PENSJON_SAK_REST_INSTANCE)
 	public HentBrukerForSakResponseTo hentBrukerForSak(final String sakId) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("sakId", sakId);
-			//todo: Ta inn når Joakim sin PR er merget:
-			//headers.add(NavHeaders.NAV_CALLID, getCallId());
+			headers.add(NavHeaders.NAV_CALLID, getCallId());
 
 			HentBrukerForSakResponseTo hentBrukerForSakResponseTo = restTemplate.exchange("", GET, new HttpEntity<>(headers), HentBrukerForSakResponseTo.class)
 					.getBody();

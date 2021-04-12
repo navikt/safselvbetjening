@@ -11,7 +11,10 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
+import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
+import no.nav.safselvbetjening.domain.Dokumentvariant;
+import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
 import no.nav.safselvbetjening.graphql.GraphQLException;
@@ -20,11 +23,12 @@ import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.service.Sak;
 import no.nav.safselvbetjening.service.SakService;
 import no.nav.safselvbetjening.service.Saker;
-import no.nav.safselvbetjening.tilgang.UtledTilgangDokumentoversiktService;
+import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +42,7 @@ import java.util.stream.Stream;
 
 import static java.lang.Boolean.TRUE;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.STATUS_OK;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
@@ -48,20 +53,20 @@ public class DokumentoversiktSelvbetjeningService {
 	private final SakService sakService;
 	private final FagarkivConsumer fagarkivConsumer;
 	private final JournalpostMapper journalpostMapper;
-	private final UtledTilgangDokumentoversiktService utledTilgangDokumentoversiktService;
+	private final UtledTilgangService utledTilgangService;
 
 	public DokumentoversiktSelvbetjeningService(final SafSelvbetjeningProperties safSelvbetjeningProperties,
 												final IdentService identService,
 												final SakService sakService,
 												final FagarkivConsumer fagarkivConsumer,
 												final JournalpostMapper journalpostMapper,
-												final UtledTilgangDokumentoversiktService utledTilgangDokumentoversiktService) {
+												final UtledTilgangService utledTilgangService) {
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 		this.identService = identService;
 		this.sakService = sakService;
 		this.fagarkivConsumer = fagarkivConsumer;
 		this.journalpostMapper = journalpostMapper;
-		this.utledTilgangDokumentoversiktService = utledTilgangDokumentoversiktService;
+		this.utledTilgangService = utledTilgangService;
 	}
 
 	public Dokumentoversikt queryTema(final String ident, final List<String> tema, DataFetchingEnvironment environment) {
@@ -108,26 +113,24 @@ public class DokumentoversiktSelvbetjeningService {
 			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen saker på person.");
 		}
 
-        /*
-         * Regler tilgangskontroll journalpost: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
-         * 1b) Bruker får ikke se journalposter som er opprettet før 04.06.2016
-         * 1c) Bruker får kun se ferdigstilte journalposter
-         * 1d) Bruker får ikke se feilregistrerte journalposter
-         */
-        FinnJournalposterResponseTo finnJournalposterResponseTo = fagarkivConsumer.finnJournalposter(FinnJournalposterRequestTo.builder()
-                .alleIdenter(brukerIdenter.getFoedselsnummer())
-                .psakSakIds(saker.getPensjonSakIds())
-                .gsakSakIds(saker.getArkivSakIds())
-                .fraDato(safSelvbetjeningProperties.getTidligstInnsynDato().toString())
-                .inkluderJournalpostType(Arrays.asList(JournalpostTypeCode.values()))
-                .inkluderJournalStatus(Arrays.asList(JournalStatusCode.MO, JournalStatusCode.M, JournalStatusCode.J, JournalStatusCode.E, JournalStatusCode.FL, JournalStatusCode.FS))
-                .foerste(9999)
-                .visFeilregistrerte(false)
-                .build());
+		/*
+		 * Regler tilgangskontroll journalpost: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
+		 * 1b) Bruker får ikke se journalposter som er opprettet før 04.06.2016
+		 * 1c) Bruker får kun se ferdigstilte journalposter
+		 * 1d) Bruker får ikke se feilregistrerte journalposter
+		 */
+		FinnJournalposterResponseTo finnJournalposterResponseTo = fagarkivConsumer.finnJournalposter(FinnJournalposterRequestTo.builder()
+				.alleIdenter(brukerIdenter.getFoedselsnummer())
+				.psakSakIds(saker.getPensjonSakIds())
+				.gsakSakIds(saker.getArkivSakIds())
+				.fraDato(safSelvbetjeningProperties.getTidligstInnsynDato().toString())
+				.inkluderJournalpostType(Arrays.asList(JournalpostTypeCode.values()))
+				.inkluderJournalStatus(Arrays.asList(JournalStatusCode.MO, JournalStatusCode.M, JournalStatusCode.J, JournalStatusCode.E, JournalStatusCode.FL, JournalStatusCode.FS))
+				.foerste(9999)
+				.visFeilregistrerte(false)
+				.build());
 
-		List<JournalpostDto> filtrerteJournalposter = utledTilgangDokumentoversiktService.utledTilgangJournalposter(finnJournalposterResponseTo.getTilgangJournalposter(), brukerIdenter);
-
-		Map<FagomradeCode, List<JournalpostDto>> temaMap = groupedByFagomrade(filtrerteJournalposter, saker);
+		Map<FagomradeCode, List<JournalpostDto>> temaMap = groupedByFagomrade(finnJournalposterResponseTo.getTilgangJournalposter(), saker);
 
 		List<Sakstema> sakstema = temaMap.entrySet().stream()
 				// Filtrer ut midlertidige journalposter som ikke har riktig tema.
@@ -136,7 +139,7 @@ public class DokumentoversiktSelvbetjeningService {
 				.sorted(Comparator.comparing(Sakstema::getKode))
 				.collect(Collectors.toList());
 		log.info("dokumentoversiktSelvbetjening hentet dokumentoversikt til person. antall_tema={}, antall_journalposter={}", sakstema.size(),
-				filtrerteJournalposter.size());
+				finnJournalposterResponseTo.getTilgangJournalposter().size());
 		return Dokumentoversikt.builder()
 				.tema(sakstema)
 				.build();
@@ -163,12 +166,15 @@ public class DokumentoversiktSelvbetjeningService {
 
 	private Sakstema mapSakstema(Map.Entry<FagomradeCode, List<JournalpostDto>> fagomradeCodeListEntry, BrukerIdenter brukerIdenter) {
 		final Tema tema = FagomradeCode.toTema(fagomradeCodeListEntry.getKey());
+
 		return Sakstema.builder()
 				.kode(tema.name())
 				.navn(tema.getTemanavn())
 				.journalposter(fagomradeCodeListEntry.getValue().stream()
 						.filter(Objects::nonNull)
-						.map(journalpostDto -> journalpostMapper.map(journalpostDto, brukerIdenter))
+						.map(journalpostMapper::map)
+						.filter(journalpost -> utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter))
+						.map(journalpost -> setDokumentVariant(journalpost, brukerIdenter))
 						.collect(Collectors.toList()))
 				.build();
 	}
@@ -176,5 +182,23 @@ public class DokumentoversiktSelvbetjeningService {
 	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
 		Map<Object, Boolean> seen = new ConcurrentHashMap<>();
 		return t -> seen.putIfAbsent(keyExtractor.apply(t), TRUE) == null;
+	}
+
+	private Journalpost setDokumentVariant(Journalpost journalpost, BrukerIdenter brukerIdenter) {
+		journalpost.getDokumenter().forEach(dokumentInfo -> dokumentInfo.getDokumentvarianter().forEach(
+				dokumentvariant -> {
+					dokumentvariant.setBrukerHarTilgang(hasBrukerTilgang(journalpost, dokumentInfo, dokumentvariant, brukerIdenter));
+					dokumentvariant.setCode(returnFeilmeldingListe(journalpost, dokumentInfo, dokumentvariant, brukerIdenter));
+				}));
+		return journalpost;
+	}
+
+	private boolean hasBrukerTilgang(Journalpost journalpost, DokumentInfo dokumentInfo, Dokumentvariant dokumentvariant, BrukerIdenter brukerIdenter) {
+		return utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter).isEmpty();
+	}
+
+	private List<String> returnFeilmeldingListe(Journalpost journalpost, DokumentInfo dokumentInfo, Dokumentvariant dokumentvariant, BrukerIdenter brukerIdenter) {
+		return utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter).isEmpty()
+				? Collections.singletonList(STATUS_OK) : utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter);
 	}
 }

@@ -18,7 +18,7 @@ public class TilgangDokumentInfoDto {
 	private String dokumentinfoId;
 	private String dokumentstatus;
 	private String brevkode;
-	private DokumentKategoriCode kategori;
+	private String kategori;
 	private Boolean organinternt;
 	private Boolean innskrenketPartsinnsyn;
 	private Boolean innskrenketTredjepart;

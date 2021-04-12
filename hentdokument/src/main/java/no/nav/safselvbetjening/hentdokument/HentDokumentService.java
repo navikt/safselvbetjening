@@ -9,7 +9,7 @@ import no.nav.safselvbetjening.consumer.pensjon.hentbrukerforsak.PensjonSakRestC
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
-import no.nav.safselvbetjening.tilgang.UtledTilgangHentDokumentService;
+import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
@@ -25,16 +25,18 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class HentDokumentService {
 	private final FagarkivConsumer fagarkivConsumer;
 	private final IdentService identService;
-	private final UtledTilgangHentDokumentService utledTilgangHentDokumentService;
+	private final UtledTilgangService utledTilgangService;
 	private final PensjonSakRestConsumer pensjonSakRestConsumer;
+	private final HentDokumentTilgangMapper hentDokumentTilgangMapper;
 
 	public HentDokumentService(FagarkivConsumer fagarkivConsumer, IdentService identService,
-							   UtledTilgangHentDokumentService utledTilgangHentDokumentService,
-							   PensjonSakRestConsumer pensjonSakRestConsumer) {
+							   UtledTilgangService utledTilgangService, PensjonSakRestConsumer pensjonSakRestConsumer,
+							   HentDokumentTilgangMapper hentDokumentTilgangMapper) {
 		this.fagarkivConsumer = fagarkivConsumer;
 		this.identService = identService;
-		this.utledTilgangHentDokumentService = utledTilgangHentDokumentService;
+		this.utledTilgangService = utledTilgangService;
 		this.pensjonSakRestConsumer = pensjonSakRestConsumer;
+		this.hentDokumentTilgangMapper = hentDokumentTilgangMapper;
 	}
 
 	public HentDokument hentDokument(final String journalpostId, final String dokumentInfoId, final String variantFormat) {
@@ -52,12 +54,12 @@ public class HentDokumentService {
 		final TilgangJournalpostResponseTo tilgangJournalpostResponseTo = fagarkivConsumer.tilgangJournalpost(journalpostId, dokumentInfoId, variantFormat);
 
 		final String bruker = findBrukerIdent(tilgangJournalpostResponseTo.getTilgangJournalpostDto());
-		if(isBlank(bruker)) {
+		if (isBlank(bruker)) {
 			throw new HentTilgangDokumentException(PARTSINNSYN, "Tilgang til dokument avvist fordi bruker ikke kan utledes");
 		}
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(bruker);
 
-		utledTilgangHentDokumentService.utledTilgangHentDokument(tilgangJournalpostResponseTo.getTilgangJournalpostDto(), brukerIdenter);
+		utledTilgangService.utledTilgangHentDokument(hentDokumentTilgangMapper.map(tilgangJournalpostResponseTo.getTilgangJournalpostDto()), brukerIdenter);
 	}
 
 	private String findBrukerIdent(TilgangJournalpostDto tilgangJournalpostDto) {

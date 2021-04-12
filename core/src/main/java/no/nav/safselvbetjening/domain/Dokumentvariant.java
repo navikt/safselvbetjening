@@ -1,17 +1,25 @@
 package no.nav.safselvbetjening.domain;
 
 import lombok.Builder;
-import lombok.Value;
+import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
-@Value
 @Builder
+@Data
 public class Dokumentvariant {
 	private final Variantformat variantformat;
 	private final String filuuid;
-	private final boolean brukerHarTilgang;
+	private final TilgangVariant tilgangVariant;
+	private boolean brukerHarTilgang;
 	@Builder.Default
-	private final List<String> code;
+	private List<String> code = new ArrayList<>();
+
+	@Data
+	@Builder
+	public static class TilgangVariant {
+		private final SkjermingType skjerming;
+	}
 }
