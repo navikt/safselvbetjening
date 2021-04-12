@@ -3,10 +3,6 @@ package no.nav.safselvbetjening.domain;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Value;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
-import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

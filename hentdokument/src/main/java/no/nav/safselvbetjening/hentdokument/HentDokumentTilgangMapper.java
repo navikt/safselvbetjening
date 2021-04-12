@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.hentdokument;
 
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangBrukerDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangDokumentInfoDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangSakDto;
@@ -22,8 +23,8 @@ public class HentDokumentTilgangMapper {
 		return Journalpost.builder()
 				.journalpostId(tilgangJournalpostDto.getJournalpostId())
 				.avsenderMottaker(AvsenderMottaker.builder().id(tilgangJournalpostDto.getAvsenderMottakerId()).build())
-				.journalposttype(tilgangJournalpostDto.getJournalpostType().toSafJournalposttype())
-				.journalstatus(tilgangJournalpostDto.getJournalStatus().toSafJournalstatus())
+				.journalposttype(tilgangJournalpostDto.getJournalpostType() == null ? null : tilgangJournalpostDto.getJournalpostType().toSafJournalposttype())
+				.journalstatus(tilgangJournalpostDto.getJournalStatus() == null ? null : tilgangJournalpostDto.getJournalStatus().toSafJournalstatus())
 				.kanal(mapKanal(tilgangJournalpostDto))
 				.tilgang(mapJournalpostTilgang(tilgangJournalpostDto))
 				.dokumenter(Collections.singletonList(mapDokumenter(tilgangJournalpostDto.getDokument())))
@@ -31,6 +32,9 @@ public class HentDokumentTilgangMapper {
 	}
 
 	private DokumentInfo mapDokumenter(TilgangDokumentInfoDto tilgangDokumentInfoDto) {
+		if (tilgangDokumentInfoDto == null) {
+			return null;
+		}
 		return DokumentInfo.builder()
 				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
 						.innskrenketPartsinnsyn(tilgangDokumentInfoDto.getInnskrenketPartsinnsyn() != null && tilgangDokumentInfoDto.getInnskrenketPartsinnsyn())
@@ -55,15 +59,26 @@ public class HentDokumentTilgangMapper {
 	private Journalpost.TilgangJournalpost mapJournalpostTilgang(TilgangJournalpostDto tilgangJournalpostDto) {
 		return Journalpost.TilgangJournalpost.builder()
 				.datoOpprettet(tilgangJournalpostDto.getDatoOpprettet())
-				.fagomradeCode(tilgangJournalpostDto.getFagomrade().toString())
+				.fagomradeCode(tilgangJournalpostDto.getFagomrade() == null ? null : tilgangJournalpostDto.getFagomrade().toString())
 				.journalfoertDato(tilgangJournalpostDto.getJournalfoertDato())
 				.skjerming(mapSkjermingType(tilgangJournalpostDto.getSkjerming()))
-				.tilgangBruker(Journalpost.TilgangBruker.builder().brukerId(tilgangJournalpostDto.getBruker().getBrukerId()).build())
+				.tilgangBruker(mapTilgangBruker(tilgangJournalpostDto.getBruker()))
 				.tilgangSak(mapTilgangSak(tilgangJournalpostDto.getSak()))
 				.build();
 	}
 
+	private Journalpost.TilgangBruker mapTilgangBruker(TilgangBrukerDto tilgangBrukerDto) {
+		if (tilgangBrukerDto == null) {
+			return null;
+		}
+		return Journalpost.TilgangBruker.builder().brukerId(tilgangBrukerDto.getBrukerId()).build();
+	}
+
 	private Journalpost.TilgangSak mapTilgangSak(TilgangSakDto tilgangSakDto) {
+		if (tilgangSakDto == null) {
+			return null;
+		}
+
 		return Journalpost.TilgangSak.builder()
 				.aktoerId(tilgangSakDto.getAktoerId())
 				.fagsystem(tilgangSakDto.getFagsystem())
@@ -73,6 +88,10 @@ public class HentDokumentTilgangMapper {
 	}
 
 	private SkjermingType mapSkjermingType(SkjermingTypeCode skjermingTypeCode) {
+		if (skjermingTypeCode == null) {
+			return null;
+		}
+
 		switch (skjermingTypeCode) {
 			case POL:
 				return SkjermingType.POL;
@@ -84,6 +103,10 @@ public class HentDokumentTilgangMapper {
 	}
 
 	private Kanal mapKanal(TilgangJournalpostDto tilgangJournalpostDto) {
+		if (tilgangJournalpostDto.getJournalpostType() == null) {
+			return null;
+		}
+
 		switch (tilgangJournalpostDto.getJournalpostType()) {
 			case I:
 				if (tilgangJournalpostDto.getMottakskanal() == null) {

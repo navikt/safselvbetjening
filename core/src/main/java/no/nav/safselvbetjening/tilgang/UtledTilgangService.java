@@ -52,7 +52,7 @@ import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.UGYLDIG_JOU
 public class UtledTilgangService {
 
 	private static final EnumSet<SkjermingType> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
-	private static final List<Kanal> ACCEPTED_MOTTAKS_KANAL = List.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
+	private static final List<Kanal> MOTTAKS_KANAL_SKAN = List.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
 	private static final EnumSet<Journalstatus> JOURNALSTATUS_FERDIGSTILT = EnumSet.of(FERDIGSTILT, JOURNALFOERT, EKSPEDERT);
 
 	private final LocalDateTime tidligstInnsynDato;
@@ -63,7 +63,7 @@ public class UtledTilgangService {
 
 	public boolean utledTilgangJournalpost(Journalpost journalpost, BrukerIdenter brukerIdenter) {
 		try {
-			if(journalpost == null) {
+			if (journalpost == null) {
 				return false;
 			}
 
@@ -260,7 +260,7 @@ public class UtledTilgangService {
 	 */
 	boolean isSkannetDokument(Journalpost journalpost) {
 		if (journalpost.getKanal() != null) {
-			return ACCEPTED_MOTTAKS_KANAL.contains(journalpost.getKanal());
+			return MOTTAKS_KANAL_SKAN.contains(journalpost.getKanal());
 		}
 		return false;
 	}
@@ -269,20 +269,29 @@ public class UtledTilgangService {
 	 * 2d) Dokumenter markert som innskrenketPartsinnsyn skal ikke vises
 	 */
 	boolean isDokumentInnskrenketPartsinnsyn(DokumentInfo dokumentInfo) {
-		return (dokumentInfo.getTilgangDokument().isInnskrenketPartsinnsyn() || dokumentInfo.getTilgangDokument().isInnskrenketTredjepart());
+		if (dokumentInfo.getTilgangDokument() != null) {
+			return (dokumentInfo.getTilgangDokument().isInnskrenketPartsinnsyn() || dokumentInfo.getTilgangDokument().isInnskrenketTredjepart());
+		}
+		return false;
 	}
 
 	/**
 	 * 2e) Dokumenter som er begrenset ihht. gdpr skal ikke vises
 	 */
 	boolean isDokumentGDPRRestricted(Dokumentvariant dokumentvariant) {
-		return GDPR_SKJERMING_TYPE.contains(dokumentvariant.getTilgangVariant().getSkjerming());
+		if (dokumentvariant.getTilgangVariant() != null) {
+			return GDPR_SKJERMING_TYPE.contains(dokumentvariant.getTilgangVariant().getSkjerming());
+		}
+		return false;
 	}
 
 	/**
 	 * 2f) Kasserte dokumenter skal ikke vises
 	 */
 	boolean isDokumentKassert(DokumentInfo dokumentInfo) {
-		return dokumentInfo.getTilgangDokument().isKassert();
+		if (dokumentInfo.getTilgangDokument() != null) {
+			return dokumentInfo.getTilgangDokument().isKassert();
+		}
+		return false;
 	}
 }

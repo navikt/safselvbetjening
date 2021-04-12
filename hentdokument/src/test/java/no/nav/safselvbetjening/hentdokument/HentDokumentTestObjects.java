@@ -29,16 +29,8 @@ public class HentDokumentTestObjects {
 	static final LocalDateTime DATO_JOURNALFOERT = LocalDate.of(2020, Month.JANUARY, 18).atStartOfDay();
 
 	public static TilgangJournalpostDto.TilgangJournalpostDtoBuilder createTilgangJournalpostDto() {
-		return TilgangJournalpostDto.builder()
-				.journalpostId(JOURNALPOST_ID)
-				.avsenderMottakerId(AVSENDER_MOTTAKER_ID)
-				.journalpostType(JournalpostTypeCode.I)
-				.journalStatus(JournalStatusCode.M)
-				.mottakskanal(MottaksKanalCode.SKAN_IM)
+		return createBaseTilgangJournalpost()
 				.dokument(createDokumentInfoDto().build())
-				.datoOpprettet(DATO_OPPRETTET)
-				.journalfoertDato(DATO_JOURNALFOERT)
-				.fagomrade(FagomradeCode.PEN)
 				.skjerming(SkjermingTypeCode.POL)
 				.bruker(TilgangBrukerDto.builder().brukerId(IDENT).build())
 				.sak(TilgangSakDto.builder()
@@ -47,6 +39,18 @@ public class HentDokumentTestObjects {
 						.feilregistrert(true)
 						.tema(TEMA)
 						.build());
+	}
+
+	public static TilgangJournalpostDto.TilgangJournalpostDtoBuilder createBaseTilgangJournalpost(){
+		return TilgangJournalpostDto.builder()
+				.journalpostId(JOURNALPOST_ID)
+				.avsenderMottakerId(AVSENDER_MOTTAKER_ID)
+				.journalpostType(JournalpostTypeCode.I)
+				.journalStatus(JournalStatusCode.M)
+				.mottakskanal(MottaksKanalCode.NAV_NO)
+				.datoOpprettet(DATO_OPPRETTET)
+				.journalfoertDato(DATO_JOURNALFOERT)
+				.fagomrade(FagomradeCode.PEN);
 	}
 
 	public static TilgangDokumentInfoDto.TilgangDokumentInfoDtoBuilder createDokumentInfoDto() {
