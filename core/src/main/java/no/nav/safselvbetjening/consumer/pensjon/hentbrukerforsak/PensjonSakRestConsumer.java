@@ -10,6 +10,7 @@ import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -29,13 +30,15 @@ public class PensjonSakRestConsumer {
 	private final RestTemplate restTemplate;
 
 	public PensjonSakRestConsumer(RestTemplateBuilder restTemplateBuilder,
-								  final SafSelvbetjeningProperties safSelvbetjeningProperties) {
+								  final SafSelvbetjeningProperties safSelvbetjeningProperties,
+								  final ClientHttpRequestFactory clientHttpRequestFactory) {
 		this.restTemplate = restTemplateBuilder
 				.rootUri(safSelvbetjeningProperties.getEndpoints().getPensjonsak())
 				.basicAuthentication(safSelvbetjeningProperties.getServiceuser().getUsername(),
 						safSelvbetjeningProperties.getServiceuser().getPassword())
 				.setReadTimeout(Duration.ofSeconds(60))
 				.setConnectTimeout(Duration.ofSeconds(5))
+				.requestFactory(() -> clientHttpRequestFactory)
 				.build();
 	}
 	@Retry(name = PENSJON_SAK_REST_INSTANCE)

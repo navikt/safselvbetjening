@@ -6,6 +6,7 @@ import no.nav.safselvbetjening.AzureProperties;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.cache.CacheConfig;
 import org.apache.http.HttpHost;
+import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
@@ -35,8 +36,9 @@ public class AzureTokenConsumer {
 
 	public AzureTokenConsumer(SafSelvbetjeningProperties safSelvbetjeningProperties,
 							  AzureProperties azureProperties,
-							  RestTemplateBuilder restTemplateBuilder) {
-		final CloseableHttpClient httpClient = createHttpClient(safSelvbetjeningProperties.getProxy());
+							  RestTemplateBuilder restTemplateBuilder,
+							  HttpClientConnectionManager httpClientConnectionManager) {
+		final CloseableHttpClient httpClient = createHttpClient(safSelvbetjeningProperties.getProxy(), httpClientConnectionManager);
 		this.restTemplate = restTemplateBuilder
 				.setConnectTimeout(Duration.ofSeconds(3))
 				.setReadTimeout(Duration.ofSeconds(20))
@@ -45,14 +47,18 @@ public class AzureTokenConsumer {
 		this.azureProperties = azureProperties;
 	}
 
-	private CloseableHttpClient createHttpClient(SafSelvbetjeningProperties.Proxy proxy) {
+	private CloseableHttpClient createHttpClient(SafSelvbetjeningProperties.Proxy proxy,
+												 HttpClientConnectionManager httpClientConnectionManager) {
 		if(proxy.isSet()) {
 			final HttpHost proxyHost = new HttpHost(proxy.getHost(), proxy.getPort());
 			return HttpClients.custom()
 					.setRoutePlanner(new DefaultProxyRoutePlanner(proxyHost))
+					.setConnectionManager(httpClientConnectionManager)
 					.build();
 		} else {
-			return HttpClients.createDefault();
+			return HttpClients.custom()
+					.setConnectionManager(httpClientConnectionManager)
+					.build();
 		}
 	}
 
