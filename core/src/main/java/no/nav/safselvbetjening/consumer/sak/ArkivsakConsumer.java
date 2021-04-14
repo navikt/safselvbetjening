@@ -11,6 +11,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -33,13 +34,15 @@ public class ArkivsakConsumer {
     private final String sakUrl;
 
     public ArkivsakConsumer(final RestTemplateBuilder restTemplateBuilder,
-                            final SafSelvbetjeningProperties safSelvbetjeningProperties) {
+                            final SafSelvbetjeningProperties safSelvbetjeningProperties,
+                            final ClientHttpRequestFactory clientHttpRequestFactory) {
         this.sakUrl = safSelvbetjeningProperties.getEndpoints().getSak();
         this.restTemplate = restTemplateBuilder
                 .setReadTimeout(Duration.ofSeconds(20))
                 .setConnectTimeout(Duration.ofSeconds(5))
                 .basicAuthentication(safSelvbetjeningProperties.getServiceuser().getUsername(),
                         safSelvbetjeningProperties.getServiceuser().getPassword())
+                .requestFactory(() -> clientHttpRequestFactory)
                 .build();
     }
 

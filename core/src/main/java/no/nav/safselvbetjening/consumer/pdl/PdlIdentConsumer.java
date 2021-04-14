@@ -8,6 +8,7 @@ import no.nav.safselvbetjening.consumer.azure.AzureTokenConsumer;
 import no.nav.safselvbetjening.consumer.azure.TokenResponse;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.RequestEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -43,10 +44,12 @@ class PdlIdentConsumer implements IdentConsumer {
 
     public PdlIdentConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
                             final RestTemplateBuilder restTemplateBuilder,
-                            final AzureTokenConsumer azureTokenConsumer) {
+                            final AzureTokenConsumer azureTokenConsumer,
+                            final ClientHttpRequestFactory clientHttpRequestFactory) {
         this.restTemplate = restTemplateBuilder
                 .setConnectTimeout(Duration.ofSeconds(3))
                 .setReadTimeout(Duration.ofSeconds(20))
+                .requestFactory(() -> clientHttpRequestFactory)
                 .build();
         this.pdlUri = UriComponentsBuilder.fromHttpUrl(safSelvbetjeningProperties.getEndpoints().getPdl()).build().toUri();
         this.azureTokenConsumer = azureTokenConsumer;
