@@ -47,14 +47,14 @@ spec:
     initialDelay: 30
     timeout: 3
   replicas:
-    min: 2
-    max: 4
+    min: 4
+    max: 10
   resources:
     limits:
       cpu: 2000m
-      memory: 2048Mi
+      memory: 2560Mi
     requests:
-      memory: 1024Mi
+      memory: 1792Mi
   vault:
     enabled: true
     paths:
