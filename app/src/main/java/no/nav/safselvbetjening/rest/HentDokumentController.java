@@ -60,7 +60,7 @@ public class HentDokumentController {
 			String message = format("Tilgang til dokument avvist. %s. journalpostId=%s, dokumentInfoId=%s, variantFormat=%s", journalpostId, dokumentInfoId, variantFormat, e.getMessage());
 			log.warn(message);
 			throw e;
-		} catch(JournalpostIkkeFunnetException | DokumentIkkeFunnetException e) {
+		} catch (JournalpostIkkeFunnetException | DokumentIkkeFunnetException e) {
 			log.warn(e.getMessage());
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		} finally {
