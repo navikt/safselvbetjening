@@ -1,69 +1,57 @@
 package no.nav.safselvbetjening.endpoints;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
+import no.nav.safselvbetjening.Application;
 import no.nav.safselvbetjening.ApplicationConfig;
+import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.security.mock.oauth2.MockOAuth2Server;
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback;
-import no.nav.security.token.support.spring.EnableJwtTokenValidationConfiguration;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
+import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
+import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Arrays;
-import java.util.Collections;
+import javax.servlet.Filter;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {ApplicationConfig.class, EnableJwtTokenValidationConfiguration.class, STSTestConfig.class},
-		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles(value = "itest")
-//@ImportAutoConfiguration
-//@EnableAutoConfiguration
-//@AutoConfigureWireMock(port = Options.DYNAMIC_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {Application.class, ApplicationConfig.class, STSTestConfig.class})
 @EnableMockOAuth2Server
-//@EnableJwtTokenValidation(ignore = {"org.springframework", "org.springdoc"})
+@ActiveProfiles("itest")
+@AutoConfigureWireMock
 public abstract class AbstractItest {
 
-	/*
+	@Autowired
+	private WebApplicationContext webApplicationContext;
+	@Autowired
+	private MockOAuth2Server server;
 	@Autowired
 	protected TestRestTemplate restTemplate;
-	@Autowired
-	protected HentDokumentController hentDokumentController;
-*/
-	@Value("${wiremock.port}")
-	Integer wiremockPort;
 
-	@LocalServerPort
-	private String webAppPort;
-
-	@Autowired
-	private MockOAuth2Server mockOAuth2Server;
-
-	//private WireMockServer wireMockServer;
-
-	//private final SafSelvbetjeningProperties safSelvbetjeningProperties = new SafSelvbetjeningProperties();
-
-	protected static final String PERSON_USER_ID = "Z990782";
+	private final SafSelvbetjeningProperties safSelvbetjeningProperties = new SafSelvbetjeningProperties();
 
 
 	@BeforeEach
-	public void setup() {
-		//safSelvbetjeningProperties.setTidligstInnsynDato(LocalDate.of(2016, 6, 4));
-
-		/*wireMockServer = new WireMockServer(
-				options()
-						.extensions(new ResponseTemplateTransformer(false))
-						.port(wiremockPort));
-		wireMockServer.start();*/
-
-		/*
+	void initialiseRestAssuredMockMvcWebApplicationContext() {
 		Collection<Filter> filterCollection = webApplicationContext.getBeansOfType(Filter.class).values();
 		Filter[] filters = filterCollection.toArray(new Filter[0]);
 		MockMvcConfigurer mockMvcConfigurer = new MockMvcConfigurer() {
@@ -72,44 +60,39 @@ public abstract class AbstractItest {
 				builder.addFilters(filters);
 			}
 		};
-		RestAssuredMockMvc.webAppContextSetup(webApplicationContext, mockMvcConfigurer);*/
+		RestAssuredMockMvc.webAppContextSetup(webApplicationContext, mockMvcConfigurer);
+
+		safSelvbetjeningProperties.setTidligstInnsynDato(LocalDate.of(2016, 6, 4));
+
+		WireMock.reset();
+		WireMock.resetAllRequests();
+		WireMock.removeAllMappings();
+		WireMock.resetAllScenarios();
 	}
-	/*
-	protected HttpEntity<?> createHttpEntity() {
-		return new HttpEntity<>(createHeaders());
-	}
 
-	protected HttpHeaders createHeaders() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set(NAV_CALLID, "itest");
-		headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token("tokenx", "Subject", "audience"));
-
-		//headers.add(HttpHeaders.AUTHORIZATION, getTokenWithSubejct(PERSON_USER_ID));
-		return headers;
-	}*/
-
-
-	/*private String getTokenWithSubejct(final String subject) {
-		return "Bearer " + restTemplate.getForObject("/local/jwt?subject=" + subject, String.class);
-	}*/
-
-	public static String token(MockOAuth2Server mockOAuth2Server, String issuerId, String subject, String audience, String... groups) {
-		return mockOAuth2Server.issueToken(
+	protected String token(String subject) {
+		String issuerId = "tokenx";
+		String audience = "safselvbetjening";
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("pid", subject);
+		return server.issueToken(
 				issuerId,
-				"theclientid",
+				"safselvbetjening",
 				new DefaultOAuth2TokenCallback(
 						issuerId,
 						subject,
 						List.of(audience),
-						Collections.singletonMap("groups", Arrays.asList(groups)),
+						claims,
 						3600
 				)
 		).serialize();
 	}
-/*
-	@AfterEach
-	public void tearDown() {
-		wireMockServer.stop();
-	}*/
+
+	protected HttpEntity<?> createHttpEntityHeaders(String subject) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set(NAV_CALLID, "itest");
+		headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token(subject));
+		return new HttpEntity<>(headers);
+	}
 }
