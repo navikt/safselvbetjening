@@ -15,19 +15,19 @@ import java.util.List;
 @Slf4j
 @Component
 public class IdentService {
-    private final IdentConsumer identConsumer;
+	private final IdentConsumer identConsumer;
 
-    public IdentService(IdentConsumer identConsumer) {
-        this.identConsumer = identConsumer;
-    }
+	public IdentService(IdentConsumer identConsumer) {
+		this.identConsumer = identConsumer;
+	}
 
-    public BrukerIdenter hentIdenter(final String ident) {
-        try {
-            List<PdlResponse.PdlIdent> pdlIdenter = identConsumer.hentIdenter(ident);
-            return new BrukerIdenter(pdlIdenter);
-        } catch(ConsumerFunctionalException e) {
-            log.warn("Henting av identer for ident feilet.", e);
-            return new BrukerIdenter(new ArrayList<>());
-        }
-    }
+	public BrukerIdenter hentIdenter(final String ident) {
+		try {
+			List<PdlResponse.PdlIdent> pdlIdenter = identConsumer.hentIdenter(ident);
+			return new BrukerIdenter(pdlIdenter);
+		} catch (ConsumerFunctionalException e) {
+			log.warn("Henting av identer for ident feilet.", e);
+			return new BrukerIdenter(new ArrayList<>());
+		}
+	}
 }

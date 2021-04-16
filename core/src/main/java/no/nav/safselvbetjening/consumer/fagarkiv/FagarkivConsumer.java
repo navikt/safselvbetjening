@@ -4,6 +4,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.NavHeaders;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
+import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,12 @@ public class FagarkivConsumer {
 		} catch (HttpClientErrorException.NotFound e) {
 			throw new JournalpostIkkeFunnetException("Fant ikke journalpost for tilgangskontroll med journalpostId=" +
 					journalpostId + ", dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
+		} catch (HttpClientErrorException e) {
+			throw new ConsumerFunctionalException("Funksjonell feil mot tilgangJournalpost for journalpost med journalpostId=" +
+					journalpostId + "dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
+		} catch (HttpServerErrorException e) {
+			throw new ConsumerTechnicalException("Teknisk feil mot tilgangJournalpost for journalpost med journalpostId=" +
+					journalpostId + "dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
 		}
 	}
 
@@ -85,6 +92,10 @@ public class FagarkivConsumer {
 		} catch (HttpClientErrorException.NotFound e) {
 			throw new DokumentIkkeFunnetException("Fant ikke dokument med dokumentInfoId=" + dokumentInfoId +
 					", variantFormat=" + variantFormat, e);
+		} catch (HttpClientErrorException e) {
+			throw new ConsumerFunctionalException("Funksjonell feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
+		} catch (HttpServerErrorException e) {
+			throw new ConsumerTechnicalException("Teknisk feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
 		}
 	}
 

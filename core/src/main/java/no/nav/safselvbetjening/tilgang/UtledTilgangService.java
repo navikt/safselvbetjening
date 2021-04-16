@@ -249,7 +249,7 @@ public class UtledTilgangService {
 	 * 2a) Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	 */
 	boolean isAvsenderMottakerNotPart(Journalpost journalpost, List<String> idents) {
-		if (journalpost.getJournalposttype() != N && journalpost.getAvsenderMottaker() != null) {
+		if (journalpost.getJournalposttype() != N && journalpost.getAvsenderMottaker() != null && journalpost.getAvsenderMottaker().getId() != null) {
 			return !idents.contains(journalpost.getAvsenderMottaker().getId());
 		}
 		return false;

@@ -34,65 +34,65 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  */
 @Component
 class PdlIdentConsumer implements IdentConsumer {
-    private static final String PDL_INSTANCE = "pdl";
-    private static final String HEADER_PDL_NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
-    private static final String PERSON_IKKE_FUNNET_CODE = "not_found";
+	private static final String PDL_INSTANCE = "pdl";
+	private static final String HEADER_PDL_NAV_CONSUMER_TOKEN = "Nav-Consumer-Token";
+	private static final String PERSON_IKKE_FUNNET_CODE = "not_found";
 
-    private final RestTemplate restTemplate;
-    private final URI pdlUri;
-    private final AzureTokenConsumer azureTokenConsumer;
+	private final RestTemplate restTemplate;
+	private final URI pdlUri;
+	private final AzureTokenConsumer azureTokenConsumer;
 
-    public PdlIdentConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
-                            final RestTemplateBuilder restTemplateBuilder,
-                            final AzureTokenConsumer azureTokenConsumer,
-                            final ClientHttpRequestFactory clientHttpRequestFactory) {
-        this.restTemplate = restTemplateBuilder
-                .setConnectTimeout(Duration.ofSeconds(3))
-                .setReadTimeout(Duration.ofSeconds(20))
-                .requestFactory(() -> clientHttpRequestFactory)
-                .build();
-        this.pdlUri = UriComponentsBuilder.fromHttpUrl(safSelvbetjeningProperties.getEndpoints().getPdl()).build().toUri();
-        this.azureTokenConsumer = azureTokenConsumer;
-    }
+	public PdlIdentConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
+							final RestTemplateBuilder restTemplateBuilder,
+							final AzureTokenConsumer azureTokenConsumer,
+							final ClientHttpRequestFactory clientHttpRequestFactory) {
+		this.restTemplate = restTemplateBuilder
+				.setConnectTimeout(Duration.ofSeconds(3))
+				.setReadTimeout(Duration.ofSeconds(20))
+				.requestFactory(() -> clientHttpRequestFactory)
+				.build();
+		this.pdlUri = UriComponentsBuilder.fromHttpUrl(safSelvbetjeningProperties.getEndpoints().getPdl()).build().toUri();
+		this.azureTokenConsumer = azureTokenConsumer;
+	}
 
-    @Retry(name = PDL_INSTANCE)
-    @CircuitBreaker(name = PDL_INSTANCE)
-    @Override
-    public List<PdlResponse.PdlIdent> hentIdenter(final String ident) throws PersonIkkeFunnetException {
-        try {
-            final RequestEntity<PdlRequest> requestEntity = baseRequest()
-                    .body(mapHentIdenterQuery(ident));
-            final PdlResponse pdlResponse = requireNonNull(restTemplate.exchange(requestEntity, PdlResponse.class).getBody());
+	@Retry(name = PDL_INSTANCE)
+	@CircuitBreaker(name = PDL_INSTANCE)
+	@Override
+	public List<PdlResponse.PdlIdent> hentIdenter(final String ident) throws PersonIkkeFunnetException {
+		try {
+			final RequestEntity<PdlRequest> requestEntity = baseRequest()
+					.body(mapHentIdenterQuery(ident));
+			final PdlResponse pdlResponse = requireNonNull(restTemplate.exchange(requestEntity, PdlResponse.class).getBody());
 
-            if (pdlResponse.getErrors() == null || pdlResponse.getErrors().isEmpty()) {
-                return pdlResponse.getData().getHentIdenter().getIdenter();
-            } else {
-                if (PERSON_IKKE_FUNNET_CODE.equals(pdlResponse.getErrors().get(0).getExtensions().getCode())) {
-                    throw new PersonIkkeFunnetException("Fant ikke aktørid for person i pdl.");
-                }
-                throw new PdlFunctionalException("Kunne ikke hente aktørid for folkeregisterident i pdl. " + pdlResponse.getErrors());
-            }
-        } catch (HttpClientErrorException e) {
-            throw new PdlFunctionalException("Kall mot pdl feilet funksjonelt.", e);
-        }
-    }
+			if (pdlResponse.getErrors() == null || pdlResponse.getErrors().isEmpty()) {
+				return pdlResponse.getData().getHentIdenter().getIdenter();
+			} else {
+				if (PERSON_IKKE_FUNNET_CODE.equals(pdlResponse.getErrors().get(0).getExtensions().getCode())) {
+					throw new PersonIkkeFunnetException("Fant ikke aktørid for person i pdl.");
+				}
+				throw new PdlFunctionalException("Kunne ikke hente aktørid for folkeregisterident i pdl. " + pdlResponse.getErrors());
+			}
+		} catch (HttpClientErrorException e) {
+			throw new PdlFunctionalException("Kall mot pdl feilet funksjonelt.", e);
+		}
+	}
 
-    private PdlRequest mapHentIdenterQuery(final String ident) {
-        final HashMap<String, Object> variables = new HashMap<>();
-        variables.put("ident", ident);
-        return PdlRequest.builder()
-                .query("query hentIdenter($ident: ID!) {hentIdenter(ident: $ident, historikk: true) {identer { ident gruppe historisk } } }")
-                .variables(variables)
-                .build();
-    }
+	private PdlRequest mapHentIdenterQuery(final String ident) {
+		final HashMap<String, Object> variables = new HashMap<>();
+		variables.put("ident", ident);
+		return PdlRequest.builder()
+				.query("query hentIdenter($ident: ID!) {hentIdenter(ident: $ident, historikk: true) {identer { ident gruppe historisk } } }")
+				.variables(variables)
+				.build();
+	}
 
-    private RequestEntity.BodyBuilder baseRequest() {
-        TokenResponse clientCredentialToken = azureTokenConsumer.getClientCredentialToken();
-        return RequestEntity.post(pdlUri)
-                .accept(APPLICATION_JSON)
-                .header(NAV_CALLID, getCallId())
-                .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .header(AUTHORIZATION, "Bearer " + clientCredentialToken.getAccess_token())
-                .header(HEADER_PDL_NAV_CONSUMER_TOKEN, "Bearer " + clientCredentialToken.getAccess_token());
-    }
+	private RequestEntity.BodyBuilder baseRequest() {
+		TokenResponse clientCredentialToken = azureTokenConsumer.getClientCredentialToken();
+		return RequestEntity.post(pdlUri)
+				.accept(APPLICATION_JSON)
+				.header(NAV_CALLID, getCallId())
+				.header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.header(AUTHORIZATION, "Bearer " + clientCredentialToken.getAccess_token())
+				.header(HEADER_PDL_NAV_CONSUMER_TOKEN, "Bearer " + clientCredentialToken.getAccess_token());
+	}
 }

@@ -12,8 +12,8 @@ import java.util.Base64;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
@@ -28,37 +28,127 @@ class HentDokumentIT extends AbstractItest {
 	private static final byte[] TEST_FILE_BYTES = "TestThis".getBytes();
 
 	@Test
-	void happyPath() {
-
+	void hentFerdigstiltDokumentHappyPath() {
+		stubPdl();
+		stubAzure();
 		stubHentDokumentDokarkiv();
-		stubHentTilgangJournalpostDokarkiv("/fagarkiv/tilgangJournalpostResponse.json");
-
-		/*given()
-				.header("Authorization", "Bearer " + token1)
-				.when()
-				.get(uri)
-				.then()
-				.log().ifValidationFails()
-				.statusCode(HttpStatus.OK.value());*/
+		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokument();
-
 		assertOkArkivResponse(responseEntity);
+	}
 
+	@Test
+	void hentMidlertidigDokumentHappyPath() {
+		stubPdl();
+		stubAzure();
+		stubHentDokumentDokarkiv();
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("fagarkiv/tilgangjournalpost_midlertidig_happy.json")));
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertOkArkivResponse(responseEntity);
+	}
+
+	@Test
+	void hentDokumentNotFound() {
+		stubPdl();
+		stubAzure();
+		stubHentTilgangJournalpostDokarkiv();
+		stubFor(get("/hentjournalsakinfo/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(HttpStatus.NOT_FOUND.value())));
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+	}
+
+	@Test
+	void hentTilgangJournalpostNotFound() {
+		stubPdl();
+		stubAzure();
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(HttpStatus.NOT_FOUND.value())));
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+	}
+
+	@Test
+	void hentDokumentDokarkivTechnicalFail() {
+		stubPdl();
+		stubAzure();
+		stubHentDokumentDokarkiv();
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
+	}
+
+	@Test
+	void hentDokumentPdlNotFound() {
+		stubAzure();
+		stubHentTilgangJournalpostDokarkiv();
+		stubFor(post("/pdl")
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("pdl/pdlNotFound.json")));
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+	}
+
+	@Test
+	void hentDokumentAzureReturnsNotFound() {
+		stubHentTilgangJournalpostDokarkiv();
+		stubPdl();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());        //Token returnerer egentlig 404 NOT found. Blir dette riktig håndtering?
+	}
+
+	@Test
+	void hentDokumentTilgangAvvist() {
+		stubPdl();
+		stubAzure();
+
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("fagarkiv/tilgangjournalpost_gdpr.json")));
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+	}
+
+	private void stubAzure() {
+		stubFor(post("/azureTokenUrl")
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("azure/tokenResponse.json")));
 	}
 
 	private void stubHentDokumentDokarkiv() {
 		stubFor(get("/fagarkiv/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-				.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_PDF_VALUE)
-				.withBody(Base64.getEncoder().encode(TEST_FILE_BYTES))));
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_PDF_VALUE)
+						.withBody(Base64.getEncoder().encode(TEST_FILE_BYTES))));
 	}
 
-	private void stubHentTilgangJournalpostDokarkiv(String fil) {
-		stubFor(get(urlEqualTo("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT))
+	private void stubHentTilgangJournalpostDokarkiv() {
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-				.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-				.withBodyFile(fil)));
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("fagarkiv/tilgangjournalpost_ferdigstilt_happy.json")));
+	}
+
+	private void stubPdl() {
+		stubFor(post("/pdl")
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("pdl/pdlHappy.json")));
 	}
 
 	private void assertOkArkivResponse(ResponseEntity<String> responseEntity) {

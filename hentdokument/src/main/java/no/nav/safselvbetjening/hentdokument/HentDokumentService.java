@@ -5,6 +5,7 @@ import no.nav.safselvbetjening.consumer.fagarkiv.HentDokumentResponseTo;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
+import no.nav.safselvbetjening.consumer.pdl.PdlFunctionalException;
 import no.nav.safselvbetjening.consumer.pensjon.hentbrukerforsak.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
@@ -58,6 +59,9 @@ public class HentDokumentService {
 			throw new HentTilgangDokumentException(PARTSINNSYN, "Tilgang til dokument avvist fordi bruker ikke kan utledes");
 		}
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(bruker);
+		if (brukerIdenter.isEmpty()) {
+			throw new PdlFunctionalException("Finner ingen identer på person i pdl.");
+		}
 
 		utledTilgangService.utledTilgangHentDokument(hentDokumentTilgangMapper.map(tilgangJournalpostResponseTo.getTilgangJournalpostDto()), brukerIdenter);
 	}

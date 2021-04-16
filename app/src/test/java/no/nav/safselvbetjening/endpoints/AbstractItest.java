@@ -1,7 +1,6 @@
 package no.nav.safselvbetjening.endpoints;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import no.nav.safselvbetjening.Application;
 import no.nav.safselvbetjening.ApplicationConfig;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
@@ -19,13 +18,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.servlet.Filter;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,16 +47,6 @@ public abstract class AbstractItest {
 
 	@BeforeEach
 	void initialiseRestAssuredMockMvcWebApplicationContext() {
-		Collection<Filter> filterCollection = webApplicationContext.getBeansOfType(Filter.class).values();
-		Filter[] filters = filterCollection.toArray(new Filter[0]);
-		MockMvcConfigurer mockMvcConfigurer = new MockMvcConfigurer() {
-			@Override
-			public void afterConfigurerAdded(ConfigurableMockMvcBuilder<?> builder) {
-				builder.addFilters(filters);
-			}
-		};
-		RestAssuredMockMvc.webAppContextSetup(webApplicationContext, mockMvcConfigurer);
-
 		safSelvbetjeningProperties.setTidligstInnsynDato(LocalDate.of(2016, 6, 4));
 
 		WireMock.reset();
