@@ -1,0 +1,45 @@
+{
+  "tilgangJournalpostDto": {
+    "journalpostId": "123",
+    "journalStatus": "M",
+    "journalpostType": "I",
+    "fagomrade": "PEN",
+    "datoOpprettet": "2019-12-06T00:00:00",
+    "journalfoertDato": "2019-11-22T15:08:21.504",
+    "mottakskanal": null,
+    "avsenderMottakerId": null,
+    "skjerming": null,
+    "bruker": {
+      "brukerId": "12345678911",
+      "brukerType": "PERSON"
+    },
+    "sak": {
+      "sakId": null,
+      "fagsystem": null,
+      "feilregistrert": false,
+      "aktoerId": "1012345678911",
+      "tema": "AAP",
+      "fagsakNr": "333333",
+      "orgnr": null,
+      "applikasjon": "AO01",
+      "opprettetAv": null,
+      "opprettetTidspunkt": "2018-06-05T11:19:55.419+02:00"
+
+    },
+    "dokument": {
+      "dokumentinfoId": "123",
+      "dokumentstatus": "MOTTATT",
+      "brevkode": null,
+      "kategori": "FORVALTNINGSNOTAT",
+      "organinternt": false,
+      "innskrenketPartsinnsyn": false,
+      "innskrenketTredjepart": false,
+      "kassert": false,
+      "skjerming": null,
+      "variant": {
+        "variantFormat": "ARKIV",
+        "skjerming": null
+      }
+    }
+  }
+}
