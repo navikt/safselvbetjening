@@ -14,10 +14,6 @@ import java.util.concurrent.TimeUnit;
 
 import static no.nav.safselvbetjening.cache.CacheConfig.AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE;
 
-/**
- * @author Sigurd Midttun, Visma Consulting.
- */
-
 @Configuration
 @Profile("itest")
 public class LokalCacheTestConfig {

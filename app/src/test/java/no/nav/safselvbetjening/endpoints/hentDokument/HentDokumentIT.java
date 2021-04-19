@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Base64;
@@ -24,7 +25,6 @@ class HentDokumentIT extends AbstractItest {
 	private static final String JOURNALPOST_ID = "123";
 	private static final String BRUKER_ID = "12345678911";
 	private static final VariantFormatCode VARIANTFORMAT = VariantFormatCode.ARKIV;
-	private static final VariantFormatCode SLADDET_VARIANTFORMAT = VariantFormatCode.SLADDET;
 	private static final byte[] TEST_FILE_BYTES = "TestThis".getBytes();
 
 	@Test
@@ -91,10 +91,11 @@ class HentDokumentIT extends AbstractItest {
 	void hentDokumentPdlNotFound() {
 		stubAzure();
 		stubHentTilgangJournalpostDokarkiv();
+		stubHentDokumentDokarkiv();
 		stubFor(post("/pdl")
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
 						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("pdl/pdlNotFound.json")));
+						.withBodyFile("pdl/pdl_not_found.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
@@ -123,11 +124,47 @@ class HentDokumentIT extends AbstractItest {
 		assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
 	}
 
+	@Test
+	void hentDokumentPenHappyPath() {
+		stubPdl();
+		stubAzure();
+		stubHentDokumentDokarkiv();
+
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("fagarkiv/tilgangjournalpost_pen_happy.json")));
+		stubFor(get("/pensjonsak")
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("psak/hentbrukerforsak_happy.json")));
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertOkArkivResponse(responseEntity);
+	}
+
+	@Test
+	void hentDokumentPenNotFound() {
+		stubPdl();
+		stubAzure();
+		stubHentDokumentDokarkiv();
+
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("fagarkiv/tilgangjournalpost_pen_happy.json")));
+		stubFor(get("/pensjonsak")
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("psak/hentbrukerforsak_empty.json")));
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+	}
+
 	private void stubAzure() {
 		stubFor(post("/azureTokenUrl")
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
 						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("azure/tokenResponse.json")));
+						.withBodyFile("azure/token_response.json")));
 	}
 
 	private void stubHentDokumentDokarkiv() {
@@ -148,11 +185,15 @@ class HentDokumentIT extends AbstractItest {
 		stubFor(post("/pdl")
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
 						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("pdl/pdlHappy.json")));
+						.withBodyFile("pdl/pdl_happy.json")));
 	}
 
 	private void assertOkArkivResponse(ResponseEntity<String> responseEntity) {
 		assertEquals(DOKUMENT_ID + "_" + VARIANTFORMAT + ".pdf", responseEntity.getHeaders().getContentDisposition().getFilename());
+		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+		assertEquals(MediaType.APPLICATION_PDF, responseEntity.getHeaders().getContentType());
+		assertEquals("inline", responseEntity.getHeaders().getContentDisposition().getType());
+		assertEquals(new String(TEST_FILE_BYTES), responseEntity.getBody());
 	}
 
 	private ResponseEntity<String> callHentDokument() {

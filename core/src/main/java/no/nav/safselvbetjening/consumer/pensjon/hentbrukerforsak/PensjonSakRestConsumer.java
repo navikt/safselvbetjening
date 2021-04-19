@@ -7,6 +7,7 @@ import no.nav.safselvbetjening.NavHeaders;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,21 +27,23 @@ import static org.springframework.http.HttpMethod.GET;
 public class PensjonSakRestConsumer {
 
 	private static final String PENSJON_SAK_REST_INSTANCE = "pensjonSakRest";
-
 	private final RestTemplate restTemplate;
+	private final String pensjonsakUrl;
 
-	public PensjonSakRestConsumer(RestTemplateBuilder restTemplateBuilder,
+	public PensjonSakRestConsumer(final RestTemplateBuilder restTemplateBuilder,
 								  final SafSelvbetjeningProperties safSelvbetjeningProperties,
-								  final ClientHttpRequestFactory clientHttpRequestFactory) {
+								  final ClientHttpRequestFactory clientHttpRequestFactory,
+								  @Value("${safselvbetjening.endpoints.pensjonsak}") String pensjonsakUrl) {
 		this.restTemplate = restTemplateBuilder
-				.rootUri(safSelvbetjeningProperties.getEndpoints().getPensjonsak())
 				.basicAuthentication(safSelvbetjeningProperties.getServiceuser().getUsername(),
 						safSelvbetjeningProperties.getServiceuser().getPassword())
 				.setReadTimeout(Duration.ofSeconds(60))
 				.setConnectTimeout(Duration.ofSeconds(5))
 				.requestFactory(() -> clientHttpRequestFactory)
 				.build();
+		this.pensjonsakUrl = pensjonsakUrl;
 	}
+
 	@Retry(name = PENSJON_SAK_REST_INSTANCE)
 	@CircuitBreaker(name = PENSJON_SAK_REST_INSTANCE)
 	public HentBrukerForSakResponseTo hentBrukerForSak(final String sakId) {
@@ -49,10 +52,10 @@ public class PensjonSakRestConsumer {
 			headers.add("sakId", sakId);
 			headers.add(NavHeaders.NAV_CALLID, getCallId());
 
-			HentBrukerForSakResponseTo hentBrukerForSakResponseTo = restTemplate.exchange("", GET, new HttpEntity<>(headers), HentBrukerForSakResponseTo.class)
+			HentBrukerForSakResponseTo hentBrukerForSakResponseTo = restTemplate.exchange(pensjonsakUrl, GET, new HttpEntity<HentBrukerForSakResponseTo>(headers), HentBrukerForSakResponseTo.class)
 					.getBody();
 			if (hentBrukerForSakResponseTo == null || hentBrukerForSakResponseTo.getFnr() == null || hentBrukerForSakResponseTo.getFnr().isEmpty()) {
-				throw new ConsumerFunctionalException("hentBrukerForSak returnerte tomt fødselsnummer for sakId={}. Dette betyr at saken ikke finnes eller at ingen personer er tilknyttet denne saken" + sakId);
+				throw new PensjonsakIkkeFunnetException("hentBrukerForSak returnerte tomt fødselsnummer for sakId={}. Dette betyr at saken ikke finnes eller at ingen personer er tilknyttet denne saken" + sakId);
 			} else {
 				return hentBrukerForSakResponseTo;
 			}

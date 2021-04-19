@@ -34,6 +34,7 @@
 		<resilience4j.version>1.7.0</resilience4j.version>
 		<lombok.version>1.18.16</lombok.version>
 		<okhttp3.version>4.9.1</okhttp3.version>
+		<wiremock.version>3.0.2</wiremock.version>
 	</properties>
 
 	<dependencyManagement>
@@ -109,6 +110,12 @@
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
 				<version>${okhttp3.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-contract-wiremock</artifactId>
+				<version>${wiremock.version}</version>
 				<scope>test</scope>
 			</dependency>
 		</dependencies>

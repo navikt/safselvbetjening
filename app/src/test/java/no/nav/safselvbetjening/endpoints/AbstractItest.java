@@ -18,7 +18,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -27,16 +26,13 @@ import java.util.Map;
 
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {Application.class, ApplicationConfig.class, STSTestConfig.class})
 @EnableMockOAuth2Server
 @ActiveProfiles("itest")
-@AutoConfigureWireMock
+@AutoConfigureWireMock(port = 0)
 public abstract class AbstractItest {
 
-	@Autowired
-	private WebApplicationContext webApplicationContext;
 	@Autowired
 	private MockOAuth2Server server;
 	@Autowired

@@ -158,7 +158,8 @@ public class UtledTilgangService {
 		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) && journalpost.getTilgang().getTilgangSak() != null) {
 			if (FS22.toString().equals(journalpost.getTilgang().getTilgangSak().getFagsystem())) {
 				return identer.getIdenter().contains(journalpost.getTilgang().getTilgangSak().getAktoerId());
-			} else if (FagsystemCode.PEN.toString().equals(journalpost.getTilgang().getTilgangSak().getFagsystem()) && journalpost.getTilgang().getTilgangBruker() != null) {
+			} else if (FagsystemCode.PEN.toString().equals(journalpost.getTilgang().getTilgangSak().getFagsystem()) &&
+					journalpost.getTilgang().getTilgangBruker() != null) {
 				return identer.getFoedselsnummer().contains(journalpost.getTilgang().getTilgangBruker().getBrukerId());
 			}
 		}
