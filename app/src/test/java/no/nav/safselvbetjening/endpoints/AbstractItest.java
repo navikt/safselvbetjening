@@ -1,6 +1,8 @@
 package no.nav.safselvbetjening.endpoints;
 
 import no.nav.safselvbetjening.Application;
+import no.nav.safselvbetjening.consumer.azure.TokenConsumer;
+import no.nav.safselvbetjening.consumer.azure.TokenResponse;
 import no.nav.security.mock.oauth2.MockOAuth2Server;
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -10,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,7 +36,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {Application.class, STSTestConfig.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+		classes = {Application.class, STSTestConfig.class, AbstractItest.Config.class})
 @EnableMockOAuth2Server
 @ActiveProfiles("itest")
 @AutoConfigureWireMock(port = 0)
@@ -42,6 +47,16 @@ public abstract class AbstractItest {
 	private MockOAuth2Server server;
 	@Autowired
 	protected TestRestTemplate restTemplate;
+
+	static class Config {
+		@Bean
+		@Primary
+		TokenConsumer azureTokenConsumer() {
+			return () -> TokenResponse.builder()
+					.access_token("dummy")
+					.build();
+		}
+	}
 
 	protected String token(String subject) {
 		String issuerId = "tokenx";
@@ -100,17 +115,14 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubSak() {
-		stubFor(get(urlMatching("/sak\\?aktoerId=1012345678911\\&tema=.*"))
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("saker/saker_happy.json")));
+		stubSak("saker_happy.json");
 	}
 
-	protected void stubSak(final String body) {
+	protected void stubSak(final String fil) {
 		stubFor(get(urlMatching("/sak\\?aktoerId=1012345678911\\&tema=.*"))
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
 						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBody(body)));
+						.withBodyFile("sak/" + fil)));
 	}
 
 	protected void stubPensjonSak() {

@@ -76,7 +76,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnNotFoundWhenIngenSakerOnBruker() throws Exception {
 		happyStubs();
-		stubSak("[]");
+		stubSak("saker_empty.json");
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_for.query");
 
 		assertThat(requireNonNull(response.getBody()).getErrors())

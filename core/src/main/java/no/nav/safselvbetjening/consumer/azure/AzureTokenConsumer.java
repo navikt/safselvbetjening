@@ -11,6 +11,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -29,7 +30,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 
 @Component
-public class AzureTokenConsumer {
+@Profile({"nais", "local"})
+public class AzureTokenConsumer implements TokenConsumer {
 	private static final String AZURE_TOKEN_INSTANCE = "azuretoken";
 	private final RestTemplate restTemplate;
 	private final AzureProperties azureProperties;
