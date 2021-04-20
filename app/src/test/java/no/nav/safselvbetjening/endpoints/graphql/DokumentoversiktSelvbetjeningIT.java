@@ -15,6 +15,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,6 +74,20 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(data.getTema()).hasSize(1);
 		Sakstema foreldrepenger = data.getTema().get(0);
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
+	}
+
+	@Test
+	void shouldNotCallFagarkivWhenTemaOnlyQuery() throws Exception {
+		happyStubs();
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_tema_only.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertThat(data.getTema()).hasSize(2);
+		verify(0, postRequestedFor(urlEqualTo("/fagarkiv")));
 	}
 
 	@Test

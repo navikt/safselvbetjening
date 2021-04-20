@@ -1,0 +1,8 @@
+{
+  dokumentoversiktSelvbetjening(ident: "12345678911", tema: []) {
+    tema {
+      kode
+      navn
+    }
+  }
+}
