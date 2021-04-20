@@ -4,7 +4,6 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import no.nav.safselvbetjening.AzureProperties;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
-import no.nav.safselvbetjening.cache.CacheConfig;
 import org.apache.http.HttpHost;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -23,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.Duration;
 import java.util.Collections;
 
+import static no.nav.safselvbetjening.cache.CacheConfig.AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -64,7 +64,7 @@ public class AzureTokenConsumer {
 
 	@Retry(name = AZURE_TOKEN_INSTANCE)
 	@CircuitBreaker(name = AZURE_TOKEN_INSTANCE)
-	@Cacheable(CacheConfig.AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE)
+	@Cacheable(AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE)
 	public TokenResponse getClientCredentialToken() {
 		try {
 			HttpHeaders headers = createHeaders();

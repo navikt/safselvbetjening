@@ -57,7 +57,7 @@ class HentDokumentIT extends AbstractItest {
 		stubPdl();
 		stubAzure();
 		stubHentTilgangJournalpostDokarkiv();
-		stubFor(get("/hentjournalsakinfo/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+		stubFor(get("/fagarkiv/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
 				.willReturn(aResponse().withStatus(HttpStatus.NOT_FOUND.value())));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
@@ -102,15 +102,6 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void hentDokumentAzureReturnsNotFound() {
-		stubHentTilgangJournalpostDokarkiv();
-		stubPdl();
-
-		ResponseEntity<String> responseEntity = callHentDokument();
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());        //Token returnerer egentlig 404 NOT found. Blir dette riktig håndtering?
-	}
-
-	@Test
 	void hentDokumentTilgangAvvist() {
 		stubPdl();
 		stubAzure();
@@ -140,6 +131,7 @@ class HentDokumentIT extends AbstractItest {
 						.withBodyFile("psak/hentbrukerforsak_happy.json")));
 		ResponseEntity<String> responseEntity = callHentDokument();
 		assertOkArkivResponse(responseEntity);
+		System.out.println("Feil123 " + responseEntity.getBody());
 	}
 
 	@Test
@@ -160,13 +152,6 @@ class HentDokumentIT extends AbstractItest {
 		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
 	}
 
-	private void stubAzure() {
-		stubFor(post("/azureTokenUrl")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("azure/token_response.json")));
-	}
-
 	private void stubHentDokumentDokarkiv() {
 		stubFor(get("/fagarkiv/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
@@ -179,13 +164,6 @@ class HentDokumentIT extends AbstractItest {
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
 						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/tilgangjournalpost_ferdigstilt_happy.json")));
-	}
-
-	private void stubPdl() {
-		stubFor(post("/pdl")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("pdl/pdl_happy.json")));
 	}
 
 	private void assertOkArkivResponse(ResponseEntity<String> responseEntity) {

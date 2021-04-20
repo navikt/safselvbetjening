@@ -11,9 +11,7 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
-import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
-import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
@@ -28,7 +26,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +38,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.Boolean.TRUE;
+import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.STATUS_OK;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -187,18 +185,10 @@ public class DokumentoversiktSelvbetjeningService {
 	private Journalpost setDokumentVariant(Journalpost journalpost, BrukerIdenter brukerIdenter) {
 		journalpost.getDokumenter().forEach(dokumentInfo -> dokumentInfo.getDokumentvarianter().forEach(
 				dokumentvariant -> {
-					dokumentvariant.setBrukerHarTilgang(hasBrukerTilgang(journalpost, dokumentInfo, dokumentvariant, brukerIdenter));
-					dokumentvariant.setCode(returnFeilmeldingListe(journalpost, dokumentInfo, dokumentvariant, brukerIdenter));
+					List<String> codes = utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter);
+					dokumentvariant.setBrukerHarTilgang(codes.isEmpty());
+					dokumentvariant.setCode(codes.isEmpty() ? singletonList(STATUS_OK) : codes);
 				}));
 		return journalpost;
-	}
-
-	private boolean hasBrukerTilgang(Journalpost journalpost, DokumentInfo dokumentInfo, Dokumentvariant dokumentvariant, BrukerIdenter brukerIdenter) {
-		return utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter).isEmpty();
-	}
-
-	private List<String> returnFeilmeldingListe(Journalpost journalpost, DokumentInfo dokumentInfo, Dokumentvariant dokumentvariant, BrukerIdenter brukerIdenter) {
-		return utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter).isEmpty()
-				? Collections.singletonList(STATUS_OK) : utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter);
 	}
 }
