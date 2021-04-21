@@ -11,11 +11,15 @@ import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
+import no.nav.security.token.support.core.jwt.JwtToken;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
+import java.util.List;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.BRUKER_MATCHER_IKKE_TOKEN;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INGEN_GYLDIG_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.PARTSINNSYN;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -40,10 +44,11 @@ public class HentDokumentService {
 		this.hentDokumentTilgangMapper = hentDokumentTilgangMapper;
 	}
 
-	public HentDokument hentDokument(final String journalpostId, final String dokumentInfoId, final String variantFormat) {
-		doTilgangskontroll(journalpostId, dokumentInfoId, variantFormat);
+	public HentDokument hentDokument(final HentdokumentRequest hentdokumentRequest) {
+		doTilgangskontroll(hentdokumentRequest);
 
-		final HentDokumentResponseTo hentDokumentResponseTo = fagarkivConsumer.hentDokument(dokumentInfoId, variantFormat);
+		final HentDokumentResponseTo hentDokumentResponseTo =
+				fagarkivConsumer.hentDokument(hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat());
 		return HentDokument.builder()
 				.dokument(Base64.getDecoder().decode(hentDokumentResponseTo.getDokument()))
 				.mediaType(hentDokumentResponseTo.getMediaType())
@@ -51,8 +56,10 @@ public class HentDokumentService {
 				.build();
 	}
 
-	private void doTilgangskontroll(String journalpostId, String dokumentInfoId, String variantFormat) {
-		final TilgangJournalpostResponseTo tilgangJournalpostResponseTo = fagarkivConsumer.tilgangJournalpost(journalpostId, dokumentInfoId, variantFormat);
+	private void doTilgangskontroll(final HentdokumentRequest hentdokumentRequest) {
+		final TilgangJournalpostResponseTo tilgangJournalpostResponseTo =
+				fagarkivConsumer.tilgangJournalpost(hentdokumentRequest.getJournalpostId(),
+						hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat());
 
 		final String bruker = findBrukerIdent(tilgangJournalpostResponseTo.getTilgangJournalpostDto());
 		if (isBlank(bruker)) {
@@ -62,6 +69,8 @@ public class HentDokumentService {
 		if (brukerIdenter.isEmpty()) {
 			throw new PdlFunctionalException("Finner ingen identer på person i pdl.");
 		}
+
+		validateTokenIdent(brukerIdenter, hentdokumentRequest);
 
 		utledTilgangService.utledTilgangHentDokument(hentDokumentTilgangMapper.map(tilgangJournalpostResponseTo.getTilgangJournalpostDto()), brukerIdenter);
 	}
@@ -77,5 +86,15 @@ public class HentDokumentService {
 			}
 		}
 		return null;
+	}
+
+	private void validateTokenIdent(BrukerIdenter brukerIdenter, HentdokumentRequest hentdokumentRequest) {
+		JwtToken jwtToken = hentdokumentRequest.getTokenValidationContext().getFirstValidToken()
+				.orElseThrow(() -> new HentTilgangDokumentException(INGEN_GYLDIG_TOKEN, "Ingen gyldige tokens i Authorization headeren."));
+		List<String> identer = brukerIdenter.getIdenter();
+		String pid = jwtToken.getJwtTokenClaims().getStringClaim("pid");
+		if(!identer.contains(pid)) {
+			throw new HentTilgangDokumentException(BRUKER_MATCHER_IKKE_TOKEN, "Bruker på journalpost tilhører ikke bruker i token.");
+		}
 	}
 }

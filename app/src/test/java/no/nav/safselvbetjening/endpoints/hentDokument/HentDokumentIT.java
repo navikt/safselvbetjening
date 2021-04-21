@@ -15,6 +15,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static java.util.Collections.singletonList;
+import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.BRUKER_MATCHER_IKKE_TOKEN;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.GDPR;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
@@ -112,7 +117,7 @@ class HentDokumentIT extends AbstractItest {
 						.withBodyFile("fagarkiv/tilgangjournalpost_gdpr.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
-		assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(GDPR));
 	}
 
 	@Test
@@ -150,6 +155,20 @@ class HentDokumentIT extends AbstractItest {
 						.withBodyFile("psak/hentbrukerforsak_empty.json")));
 		ResponseEntity<String> responseEntity = callHentDokument();
 		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+	}
+
+	@Test
+	void shouldReturnUnauthorizedWithNavReasonBrukerMatcherIkkeTokenWhenTokenDoesNotBelongToBruker() {
+		stubPdl();
+		stubAzure();
+		stubHentDokumentDokarkiv();
+		stubHentTilgangJournalpostDokarkiv();
+
+		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT.toString();
+		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, createHttpEntityHeaders("22222222222"), String.class);
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(BRUKER_MATCHER_IKKE_TOKEN));
 	}
 
 	private void stubHentDokumentDokarkiv() {

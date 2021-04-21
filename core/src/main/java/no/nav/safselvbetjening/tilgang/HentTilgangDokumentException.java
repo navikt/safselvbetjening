@@ -11,7 +11,7 @@ public class HentTilgangDokumentException extends ResponseStatusException {
 	@Getter
 	private final String reasonCode;
 	public HentTilgangDokumentException(String reasonCode, String message) {
-		super(HttpStatus.FORBIDDEN, message);
+		super(HttpStatus.UNAUTHORIZED, message);
 		this.reasonCode = reasonCode;
 	}
 
