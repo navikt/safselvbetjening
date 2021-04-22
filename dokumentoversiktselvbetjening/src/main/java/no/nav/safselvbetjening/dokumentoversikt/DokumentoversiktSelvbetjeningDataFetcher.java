@@ -45,7 +45,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			MDC.put(MDC_CALL_ID, graphQLRequestContext.getNavCallId());
 			final String ident = environment.getArgument("ident");
 			validateIdent(ident, environment);
-			validateTokenIdent(ident, environment);
+//			validateTokenIdent(ident, environment);
 			final List<String> tema = temaArgument(environment);
 
 			if (environment.getSelectionSet().contains("tema/journalposter")) {
