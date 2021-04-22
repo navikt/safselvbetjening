@@ -4,7 +4,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.PersonIkkeFunnetException;
-import no.nav.safselvbetjening.consumer.azure.AzureTokenConsumer;
+import no.nav.safselvbetjening.consumer.azure.TokenConsumer;
 import no.nav.safselvbetjening.consumer.azure.TokenResponse;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.RequestEntity;
@@ -40,11 +40,11 @@ class PdlIdentConsumer implements IdentConsumer {
 
 	private final RestTemplate restTemplate;
 	private final URI pdlUri;
-	private final AzureTokenConsumer azureTokenConsumer;
+	private final TokenConsumer tokenConsumer;
 
 	public PdlIdentConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
 							final RestTemplateBuilder restTemplateBuilder,
-							final AzureTokenConsumer azureTokenConsumer,
+							final TokenConsumer tokenConsumer,
 							final ClientHttpRequestFactory clientHttpRequestFactory) {
 		this.restTemplate = restTemplateBuilder
 				.setConnectTimeout(Duration.ofSeconds(3))
@@ -52,7 +52,7 @@ class PdlIdentConsumer implements IdentConsumer {
 				.requestFactory(() -> clientHttpRequestFactory)
 				.build();
 		this.pdlUri = UriComponentsBuilder.fromHttpUrl(safSelvbetjeningProperties.getEndpoints().getPdl()).build().toUri();
-		this.azureTokenConsumer = azureTokenConsumer;
+		this.tokenConsumer = tokenConsumer;
 	}
 
 	@Retry(name = PDL_INSTANCE)
@@ -87,7 +87,7 @@ class PdlIdentConsumer implements IdentConsumer {
 	}
 
 	private RequestEntity.BodyBuilder baseRequest() {
-		TokenResponse clientCredentialToken = azureTokenConsumer.getClientCredentialToken();
+		TokenResponse clientCredentialToken = tokenConsumer.getClientCredentialToken();
 		return RequestEntity.post(pdlUri)
 				.accept(APPLICATION_JSON)
 				.header(NAV_CALLID, getCallId())

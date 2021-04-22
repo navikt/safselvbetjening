@@ -15,6 +15,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static java.util.Collections.singletonList;
+import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.BRUKER_MATCHER_IKKE_TOKEN;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.GDPR;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
@@ -57,7 +62,7 @@ class HentDokumentIT extends AbstractItest {
 		stubPdl();
 		stubAzure();
 		stubHentTilgangJournalpostDokarkiv();
-		stubFor(get("/hentjournalsakinfo/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+		stubFor(get("/fagarkiv/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
 				.willReturn(aResponse().withStatus(HttpStatus.NOT_FOUND.value())));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
@@ -102,15 +107,6 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void hentDokumentAzureReturnsNotFound() {
-		stubHentTilgangJournalpostDokarkiv();
-		stubPdl();
-
-		ResponseEntity<String> responseEntity = callHentDokument();
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());        //Token returnerer egentlig 404 NOT found. Blir dette riktig håndtering?
-	}
-
-	@Test
 	void hentDokumentTilgangAvvist() {
 		stubPdl();
 		stubAzure();
@@ -121,7 +117,7 @@ class HentDokumentIT extends AbstractItest {
 						.withBodyFile("fagarkiv/tilgangjournalpost_gdpr.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
-		assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(GDPR));
 	}
 
 	@Test
@@ -160,11 +156,18 @@ class HentDokumentIT extends AbstractItest {
 		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
 	}
 
-	private void stubAzure() {
-		stubFor(post("/azureTokenUrl")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("azure/token_response.json")));
+	@Test
+	void shouldReturnUnauthorizedWithNavReasonBrukerMatcherIkkeTokenWhenTokenDoesNotBelongToBruker() {
+		stubPdl();
+		stubAzure();
+		stubHentDokumentDokarkiv();
+		stubHentTilgangJournalpostDokarkiv();
+
+		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT.toString();
+		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, createHttpEntityHeaders("22222222222"), String.class);
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(BRUKER_MATCHER_IKKE_TOKEN));
 	}
 
 	private void stubHentDokumentDokarkiv() {
@@ -179,13 +182,6 @@ class HentDokumentIT extends AbstractItest {
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
 						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/tilgangjournalpost_ferdigstilt_happy.json")));
-	}
-
-	private void stubPdl() {
-		stubFor(post("/pdl")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("pdl/pdl_happy.json")));
 	}
 
 	private void assertOkArkivResponse(ResponseEntity<String> responseEntity) {

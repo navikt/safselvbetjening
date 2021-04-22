@@ -7,8 +7,11 @@ import no.nav.safselvbetjening.consumer.pdl.PdlFunctionalException;
 import no.nav.safselvbetjening.consumer.pensjon.hentbrukerforsak.PensjonsakIkkeFunnetException;
 import no.nav.safselvbetjening.hentdokument.HentDokument;
 import no.nav.safselvbetjening.hentdokument.HentDokumentService;
+import no.nav.safselvbetjening.hentdokument.HentdokumentRequest;
+import no.nav.safselvbetjening.hentdokument.HentdokumentRequestException;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.security.token.support.core.api.Protected;
+import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -37,9 +40,12 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Protected
 public class HentDokumentController {
 	private final HentDokumentService hentDokumentService;
+	private final TokenValidationContextHolder tokenValidationContextHolder;
 
-	public HentDokumentController(HentDokumentService hentDokumentService) {
+	public HentDokumentController(HentDokumentService hentDokumentService,
+								  TokenValidationContextHolder tokenValidationContextHolder) {
 		this.hentDokumentService = hentDokumentService;
+		this.tokenValidationContextHolder = tokenValidationContextHolder;
 	}
 
 	@GetMapping(value = "hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}")
@@ -51,7 +57,13 @@ public class HentDokumentController {
 		log.info("hentdokument har mottatt kall. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
 		try {
 			MDC.put(MDC_CALL_ID, isNotBlank(navCallid) ? navCallid : randomUUID().toString());
-			HentDokument response = hentDokumentService.hentDokument(journalpostId, dokumentInfoId, variantFormat);
+			HentdokumentRequest request = HentdokumentRequest.builder()
+					.journalpostId(journalpostId)
+					.dokumentInfoId(dokumentInfoId)
+					.variantFormat(variantFormat)
+					.tokenValidationContext(tokenValidationContextHolder.getTokenValidationContext())
+					.build();
+			HentDokument response = hentDokumentService.hentDokument(request);
 			log.info("hentDokument hentet dokument. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
 
 			return ResponseEntity.ok()
@@ -60,13 +72,15 @@ public class HentDokumentController {
 					.body(response.getDokument());
 		} catch (HentTilgangDokumentException e) {
 			String message = format("Tilgang til dokument avvist. %s. journalpostId=%s, dokumentInfoId=%s, variantFormat=%s", journalpostId, dokumentInfoId, variantFormat, e.getMessage());
-			log.warn(message);
+			log.error(message);
 			throw e;
 		} catch (JournalpostIkkeFunnetException | DokumentIkkeFunnetException | PdlFunctionalException | PensjonsakIkkeFunnetException e) {
 			log.warn(e.getMessage());
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		} catch(HentdokumentRequestException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		} catch (Exception e) {
-			log.warn(e.getMessage());
+			log.error(e.getMessage());
 			throw e;
 		} finally {
 			MDC.clear();

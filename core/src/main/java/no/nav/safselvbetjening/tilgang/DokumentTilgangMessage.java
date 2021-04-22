@@ -12,7 +12,9 @@ public class DokumentTilgangMessage {
 	public static final String UGYLDIG_JOURNALSTATUS = "ugyldig_journalstatus";
 	public static final String FEILREGISTRERT = "feilregistrert";
 	public static final String KONTROLLSAK = "kontrollsak";
-	public static final String FORVALTNINGSNOTAT = "kontrollsak";
+	public static final String FORVALTNINGSNOTAT = "forvaltningsnotat";
 	public static final String ORGANINTERNT = "organinternt";
 	public static final String ANNEN_PART = "annen_part";
+	public static final String INGEN_GYLDIG_TOKEN = "ingen_gyldig_token";
+	public static final String BRUKER_MATCHER_IKKE_TOKEN = "bruker_matcher_ikke_token";
 }

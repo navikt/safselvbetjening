@@ -23,8 +23,8 @@ public class LokalCacheTestConfig {
 		SimpleCacheManager manager = new SimpleCacheManager();
 		manager.setCaches(Collections.singletonList(
 				new CaffeineCache(AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE, Caffeine.newBuilder()
-						.expireAfterWrite(0, TimeUnit.MINUTES)
-						.maximumSize(0)
+						.expireAfterWrite(15, TimeUnit.MINUTES)
+						.maximumSize(1)
 						.build())));
 		return manager;
 	}

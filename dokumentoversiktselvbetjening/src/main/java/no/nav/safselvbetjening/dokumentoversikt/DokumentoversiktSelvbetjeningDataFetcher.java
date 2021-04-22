@@ -59,10 +59,10 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 					.data(dokumentoversikt)
 					.build();
 		} catch (GraphQLException e) {
-			log.warn("dokumentoversiktSelvbetjening feilet: " + e.getMessage(), e);
+			log.warn("dokumentoversiktSelvbetjening feilet: " + e.getError().getMessage());
 			return e.toDataFetcherResult();
 		} catch (Exception e) {
-			log.error("Ukjent teknisk feil", e);
+			log.error("dokumentoversiktSelvbetjening ukjent teknisk feil", e);
 			return DataFetcherResult.newResult()
 					.error(SERVER_ERROR.construct(environment, "Ukjent teknisk feil."))
 					.build();
