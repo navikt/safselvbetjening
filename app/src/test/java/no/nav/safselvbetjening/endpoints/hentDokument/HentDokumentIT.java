@@ -136,7 +136,6 @@ class HentDokumentIT extends AbstractItest {
 						.withBodyFile("psak/hentbrukerforsak_happy.json")));
 		ResponseEntity<String> responseEntity = callHentDokument();
 		assertOkArkivResponse(responseEntity);
-		System.out.println("Feil123 " + responseEntity.getBody());
 	}
 
 	@Test
