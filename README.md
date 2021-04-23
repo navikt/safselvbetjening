@@ -190,11 +190,14 @@ mvn clean package
 Finn kjørbart artifact i `app/target/app.jar`
 
 ### Starte appen lokalt
-Start appen lokalt i IntelliJ.
+Start appen lokalt i IntelliJ:
 Profile: `nais` (prod-likt) eller `local` (bedre logging)
 Angi VM-options fra vault:  https://vault.adeo.no/ui/vault/secrets/secret/show/dokument/safselvbetjening
 
-Det kan hende clientSecret fra Azure er utløpt. Da må dette hentes på nytt. Snakk med teamet hvis det behøves. 
+Det kan hende clientSecret fra Azure er utløpt. [Da må dette hentes på nytt](https://confluence.adeo.no/display/TDOK/HOWTO+-+Azure). Snakk med teamet hvis det behøves.
+
+Forbehold:
+* `SecurityTokenServiceProvider` endepunktet fungerer kun i VDI. Så p.t. ikke mulig å hente pensjonssaker ved utvikling fra laptop gjennom naisdevice.
 
 ## Deploy
 
@@ -203,7 +206,7 @@ Deploy av appen er gjort av Jenkins etter push/merge til `master`:
 
 ## Drift
 
-Driftsdashboard TBA
+* [Logger i kibana](https://logs.adeo.no/goto/a5a525568150732ceea57fd572172dc5). Basert på kibana søk: `application:safselvbetjening AND cluster:prod-fss`.
 
 ## Support
 Support for tjenester på denne appen kan rettes til Team Dokumentløsninger på slack:
