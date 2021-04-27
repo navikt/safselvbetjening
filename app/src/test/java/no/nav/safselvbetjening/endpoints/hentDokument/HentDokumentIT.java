@@ -70,6 +70,16 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
+	void shouldReturnBadRequestWhenJournalpostIdNotNumeric() {
+		stubAzure();
+
+		String uri = "/rest/hentdokument/123456a/" + DOKUMENT_ID + "/" + VARIANTFORMAT.toString();
+		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, createHttpEntityHeaders(BRUKER_ID), String.class);
+
+		assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+	}
+
+	@Test
 	void hentTilgangJournalpostNotFound() {
 		stubPdl();
 		stubAzure();

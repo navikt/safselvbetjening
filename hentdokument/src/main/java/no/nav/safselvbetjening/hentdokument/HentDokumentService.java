@@ -33,18 +33,21 @@ public class HentDokumentService {
 	private final UtledTilgangService utledTilgangService;
 	private final PensjonSakRestConsumer pensjonSakRestConsumer;
 	private final HentDokumentTilgangMapper hentDokumentTilgangMapper;
+	private final HentDokumentValidator hentDokumentValidator;
 
 	public HentDokumentService(FagarkivConsumer fagarkivConsumer, IdentService identService,
 							   UtledTilgangService utledTilgangService, PensjonSakRestConsumer pensjonSakRestConsumer,
-							   HentDokumentTilgangMapper hentDokumentTilgangMapper) {
+							   HentDokumentTilgangMapper hentDokumentTilgangMapper, HentDokumentValidator hentDokumentValidator) {
 		this.fagarkivConsumer = fagarkivConsumer;
 		this.identService = identService;
 		this.utledTilgangService = utledTilgangService;
 		this.pensjonSakRestConsumer = pensjonSakRestConsumer;
 		this.hentDokumentTilgangMapper = hentDokumentTilgangMapper;
+		this.hentDokumentValidator = hentDokumentValidator;
 	}
 
 	public HentDokument hentDokument(final HentdokumentRequest hentdokumentRequest) {
+		hentDokumentValidator.validate(hentdokumentRequest);
 		doTilgangskontroll(hentdokumentRequest);
 
 		final HentDokumentResponseTo hentDokumentResponseTo =
