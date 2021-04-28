@@ -80,6 +80,7 @@ public class FagarkivConsumer {
 		}
 	}
 
+	@CircuitBreaker(name = FAGARKIV_INSTANCE)
 	public HentDokumentResponseTo hentDokument(final String dokumentInfoId, final String variantFormat) {
 		try {
 			ResponseEntity<String> responseEntity = restTemplate.exchange("/hentdokument/{dokumentInfoId}/{variantFormat}",

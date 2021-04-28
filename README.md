@@ -73,6 +73,8 @@ Eksempel respons:
         }
       ]
     }
+  }
+}
 ```
 
 ##### Feil
