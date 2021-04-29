@@ -71,13 +71,13 @@ public class HentDokumentController {
 					.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + dokumentInfoId + "_" + variantFormat + response.getExtension())
 					.body(response.getDokument());
 		} catch (HentTilgangDokumentException e) {
-			String message = format("Tilgang til dokument avvist. %s. journalpostId=%s, dokumentInfoId=%s, variantFormat=%s", journalpostId, dokumentInfoId, variantFormat, e.getMessage());
+			String message = format("Tilgang til dokument avvist. journalpostId=%s, dokumentInfoId=%s, variantFormat=%s. reason=%s", journalpostId, dokumentInfoId, variantFormat, e.getMessage());
 			log.error(message);
 			throw e;
 		} catch (JournalpostIkkeFunnetException | DokumentIkkeFunnetException | PdlFunctionalException | PensjonsakIkkeFunnetException e) {
 			log.warn(e.getMessage());
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-		} catch(HentdokumentRequestException e) {
+		} catch (HentdokumentRequestException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		} catch (Exception e) {
 			log.error(e.getMessage());
