@@ -63,7 +63,7 @@ public class SakService {
 		} catch (ConsumerFunctionalException e) {
 			log.warn("Henting av pensjonssaker feilet. ", e);
 			return new ArrayList<>();
-		} catch (ConsumerTechnicalException e) {
+		} catch (Exception e) {
 			log.error("Henting av pensjonssaker feilet teknisk. ", e);
 			return new ArrayList<>();
 		}
