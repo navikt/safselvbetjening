@@ -40,7 +40,13 @@ public class Journalpost {
 	public static class TilgangSak {
 		private final String tema;
 		private final String fagsystem;
+		/**
+		 * Populert for arkivsaksystem gsak
+		 */
 		private final String aktoerId;
+		/**
+		 * Populert for arkivsaksystem pensjon
+		 */
 		private final String foedselsnummer;
 		private final boolean feilregistrert;
 	}
