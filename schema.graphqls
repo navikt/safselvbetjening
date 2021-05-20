@@ -408,9 +408,6 @@ enum Tema {
     # Kontantstøtte
     KON
 
-    # Kontroll
-    KTR
-
     # Medlemskap
     MED
 
