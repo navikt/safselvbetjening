@@ -3,7 +3,6 @@ package no.nav.safselvbetjening.tilgang;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -22,6 +21,7 @@ import java.util.List;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.FS22;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
 import static no.nav.safselvbetjening.domain.Journalposttype.N;
 import static no.nav.safselvbetjening.domain.Journalstatus.EKSPEDERT;
 import static no.nav.safselvbetjening.domain.Journalstatus.FERDIGSTILT;
@@ -146,21 +146,23 @@ public class UtledTilgangService {
 	 * 1a) Bruker må være part for å se journalposter
 	 */
 	public boolean isBrukerPart(Journalpost journalpost, BrukerIdenter identer) {
-
 		Journalstatus journalstatus = journalpost.getJournalstatus();
-
+		Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 		if (MOTTATT.equals(journalstatus)) {
-			if (journalpost.getTilgang().getTilgangBruker() != null) {
-				return identer.getIdenter().contains(journalpost.getTilgang().getTilgangBruker().getBrukerId());
+			Journalpost.TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
+			if (tilgangBruker != null) {
+				return identer.getIdenter().contains(tilgangBruker.getBrukerId());
 			} else {
-				return true;
+				return false;
 			}
-		} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) && journalpost.getTilgang().getTilgangSak() != null) {
-			if (FS22.toString().equals(journalpost.getTilgang().getTilgangSak().getFagsystem())) {
-				return identer.getIdenter().contains(journalpost.getTilgang().getTilgangSak().getAktoerId());
-			} else if (FagsystemCode.PEN.toString().equals(journalpost.getTilgang().getTilgangSak().getFagsystem()) &&
-					journalpost.getTilgang().getTilgangBruker() != null) {
-				return identer.getFoedselsnummer().contains(journalpost.getTilgang().getTilgangBruker().getBrukerId());
+		} else {
+			Journalpost.TilgangSak tilgangSak = tilgang.getTilgangSak();
+			if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) && tilgangSak != null) {
+				if (FS22.toString().equals(tilgangSak.getFagsystem())) {
+					return identer.getIdenter().contains(tilgangSak.getAktoerId());
+				} else if(PEN.name().equals(tilgangSak.getFagsystem())) {
+					return identer.getIdenter().contains(tilgangSak.getFoedselsnummer());
+				}
 			}
 		}
 		return false;

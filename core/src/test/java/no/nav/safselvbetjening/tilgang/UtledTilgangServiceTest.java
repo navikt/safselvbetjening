@@ -50,9 +50,9 @@ class UtledTilgangServiceTest {
 	//	1a - Bruker må være part for å se journalposter
 	// 	Mottatt - ingen sakstilknytning eller bruker
 	@Test
-	void shouldReturnTrueWhenMottattAndBrukerPartIsNull() {
+	void shouldReturnFalseWhenMottattAndBrukerPartIsNull() {
 		boolean brukerPart = utledTilgangService.isBrukerPart(baseMottattJournalpost().build(), defaultBrukerIdenter());
-		assertThat(brukerPart).isTrue();
+		assertThat(brukerPart).isFalse();
 	}
 
 	//	1a - Bruker må være part for å se journalposter

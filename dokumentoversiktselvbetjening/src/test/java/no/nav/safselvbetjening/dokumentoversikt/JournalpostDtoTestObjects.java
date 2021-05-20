@@ -17,9 +17,12 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.TilleggsopplysningDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.UtsendingsKanalCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode;
+import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
+import no.nav.safselvbetjening.service.BrukerIdenter;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -48,6 +51,7 @@ public class JournalpostDtoTestObjects {
 	static final Date DATO_FERDIGSTILT = new Date(8000L);
 	static final String SAKS_ID = "12345";
 	static final FagsystemCode ARKIVSAKSYSTEM_GOSYS = FagsystemCode.FS22;
+	static final FagsystemCode ARKIVSAKSYSTEM_PENSJON = FagsystemCode.PEN;
 	static final AvsenderMottakerIdTypeCode AVSENDER_MOTTAKER_ID_TYPE_CODE = AvsenderMottakerIdTypeCode.FNR;
 	static final FagomradeCode FAGOMRADE = FagomradeCode.FOR;
 	static final String JOURNALFOERT_AV = "Automatisk jobb";
@@ -172,5 +176,20 @@ public class JournalpostDtoTestObjects {
 		logiskVedleggDto.setVedleggId(LOGISK_VEDLEGG_ID);
 		logiskVedleggDto.setTittel(LOGISK_VEDLEGG_TITTEL);
 		return Collections.singletonList(logiskVedleggDto);
+	}
+
+	static BrukerIdenter createBrukerIdenter() {
+		List<PdlResponse.PdlIdent> pdlIdenter = new ArrayList<>();
+		pdlIdenter.add(createPdlIdent(IDENT, false, PdlResponse.PdlGruppe.FOLKEREGISTERIDENT));
+		pdlIdenter.add(createPdlIdent(AKTOER_ID, false, PdlResponse.PdlGruppe.AKTORID));
+		return new BrukerIdenter(pdlIdenter);
+	}
+
+	private static PdlResponse.PdlIdent createPdlIdent(String ident, boolean historisk, PdlResponse.PdlGruppe gruppe) {
+		PdlResponse.PdlIdent pdlIdent = new PdlResponse.PdlIdent();
+		pdlIdent.setIdent(ident);
+		pdlIdent.setHistorisk(historisk);
+		pdlIdent.setGruppe(gruppe);
+		return pdlIdent;
 	}
 }

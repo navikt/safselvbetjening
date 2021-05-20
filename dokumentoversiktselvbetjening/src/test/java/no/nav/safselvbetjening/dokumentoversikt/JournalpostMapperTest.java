@@ -1,7 +1,10 @@
 package no.nav.safselvbetjening.dokumentoversikt;
 
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
 import no.nav.safselvbetjening.domain.Datotype;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
@@ -16,6 +19,7 @@ import java.util.List;
 
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AKTOER_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ARKIVSAKSYSTEM_GOSYS;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ARKIVSAKSYSTEM_PENSJON;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVSENDER_MOTTAKER_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.BREVKODE;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.BRUKER_ID_PERSON;
@@ -23,6 +27,7 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.DOKUMENT_INFO_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILUUID_1;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILUUID_2;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.IDENT;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.INNHOLD;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.JOURNALPOST_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.JOURNAL_DATO;
@@ -33,6 +38,7 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoInngaaendeType;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoMottatt;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoUtgaaendeType;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.createBrukerIdenter;
 import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
 import static no.nav.safselvbetjening.domain.Journalposttype.I;
 import static no.nav.safselvbetjening.domain.Journalposttype.U;
@@ -51,7 +57,7 @@ class JournalpostMapperTest {
 
 	@Test
 	void shouldMapVisningsfeltWhenInngaaende() {
-		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoInngaaendeType());
+		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoInngaaendeType(), createBrukerIdenter());
 		assertThat(journalpost.getJournalpostId()).isEqualTo(JOURNALPOST_ID.toString());
 		assertThat(journalpost.getTittel()).isEqualTo(INNHOLD);
 		assertThat(journalpost.getJournalposttype()).isEqualTo(I);
@@ -75,7 +81,7 @@ class JournalpostMapperTest {
 
 	@Test
 	void shouldMapVisningsfeltWhenUtgaaende() {
-		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoUtgaaendeType(JournalStatusCode.E));
+		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoUtgaaendeType(JournalStatusCode.E), createBrukerIdenter());
 		assertThat(journalpost.getJournalpostId()).isEqualTo(JOURNALPOST_ID.toString());
 		assertThat(journalpost.getTittel()).isEqualTo(INNHOLD);
 		assertThat(journalpost.getJournalposttype()).isEqualTo(U);
@@ -102,7 +108,7 @@ class JournalpostMapperTest {
 
 	@Test
 	void shouldMapVisningsfeltWhenMottatt() {
-		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoMottatt());
+		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoMottatt(), createBrukerIdenter());
 		assertThat(journalpost.getJournalposttype()).isEqualTo(I);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(MOTTATT);
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.SKAN_IM);
@@ -111,7 +117,7 @@ class JournalpostMapperTest {
 
 	@Test
 	void shouldMapTilgangsfeltWhenJournalfoert() {
-		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoInngaaendeType());
+		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoInngaaendeType(), createBrukerIdenter());
 		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 		assertThat(tilgangJournalpost.getFagomradeCode()).isEqualTo(FagomradeCode.FOR.name());
 		assertThat(tilgangJournalpost.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET_LDT);
@@ -138,7 +144,7 @@ class JournalpostMapperTest {
 
 	@Test
 	void shouldMapTilgangsfeltWhenMottatt() {
-		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoMottatt());
+		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoMottatt(), createBrukerIdenter());
 		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 		assertThat(tilgangJournalpost.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET_LDT);
 		assertThat(tilgangJournalpost.getJournalfoertDato()).isNull();
@@ -148,5 +154,25 @@ class JournalpostMapperTest {
 		assertThat(tilgangSak.getAktoerId()).isNull();
 		assertThat(tilgangSak.getFagsystem()).isNull();
 		assertThat(tilgangSak.getTema()).isNull();
+	}
+
+	@Test
+	void shouldMapTilgangSakWhenPensjonsak() {
+		JournalpostDto journalpostDto = buildJournalpostDtoUtgaaendeType(JournalStatusCode.E);
+		journalpostDto.getSaksrelasjon().setFagsystem(FagsystemCode.PEN);
+		journalpostDto.setSaksrelasjon(SaksrelasjonDto.builder()
+				.sakId("123")
+				.fagsystem(FagsystemCode.PEN)
+				.feilregistrert(false)
+				.tema("PEN")
+				.build());
+
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, createBrukerIdenter());
+
+		Journalpost.TilgangSak tilgangSak = journalpost.getTilgang().getTilgangSak();
+		assertThat(tilgangSak.getAktoerId()).isNull();
+		assertThat(tilgangSak.getFoedselsnummer()).isEqualTo(IDENT);
+		assertThat(tilgangSak.getFagsystem()).isEqualTo(ARKIVSAKSYSTEM_PENSJON.name());
+		assertThat(tilgangSak.getTema()).isEqualTo(Tema.PEN.name());
 	}
 }

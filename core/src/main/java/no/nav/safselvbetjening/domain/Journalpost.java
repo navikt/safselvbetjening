@@ -41,6 +41,7 @@ public class Journalpost {
 		private final String tema;
 		private final String fagsystem;
 		private final String aktoerId;
+		private final String foedselsnummer;
 		private final boolean feilregistrert;
 	}
 

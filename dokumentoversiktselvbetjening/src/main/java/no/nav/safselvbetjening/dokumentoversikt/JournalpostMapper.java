@@ -2,6 +2,7 @@ package no.nav.safselvbetjening.dokumentoversikt;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
@@ -13,6 +14,7 @@ import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.RelevantDato;
 import no.nav.safselvbetjening.domain.SkjermingType;
+import no.nav.safselvbetjening.service.BrukerIdenter;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -37,7 +39,7 @@ public class JournalpostMapper {
 		this.avsenderMottakerMapper = avsenderMottakerMapper;
 	}
 
-	Journalpost map(JournalpostDto journalpostDto) {
+	Journalpost map(JournalpostDto journalpostDto, BrukerIdenter brukerIdenter) {
 		try {
 			return Journalpost.builder()
 					.journalpostId(journalpostDto.getJournalpostId().toString())
@@ -48,7 +50,7 @@ public class JournalpostMapper {
 					.avsenderMottaker(avsenderMottakerMapper.map(journalpostDto))
 					.relevanteDatoer(mapRelevanteDatoer(journalpostDto))
 					.dokumenter(mapDokumenter(journalpostDto))
-					.tilgang(mapJournalpostTilgang(journalpostDto))
+					.tilgang(mapJournalpostTilgang(journalpostDto, brukerIdenter))
 					.build();
 		} catch (Exception e) {
 			log.error("Teknisk feil under mapping av journalpost med journalpostId={}.", journalpostDto.getJournalpostId(), e);
@@ -56,7 +58,7 @@ public class JournalpostMapper {
 		}
 	}
 
-	private Journalpost.TilgangJournalpost mapJournalpostTilgang(JournalpostDto journalpostDto) {
+	private Journalpost.TilgangJournalpost mapJournalpostTilgang(JournalpostDto journalpostDto, BrukerIdenter brukerIdenter) {
 		String brukerId = journalpostDto.getBruker() == null ? null : journalpostDto.getBruker().getBrukerId();
 
 		return Journalpost.TilgangJournalpost.builder()
@@ -65,7 +67,7 @@ public class JournalpostMapper {
 				.journalfoertDato(mapDato(journalpostDto.getJournalDato()))
 				.skjerming(mapSkjermingType(journalpostDto.getSkjerming()))
 				.tilgangBruker(Journalpost.TilgangBruker.builder().brukerId(brukerId).build())
-				.tilgangSak(mapTilgangSak(journalpostDto.getSaksrelasjon()))
+				.tilgangSak(mapTilgangSak(journalpostDto.getSaksrelasjon(), brukerIdenter))
 				.build();
 	}
 
@@ -76,13 +78,14 @@ public class JournalpostMapper {
 		return dato.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 	}
 
-	private Journalpost.TilgangSak mapTilgangSak(SaksrelasjonDto saksrelasjonDto) {
+	private Journalpost.TilgangSak mapTilgangSak(SaksrelasjonDto saksrelasjonDto, BrukerIdenter brukerIdenter) {
 		if (saksrelasjonDto == null) {
 			return Journalpost.TilgangSak.builder().build();
 		}
 
 		return Journalpost.TilgangSak.builder()
 				.aktoerId(saksrelasjonDto.getAktoerId())
+				.foedselsnummer(FagsystemCode.PEN == saksrelasjonDto.getFagsystem() ? brukerIdenter.getFoedselsnummer().get(0) : null)
 				.fagsystem(saksrelasjonDto.getFagsystem() == null ? null : saksrelasjonDto.getFagsystem().toString())
 				.feilregistrert(saksrelasjonDto.getFeilregistrert() != null && saksrelasjonDto.getFeilregistrert())
 				.tema(saksrelasjonDto.getTema())

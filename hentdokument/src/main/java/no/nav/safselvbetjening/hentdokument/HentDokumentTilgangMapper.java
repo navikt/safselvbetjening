@@ -1,5 +1,6 @@
 package no.nav.safselvbetjening.hentdokument;
 
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangBrukerDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangDokumentInfoDto;
@@ -12,6 +13,7 @@ import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.SkjermingType;
+import no.nav.safselvbetjening.service.BrukerIdenter;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -19,14 +21,14 @@ import java.util.Collections;
 @Component
 public class HentDokumentTilgangMapper {
 
-	public Journalpost map(TilgangJournalpostDto tilgangJournalpostDto) {
+	public Journalpost map(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter) {
 		return Journalpost.builder()
 				.journalpostId(tilgangJournalpostDto.getJournalpostId())
 				.avsenderMottaker(AvsenderMottaker.builder().id(tilgangJournalpostDto.getAvsenderMottakerId()).build())
 				.journalposttype(tilgangJournalpostDto.getJournalpostType() == null ? null : tilgangJournalpostDto.getJournalpostType().toSafJournalposttype())
 				.journalstatus(tilgangJournalpostDto.getJournalStatus() == null ? null : tilgangJournalpostDto.getJournalStatus().toSafJournalstatus())
 				.kanal(mapKanal(tilgangJournalpostDto))
-				.tilgang(mapJournalpostTilgang(tilgangJournalpostDto))
+				.tilgang(mapJournalpostTilgang(tilgangJournalpostDto, brukerIdenter))
 				.dokumenter(Collections.singletonList(mapDokumenter(tilgangJournalpostDto.getDokument())))
 				.build();
 	}
@@ -56,14 +58,14 @@ public class HentDokumentTilgangMapper {
 				.build();
 	}
 
-	private Journalpost.TilgangJournalpost mapJournalpostTilgang(TilgangJournalpostDto tilgangJournalpostDto) {
+	private Journalpost.TilgangJournalpost mapJournalpostTilgang(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter) {
 		return Journalpost.TilgangJournalpost.builder()
 				.datoOpprettet(tilgangJournalpostDto.getDatoOpprettet())
 				.fagomradeCode(tilgangJournalpostDto.getFagomrade() == null ? null : tilgangJournalpostDto.getFagomrade().toString())
 				.journalfoertDato(tilgangJournalpostDto.getJournalfoertDato())
 				.skjerming(mapSkjermingType(tilgangJournalpostDto.getSkjerming()))
 				.tilgangBruker(mapTilgangBruker(tilgangJournalpostDto.getBruker()))
-				.tilgangSak(mapTilgangSak(tilgangJournalpostDto.getSak()))
+				.tilgangSak(mapTilgangSak(tilgangJournalpostDto.getSak(), brukerIdenter))
 				.build();
 	}
 
@@ -74,13 +76,14 @@ public class HentDokumentTilgangMapper {
 		return Journalpost.TilgangBruker.builder().brukerId(tilgangBrukerDto.getBrukerId()).build();
 	}
 
-	private Journalpost.TilgangSak mapTilgangSak(TilgangSakDto tilgangSakDto) {
+	private Journalpost.TilgangSak mapTilgangSak(TilgangSakDto tilgangSakDto, BrukerIdenter brukerIdenter) {
 		if (tilgangSakDto == null) {
 			return null;
 		}
 
 		return Journalpost.TilgangSak.builder()
 				.aktoerId(tilgangSakDto.getAktoerId())
+				.foedselsnummer(FagsystemCode.PEN.name().equals(tilgangSakDto.getFagsystem()) ? brukerIdenter.getFoedselsnummer().get(0) : null)
 				.fagsystem(tilgangSakDto.getFagsystem())
 				.feilregistrert(tilgangSakDto.getFeilregistrert() != null && tilgangSakDto.getFeilregistrert())
 				.tema(tilgangSakDto.getTema())
