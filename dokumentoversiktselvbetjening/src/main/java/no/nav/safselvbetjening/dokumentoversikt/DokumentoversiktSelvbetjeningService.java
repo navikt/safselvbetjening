@@ -75,9 +75,6 @@ public class DokumentoversiktSelvbetjeningService {
 			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen identer på person.");
 		}
 		final Saker saker = sakService.hentSaker(brukerIdenter, tema);
-		if (saker.isNone()) {
-			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen saker på person.");
-		}
 
 		List<Sakstema> sakstema = Stream.concat(saker.getArkivsaker().stream(), saker.getPensjonsaker().stream())
 				.filter(distinctByKey(Sak::getTema))
@@ -107,9 +104,6 @@ public class DokumentoversiktSelvbetjeningService {
 			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen identer på person.");
 		}
 		final Saker saker = sakService.hentSaker(brukerIdenter, tema);
-		if (saker.isNone()) {
-			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen saker på person.");
-		}
 
 		/*
 		 * Regler tilgangskontroll journalpost: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
