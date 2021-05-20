@@ -91,14 +91,16 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnNotFoundWhenIngenSakerOnBruker() throws Exception {
+	void shouldReturnEmptyListWhenIngenSakerAndJournalposterOnBruker() throws Exception {
 		happyStubs();
 		stubSak("saker_empty.json");
+		stubFagarkiv("finnjournalposter_empty.json");
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_for.query");
 
-		assertThat(requireNonNull(response.getBody()).getErrors())
-				.extracting(e -> e.getExtensions().getCode())
-				.contains(ErrorCode.NOT_FOUND.getText());
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertThat(data.getTema()).hasSize(0);
 	}
 
 	@Test
