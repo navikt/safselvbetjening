@@ -30,6 +30,9 @@ public enum Tema {
 	IAR("Inkluderende arbeidsliv"),
 	IND("Tiltakspenger"),
 	KON("Kontantstøtte"),
+	/**
+	 * Skal ikke vises til brukere.
+	 */
 	KTR("Kontroll"),
 	MED("Medlemskap"),
 	MOB("Mobilitetsfremmende stønad"),

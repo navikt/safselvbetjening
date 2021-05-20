@@ -30,7 +30,10 @@ import static org.apache.commons.lang3.StringUtils.isNumeric;
 @Slf4j
 @Component
 public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Object> {
-	private static final List<String> ALLE_TEMA = Stream.of(Tema.values()).map(Tema::name).collect(Collectors.toList());
+	private static final List<String> ALLE_TEMA_UTEN_KONTROLL = Stream.of(Tema.values())
+			.filter(t -> t != Tema.KTR)
+			.map(Tema::name)
+			.collect(Collectors.toList());
 
 	private final DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService;
 
@@ -94,6 +97,6 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 
 	private List<String> temaArgument(DataFetchingEnvironment environment) {
 		final List<String> tema = environment.getArgumentOrDefault("tema", new ArrayList<>());
-		return tema.isEmpty() ? ALLE_TEMA : tema;
+		return tema.isEmpty() ? ALLE_TEMA_UTEN_KONTROLL : tema;
 	}
 }
