@@ -34,8 +34,4 @@ public class Saker {
         return pensjonsaker.stream()
                 .map(Sak::getArkivsakId).collect(Collectors.toUnmodifiableList());
     }
-
-    public boolean isNone() {
-        return arkivsaker.isEmpty() && pensjonsaker.isEmpty();
-    }
 }

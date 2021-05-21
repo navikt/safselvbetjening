@@ -164,7 +164,7 @@ public class DokumentoversiktSelvbetjeningService {
 				.navn(tema.getTemanavn())
 				.journalposter(fagomradeCodeListEntry.getValue().stream()
 						.filter(Objects::nonNull)
-						.map(journalpostMapper::map)
+						.map(jp -> journalpostMapper.map(jp, brukerIdenter))
 						.filter(journalpost -> utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter))
 						.map(journalpost -> setDokumentVariant(journalpost, brukerIdenter))
 						.collect(Collectors.toList()))

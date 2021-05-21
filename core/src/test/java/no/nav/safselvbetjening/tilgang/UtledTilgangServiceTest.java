@@ -50,9 +50,9 @@ class UtledTilgangServiceTest {
 	//	1a - Bruker må være part for å se journalposter
 	// 	Mottatt - ingen sakstilknytning eller bruker
 	@Test
-	void shouldReturnTrueWhenMottattAndBrukerPartIsNull() {
+	void shouldReturnFalseWhenMottattAndBrukerPartIsNull() {
 		boolean brukerPart = utledTilgangService.isBrukerPart(baseMottattJournalpost().build(), defaultBrukerIdenter());
-		assertThat(brukerPart).isTrue();
+		assertThat(brukerPart).isFalse();
 	}
 
 	//	1a - Bruker må være part for å se journalposter
@@ -104,13 +104,12 @@ class UtledTilgangServiceTest {
 	void shouldReturnTrueWhenJournalfoertInPensjonAndBrukerPart() {
 		Journalpost journalpost = baseJournalfoertJournalpost()
 				.tilgang(Journalpost.TilgangJournalpost.builder()
-						.tilgangBruker(Journalpost.TilgangBruker.builder()
-								.brukerId(IDENT)
-								.build())
+						.tilgangBruker(null)
 						.datoOpprettet(LocalDateTime.now())
 						.fagomradeCode(TEMA_PENSJON)
 						.journalfoertDato(LocalDateTime.now())
 						.tilgangSak(Journalpost.TilgangSak.builder()
+								.foedselsnummer(IDENT)
 								.fagsystem(ARKIVSAKSYSTEM_PENSJON)
 								.feilregistrert(false)
 								.build())

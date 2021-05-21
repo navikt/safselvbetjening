@@ -10,10 +10,14 @@ import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangDokum
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangSakDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangVariantDto;
+import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
+import no.nav.safselvbetjening.service.BrukerIdenter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HentDokumentTestObjects {
 
@@ -21,7 +25,8 @@ public class HentDokumentTestObjects {
 	static final String AVSENDER_MOTTAKER_ID = "11987654321";
 	static final String AKTOER_ID = "32345678911";
 	static final String JOURNALPOST_ID = "40000000";
-	static final String FAGSYSTEM = "PEN";
+	static final String ARKIVSAKSYSTEM_GOSYS = "FS22";
+	static final String ARKIVSAKSYSTEM_PENSJON = "PEN";
 	static final String TEMA = "FAR";
 	static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
 	static final LocalDateTime DATO_OPPRETTET = LocalDate.of(2018, Month.FEBRUARY, 23).atStartOfDay();
@@ -34,7 +39,7 @@ public class HentDokumentTestObjects {
 				.bruker(TilgangBrukerDto.builder().brukerId(IDENT).build())
 				.sak(TilgangSakDto.builder()
 						.aktoerId(AKTOER_ID)
-						.fagsystem(FAGSYSTEM)
+						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(true)
 						.tema(TEMA)
 						.build());
@@ -63,5 +68,20 @@ public class HentDokumentTestObjects {
 				.variant(TilgangVariantDto.builder()
 						.skjerming(SkjermingTypeCode.FEIL)
 						.build());
+	}
+
+	static BrukerIdenter createBrukerIdenter() {
+		List<PdlResponse.PdlIdent> pdlIdenter = new ArrayList<>();
+		pdlIdenter.add(createPdlIdent(IDENT, false, PdlResponse.PdlGruppe.FOLKEREGISTERIDENT));
+		pdlIdenter.add(createPdlIdent(AKTOER_ID, false, PdlResponse.PdlGruppe.AKTORID));
+		return new BrukerIdenter(pdlIdenter);
+	}
+
+	private static PdlResponse.PdlIdent createPdlIdent(String ident, boolean historisk, PdlResponse.PdlGruppe gruppe) {
+		PdlResponse.PdlIdent pdlIdent = new PdlResponse.PdlIdent();
+		pdlIdent.setIdent(ident);
+		pdlIdent.setHistorisk(historisk);
+		pdlIdent.setGruppe(gruppe);
+		return pdlIdent;
 	}
 }

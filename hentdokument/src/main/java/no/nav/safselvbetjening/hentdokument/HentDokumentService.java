@@ -7,6 +7,7 @@ import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJourn
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
 import no.nav.safselvbetjening.consumer.pdl.PdlFunctionalException;
 import no.nav.safselvbetjening.consumer.pensjon.hentbrukerforsak.PensjonSakRestConsumer;
+import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
@@ -75,12 +76,17 @@ public class HentDokumentService {
 
 		validateTokenIdent(brukerIdenter, hentdokumentRequest);
 
-		utledTilgangService.utledTilgangHentDokument(hentDokumentTilgangMapper.map(tilgangJournalpostResponseTo.getTilgangJournalpostDto()), brukerIdenter);
+		Journalpost journalpost = hentDokumentTilgangMapper.map(tilgangJournalpostResponseTo.getTilgangJournalpostDto(), brukerIdenter);
+		utledTilgangService.utledTilgangHentDokument(journalpost, brukerIdenter);
 	}
 
 	private String findBrukerIdent(TilgangJournalpostDto tilgangJournalpostDto) {
 		if (JournalStatusCode.getJournalstatusMidlertidig().contains(tilgangJournalpostDto.getJournalStatus())) {
-			return tilgangJournalpostDto.getBruker().getBrukerId();
+			if(tilgangJournalpostDto.getBruker() == null) {
+				return null;
+			} else {
+				return tilgangJournalpostDto.getBruker().getBrukerId();
+			}
 		} else if (JournalStatusCode.getJournalstatusFerdigstilt().contains(tilgangJournalpostDto.getJournalStatus())) {
 			if (PEN.toString().equals(tilgangJournalpostDto.getSak().getFagsystem())) {
 				return pensjonSakRestConsumer.hentBrukerForSak(tilgangJournalpostDto.getSak().getSakId()).getFnr();
