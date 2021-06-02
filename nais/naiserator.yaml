@@ -72,3 +72,7 @@ spec:
         - application: mine-saker-api
           namespace: personbruker
           cluster: {{GCP_CLUSTER}}
+      rules:
+        - application: dp-dagpenger
+          namespace: teamdagpenger
+          cluster: {{GCP_CLUSTER}}
