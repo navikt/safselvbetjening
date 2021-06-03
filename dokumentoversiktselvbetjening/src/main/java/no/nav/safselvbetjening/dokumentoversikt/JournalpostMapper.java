@@ -7,7 +7,6 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
-import no.nav.safselvbetjening.domain.Datotype;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -23,6 +22,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_DOKUMENT;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_EKSPEDERT;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_JOURNALFOERT;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_OPPRETTET;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_REGISTRERT;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_SENDT_PRINT;
 
 /**
  * Mapper fra fagarkivet sitt domene til safselvbetjening sitt domene.
@@ -168,27 +175,28 @@ public class JournalpostMapper {
 
 	private List<RelevantDato> mapRelevanteDatoer(JournalpostDto journalpostDto) {
 		List<RelevantDato> relevanteDatoer = new ArrayList<>();
+		relevanteDatoer.add(new RelevantDato(journalpostDto.getDatoOpprettet(), DATO_OPPRETTET));
 		if (journalpostDto.getDokumentDato() != null) {
-			relevanteDatoer.add(new RelevantDato(journalpostDto.getDokumentDato(), Datotype.DATO_DOKUMENT));
+			relevanteDatoer.add(new RelevantDato(journalpostDto.getDokumentDato(), DATO_DOKUMENT));
 		}
 		if (journalpostDto.getJournalDato() != null) {
-			relevanteDatoer.add(new RelevantDato(journalpostDto.getJournalDato(), Datotype.DATO_JOURNALFOERT));
+			relevanteDatoer.add(new RelevantDato(journalpostDto.getJournalDato(), DATO_JOURNALFOERT));
 		}
 		switch (journalpostDto.getJournalposttype()) {
 			case I:
 				if (journalpostDto.getMottattDato() != null) {
-					relevanteDatoer.add(new RelevantDato(journalpostDto.getMottattDato(), Datotype.DATO_REGISTRERT));
+					relevanteDatoer.add(new RelevantDato(journalpostDto.getMottattDato(), DATO_REGISTRERT));
 				}
 				break;
 			case U:
 				if (journalpostDto.getSendtPrintDato() != null) {
-					relevanteDatoer.add(new RelevantDato(journalpostDto.getSendtPrintDato(), Datotype.DATO_SENDT_PRINT));
+					relevanteDatoer.add(new RelevantDato(journalpostDto.getSendtPrintDato(), DATO_SENDT_PRINT));
 				}
 				if (journalpostDto.getEkspedertDato() != null) {
-					relevanteDatoer.add(new RelevantDato(journalpostDto.getEkspedertDato(), Datotype.DATO_EKSPEDERT));
+					relevanteDatoer.add(new RelevantDato(journalpostDto.getEkspedertDato(), DATO_EKSPEDERT));
 				}
 				if (journalpostDto.getAvsReturDato() != null) {
-					relevanteDatoer.add(new RelevantDato(journalpostDto.getAvsReturDato(), Datotype.DATO_AVS_RETUR));
+					relevanteDatoer.add(new RelevantDato(journalpostDto.getAvsReturDato(), DATO_AVS_RETUR));
 				}
 				break;
 			default:
