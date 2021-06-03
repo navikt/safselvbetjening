@@ -23,6 +23,7 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVSENDER_MOTTAKER_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.BREVKODE;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.BRUKER_ID_PERSON;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.DATO_OPPRETTET;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.DATO_OPPRETTET_LDT;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.DOKUMENT_INFO_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILUUID_1;
@@ -65,7 +66,9 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.NAV_NO);
 		assertThat(journalpost.getAvsenderMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(journalpost.getAvsenderMottaker().getType()).isEqualTo(FNR);
-		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(new RelevantDato(JOURNAL_DATO, Datotype.DATO_JOURNALFOERT),
+		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
+				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),
+				new RelevantDato(JOURNAL_DATO, Datotype.DATO_JOURNALFOERT),
 				new RelevantDato(MOTTAT_DATO, Datotype.DATO_REGISTRERT)));
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().get(0);
 		assertThat(dokumentInfo.getDokumentInfoId()).isEqualTo(DOKUMENT_INFO_ID.toString());
@@ -89,7 +92,9 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.SDP);
 		assertThat(journalpost.getAvsenderMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(journalpost.getAvsenderMottaker().getType()).isEqualTo(FNR);
-		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(new RelevantDato(JOURNAL_DATO, Datotype.DATO_JOURNALFOERT),
+		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
+				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),
+				new RelevantDato(JOURNAL_DATO, Datotype.DATO_JOURNALFOERT),
 				new RelevantDato(JournalpostDtoTestObjects.DOKUMENT_DATO, Datotype.DATO_DOKUMENT),
 				new RelevantDato(JournalpostDtoTestObjects.AVS_RETUR_DATO, Datotype.DATO_AVS_RETUR),
 				new RelevantDato(JournalpostDtoTestObjects.SENDT_PRINT_DATO, Datotype.DATO_SENDT_PRINT),
