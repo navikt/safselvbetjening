@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
@@ -55,6 +56,8 @@ public class JournalpostMapper {
 					.tittel(journalpostDto.getInnhold())
 					.kanal(mapKanal(journalpostDto))
 					.avsenderMottaker(avsenderMottakerMapper.map(journalpostDto))
+					.avsender(JournalpostTypeCode.I == journalpostDto.getJournalposttype() ? avsenderMottakerMapper.map(journalpostDto) : null)
+					.mottaker(JournalpostTypeCode.U == journalpostDto.getJournalposttype() ? avsenderMottakerMapper.map(journalpostDto) : null)
 					.relevanteDatoer(mapRelevanteDatoer(journalpostDto))
 					.dokumenter(mapDokumenter(journalpostDto))
 					.tilgang(mapJournalpostTilgang(journalpostDto, brukerIdenter))
