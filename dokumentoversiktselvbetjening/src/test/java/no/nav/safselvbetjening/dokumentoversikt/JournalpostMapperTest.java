@@ -38,10 +38,12 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.TITTEL;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoInngaaendeType;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoMottatt;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoNotatType;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoUtgaaendeType;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.createBrukerIdenter;
 import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
 import static no.nav.safselvbetjening.domain.Journalposttype.I;
+import static no.nav.safselvbetjening.domain.Journalposttype.N;
 import static no.nav.safselvbetjening.domain.Journalposttype.U;
 import static no.nav.safselvbetjening.domain.Journalstatus.EKSPEDERT;
 import static no.nav.safselvbetjening.domain.Journalstatus.JOURNALFOERT;
@@ -66,6 +68,9 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.NAV_NO);
 		assertThat(journalpost.getAvsenderMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(journalpost.getAvsenderMottaker().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getAvsender().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
+		assertThat(journalpost.getAvsender().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getMottaker()).isNull();
 		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
 				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),
 				new RelevantDato(JOURNAL_DATO, Datotype.DATO_JOURNALFOERT),
@@ -92,6 +97,9 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.SDP);
 		assertThat(journalpost.getAvsenderMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(journalpost.getAvsenderMottaker().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
+		assertThat(journalpost.getMottaker().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getAvsender()).isNull();
 		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
 				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),
 				new RelevantDato(JOURNAL_DATO, Datotype.DATO_JOURNALFOERT),
@@ -99,6 +107,34 @@ class JournalpostMapperTest {
 				new RelevantDato(JournalpostDtoTestObjects.AVS_RETUR_DATO, Datotype.DATO_AVS_RETUR),
 				new RelevantDato(JournalpostDtoTestObjects.SENDT_PRINT_DATO, Datotype.DATO_SENDT_PRINT),
 				new RelevantDato(JournalpostDtoTestObjects.EKSPEDERT_DATO, Datotype.DATO_EKSPEDERT)));
+		DokumentInfo dokumentInfo = journalpost.getDokumenter().get(0);
+		assertThat(dokumentInfo.getDokumentInfoId()).isEqualTo(DOKUMENT_INFO_ID.toString());
+		assertThat(dokumentInfo.getBrevkode()).isEqualTo(BREVKODE);
+		assertThat(dokumentInfo.getTittel()).isEqualTo(TITTEL);
+		Dokumentvariant arkivVariant = dokumentInfo.getDokumentvarianter().get(0);
+		assertThat(arkivVariant.getFiluuid()).isEqualTo(FILUUID_1);
+		assertThat(arkivVariant.getVariantformat()).isEqualTo(ARKIV);
+		Dokumentvariant sladdetVariant = dokumentInfo.getDokumentvarianter().get(1);
+		assertThat(sladdetVariant.getFiluuid()).isEqualTo(FILUUID_2);
+		assertThat(sladdetVariant.getVariantformat()).isEqualTo(SLADDET);
+	}
+
+	@Test
+	void shouldMapVisningsfeltWhenNotat() {
+		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoNotatType(JournalStatusCode.E), createBrukerIdenter());
+		assertThat(journalpost.getJournalpostId()).isEqualTo(JOURNALPOST_ID.toString());
+		assertThat(journalpost.getTittel()).isEqualTo(INNHOLD);
+		assertThat(journalpost.getJournalposttype()).isEqualTo(N);
+		assertThat(journalpost.getJournalstatus()).isEqualTo(EKSPEDERT);
+		assertThat(journalpost.getKanal()).isEqualTo(Kanal.INGEN_DISTRIBUSJON);
+		assertThat(journalpost.getAvsenderMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
+		assertThat(journalpost.getAvsenderMottaker().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getMottaker()).isNull();
+		assertThat(journalpost.getAvsender()).isNull();
+		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
+				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),
+				new RelevantDato(JOURNAL_DATO, Datotype.DATO_JOURNALFOERT),
+				new RelevantDato(JournalpostDtoTestObjects.DOKUMENT_DATO, Datotype.DATO_DOKUMENT)));
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().get(0);
 		assertThat(dokumentInfo.getDokumentInfoId()).isEqualTo(DOKUMENT_INFO_ID.toString());
 		assertThat(dokumentInfo.getBrevkode()).isEqualTo(BREVKODE);

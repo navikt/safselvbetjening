@@ -12,6 +12,14 @@
            id
            type
          }
+         avsender {
+           id
+           type
+         }
+         mottaker {
+           id
+           type
+         }
          kanal
          relevanteDatoer {
            dato

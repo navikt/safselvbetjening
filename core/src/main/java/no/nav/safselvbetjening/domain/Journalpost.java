@@ -16,7 +16,10 @@ public class Journalpost {
 	private final String tittel;
 	private final Journalposttype journalposttype;
 	private final Journalstatus journalstatus;
+	@Deprecated
 	private final AvsenderMottaker avsenderMottaker;
+	private final AvsenderMottaker avsender;
+	private final AvsenderMottaker mottaker;
 	private final Kanal kanal;
 	@Builder.Default
 	private final List<RelevantDato> relevanteDatoer = new ArrayList<>();

@@ -93,6 +93,22 @@ public class JournalpostDtoTestObjects {
 				.build();
 	}
 
+	static JournalpostDto buildJournalpostDtoNotatType(JournalStatusCode journalStatusCode) {
+		return baseJournalpostDto()
+				.journalposttype(JournalpostTypeCode.N)
+				.saksrelasjon(new SaksrelasjonDto(SAKS_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, FAGOMRADE.name(),
+						null, null, null, null, null))
+				.utsendingskanal(UtsendingsKanalCode.SDP)
+				.journalstatus(journalStatusCode)
+				.journalDato(JOURNAL_DATO)
+				.dokumentDato(DOKUMENT_DATO)
+				.avsReturDato(AVS_RETUR_DATO)
+				.sendtPrintDato(SENDT_PRINT_DATO)
+				.ekspedertDato(EKSPEDERT_DATO)
+				.antallRetur(ANTALL_RETUR)
+				.build();
+	}
+
 	static JournalpostDto buildJournalpostDtoInngaaendeType() {
 		return baseJournalpostDto()
 				.bruker(BrukerDto.builder().brukerId(BRUKER_ID_PERSON).brukerIdType("PERSON").build())
