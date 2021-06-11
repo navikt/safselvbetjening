@@ -76,6 +76,8 @@ public class JournalpostDtoTestObjects {
 	static final String KANAL_REFERANSE_ID = "KANAL REFERANSE ID";
 	static final String TITTEL = "Søknad om foreldrepenger ved adopsjon";
 	static final DokumentKategoriCode KATEGORI = DokumentKategoriCode.ES;
+	static final String FILSTORRELSE_1 = "100";
+	static final String FILSTORRELSE_2 = "200";
 
 	static JournalpostDto buildJournalpostDtoUtgaaendeType(JournalStatusCode journalStatusCode) {
 		return baseJournalpostDto()
@@ -177,12 +179,14 @@ public class JournalpostDtoTestObjects {
 										.variantf(VARIANT_FORMAT_CODE_ARKIV)
 										.filnavn(FILNAVN_1)
 										.filuuid(FILUUID_1)
+										.filstorrelse(FILSTORRELSE_1)
 										.build(),
 								VariantDto.builder()
 										.skjerming(null)
 										.variantf(VARIANT_FORMAT_CODE_SLADDET)
 										.filnavn(FILNAVN_2)
 										.filuuid(FILUUID_2)
+										.filstorrelse(FILSTORRELSE_2)
 										.build()))
 						.build());
 	}
