@@ -44,7 +44,13 @@ type Journalpost {
     journalstatus: Journalstatus
 
     # Personen eller organisasjonen som er avsender eller mottaker av dokumentene i journalposten.
-    avsenderMottaker: AvsenderMottaker
+    avsenderMottaker: AvsenderMottaker @deprecated(reason: "Feltet er deprekert og vil bli fjernet i nær fremtid. Bruk avsender eller mottaker i stedet.")
+
+    # Personen eller organisasjonen som er avsender av dokumentene i journalposten.
+    avsender: AvsenderMottaker
+
+    # Personen eller organisasjonen som er mottaker av dokumentene i journalposten.
+    mottaker: AvsenderMottaker
 
     # Kanalen dokumentene ble mottatt i eller sendt ut på f.eks. "SENTRAL_UTSKRIFT" eller "ALTINN".
     # * Dersom journalposten ikke har noen kjent kanal, returneres verdien "UKJENT"
