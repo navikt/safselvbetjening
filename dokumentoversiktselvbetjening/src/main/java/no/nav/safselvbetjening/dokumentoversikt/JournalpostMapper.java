@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.lang.Integer.parseInt;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_DOKUMENT;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_EKSPEDERT;
@@ -140,8 +141,17 @@ public class JournalpostMapper {
 		return varianter.stream().map(variantDto -> Dokumentvariant.builder()
 				.variantformat(variantDto.getVariantf().getSafVariantformat())
 				.filuuid(variantDto.getFiluuid())
+				.filstorrelse(mapFilstorrelse(variantDto.getFilstorrelse()))
 				.tilgangVariant(Dokumentvariant.TilgangVariant.builder().skjerming(mapSkjermingType(variantDto.getSkjerming())).build())
 				.build()).collect(Collectors.toList());
+	}
+
+	private int mapFilstorrelse(String filstorrelse) {
+		try {
+			return parseInt(filstorrelse);
+		} catch(NumberFormatException e) {
+			return 0;
+		}
 	}
 
 	private Kanal mapKanal(JournalpostDto journalpostDto) {

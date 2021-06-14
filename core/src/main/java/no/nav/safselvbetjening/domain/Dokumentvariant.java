@@ -12,6 +12,7 @@ import java.util.List;
 public class Dokumentvariant {
 	private final Variantformat variantformat;
 	private final String filuuid;
+	private final int filstorrelse;
 	private final TilgangVariant tilgangVariant;
 	private boolean brukerHarTilgang;
 	@Builder.Default

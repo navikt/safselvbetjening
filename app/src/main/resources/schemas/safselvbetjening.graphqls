@@ -114,6 +114,9 @@ type Dokumentvariant {
     # Unik identifikator per fil.
     filuuid: String
 
+    # Filstørrelsen til dokumentet i antall bytes. Verdien kan være 0. Hvis verdien er 0 så er filstørrelsen ukjent.
+    filstorrelse: Int
+
     # Sier hvorvidt bruker som gjør oppslaget vil få tilgang til å åpne denne dokumentvarianten.
     # * Dersom verdien er false, vil tilgang bli avslått dersom bruker forsøker å åpne dokumentet.
     brukerHarTilgang: Boolean

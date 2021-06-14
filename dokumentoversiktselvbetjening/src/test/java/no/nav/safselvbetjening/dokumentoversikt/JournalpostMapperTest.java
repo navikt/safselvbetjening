@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static java.lang.Integer.parseInt;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AKTOER_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ARKIVSAKSYSTEM_GOSYS;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ARKIVSAKSYSTEM_PENSJON;
@@ -26,6 +27,8 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.DATO_OPPRETTET;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.DATO_OPPRETTET_LDT;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.DOKUMENT_INFO_ID;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILSTORRELSE_1;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILSTORRELSE_2;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILUUID_1;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILUUID_2;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.IDENT;
@@ -81,9 +84,11 @@ class JournalpostMapperTest {
 		assertThat(dokumentInfo.getTittel()).isEqualTo(TITTEL);
 		Dokumentvariant arkivVariant = dokumentInfo.getDokumentvarianter().get(0);
 		assertThat(arkivVariant.getFiluuid()).isEqualTo(FILUUID_1);
+		assertThat(arkivVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_1));
 		assertThat(arkivVariant.getVariantformat()).isEqualTo(ARKIV);
 		Dokumentvariant sladdetVariant = dokumentInfo.getDokumentvarianter().get(1);
 		assertThat(sladdetVariant.getFiluuid()).isEqualTo(FILUUID_2);
+		assertThat(sladdetVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_2));
 		assertThat(sladdetVariant.getVariantformat()).isEqualTo(SLADDET);
 	}
 
@@ -113,9 +118,11 @@ class JournalpostMapperTest {
 		assertThat(dokumentInfo.getTittel()).isEqualTo(TITTEL);
 		Dokumentvariant arkivVariant = dokumentInfo.getDokumentvarianter().get(0);
 		assertThat(arkivVariant.getFiluuid()).isEqualTo(FILUUID_1);
+		assertThat(arkivVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_1));
 		assertThat(arkivVariant.getVariantformat()).isEqualTo(ARKIV);
 		Dokumentvariant sladdetVariant = dokumentInfo.getDokumentvarianter().get(1);
 		assertThat(sladdetVariant.getFiluuid()).isEqualTo(FILUUID_2);
+		assertThat(sladdetVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_2));
 		assertThat(sladdetVariant.getVariantformat()).isEqualTo(SLADDET);
 	}
 
@@ -141,9 +148,11 @@ class JournalpostMapperTest {
 		assertThat(dokumentInfo.getTittel()).isEqualTo(TITTEL);
 		Dokumentvariant arkivVariant = dokumentInfo.getDokumentvarianter().get(0);
 		assertThat(arkivVariant.getFiluuid()).isEqualTo(FILUUID_1);
+		assertThat(arkivVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_1));
 		assertThat(arkivVariant.getVariantformat()).isEqualTo(ARKIV);
 		Dokumentvariant sladdetVariant = dokumentInfo.getDokumentvarianter().get(1);
 		assertThat(sladdetVariant.getFiluuid()).isEqualTo(FILUUID_2);
+		assertThat(sladdetVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_2));
 		assertThat(sladdetVariant.getVariantformat()).isEqualTo(SLADDET);
 	}
 
