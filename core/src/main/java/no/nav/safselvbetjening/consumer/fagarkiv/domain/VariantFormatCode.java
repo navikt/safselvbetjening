@@ -6,7 +6,7 @@ public enum VariantFormatCode {
 	/**
 	 * Produksjonsformat
 	 */
-	PRODUKSJON(Variantformat.PRODUKSJON),
+	PRODUKSJON(null),
 	/**
 	 * Arkivformat
 	 */
@@ -22,7 +22,7 @@ public enum VariantFormatCode {
 	/**
 	 * Originalformat
 	 */
-	ORIGINAL(Variantformat.ORIGINAL),
+	ORIGINAL(null),
 	/**
 	 * Sladdetformat
 	 */
@@ -30,11 +30,11 @@ public enum VariantFormatCode {
 	/**
 	 * Produksjonsformat DLF
 	 */
-	PRODUKSJON_DLF(Variantformat.PRODUKSJON_DLF),
+	PRODUKSJON_DLF(null),
 	/**
 	 * versjon med infotekster
 	 */
-	FULLVERSJON(Variantformat.FULLVERSJON);
+	FULLVERSJON(null);
 
 	private final Variantformat safVariantformat;
 

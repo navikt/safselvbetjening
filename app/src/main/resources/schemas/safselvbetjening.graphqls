@@ -112,14 +112,17 @@ type Dokumentvariant {
     variantformat: Variantformat!
 
     # Unik identifikator per fil.
-    filuuid: String
+    filuuid: String!
 
-    # Filstørrelsen til dokumentet i antall bytes. Verdien kan være 0. Hvis verdien er 0 så er filstørrelsen ukjent.
-    filstorrelse: Int
+    # Filtypen til dokumentet. Forventede verdier: `"PDF", "JPEG", "PNG"`.
+    filtype: String!
+
+    # Filstørrelsen til dokumentet i antall bytes. Verdien kan være 0. Hvis verdien er 0 så er filstørrelsen ukjent og det er ikke sikkert dokumentet er laget riktig.
+    filstorrelse: Int!
 
     # Sier hvorvidt bruker som gjør oppslaget vil få tilgang til å åpne denne dokumentvarianten.
     # * Dersom verdien er false, vil tilgang bli avslått dersom bruker forsøker å åpne dokumentet.
-    brukerHarTilgang: Boolean
+    brukerHarTilgang: Boolean!
 
     code: [String]!
 }
@@ -305,22 +308,6 @@ enum Variantformat {
     # Dette er en sladdet variant av originaldokumentet.
     # * **SLADDET** variant har ikke spesiell tilgangskontroll.
     SLADDET
-
-    # Produksjonsvariant i eget proprietært format.
-    # * Varianten finnes for dokumenter som er produsert i Metaforce eller Brevklient.
-    PRODUKSJON
-
-    # Produksjonsvariant i eget proprietært format.
-    # * Varianten finnes kun for dokumenter som er produsert i Exstream Live Editor.
-    PRODUKSJON_DLF
-
-    # Variant av dokument som inneholder spørsmålstekster, hjelpetekster og ubesvarte spørsmål fra søknadsdialogen.
-    # * Fullversjon genereres for enkelte søknadsskjema fra nav.no, og brukes ved klagebehandling.
-    FULLVERSJON
-
-    # Variant av dokumentet i strukturert format, f.eks. XML eller JSON.
-    # * Originalvarianten er beregnet på maskinell lesning og behandling.
-    ORIGINAL
 }
 
 

@@ -1,10 +1,14 @@
 package no.nav.safselvbetjening.dokumentoversikt;
 
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode;
 import no.nav.safselvbetjening.domain.Datotype;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
@@ -15,6 +19,7 @@ import no.nav.safselvbetjening.domain.SkjermingType;
 import no.nav.safselvbetjening.domain.Tema;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Integer.parseInt;
@@ -29,6 +34,7 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.DOKUMENT_INFO_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILSTORRELSE_1;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILSTORRELSE_2;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILTYPE;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILUUID_1;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILUUID_2;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.IDENT;
@@ -39,6 +45,8 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.KATEGORI;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.MOTTAT_DATO;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.TITTEL;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.baseJournalpostDto;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildDokumentWithVarianter;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoInngaaendeType;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoMottatt;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoNotatType;
@@ -84,10 +92,12 @@ class JournalpostMapperTest {
 		assertThat(dokumentInfo.getTittel()).isEqualTo(TITTEL);
 		Dokumentvariant arkivVariant = dokumentInfo.getDokumentvarianter().get(0);
 		assertThat(arkivVariant.getFiluuid()).isEqualTo(FILUUID_1);
+		assertThat(arkivVariant.getFiltype()).isEqualTo(FILTYPE);
 		assertThat(arkivVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_1));
 		assertThat(arkivVariant.getVariantformat()).isEqualTo(ARKIV);
 		Dokumentvariant sladdetVariant = dokumentInfo.getDokumentvarianter().get(1);
 		assertThat(sladdetVariant.getFiluuid()).isEqualTo(FILUUID_2);
+		assertThat(sladdetVariant.getFiltype()).isEqualTo(FILTYPE);
 		assertThat(sladdetVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_2));
 		assertThat(sladdetVariant.getVariantformat()).isEqualTo(SLADDET);
 	}
@@ -118,10 +128,12 @@ class JournalpostMapperTest {
 		assertThat(dokumentInfo.getTittel()).isEqualTo(TITTEL);
 		Dokumentvariant arkivVariant = dokumentInfo.getDokumentvarianter().get(0);
 		assertThat(arkivVariant.getFiluuid()).isEqualTo(FILUUID_1);
+		assertThat(arkivVariant.getFiltype()).isEqualTo(FILTYPE);
 		assertThat(arkivVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_1));
 		assertThat(arkivVariant.getVariantformat()).isEqualTo(ARKIV);
 		Dokumentvariant sladdetVariant = dokumentInfo.getDokumentvarianter().get(1);
 		assertThat(sladdetVariant.getFiluuid()).isEqualTo(FILUUID_2);
+		assertThat(sladdetVariant.getFiltype()).isEqualTo(FILTYPE);
 		assertThat(sladdetVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_2));
 		assertThat(sladdetVariant.getVariantformat()).isEqualTo(SLADDET);
 	}
@@ -148,10 +160,12 @@ class JournalpostMapperTest {
 		assertThat(dokumentInfo.getTittel()).isEqualTo(TITTEL);
 		Dokumentvariant arkivVariant = dokumentInfo.getDokumentvarianter().get(0);
 		assertThat(arkivVariant.getFiluuid()).isEqualTo(FILUUID_1);
+		assertThat(arkivVariant.getFiltype()).isEqualTo(FILTYPE);
 		assertThat(arkivVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_1));
 		assertThat(arkivVariant.getVariantformat()).isEqualTo(ARKIV);
 		Dokumentvariant sladdetVariant = dokumentInfo.getDokumentvarianter().get(1);
 		assertThat(sladdetVariant.getFiluuid()).isEqualTo(FILUUID_2);
+		assertThat(sladdetVariant.getFiltype()).isEqualTo(FILTYPE);
 		assertThat(sladdetVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_2));
 		assertThat(sladdetVariant.getVariantformat()).isEqualTo(SLADDET);
 	}
@@ -224,5 +238,50 @@ class JournalpostMapperTest {
 		assertThat(tilgangSak.getFoedselsnummer()).isEqualTo(IDENT);
 		assertThat(tilgangSak.getFagsystem()).isEqualTo(ARKIVSAKSYSTEM_PENSJON.name());
 		assertThat(tilgangSak.getTema()).isEqualTo(Tema.PEN.name());
+	}
+
+	@Test
+	void shouldFilterAllExceptArkivSladdetVarianter() {
+		JournalpostDto journalpostDto = baseJournalpostDto()
+				.journalposttype(JournalpostTypeCode.N)
+				.dokumenter(buildDokumentWithVarianter("ARKIV", "SLADDET", "ORIGINAL", "FULLVERSJON", "PRODUKSJON", "PRODUKSJON_DLF"))
+				.build();
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, createBrukerIdenter());
+		assertThat(journalpost.getDokumenter().get(0).getDokumentvarianter()).hasSize(2);
+		assertThat(journalpost.getDokumenter().get(0).getDokumentvarianter())
+				.extracting(Dokumentvariant::getVariantformat)
+				.containsExactlyInAnyOrder(ARKIV, SLADDET);
+	}
+
+	@Test
+	void shouldMapFiltypePdfaToPdf() {
+		JournalpostDto journalpostDto = baseJournalpostDto()
+				.journalposttype(JournalpostTypeCode.N)
+				.dokumenter(Collections.singletonList(
+						DokumentInfoDto.builder()
+								.varianter(Collections.singletonList(VariantDto.builder()
+										.variantf(VariantFormatCode.ARKIV)
+										.filtype("PDFA")
+										.build()))
+								.build()))
+				.build();
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, createBrukerIdenter());
+		assertThat(journalpost.getDokumenter().get(0).getDokumentvarianter().get(0).getFiltype()).isEqualTo("PDF");
+	}
+
+	@Test
+	void shouldMapNulLFilstorrelseToZero() {
+		JournalpostDto journalpostDto = baseJournalpostDto()
+				.journalposttype(JournalpostTypeCode.N)
+				.dokumenter(Collections.singletonList(
+						DokumentInfoDto.builder()
+								.varianter(Collections.singletonList(VariantDto.builder()
+										.variantf(VariantFormatCode.ARKIV)
+										.filstorrelse(null)
+										.build()))
+								.build()))
+				.build();
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, createBrukerIdenter());
+		assertThat(journalpost.getDokumenter().get(0).getDokumentvarianter().get(0).getFilstorrelse()).isEqualTo(0);
 	}
 }

@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JournalpostDtoTestObjects {
 
@@ -46,7 +48,8 @@ public class JournalpostDtoTestObjects {
 	static final Date EKSPEDERT_DATO = new Date(4000L);
 	static final Date DOKUMENT_DATO = new Date(5000L);
 	static final LocalDateTime JOURNAL_DATO_LDT = LocalDateTime.of(2021, 1, 1, 0, 0);
-	static final Date JOURNAL_DATO = Date.from(JOURNAL_DATO_LDT.atZone(ZoneId.systemDefault()).toInstant());;
+	static final Date JOURNAL_DATO = Date.from(JOURNAL_DATO_LDT.atZone(ZoneId.systemDefault()).toInstant());
+	;
 	static final Date MOTTAT_DATO = new Date(7000L);
 	static final Date DATO_FERDIGSTILT = new Date(8000L);
 	static final String SAKS_ID = "12345";
@@ -78,6 +81,7 @@ public class JournalpostDtoTestObjects {
 	static final DokumentKategoriCode KATEGORI = DokumentKategoriCode.ES;
 	static final String FILSTORRELSE_1 = "100";
 	static final String FILSTORRELSE_2 = "200";
+	static final String FILTYPE = "PDF";
 
 	static JournalpostDto buildJournalpostDtoUtgaaendeType(JournalStatusCode journalStatusCode) {
 		return baseJournalpostDto()
@@ -158,37 +162,49 @@ public class JournalpostDtoTestObjects {
 						.nokkel(TILLEGGSOPPLYSNING_NOKKEL)
 						.verdi(TILLEGGSOPPLYSNING_VERDI)
 						.build()))
-				.dokumenter(buildDokumenter());
+				.dokumenter(buildDokument());
 	}
 
+	private static DokumentInfoDto.DokumentInfoDtoBuilder baseDokumentInfoDto() {
+		return DokumentInfoDto.builder()
+				.dokumentInfoId(DOKUMENT_INFO_ID.toString())
+				.tittel(TITTEL)
+				.brevkode(BREVKODE)
+				.dokumenttypeId(DOKUMENTTYPE_ID)
+				.datoFerdigstilt(DATO_FERDIGSTILT)
+				.origJournalpostId(JOURNALPOST_ID)
+				.skjerming(SKJERMING_TYPE_CODE_POL)
+				.kategori(KATEGORI)
+				.logiske(logiskeVedlegg());
+	}
 
-	private static List<DokumentInfoDto> buildDokumenter() {
-		return Collections.singletonList(
-				DokumentInfoDto.builder()
-						.dokumentInfoId(DOKUMENT_INFO_ID.toString())
-						.tittel(TITTEL)
-						.brevkode(BREVKODE)
-						.dokumenttypeId(DOKUMENTTYPE_ID)
-						.datoFerdigstilt(DATO_FERDIGSTILT)
-						.origJournalpostId(JOURNALPOST_ID)
-						.skjerming(SKJERMING_TYPE_CODE_POL)
-						.kategori(KATEGORI)
-						.logiske(logiskeVedlegg())
-						.varianter(Arrays.asList(VariantDto.builder()
-										.skjerming(SKJERMING_TYPE_CODE_POL)
-										.variantf(VARIANT_FORMAT_CODE_ARKIV)
-										.filnavn(FILNAVN_1)
-										.filuuid(FILUUID_1)
-										.filstorrelse(FILSTORRELSE_1)
-										.build(),
-								VariantDto.builder()
-										.skjerming(null)
-										.variantf(VARIANT_FORMAT_CODE_SLADDET)
-										.filnavn(FILNAVN_2)
-										.filuuid(FILUUID_2)
-										.filstorrelse(FILSTORRELSE_2)
-										.build()))
-						.build());
+	private static List<DokumentInfoDto> buildDokument() {
+		return Collections.singletonList(baseDokumentInfoDto()
+				.varianter(Arrays.asList(VariantDto.builder()
+								.skjerming(SKJERMING_TYPE_CODE_POL)
+								.variantf(VARIANT_FORMAT_CODE_ARKIV)
+								.filnavn(FILNAVN_1)
+								.filuuid(FILUUID_1)
+								.filtype(FILTYPE)
+								.filstorrelse(FILSTORRELSE_1)
+								.build(),
+						VariantDto.builder()
+								.skjerming(null)
+								.variantf(VARIANT_FORMAT_CODE_SLADDET)
+								.filnavn(FILNAVN_2)
+								.filtype(FILTYPE)
+								.filuuid(FILUUID_2)
+								.filstorrelse(FILSTORRELSE_2)
+								.build()))
+				.build());
+	}
+
+	static List<DokumentInfoDto> buildDokumentWithVarianter(String... varianter) {
+		return Collections.singletonList(baseDokumentInfoDto()
+				.varianter(Stream.of(varianter).map(variant -> VariantDto.builder()
+						.variantf(VariantFormatCode.valueOf(variant))
+						.build()).collect(Collectors.toList()))
+				.build());
 	}
 
 	private static List<LogiskVedleggDto> logiskeVedlegg() {
