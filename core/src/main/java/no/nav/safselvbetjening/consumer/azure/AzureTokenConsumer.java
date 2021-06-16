@@ -51,7 +51,7 @@ public class AzureTokenConsumer implements TokenConsumer {
 
 	private CloseableHttpClient createHttpClient(SafSelvbetjeningProperties.Proxy proxy,
 												 HttpClientConnectionManager httpClientConnectionManager) {
-		if(proxy.isSet()) {
+		if (proxy.isSet()) {
 			final HttpHost proxyHost = new HttpHost(proxy.getHost(), proxy.getPort());
 			return HttpClients.custom()
 					.setRoutePlanner(new DefaultProxyRoutePlanner(proxyHost))

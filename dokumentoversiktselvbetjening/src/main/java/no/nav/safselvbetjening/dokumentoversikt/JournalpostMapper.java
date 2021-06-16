@@ -8,6 +8,7 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -21,10 +22,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.ARKIV;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.SLADDET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_DOKUMENT;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_EKSPEDERT;
@@ -32,6 +36,7 @@ import static no.nav.safselvbetjening.domain.Datotype.DATO_JOURNALFOERT;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_OPPRETTET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_REGISTRERT;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_SENDT_PRINT;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Mapper fra fagarkivet sitt domene til safselvbetjening sitt domene.
@@ -41,6 +46,9 @@ import static no.nav.safselvbetjening.domain.Datotype.DATO_SENDT_PRINT;
 @Slf4j
 @Component
 public class JournalpostMapper {
+	private static final EnumSet<VariantFormatCode> GYLDIGE_VARIANTER = EnumSet.of(ARKIV, SLADDET);
+	private static final String FILTYPE_PDFA = "PDFA";
+	private static final String FILTYPE_PDF = "PDF";
 
 	private final AvsenderMottakerMapper avsenderMottakerMapper;
 
@@ -138,20 +146,40 @@ public class JournalpostMapper {
 	private List<Dokumentvariant> mapDokumentVarianter(DokumentInfoDto dokumentInfoDto) {
 		List<VariantDto> varianter = dokumentInfoDto.getVarianter();
 
-		return varianter.stream().map(variantDto -> Dokumentvariant.builder()
-				.variantformat(variantDto.getVariantf().getSafVariantformat())
-				.filuuid(variantDto.getFiluuid())
-				.filstorrelse(mapFilstorrelse(variantDto.getFilstorrelse()))
-				.tilgangVariant(Dokumentvariant.TilgangVariant.builder().skjerming(mapSkjermingType(variantDto.getSkjerming())).build())
-				.build()).collect(Collectors.toList());
+		return varianter.stream()
+				.filter(variantDto -> GYLDIGE_VARIANTER.contains(variantDto.getVariantf()))
+				.map(variantDto -> Dokumentvariant.builder()
+						.variantformat(variantDto.getVariantf().getSafVariantformat())
+						.filuuid(variantDto.getFiluuid())
+						.filtype(mapFiltype(variantDto.getFiltype()))
+						.filstorrelse(mapFilstorrelse(variantDto.getFilstorrelse()))
+						.tilgangVariant(Dokumentvariant.TilgangVariant.builder().skjerming(mapSkjermingType(variantDto.getSkjerming())).build())
+						.build())
+				.collect(Collectors.toList());
 	}
 
 	private int mapFilstorrelse(String filstorrelse) {
-		try {
-			return parseInt(filstorrelse);
-		} catch(NumberFormatException e) {
+		if (isBlank(filstorrelse)) {
 			return 0;
 		}
+		try {
+			return parseInt(filstorrelse);
+		} catch (NumberFormatException e) {
+			return 0;
+		}
+	}
+
+	/**
+	 * Filtypen mappet om fra joark sitt domene til safselvbetjening. Konsolidering av PDF/PDFA til PDF.
+	 *
+	 * @param filtype "PDFA", "PDF", "PNG" osv.
+	 * @return "PDFA" mappet om til "PDF". Ellers innhold av param.
+	 */
+	private String mapFiltype(String filtype) {
+		if (FILTYPE_PDFA.equals(filtype)) {
+			return FILTYPE_PDF;
+		}
+		return filtype;
 	}
 
 	private Kanal mapKanal(JournalpostDto journalpostDto) {

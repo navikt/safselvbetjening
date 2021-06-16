@@ -11,7 +11,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
  * @author Joakim Bjørnstad, Jbit AS
@@ -20,18 +21,18 @@ import java.util.concurrent.TimeUnit;
 @EnableCaching
 @Profile({"nais", "local"})
 public class CacheConfig {
-    public static final String AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE = "RESTSTS";
+	public static final String AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE = "RESTSTS";
 
-    @Bean
-    @Primary
-    CacheManager cacheManager() {
-        SimpleCacheManager manager = new SimpleCacheManager();
-        manager.setCaches(Collections.singletonList(
-                new CaffeineCache(AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE, Caffeine.newBuilder()
-                        .expireAfterWrite(50, TimeUnit.MINUTES)
-                        .maximumSize(1)
-                        .build())
-        ));
-        return manager;
-    }
+	@Bean
+	@Primary
+	CacheManager cacheManager() {
+		SimpleCacheManager manager = new SimpleCacheManager();
+		manager.setCaches(Collections.singletonList(
+				new CaffeineCache(AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE, Caffeine.newBuilder()
+						.expireAfterWrite(50, MINUTES)
+						.maximumSize(1)
+						.build())
+		));
+		return manager;
+	}
 }
