@@ -11,7 +11,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
  * @author Joakim Bjørnstad, Jbit AS
@@ -28,7 +29,7 @@ public class CacheConfig {
 		SimpleCacheManager manager = new SimpleCacheManager();
 		manager.setCaches(Collections.singletonList(
 				new CaffeineCache(AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE, Caffeine.newBuilder()
-						.expireAfterWrite(50, TimeUnit.MINUTES)
+						.expireAfterWrite(50, MINUTES)
 						.maximumSize(1)
 						.build())
 		));

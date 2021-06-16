@@ -5,7 +5,6 @@ import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 @Slf4j
@@ -39,6 +39,6 @@ public class NaisContract {
 	public ResponseEntity<String> isReady() {
 		appStatus.set(1);
 
-		return new ResponseEntity<>(APPLICATION_READY, HttpStatus.OK);
+		return new ResponseEntity<>(APPLICATION_READY, OK);
 	}
 }

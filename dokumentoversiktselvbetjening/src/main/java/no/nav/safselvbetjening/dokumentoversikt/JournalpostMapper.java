@@ -154,11 +154,12 @@ public class JournalpostMapper {
 						.filtype(mapFiltype(variantDto.getFiltype()))
 						.filstorrelse(mapFilstorrelse(variantDto.getFilstorrelse()))
 						.tilgangVariant(Dokumentvariant.TilgangVariant.builder().skjerming(mapSkjermingType(variantDto.getSkjerming())).build())
-						.build()).collect(Collectors.toList());
+						.build())
+				.collect(Collectors.toList());
 	}
 
 	private int mapFilstorrelse(String filstorrelse) {
-		if(isBlank(filstorrelse)) {
+		if (isBlank(filstorrelse)) {
 			return 0;
 		}
 		try {
