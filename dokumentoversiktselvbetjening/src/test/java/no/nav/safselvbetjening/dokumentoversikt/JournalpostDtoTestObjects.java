@@ -49,7 +49,6 @@ public class JournalpostDtoTestObjects {
 	static final Date DOKUMENT_DATO = new Date(5000L);
 	static final LocalDateTime JOURNAL_DATO_LDT = LocalDateTime.of(2021, 1, 1, 0, 0);
 	static final Date JOURNAL_DATO = Date.from(JOURNAL_DATO_LDT.atZone(ZoneId.systemDefault()).toInstant());
-	;
 	static final Date MOTTAT_DATO = new Date(7000L);
 	static final Date DATO_FERDIGSTILT = new Date(8000L);
 	static final String SAKS_ID = "12345";
