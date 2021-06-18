@@ -75,3 +75,6 @@ spec:
         - application: dp-dagpenger
           namespace: teamdagpenger
           cluster: {{GCP_CLUSTER}}
+        - application: hm-dinehjelpemidler
+          namespace: teamdagpenger
+          cluster: {{GCP_CLUSTER}}
