@@ -78,3 +78,6 @@ spec:
         - application: hm-dinehjelpemidler
           namespace: teamdigihot
           cluster: {{GCP_CLUSTER}}
+        - application: sif-innsyn-api
+          namespace: dusseldorf
+          cluster: {{GCP_CLUSTER}}
