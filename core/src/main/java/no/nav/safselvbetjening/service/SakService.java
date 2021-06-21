@@ -33,7 +33,7 @@ public class SakService {
 
 	public Saker hentSaker(BrukerIdenter brukerIdenter, final List<String> tema) {
 		List<Arkivsak> arkivsaker = hentArkivsaker(brukerIdenter.getAktoerIds(), tema);
-		List<Pensjonsak> pensjonsaker = hentPensjonSaker(brukerIdenter.getFoedselsnummer(), tema);
+		List<Pensjonsak> pensjonsaker = hentPensjonSaker(brukerIdenter.getAktivFolkeregisterident(), tema);
 		return new Saker(arkivsaker, pensjonsaker);
 	}
 
@@ -49,17 +49,12 @@ public class SakService {
 		}
 	}
 
-	private List<Pensjonsak> hentPensjonSaker(final List<String> identer, final List<String> tema) {
+	private List<Pensjonsak> hentPensjonSaker(final String aktivFolkeregisterident, final List<String> tema) {
 		if (Collections.disjoint(tema, TEMA_PENSJON)) {
 			return new ArrayList<>();
 		}
 		try {
-			final List<Pensjonsak> allePensjonSaker = new ArrayList<>();
-			for (String ident : identer) {
-				List<Pensjonsak> pensjonsaker = pensjonSakWsConsumer.hentSakSammendragListe(ident);
-				allePensjonSaker.addAll(pensjonsaker);
-			}
-			return allePensjonSaker;
+			return pensjonSakWsConsumer.hentSakSammendragListe(aktivFolkeregisterident);
 		} catch (ConsumerFunctionalException e) {
 			log.warn("Henting av pensjonssaker feilet. ", e);
 			return new ArrayList<>();
