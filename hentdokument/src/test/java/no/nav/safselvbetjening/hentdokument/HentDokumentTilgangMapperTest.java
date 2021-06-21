@@ -60,6 +60,7 @@ class HentDokumentTilgangMapperTest {
 		assertEquals(PEN.toString(), tilgang.getFagomradeCode());
 		assertEquals(SkjermingType.POL, tilgang.getSkjerming());
 		assertEquals(IDENT, tilgang.getTilgangBruker().getBrukerId());
+		assertEquals(NAV_NO, tilgang.getMottakskanal());
 
 		Journalpost.TilgangSak tilgangSak = tilgang.getTilgangSak();
 		assertEquals(AKTOER_ID, tilgangSak.getAktoerId());
@@ -162,5 +163,15 @@ class HentDokumentTilgangMapperTest {
 				.build(), createBrukerIdenter());
 
 		assertEquals(INGEN_DISTRIBUSJON, journalpost.getKanal());
+	}
+
+	@Test
+	void shouldMapTilgangJournalpostWhenLokalUtskriftSkannet() {
+		Journalpost journalpost = mapper.map(TilgangJournalpostDto.builder()
+				.journalpostType(JournalpostTypeCode.U)
+				.mottakskanal(MottaksKanalCode.SKAN_IM)
+				.build(), createBrukerIdenter());
+
+		assertEquals(SKAN_IM, journalpost.getTilgang().getMottakskanal());
 	}
 }

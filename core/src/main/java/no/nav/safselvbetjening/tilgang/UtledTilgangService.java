@@ -53,7 +53,7 @@ import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.UGYLDIG_JOU
 public class UtledTilgangService {
 
 	private static final EnumSet<SkjermingType> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
-	private static final List<Kanal> MOTTAKS_KANAL_SKAN = List.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
+	private static final EnumSet<Kanal> MOTTAKS_KANAL_SKAN = EnumSet.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
 	private static final EnumSet<Journalstatus> JOURNALSTATUS_FERDIGSTILT = EnumSet.of(FERDIGSTILT, JOURNALFOERT, EKSPEDERT);
 
 	private final LocalDateTime tidligstInnsynDato;
@@ -159,7 +159,7 @@ public class UtledTilgangService {
 			if (tilgangSak != null && JOURNALSTATUS_FERDIGSTILT.contains(journalstatus)) {
 				if (FS22.toString().equals(tilgangSak.getFagsystem())) {
 					return identer.getIdenter().contains(tilgangSak.getAktoerId());
-				} else if(PEN.name().equals(tilgangSak.getFagsystem())) {
+				} else if (PEN.name().equals(tilgangSak.getFagsystem())) {
 					return identer.getIdenter().contains(tilgangSak.getFoedselsnummer());
 				}
 			}
@@ -264,7 +264,7 @@ public class UtledTilgangService {
 	 * 2b) Bruker får ikke se skannede dokumenter
 	 */
 	boolean isSkannetDokument(Journalpost journalpost) {
-		if (journalpost.getKanal() != null) {
+		if (journalpost.getTilgang().getMottakskanal() != null) {
 			return MOTTAKS_KANAL_SKAN.contains(journalpost.getKanal());
 		}
 		return false;

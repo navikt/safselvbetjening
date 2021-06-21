@@ -6,6 +6,7 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode;
@@ -212,12 +213,29 @@ class JournalpostMapperTest {
 		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 		assertThat(tilgangJournalpost.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET_LDT);
 		assertThat(tilgangJournalpost.getJournalfoertDato()).isNull();
+		assertThat(tilgangJournalpost.getMottakskanal()).isEqualTo(Kanal.SKAN_IM);
 		Journalpost.TilgangBruker tilgangBruker = tilgangJournalpost.getTilgangBruker();
 		assertThat(tilgangBruker.getBrukerId()).isNull();
 		Journalpost.TilgangSak tilgangSak = tilgangJournalpost.getTilgangSak();
 		assertThat(tilgangSak.getAktoerId()).isNull();
 		assertThat(tilgangSak.getFagsystem()).isNull();
 		assertThat(tilgangSak.getTema()).isNull();
+	}
+
+	// Lokal utskrift - sendt ut (journalposttype U) og skannet inn (mottakskanal SKAN_*)
+	@Test
+	void shouldMapWhenJournalpostLokalUtskrift() {
+		JournalpostDto journalpostDto = baseJournalpostDto()
+				.journalstatus(JournalStatusCode.FL)
+				.journalposttype(JournalpostTypeCode.U)
+				.mottakskanal(MottaksKanalCode.SKAN_IM)
+				.utsendingskanal(null)
+				.build();
+
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, createBrukerIdenter());
+		assertThat(journalpost.getKanal()).isEqualTo(Kanal.LOKAL_UTSKRIFT);
+		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
+		assertThat(tilgangJournalpost.getMottakskanal()).isEqualTo(Kanal.SKAN_IM);
 	}
 
 	@Test

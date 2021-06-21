@@ -19,6 +19,7 @@ import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.GDPR;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKANNET_DOKUMENT;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -180,6 +181,18 @@ class HentDokumentIT extends AbstractItest {
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(BRUKER_MATCHER_IKKE_TOKEN));
 	}
 
+	@Test
+	void shouldReturnUnauthorizedWhenLokalprintSkannet() {
+		stubPdl();
+		stubAzure();
+		stubHentTilgangJournalpostDokarkiv("tilgangjournalpost_lokalprint_skannet.json");
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(SKANNET_DOKUMENT));
+	}
+
 	private void stubHentDokumentDokarkiv() {
 		stubFor(get("/fagarkiv/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
@@ -192,6 +205,13 @@ class HentDokumentIT extends AbstractItest {
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
 						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/tilgangjournalpost_ferdigstilt_happy.json")));
+	}
+
+	private void stubHentTilgangJournalpostDokarkiv(final String file) {
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("fagarkiv/" + file)));
 	}
 
 	private void assertOkArkivResponse(ResponseEntity<String> responseEntity) {
