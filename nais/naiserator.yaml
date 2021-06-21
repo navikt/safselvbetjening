@@ -30,9 +30,9 @@ spec:
     - name: APPD_NAME
       value: {{APPD_NAME}}
   ingresses:
-    { { #each INGRESSES}}
-        - {{this } }
-      {{/each}}
+    {{#each INGRESSES}}
+      - {{this}}
+    {{/each}}
   image: {{image}}
   liveness:
     path: /isAlive
