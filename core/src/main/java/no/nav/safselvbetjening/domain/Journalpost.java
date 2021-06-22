@@ -33,6 +33,7 @@ public class Journalpost {
 		private final LocalDateTime datoOpprettet;
 		private final LocalDateTime journalfoertDato;
 		private final String fagomradeCode;
+		private final Kanal mottakskanal;
 		private final SkjermingType skjerming;
 		private final TilgangSak tilgangSak;
 		private final TilgangBruker tilgangBruker;

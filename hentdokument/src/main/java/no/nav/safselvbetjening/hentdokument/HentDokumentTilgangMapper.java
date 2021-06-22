@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.hentdokument;
 
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangBrukerDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangDokumentInfoDto;
@@ -61,12 +62,20 @@ public class HentDokumentTilgangMapper {
 	private Journalpost.TilgangJournalpost mapJournalpostTilgang(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter) {
 		return Journalpost.TilgangJournalpost.builder()
 				.datoOpprettet(tilgangJournalpostDto.getDatoOpprettet())
+				.mottakskanal(mapTilgangMottakskanal(tilgangJournalpostDto.getMottakskanal()))
 				.fagomradeCode(tilgangJournalpostDto.getFagomrade() == null ? null : tilgangJournalpostDto.getFagomrade().toString())
 				.journalfoertDato(tilgangJournalpostDto.getJournalfoertDato())
 				.skjerming(mapSkjermingType(tilgangJournalpostDto.getSkjerming()))
 				.tilgangBruker(mapTilgangBruker(tilgangJournalpostDto.getBruker()))
 				.tilgangSak(mapTilgangSak(tilgangJournalpostDto.getSak(), brukerIdenter))
 				.build();
+	}
+
+	private Kanal mapTilgangMottakskanal(MottaksKanalCode mottakskanal) {
+		if(mottakskanal == null) {
+			return null;
+		}
+		return mottakskanal.getSafKanal();
 	}
 
 	private Journalpost.TilgangBruker mapTilgangBruker(TilgangBrukerDto tilgangBrukerDto) {
@@ -117,6 +126,8 @@ public class HentDokumentTilgangMapper {
 				}
 				return tilgangJournalpostDto.getMottakskanal().getSafKanal();
 			case U:
+				// utsendingskanal returneres ikke fra grensesnitt. Dette er en workaround for lokal utskrift
+				// Dvs brevet er printet ut av saksbehandler lokalt og skannet inn hos skanning leverandør.
 				if (tilgangJournalpostDto.getMottakskanal() == null) {
 					return mapManglendeUtsendingskanal(tilgangJournalpostDto);
 				}

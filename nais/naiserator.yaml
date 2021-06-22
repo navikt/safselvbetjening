@@ -27,10 +27,12 @@ spec:
       value: {{SAFSELVBETJENING_PROXY_HOST}}
     - name: SAFSELVBETJENING_PROXY_PORT
       value: "{{SAFSELVBETJENING_PROXY_PORT}}"
+    - name: APPD_NAME
+      value: {{APPD_NAME}}
   ingresses:
     {{#each INGRESSES}}
-       - {{this}}
-      {{/each}}
+      - {{this}}
+    {{/each}}
   image: {{image}}
   liveness:
     path: /isAlive
@@ -60,6 +62,8 @@ spec:
     paths:
       - kvPath: {{SERVICEUSER_VAULT_PATH}}
         mountPath: "/secrets/serviceuser/srvsafselvbetjening"
+      - kvPath: {{APPDYNAMICS}}
+        mountPath: /var/run/secrets/nais.io/appdynamics
   azure:
     application:
       enabled: true

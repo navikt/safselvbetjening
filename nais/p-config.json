@@ -12,6 +12,8 @@
   "SAFSELVBETJENING_PROXY_HOST": "webproxy.nais",
   "SAFSELVBETJENING_PROXY_PORT": "8088",
   "GCP_CLUSTER": "prod-gcp",
+  "APPDYNAMICS": "/apikey/appdynamics/prod",
+  "APPD_NAME": "safselvbetjening",
   "INGRESSES": [
     "https://safselvbetjening.nais.adeo.no",
     "https://safselvbetjening.prod-fss-pub.nais.io"

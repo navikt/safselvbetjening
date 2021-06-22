@@ -1,5 +1,6 @@
 package no.nav.safselvbetjening.service;
 
+import lombok.Getter;
 import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
 
 import java.util.ArrayList;
@@ -12,6 +13,10 @@ import java.util.stream.Stream;
  * @author Joakim Bjørnstad, Jbit AS
  */
 public class BrukerIdenter {
+    @Getter
+    private String aktivAktoerId;
+    @Getter
+    private String aktivFolkeregisterident;
     private final List<String> aktoerIds = new ArrayList<>();
     private final List<String> foedselsnummer = new ArrayList<>();
 
@@ -19,9 +24,15 @@ public class BrukerIdenter {
         for(PdlResponse.PdlIdent pdlIdent : pdlIdenter) {
             switch(pdlIdent.getGruppe()) {
                 case AKTORID:
+                    if(!pdlIdent.isHistorisk()) {
+                        this.aktivAktoerId = pdlIdent.getIdent();
+                    }
                     this.aktoerIds.add(pdlIdent.getIdent());
                     break;
                 case FOLKEREGISTERIDENT:
+                    if(!pdlIdent.isHistorisk()) {
+                        this.aktivFolkeregisterident = pdlIdent.getIdent();
+                    }
                     this.foedselsnummer.add(pdlIdent.getIdent());
                     break;
                 default:

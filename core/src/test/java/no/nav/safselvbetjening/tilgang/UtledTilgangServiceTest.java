@@ -328,6 +328,14 @@ class UtledTilgangServiceTest {
 		assertSkannetDokument(SKAN_PEN);
 	}
 
+	//	2b - Bruker får ikke se skannede dokumenter - lokal utskrift - journalposttype U - mottakskanal satt
+	@Test
+	void shouldReturnTrueWhenSkannetDokumentAndLokalUtskrift() {
+		assertSkannetDokumentLokalUtskrift(SKAN_IM);
+		assertSkannetDokumentLokalUtskrift(SKAN_NETS);
+		assertSkannetDokumentLokalUtskrift(SKAN_PEN);
+	}
+
 	//	2d - Dokumenter markert som innskrenketPartsinnsyn skal ikke vises
 	@Test
 	void shouldReturnTrueWhenDokumentIsInnskrenketpartsinnsyn() {
@@ -364,6 +372,21 @@ class UtledTilgangServiceTest {
 	private void assertSkannetDokument(final Kanal kanal) {
 		Journalpost journalpost = baseJournalfoertJournalpost()
 				.kanal(kanal)
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.mottakskanal(kanal)
+						.build())
+				.build();
+		boolean ironMountainActual = utledTilgangService.isSkannetDokument(journalpost);
+		assertThat(ironMountainActual).isTrue();
+	}
+
+	private void assertSkannetDokumentLokalUtskrift(final Kanal kanal) {
+		Journalpost journalpost = baseJournalfoertJournalpost()
+				.journalposttype(Journalposttype.U)
+				.kanal(kanal)
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.mottakskanal(kanal)
+						.build())
 				.build();
 		boolean ironMountainActual = utledTilgangService.isSkannetDokument(journalpost);
 		assertThat(ironMountainActual).isTrue();

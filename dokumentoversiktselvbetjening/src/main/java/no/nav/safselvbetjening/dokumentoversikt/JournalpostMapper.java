@@ -5,6 +5,7 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
@@ -83,11 +84,19 @@ public class JournalpostMapper {
 		return Journalpost.TilgangJournalpost.builder()
 				.datoOpprettet(mapDato(journalpostDto.getDatoOpprettet()))
 				.fagomradeCode(journalpostDto.getFagomrade().toString())
+				.mottakskanal(mapTilgangMottakskanal(journalpostDto.getMottakskanal()))
 				.journalfoertDato(mapDato(journalpostDto.getJournalDato()))
 				.skjerming(mapSkjermingType(journalpostDto.getSkjerming()))
 				.tilgangBruker(Journalpost.TilgangBruker.builder().brukerId(brukerId).build())
 				.tilgangSak(mapTilgangSak(journalpostDto.getSaksrelasjon(), brukerIdenter))
 				.build();
+	}
+
+	private Kanal mapTilgangMottakskanal(MottaksKanalCode mottakskanal) {
+		if(mottakskanal == null) {
+			return null;
+		}
+		return mottakskanal.getSafKanal();
 	}
 
 	private LocalDateTime mapDato(Date dato) {
