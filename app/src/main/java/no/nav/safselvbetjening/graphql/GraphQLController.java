@@ -53,15 +53,15 @@ public class GraphQLController {
 	@PostMapping(value = "/graphql", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Map<String, Object> graphQLRequest(@RequestBody final GraphQLRequest request, final WebRequest webRequest) {
-			ExecutionResult executionResult =
-					GraphQL.newGraphQL(graphQLSchema).build()
-							.execute(ExecutionInput.newExecutionInput()
-									.query(request.getQuery())
-									.operationName(request.getOperationName())
-									.variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
-									.context(createGraphQLContext(webRequest))
-									.build());
-			return executionResult.toSpecification();
+		ExecutionResult executionResult =
+				GraphQL.newGraphQL(graphQLSchema).build()
+						.execute(ExecutionInput.newExecutionInput()
+								.query(request.getQuery())
+								.operationName(request.getOperationName())
+								.variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
+								.context(createGraphQLContext(webRequest))
+								.build());
+		return executionResult.toSpecification();
 	}
 
 	GraphQLRequestContext createGraphQLContext(final WebRequest webRequest) {

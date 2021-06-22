@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static no.nav.safselvbetjening.MDCUtils.MDC_CALL_ID;
+import static no.nav.safselvbetjening.MDCUtils.MDC_CONSUMER_ID;
+import static no.nav.safselvbetjening.MDCUtils.getConsumerIdFromToken;
 import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
 import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -46,6 +48,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		try {
 			final GraphQLRequestContext graphQLRequestContext = environment.getContext();
 			MDC.put(MDC_CALL_ID, graphQLRequestContext.getNavCallId());
+			MDC.put(MDC_CONSUMER_ID, getConsumerIdFromToken(graphQLRequestContext.getTokenValidationContext()));
 			final String ident = environment.getArgument("ident");
 			validateIdent(ident, environment);
 			validateTokenIdent(ident, environment);
