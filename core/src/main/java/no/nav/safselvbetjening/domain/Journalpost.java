@@ -30,7 +30,7 @@ public class Journalpost {
 	public static class TilgangJournalpost {
 		private final LocalDateTime datoOpprettet;
 		private final LocalDateTime journalfoertDato;
-		private final String fagomradeCode;
+		private final String tema;
 		private final Kanal mottakskanal;
 		private final String avsenderMottakerId;
 		private final SkjermingType skjerming;

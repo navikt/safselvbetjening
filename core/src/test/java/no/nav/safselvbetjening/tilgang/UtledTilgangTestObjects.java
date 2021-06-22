@@ -51,7 +51,7 @@ public class UtledTilgangTestObjects {
 								.brukerId(IDENT)
 								.build())
 						.datoOpprettet(LocalDateTime.now())
-						.fagomradeCode(TEMA_DAGPENGER)
+						.tema(TEMA_DAGPENGER)
 						.journalfoertDato(LocalDateTime.now())
 						.tilgangSak(Journalpost.TilgangSak.builder()
 								.aktoerId(AKTOER_ID)
@@ -89,7 +89,7 @@ public class UtledTilgangTestObjects {
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.tilgangBruker(null)
 						.datoOpprettet(LocalDateTime.now())
-						.fagomradeCode(TEMA_DAGPENGER)
+						.tema(TEMA_DAGPENGER)
 						.journalfoertDato(null)
 						.tilgangSak(null)
 						.build());

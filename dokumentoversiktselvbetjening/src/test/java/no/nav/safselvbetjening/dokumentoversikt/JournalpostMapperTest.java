@@ -178,7 +178,7 @@ class JournalpostMapperTest {
 	void shouldMapTilgangsfeltWhenJournalfoert() {
 		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoInngaaendeType(), createBrukerIdenter());
 		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
-		assertThat(tilgangJournalpost.getFagomradeCode()).isEqualTo(FagomradeCode.FOR.name());
+		assertThat(tilgangJournalpost.getTema()).isEqualTo(FagomradeCode.FOR.name());
 		assertThat(tilgangJournalpost.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(tilgangJournalpost.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET_LDT);
 		assertThat(tilgangJournalpost.getJournalfoertDato()).isEqualTo(JOURNAL_DATO_LDT);

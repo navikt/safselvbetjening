@@ -61,7 +61,7 @@ public class HentDokumentTilgangMapper {
 		return Journalpost.TilgangJournalpost.builder()
 				.datoOpprettet(tilgangJournalpostDto.getDatoOpprettet())
 				.mottakskanal(mapTilgangMottakskanal(tilgangJournalpostDto.getMottakskanal()))
-				.fagomradeCode(tilgangJournalpostDto.getFagomrade() == null ? null : tilgangJournalpostDto.getFagomrade().toString())
+				.tema(tilgangJournalpostDto.getFagomrade() == null ? null : tilgangJournalpostDto.getFagomrade().name())
 				.avsenderMottakerId(tilgangJournalpostDto.getAvsenderMottakerId())
 				.journalfoertDato(tilgangJournalpostDto.getJournalfoertDato())
 				.skjerming(mapSkjermingType(tilgangJournalpostDto.getSkjerming()))

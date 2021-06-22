@@ -82,7 +82,7 @@ public class JournalpostMapper {
 
 		return Journalpost.TilgangJournalpost.builder()
 				.datoOpprettet(mapDato(journalpostDto.getDatoOpprettet()))
-				.fagomradeCode(journalpostDto.getFagomrade().toString())
+				.tema(journalpostDto.getFagomrade() == null ? null : journalpostDto.getFagomrade().name())
 				.mottakskanal(mapTilgangMottakskanal(journalpostDto.getMottakskanal()))
 				.avsenderMottakerId(journalpostDto.getAvsenderMottakerId())
 				.journalfoertDato(mapDato(journalpostDto.getJournalDato()))

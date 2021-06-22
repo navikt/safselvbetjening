@@ -206,11 +206,11 @@ public class UtledTilgangService {
 		if (journalstatus != null) {
 			Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 			if (MOTTATT.equals(journalstatus)) {
-				return !FagomradeCode.KTR.toString().equals(tilgang.getFagomradeCode());
+				return !FagomradeCode.KTR.name().equals(tilgang.getTema());
 			} else if (tilgang.getTilgangSak() != null && JOURNALSTATUS_FERDIGSTILT.contains(journalstatus)) {
-				return !Tema.KTR.toString().equals(tilgang.getTilgangSak().getTema());
+				return !Tema.KTR.name().equals(tilgang.getTilgangSak().getTema());
 			} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) && tilgang.getTilgangSak() == null) {
-				return !FagomradeCode.KTR.toString().equals(tilgang.getFagomradeCode());
+				return !FagomradeCode.KTR.toString().equals(tilgang.getTema());
 			}
 		}
 		return true;
