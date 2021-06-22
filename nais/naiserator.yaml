@@ -85,6 +85,3 @@ spec:
         - application: sif-innsyn-api
           namespace: dusseldorf
           cluster: {{GCP_CLUSTER}}
-        - application: sif-innsyn-api
-          namespace: dusseldorf
-          cluster: {{GCP_CLUSTER}}
