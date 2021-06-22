@@ -41,7 +41,7 @@ public class UtledTilgangTestObjects {
 				.journalstatus(Journalstatus.JOURNALFOERT)
 				.kanal(Kanal.NAV_NO)
 				.journalposttype(Journalposttype.I)
-				.avsenderMottaker(AvsenderMottaker.builder()
+				.avsender(AvsenderMottaker.builder()
 						.id(IDENT)
 						.type(AvsenderMottakerIdType.FNR)
 						.build())

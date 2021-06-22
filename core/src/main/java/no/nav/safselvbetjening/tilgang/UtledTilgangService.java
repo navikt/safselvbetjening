@@ -3,7 +3,6 @@ package no.nav.safselvbetjening.tilgang;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
-import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -253,9 +252,10 @@ public class UtledTilgangService {
 	 * 2a) Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	 */
 	boolean isAvsenderMottakerNotPart(Journalpost journalpost, List<String> idents) {
-		AvsenderMottaker avsenderMottaker = journalpost.getAvsenderMottaker();
-		if (journalpost.getJournalposttype() != N && avsenderMottaker != null && avsenderMottaker.getId() != null) {
-			return !idents.contains(avsenderMottaker.getId());
+		final Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
+		final String avsenderMottakerId = tilgangJournalpost.getAvsenderMottakerId();
+		if (journalpost.getJournalposttype() != N && avsenderMottakerId != null) {
+			return !idents.contains(avsenderMottakerId);
 		}
 		return false;
 	}

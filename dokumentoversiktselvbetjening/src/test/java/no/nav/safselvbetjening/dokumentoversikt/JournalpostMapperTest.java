@@ -78,8 +78,6 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getJournalposttype()).isEqualTo(I);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(JOURNALFOERT);
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.NAV_NO);
-		assertThat(journalpost.getAvsenderMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
-		assertThat(journalpost.getAvsenderMottaker().getType()).isEqualTo(FNR);
 		assertThat(journalpost.getAvsender().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(journalpost.getAvsender().getType()).isEqualTo(FNR);
 		assertThat(journalpost.getMottaker()).isNull();
@@ -111,8 +109,6 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getJournalposttype()).isEqualTo(U);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(EKSPEDERT);
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.SDP);
-		assertThat(journalpost.getAvsenderMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
-		assertThat(journalpost.getAvsenderMottaker().getType()).isEqualTo(FNR);
 		assertThat(journalpost.getMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(journalpost.getMottaker().getType()).isEqualTo(FNR);
 		assertThat(journalpost.getAvsender()).isNull();
@@ -147,8 +143,6 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getJournalposttype()).isEqualTo(N);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(EKSPEDERT);
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.INGEN_DISTRIBUSJON);
-		assertThat(journalpost.getAvsenderMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
-		assertThat(journalpost.getAvsenderMottaker().getType()).isEqualTo(FNR);
 		assertThat(journalpost.getMottaker()).isNull();
 		assertThat(journalpost.getAvsender()).isNull();
 		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
@@ -185,6 +179,7 @@ class JournalpostMapperTest {
 		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoInngaaendeType(), createBrukerIdenter());
 		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 		assertThat(tilgangJournalpost.getFagomradeCode()).isEqualTo(FagomradeCode.FOR.name());
+		assertThat(tilgangJournalpost.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(tilgangJournalpost.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET_LDT);
 		assertThat(tilgangJournalpost.getJournalfoertDato()).isEqualTo(JOURNAL_DATO_LDT);
 		assertThat(tilgangJournalpost.getSkjerming()).isEqualTo(SkjermingType.POL);

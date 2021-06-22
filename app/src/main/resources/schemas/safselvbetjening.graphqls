@@ -43,9 +43,6 @@ type Journalpost {
     # * Journalposter som er resultat av en feilsituasjon og ikke skal hensyntas for saksbehandling har egne koder, som UTGAAR eller AVBRUTT.
     journalstatus: Journalstatus
 
-    # Personen eller organisasjonen som er avsender eller mottaker av dokumentene i journalposten.
-    avsenderMottaker: AvsenderMottaker @deprecated(reason: "Feltet er deprekert og vil bli fjernet i nær fremtid. Bruk avsender eller mottaker i stedet.")
-
     # Personen eller organisasjonen som er avsender av dokumentene i journalposten.
     avsender: AvsenderMottaker
 
@@ -126,7 +123,6 @@ type Dokumentvariant {
 
     code: [String]!
 }
-
 
 # Sier hvorvidt journalposten er et inngående dokument, et utgående dokument eller et notat.
 enum Journalposttype {

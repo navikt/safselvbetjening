@@ -49,7 +49,7 @@ class HentDokumentTilgangMapperTest {
 		Journalpost journalpost = mapper.map(createTilgangJournalpostDto().build(), createBrukerIdenter());
 
 		assertEquals(JOURNALPOST_ID, journalpost.getJournalpostId());
-		assertEquals(AVSENDER_MOTTAKER_ID, journalpost.getAvsenderMottaker().getId());
+		assertEquals(AVSENDER_MOTTAKER_ID, journalpost.getTilgang().getAvsenderMottakerId());
 		assertEquals(I, journalpost.getJournalposttype());
 		assertEquals(MOTTATT, journalpost.getJournalstatus());
 		assertEquals(NAV_NO, journalpost.getKanal());
@@ -87,7 +87,7 @@ class HentDokumentTilgangMapperTest {
 		Journalpost journalpost = mapper.map(build, createBrukerIdenter());
 
 		assertEquals(JOURNALPOST_ID, journalpost.getJournalpostId());
-		assertEquals(AVSENDER_MOTTAKER_ID, journalpost.getAvsenderMottaker().getId());
+		assertEquals(AVSENDER_MOTTAKER_ID, journalpost.getTilgang().getAvsenderMottakerId());
 		assertEquals(I, journalpost.getJournalposttype());
 		assertEquals(MOTTATT, journalpost.getJournalstatus());
 		assertEquals(NAV_NO, journalpost.getKanal());
