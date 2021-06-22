@@ -3,7 +3,6 @@ package no.nav.safselvbetjening.tilgang;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
-import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -207,11 +206,11 @@ public class UtledTilgangService {
 		if (journalstatus != null) {
 			Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 			if (MOTTATT.equals(journalstatus)) {
-				return !FagomradeCode.KTR.toString().equals(tilgang.getFagomradeCode());
+				return !FagomradeCode.KTR.name().equals(tilgang.getTema());
 			} else if (tilgang.getTilgangSak() != null && JOURNALSTATUS_FERDIGSTILT.contains(journalstatus)) {
-				return !Tema.KTR.toString().equals(tilgang.getTilgangSak().getTema());
+				return !Tema.KTR.name().equals(tilgang.getTilgangSak().getTema());
 			} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) && tilgang.getTilgangSak() == null) {
-				return !FagomradeCode.KTR.toString().equals(tilgang.getFagomradeCode());
+				return !FagomradeCode.KTR.toString().equals(tilgang.getTema());
 			}
 		}
 		return true;
@@ -253,9 +252,10 @@ public class UtledTilgangService {
 	 * 2a) Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	 */
 	boolean isAvsenderMottakerNotPart(Journalpost journalpost, List<String> idents) {
-		AvsenderMottaker avsenderMottaker = journalpost.getAvsenderMottaker();
-		if (journalpost.getJournalposttype() != N && avsenderMottaker != null && avsenderMottaker.getId() != null) {
-			return !idents.contains(avsenderMottaker.getId());
+		final Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
+		final String avsenderMottakerId = tilgangJournalpost.getAvsenderMottakerId();
+		if (journalpost.getJournalposttype() != N && avsenderMottakerId != null) {
+			return !idents.contains(avsenderMottakerId);
 		}
 		return false;
 	}
@@ -264,8 +264,9 @@ public class UtledTilgangService {
 	 * 2b) Bruker får ikke se skannede dokumenter
 	 */
 	boolean isSkannetDokument(Journalpost journalpost) {
-		if (journalpost.getTilgang().getMottakskanal() != null) {
-			return MOTTAKS_KANAL_SKAN.contains(journalpost.getKanal());
+		Kanal mottakskanal = journalpost.getTilgang().getMottakskanal();
+		if (mottakskanal != null) {
+			return MOTTAKS_KANAL_SKAN.contains(mottakskanal);
 		}
 		return false;
 	}

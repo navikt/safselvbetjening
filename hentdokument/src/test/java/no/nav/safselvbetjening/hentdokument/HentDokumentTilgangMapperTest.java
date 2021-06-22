@@ -49,7 +49,7 @@ class HentDokumentTilgangMapperTest {
 		Journalpost journalpost = mapper.map(createTilgangJournalpostDto().build(), createBrukerIdenter());
 
 		assertEquals(JOURNALPOST_ID, journalpost.getJournalpostId());
-		assertEquals(AVSENDER_MOTTAKER_ID, journalpost.getAvsenderMottaker().getId());
+		assertEquals(AVSENDER_MOTTAKER_ID, journalpost.getTilgang().getAvsenderMottakerId());
 		assertEquals(I, journalpost.getJournalposttype());
 		assertEquals(MOTTATT, journalpost.getJournalstatus());
 		assertEquals(NAV_NO, journalpost.getKanal());
@@ -57,7 +57,7 @@ class HentDokumentTilgangMapperTest {
 		Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 		assertEquals(DATO_OPPRETTET, tilgang.getDatoOpprettet());
 		assertEquals(DATO_JOURNALFOERT, tilgang.getJournalfoertDato());
-		assertEquals(PEN.toString(), tilgang.getFagomradeCode());
+		assertEquals(PEN.toString(), tilgang.getTema());
 		assertEquals(SkjermingType.POL, tilgang.getSkjerming());
 		assertEquals(IDENT, tilgang.getTilgangBruker().getBrukerId());
 		assertEquals(NAV_NO, tilgang.getMottakskanal());
@@ -87,7 +87,7 @@ class HentDokumentTilgangMapperTest {
 		Journalpost journalpost = mapper.map(build, createBrukerIdenter());
 
 		assertEquals(JOURNALPOST_ID, journalpost.getJournalpostId());
-		assertEquals(AVSENDER_MOTTAKER_ID, journalpost.getAvsenderMottaker().getId());
+		assertEquals(AVSENDER_MOTTAKER_ID, journalpost.getTilgang().getAvsenderMottakerId());
 		assertEquals(I, journalpost.getJournalposttype());
 		assertEquals(MOTTATT, journalpost.getJournalstatus());
 		assertEquals(NAV_NO, journalpost.getKanal());
@@ -95,7 +95,7 @@ class HentDokumentTilgangMapperTest {
 		Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 		assertEquals(DATO_OPPRETTET, tilgang.getDatoOpprettet());
 		assertEquals(DATO_JOURNALFOERT, tilgang.getJournalfoertDato());
-		assertEquals(PEN.toString(), tilgang.getFagomradeCode());
+		assertEquals(PEN.toString(), tilgang.getTema());
 		assertEquals(SkjermingType.POL, tilgang.getSkjerming());
 		assertEquals(IDENT, tilgang.getTilgangBruker().getBrukerId());
 

@@ -11,6 +11,7 @@ import no.nav.safselvbetjening.hentdokument.HentdokumentRequest;
 import no.nav.safselvbetjening.hentdokument.HentdokumentRequestException;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.security.token.support.core.api.Protected;
+import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +27,8 @@ import org.springframework.web.server.ResponseStatusException;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CALL_ID;
+import static no.nav.safselvbetjening.MDCUtils.MDC_CONSUMER_ID;
+import static no.nav.safselvbetjening.MDCUtils.getConsumerIdFromToken;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -56,12 +59,14 @@ public class HentDokumentController {
 			@RequestHeader(value = NAV_CALLID, required = false) String navCallid) {
 		log.info("hentdokument har mottatt kall. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
 		try {
+			final TokenValidationContext tokenValidationContext = tokenValidationContextHolder.getTokenValidationContext();
 			MDC.put(MDC_CALL_ID, isNotBlank(navCallid) ? navCallid : randomUUID().toString());
+			MDC.put(MDC_CONSUMER_ID, getConsumerIdFromToken(tokenValidationContext));
 			HentdokumentRequest request = HentdokumentRequest.builder()
 					.journalpostId(journalpostId)
 					.dokumentInfoId(dokumentInfoId)
 					.variantFormat(variantFormat)
-					.tokenValidationContext(tokenValidationContextHolder.getTokenValidationContext())
+					.tokenValidationContext(tokenValidationContext)
 					.build();
 			HentDokument response = hentDokumentService.hentDokument(request);
 			log.info("hentDokument hentet dokument. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);

@@ -16,8 +16,6 @@ public class Journalpost {
 	private final String tittel;
 	private final Journalposttype journalposttype;
 	private final Journalstatus journalstatus;
-	@Deprecated
-	private final AvsenderMottaker avsenderMottaker;
 	private final AvsenderMottaker avsender;
 	private final AvsenderMottaker mottaker;
 	private final Kanal kanal;
@@ -32,8 +30,9 @@ public class Journalpost {
 	public static class TilgangJournalpost {
 		private final LocalDateTime datoOpprettet;
 		private final LocalDateTime journalfoertDato;
-		private final String fagomradeCode;
+		private final String tema;
 		private final Kanal mottakskanal;
+		private final String avsenderMottakerId;
 		private final SkjermingType skjerming;
 		private final TilgangSak tilgangSak;
 		private final TilgangBruker tilgangBruker;

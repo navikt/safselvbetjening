@@ -1,7 +1,6 @@
 package no.nav.safselvbetjening.tilgang;
 
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
-import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -16,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
-import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_IM;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_NETS;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_PEN;
@@ -65,7 +63,7 @@ class UtledTilgangServiceTest {
 								.brukerId(IDENT)
 								.build())
 						.datoOpprettet(LocalDateTime.now())
-						.fagomradeCode(TEMA_DAGPENGER)
+						.tema(TEMA_DAGPENGER)
 						.build())
 				.build();
 		boolean brukerPart = utledTilgangService.isBrukerPart(journalpost, defaultBrukerIdenter());
@@ -82,7 +80,7 @@ class UtledTilgangServiceTest {
 								.brukerId(ANNEN_PART)
 								.build())
 						.datoOpprettet(LocalDateTime.now())
-						.fagomradeCode(TEMA_DAGPENGER)
+						.tema(TEMA_DAGPENGER)
 						.build())
 				.build();
 		boolean brukerPart = utledTilgangService.isBrukerPart(journalpost, defaultBrukerIdenter());
@@ -106,7 +104,7 @@ class UtledTilgangServiceTest {
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.tilgangBruker(null)
 						.datoOpprettet(LocalDateTime.now())
-						.fagomradeCode(TEMA_PENSJON)
+						.tema(TEMA_PENSJON)
 						.journalfoertDato(LocalDateTime.now())
 						.tilgangSak(Journalpost.TilgangSak.builder()
 								.foedselsnummer(IDENT)
@@ -129,7 +127,7 @@ class UtledTilgangServiceTest {
 								.brukerId(ANNEN_PART)
 								.build())
 						.datoOpprettet(LocalDateTime.now())
-						.fagomradeCode(TEMA_DAGPENGER)
+						.tema(TEMA_DAGPENGER)
 						.journalfoertDato(LocalDateTime.now())
 						.tilgangSak(Journalpost.TilgangSak.builder()
 								.aktoerId(ANNEN_AKTOER_ID)
@@ -153,7 +151,7 @@ class UtledTilgangServiceTest {
 								.brukerId(ANNEN_PART)
 								.build())
 						.datoOpprettet(LocalDateTime.now())
-						.fagomradeCode(TEMA_PENSJON)
+						.tema(TEMA_PENSJON)
 						.journalfoertDato(LocalDateTime.now())
 						.tilgangSak(Journalpost.TilgangSak.builder()
 								.fagsystem(ARKIVSAKSYSTEM_PENSJON)
@@ -221,7 +219,7 @@ class UtledTilgangServiceTest {
 		Journalpost journalpost = baseMottattJournalpost()
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.datoOpprettet(LocalDateTime.now())
-						.fagomradeCode(TEMA_KONTROLL)
+						.tema(TEMA_KONTROLL)
 						.build())
 				.build();
 		boolean actual = utledTilgangService.isJournalpostNotKontrollsak(journalpost);
@@ -235,7 +233,7 @@ class UtledTilgangServiceTest {
 		Journalpost journalpost = baseJournalfoertJournalpost()
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.datoOpprettet(LocalDateTime.now())
-						.fagomradeCode(TEMA_KONTROLL)
+						.tema(TEMA_KONTROLL)
 						.tilgangSak(Journalpost.TilgangSak.builder()
 								.aktoerId(AKTOER_ID)
 								.fagsystem(ARKIVSAKSYSTEM_GOSYS)
@@ -255,7 +253,7 @@ class UtledTilgangServiceTest {
 		Journalpost journalpost = baseJournalfoertJournalpost()
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.datoOpprettet(LocalDateTime.now())
-						.fagomradeCode(TEMA_KONTROLL)
+						.tema(TEMA_KONTROLL)
 						.build())
 				.build();
 		boolean actual = utledTilgangService.isJournalpostNotKontrollsak(journalpost);
@@ -311,10 +309,7 @@ class UtledTilgangServiceTest {
 	@Test
 	void shouldReturnTrueWhenAvsenderMottakerIdIsAnnenPart() {
 		Journalpost journalpost = baseJournalfoertJournalpost()
-				.avsenderMottaker(AvsenderMottaker.builder()
-						.id(ANNEN_PART)
-						.type(FNR)
-						.build())
+				.tilgang(Journalpost.TilgangJournalpost.builder().avsenderMottakerId(ANNEN_PART).build())
 				.build();
 		boolean actual = utledTilgangService.isAvsenderMottakerNotPart(journalpost, defaultBrukerIdenter().getIdenter());
 		assertThat(actual).isTrue();

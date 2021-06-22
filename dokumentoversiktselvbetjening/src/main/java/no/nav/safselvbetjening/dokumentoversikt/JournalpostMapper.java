@@ -65,7 +65,6 @@ public class JournalpostMapper {
 					.journalstatus(journalpostDto.getJournalstatus().toSafJournalstatus())
 					.tittel(journalpostDto.getInnhold())
 					.kanal(mapKanal(journalpostDto))
-					.avsenderMottaker(avsenderMottakerMapper.map(journalpostDto))
 					.avsender(JournalpostTypeCode.I == journalpostDto.getJournalposttype() ? avsenderMottakerMapper.map(journalpostDto) : null)
 					.mottaker(JournalpostTypeCode.U == journalpostDto.getJournalposttype() ? avsenderMottakerMapper.map(journalpostDto) : null)
 					.relevanteDatoer(mapRelevanteDatoer(journalpostDto))
@@ -83,8 +82,9 @@ public class JournalpostMapper {
 
 		return Journalpost.TilgangJournalpost.builder()
 				.datoOpprettet(mapDato(journalpostDto.getDatoOpprettet()))
-				.fagomradeCode(journalpostDto.getFagomrade().toString())
+				.tema(journalpostDto.getFagomrade() == null ? null : journalpostDto.getFagomrade().name())
 				.mottakskanal(mapTilgangMottakskanal(journalpostDto.getMottakskanal()))
+				.avsenderMottakerId(journalpostDto.getAvsenderMottakerId())
 				.journalfoertDato(mapDato(journalpostDto.getJournalDato()))
 				.skjerming(mapSkjermingType(journalpostDto.getSkjerming()))
 				.tilgangBruker(Journalpost.TilgangBruker.builder().brukerId(brukerId).build())

@@ -8,7 +8,6 @@ import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangDokum
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangSakDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangVariantDto;
-import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -25,7 +24,6 @@ public class HentDokumentTilgangMapper {
 	public Journalpost map(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter) {
 		return Journalpost.builder()
 				.journalpostId(tilgangJournalpostDto.getJournalpostId())
-				.avsenderMottaker(AvsenderMottaker.builder().id(tilgangJournalpostDto.getAvsenderMottakerId()).build())
 				.journalposttype(tilgangJournalpostDto.getJournalpostType() == null ? null : tilgangJournalpostDto.getJournalpostType().toSafJournalposttype())
 				.journalstatus(tilgangJournalpostDto.getJournalStatus() == null ? null : tilgangJournalpostDto.getJournalStatus().toSafJournalstatus())
 				.kanal(mapKanal(tilgangJournalpostDto))
@@ -63,7 +61,8 @@ public class HentDokumentTilgangMapper {
 		return Journalpost.TilgangJournalpost.builder()
 				.datoOpprettet(tilgangJournalpostDto.getDatoOpprettet())
 				.mottakskanal(mapTilgangMottakskanal(tilgangJournalpostDto.getMottakskanal()))
-				.fagomradeCode(tilgangJournalpostDto.getFagomrade() == null ? null : tilgangJournalpostDto.getFagomrade().toString())
+				.tema(tilgangJournalpostDto.getFagomrade() == null ? null : tilgangJournalpostDto.getFagomrade().name())
+				.avsenderMottakerId(tilgangJournalpostDto.getAvsenderMottakerId())
 				.journalfoertDato(tilgangJournalpostDto.getJournalfoertDato())
 				.skjerming(mapSkjermingType(tilgangJournalpostDto.getSkjerming()))
 				.tilgangBruker(mapTilgangBruker(tilgangJournalpostDto.getBruker()))
