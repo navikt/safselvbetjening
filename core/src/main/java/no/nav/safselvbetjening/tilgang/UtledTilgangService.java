@@ -264,8 +264,9 @@ public class UtledTilgangService {
 	 * 2b) Bruker får ikke se skannede dokumenter
 	 */
 	boolean isSkannetDokument(Journalpost journalpost) {
-		if (journalpost.getTilgang().getMottakskanal() != null) {
-			return MOTTAKS_KANAL_SKAN.contains(journalpost.getKanal());
+		Kanal mottakskanal = journalpost.getTilgang().getMottakskanal();
+		if (mottakskanal != null) {
+			return MOTTAKS_KANAL_SKAN.contains(mottakskanal);
 		}
 		return false;
 	}
