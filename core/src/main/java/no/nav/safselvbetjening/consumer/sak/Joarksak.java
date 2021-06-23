@@ -7,10 +7,10 @@ import lombok.Value;
 
 import java.time.OffsetDateTime;
 
-@JsonDeserialize(builder = Arkivsak.ArkivsakBuilder.class)
+@JsonDeserialize(builder = Joarksak.JoarksakBuilder.class)
 @Value
 @Builder
-public class Arkivsak {
+public class Joarksak {
 	private final Integer id;
 	private final String tema;
 	private final String applikasjon;
@@ -21,7 +21,7 @@ public class Arkivsak {
 	private final OffsetDateTime opprettetTidspunkt;
 
 	@JsonPOJOBuilder(withPrefix = "")
-	public static class ArkivsakBuilder {
+	public static class JoarksakBuilder {
 
 	}
 }

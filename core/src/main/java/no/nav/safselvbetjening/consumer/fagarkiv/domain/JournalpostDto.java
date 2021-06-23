@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 /**
  * @author Joakim Bjørnstad, Jbit AS
  */
@@ -51,7 +53,7 @@ public class JournalpostDto {
 	private String kanalReferanseId;
 
 	public boolean isTilknyttetSak() {
-		return saksrelasjon != null && saksrelasjon.getSakId() != null;
+		return saksrelasjon != null && !isBlank(saksrelasjon.getSakId());
 	}
 
 	public boolean isMidlertidig() {

@@ -28,11 +28,16 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ARKIVSAKSYSTEM_GOSYS;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ARKIVSAKSYSTEM_PENSJON;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVSENDER_MOTTAKER_ID;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVS_RETUR_DATO;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.BREVKODE;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.BRUKER_ID_PERSON;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.DATO_OPPRETTET;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.DATO_OPPRETTET_LDT;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.DOKUMENT_DATO;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.DOKUMENT_INFO_ID;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.EKSPEDERT_DATO;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FAGSAK_APPLIKASJON;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FAGSAK_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILSTORRELSE_1;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILSTORRELSE_2;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.FILTYPE;
@@ -45,6 +50,9 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.JOURNAL_DATO_LDT;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.KATEGORI;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.MOTTAT_DATO;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.PENSJON_SAKID;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.PENSJON_TEMA;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.SENDT_PRINT_DATO;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.TITTEL;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.baseJournalpostDto;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildDokumentWithVarianter;
@@ -53,6 +61,8 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoNotatType;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoUtgaaendeType;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.createBrukerIdenter;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.createSaker;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostMapper.FAGSYSTEM_PENSJON;
 import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
 import static no.nav.safselvbetjening.domain.Journalposttype.I;
 import static no.nav.safselvbetjening.domain.Journalposttype.N;
@@ -72,9 +82,8 @@ class JournalpostMapperTest {
 
 	@Test
 	void shouldMapVisningsfeltWhenInngaaende() {
-		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoInngaaendeType(), createBrukerIdenter());
-		assertThat(journalpost.getJournalpostId()).isEqualTo(JOURNALPOST_ID.toString());
-		assertThat(journalpost.getTittel()).isEqualTo(INNHOLD);
+		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoInngaaendeType(), createSaker(), createBrukerIdenter());
+		assertCommonFields(journalpost);
 		assertThat(journalpost.getJournalposttype()).isEqualTo(I);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(JOURNALFOERT);
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.NAV_NO);
@@ -85,27 +94,12 @@ class JournalpostMapperTest {
 				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),
 				new RelevantDato(JOURNAL_DATO, Datotype.DATO_JOURNALFOERT),
 				new RelevantDato(MOTTAT_DATO, Datotype.DATO_REGISTRERT)));
-		DokumentInfo dokumentInfo = journalpost.getDokumenter().get(0);
-		assertThat(dokumentInfo.getDokumentInfoId()).isEqualTo(DOKUMENT_INFO_ID.toString());
-		assertThat(dokumentInfo.getBrevkode()).isEqualTo(BREVKODE);
-		assertThat(dokumentInfo.getTittel()).isEqualTo(TITTEL);
-		Dokumentvariant arkivVariant = dokumentInfo.getDokumentvarianter().get(0);
-		assertThat(arkivVariant.getFiluuid()).isEqualTo(FILUUID_1);
-		assertThat(arkivVariant.getFiltype()).isEqualTo(FILTYPE);
-		assertThat(arkivVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_1));
-		assertThat(arkivVariant.getVariantformat()).isEqualTo(ARKIV);
-		Dokumentvariant sladdetVariant = dokumentInfo.getDokumentvarianter().get(1);
-		assertThat(sladdetVariant.getFiluuid()).isEqualTo(FILUUID_2);
-		assertThat(sladdetVariant.getFiltype()).isEqualTo(FILTYPE);
-		assertThat(sladdetVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_2));
-		assertThat(sladdetVariant.getVariantformat()).isEqualTo(SLADDET);
 	}
 
 	@Test
 	void shouldMapVisningsfeltWhenUtgaaende() {
-		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoUtgaaendeType(JournalStatusCode.E), createBrukerIdenter());
-		assertThat(journalpost.getJournalpostId()).isEqualTo(JOURNALPOST_ID.toString());
-		assertThat(journalpost.getTittel()).isEqualTo(INNHOLD);
+		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoUtgaaendeType(JournalStatusCode.E), createSaker(), createBrukerIdenter());
+		assertCommonFields(journalpost);
 		assertThat(journalpost.getJournalposttype()).isEqualTo(U);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(EKSPEDERT);
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.SDP);
@@ -115,31 +109,16 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
 				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),
 				new RelevantDato(JOURNAL_DATO, Datotype.DATO_JOURNALFOERT),
-				new RelevantDato(JournalpostDtoTestObjects.DOKUMENT_DATO, Datotype.DATO_DOKUMENT),
-				new RelevantDato(JournalpostDtoTestObjects.AVS_RETUR_DATO, Datotype.DATO_AVS_RETUR),
-				new RelevantDato(JournalpostDtoTestObjects.SENDT_PRINT_DATO, Datotype.DATO_SENDT_PRINT),
-				new RelevantDato(JournalpostDtoTestObjects.EKSPEDERT_DATO, Datotype.DATO_EKSPEDERT)));
-		DokumentInfo dokumentInfo = journalpost.getDokumenter().get(0);
-		assertThat(dokumentInfo.getDokumentInfoId()).isEqualTo(DOKUMENT_INFO_ID.toString());
-		assertThat(dokumentInfo.getBrevkode()).isEqualTo(BREVKODE);
-		assertThat(dokumentInfo.getTittel()).isEqualTo(TITTEL);
-		Dokumentvariant arkivVariant = dokumentInfo.getDokumentvarianter().get(0);
-		assertThat(arkivVariant.getFiluuid()).isEqualTo(FILUUID_1);
-		assertThat(arkivVariant.getFiltype()).isEqualTo(FILTYPE);
-		assertThat(arkivVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_1));
-		assertThat(arkivVariant.getVariantformat()).isEqualTo(ARKIV);
-		Dokumentvariant sladdetVariant = dokumentInfo.getDokumentvarianter().get(1);
-		assertThat(sladdetVariant.getFiluuid()).isEqualTo(FILUUID_2);
-		assertThat(sladdetVariant.getFiltype()).isEqualTo(FILTYPE);
-		assertThat(sladdetVariant.getFilstorrelse()).isEqualTo(parseInt(FILSTORRELSE_2));
-		assertThat(sladdetVariant.getVariantformat()).isEqualTo(SLADDET);
+				new RelevantDato(DOKUMENT_DATO, Datotype.DATO_DOKUMENT),
+				new RelevantDato(AVS_RETUR_DATO, Datotype.DATO_AVS_RETUR),
+				new RelevantDato(SENDT_PRINT_DATO, Datotype.DATO_SENDT_PRINT),
+				new RelevantDato(EKSPEDERT_DATO, Datotype.DATO_EKSPEDERT)));
 	}
 
 	@Test
 	void shouldMapVisningsfeltWhenNotat() {
-		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoNotatType(JournalStatusCode.E), createBrukerIdenter());
-		assertThat(journalpost.getJournalpostId()).isEqualTo(JOURNALPOST_ID.toString());
-		assertThat(journalpost.getTittel()).isEqualTo(INNHOLD);
+		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoNotatType(JournalStatusCode.E), createSaker(), createBrukerIdenter());
+		assertCommonFields(journalpost);
 		assertThat(journalpost.getJournalposttype()).isEqualTo(N);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(EKSPEDERT);
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.INGEN_DISTRIBUSJON);
@@ -148,7 +127,15 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
 				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),
 				new RelevantDato(JOURNAL_DATO, Datotype.DATO_JOURNALFOERT),
-				new RelevantDato(JournalpostDtoTestObjects.DOKUMENT_DATO, Datotype.DATO_DOKUMENT)));
+				new RelevantDato(DOKUMENT_DATO, Datotype.DATO_DOKUMENT)));
+	}
+
+	private void assertCommonFields(final Journalpost journalpost) {
+		assertThat(journalpost.getJournalpostId()).isEqualTo(JOURNALPOST_ID.toString());
+		assertThat(journalpost.getTittel()).isEqualTo(INNHOLD);
+		assertThat(journalpost.getTema()).isEqualTo(Tema.FOR.name());
+		assertThat(journalpost.getSak().getFagsakId()).isEqualTo(FAGSAK_ID);
+		assertThat(journalpost.getSak().getFagsaksystem()).isEqualTo(FAGSAK_APPLIKASJON);
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().get(0);
 		assertThat(dokumentInfo.getDokumentInfoId()).isEqualTo(DOKUMENT_INFO_ID.toString());
 		assertThat(dokumentInfo.getBrevkode()).isEqualTo(BREVKODE);
@@ -167,7 +154,7 @@ class JournalpostMapperTest {
 
 	@Test
 	void shouldMapVisningsfeltWhenMottatt() {
-		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoMottatt(), createBrukerIdenter());
+		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoMottatt(), createSaker(), createBrukerIdenter());
 		assertThat(journalpost.getJournalposttype()).isEqualTo(I);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(MOTTATT);
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.SKAN_IM);
@@ -175,8 +162,37 @@ class JournalpostMapperTest {
 	}
 
 	@Test
+	void shouldMapPensjonJournalpostWhenPensjonSak() {
+		JournalpostDto journalpostDto = buildJournalpostDtoUtgaaendeType(JournalStatusCode.E);
+		// Tema på saken er det som skal mappes, hvis det finnes.
+		journalpostDto.setFagomrade(FagomradeCode.PEN);
+		journalpostDto.setSaksrelasjon(SaksrelasjonDto.builder()
+				.sakId(PENSJON_SAKID)
+				.fagsystem(FagsystemCode.PEN)
+				.build());
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, createSaker(), createBrukerIdenter());
+		// Tema UFO på saken
+		assertThat(journalpost.getTema()).isEqualTo(PENSJON_TEMA);
+		assertThat(journalpost.getSak().getFagsakId()).isEqualTo(PENSJON_SAKID);
+		assertThat(journalpost.getSak().getFagsaksystem()).isEqualTo(FAGSYSTEM_PENSJON);
+		assertThat(journalpost.getJournalposttype()).isEqualTo(U);
+		assertThat(journalpost.getJournalstatus()).isEqualTo(EKSPEDERT);
+		assertThat(journalpost.getKanal()).isEqualTo(Kanal.SDP);
+		assertThat(journalpost.getMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
+		assertThat(journalpost.getMottaker().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getAvsender()).isNull();
+		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
+				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),
+				new RelevantDato(JOURNAL_DATO, Datotype.DATO_JOURNALFOERT),
+				new RelevantDato(DOKUMENT_DATO, Datotype.DATO_DOKUMENT),
+				new RelevantDato(AVS_RETUR_DATO, Datotype.DATO_AVS_RETUR),
+				new RelevantDato(SENDT_PRINT_DATO, Datotype.DATO_SENDT_PRINT),
+				new RelevantDato(EKSPEDERT_DATO, Datotype.DATO_EKSPEDERT)));
+	}
+
+	@Test
 	void shouldMapTilgangsfeltWhenJournalfoert() {
-		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoInngaaendeType(), createBrukerIdenter());
+		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoInngaaendeType(), createSaker(), createBrukerIdenter());
 		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 		assertThat(tilgangJournalpost.getTema()).isEqualTo(FagomradeCode.FOR.name());
 		assertThat(tilgangJournalpost.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
@@ -204,7 +220,7 @@ class JournalpostMapperTest {
 
 	@Test
 	void shouldMapTilgangsfeltWhenMottatt() {
-		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoMottatt(), createBrukerIdenter());
+		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoMottatt(), createSaker(), createBrukerIdenter());
 		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 		assertThat(tilgangJournalpost.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET_LDT);
 		assertThat(tilgangJournalpost.getJournalfoertDato()).isNull();
@@ -227,7 +243,7 @@ class JournalpostMapperTest {
 				.utsendingskanal(null)
 				.build();
 
-		Journalpost journalpost = journalpostMapper.map(journalpostDto, createBrukerIdenter());
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, createSaker(), createBrukerIdenter());
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.LOKAL_UTSKRIFT);
 		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 		assertThat(tilgangJournalpost.getMottakskanal()).isEqualTo(Kanal.SKAN_IM);
@@ -236,7 +252,6 @@ class JournalpostMapperTest {
 	@Test
 	void shouldMapTilgangSakWhenPensjonsak() {
 		JournalpostDto journalpostDto = buildJournalpostDtoUtgaaendeType(JournalStatusCode.E);
-		journalpostDto.getSaksrelasjon().setFagsystem(FagsystemCode.PEN);
 		journalpostDto.setSaksrelasjon(SaksrelasjonDto.builder()
 				.sakId("123")
 				.fagsystem(FagsystemCode.PEN)
@@ -244,7 +259,7 @@ class JournalpostMapperTest {
 				.tema("PEN")
 				.build());
 
-		Journalpost journalpost = journalpostMapper.map(journalpostDto, createBrukerIdenter());
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, createSaker(), createBrukerIdenter());
 
 		Journalpost.TilgangSak tilgangSak = journalpost.getTilgang().getTilgangSak();
 		assertThat(tilgangSak.getAktoerId()).isNull();
@@ -259,7 +274,7 @@ class JournalpostMapperTest {
 				.journalposttype(JournalpostTypeCode.N)
 				.dokumenter(buildDokumentWithVarianter("ARKIV", "SLADDET", "ORIGINAL", "FULLVERSJON", "PRODUKSJON", "PRODUKSJON_DLF"))
 				.build();
-		Journalpost journalpost = journalpostMapper.map(journalpostDto, createBrukerIdenter());
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, createSaker(), createBrukerIdenter());
 		assertThat(journalpost.getDokumenter().get(0).getDokumentvarianter()).hasSize(2);
 		assertThat(journalpost.getDokumenter().get(0).getDokumentvarianter())
 				.extracting(Dokumentvariant::getVariantformat)
@@ -278,7 +293,7 @@ class JournalpostMapperTest {
 										.build()))
 								.build()))
 				.build();
-		Journalpost journalpost = journalpostMapper.map(journalpostDto, createBrukerIdenter());
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, createSaker(), createBrukerIdenter());
 		assertThat(journalpost.getDokumenter().get(0).getDokumentvarianter().get(0).getFiltype()).isEqualTo("PDF");
 	}
 
@@ -294,7 +309,7 @@ class JournalpostMapperTest {
 										.build()))
 								.build()))
 				.build();
-		Journalpost journalpost = journalpostMapper.map(journalpostDto, createBrukerIdenter());
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, createSaker(), createBrukerIdenter());
 		assertThat(journalpost.getDokumenter().get(0).getDokumentvarianter().get(0).getFilstorrelse()).isEqualTo(0);
 	}
 }

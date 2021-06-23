@@ -16,9 +16,9 @@ import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
 import no.nav.safselvbetjening.graphql.GraphQLException;
+import no.nav.safselvbetjening.service.Arkivsak;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
-import no.nav.safselvbetjening.service.Sak;
 import no.nav.safselvbetjening.service.SakService;
 import no.nav.safselvbetjening.service.Saker;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.Boolean.TRUE;
 import static java.util.Collections.singletonList;
@@ -76,8 +75,8 @@ public class DokumentoversiktSelvbetjeningService {
 		}
 		final Saker saker = sakService.hentSaker(brukerIdenter, tema);
 
-		List<Sakstema> sakstema = Stream.concat(saker.getArkivsaker().stream(), saker.getPensjonsaker().stream())
-				.filter(distinctByKey(Sak::getTema))
+		List<Sakstema> sakstema = saker.getArkivsakerAsStream()
+				.filter(distinctByKey(Arkivsak::getTema))
 				.map(this::mapSakstema)
 				.sorted(Comparator.comparing(Sakstema::getKode))
 				.collect(Collectors.toList());
@@ -88,12 +87,21 @@ public class DokumentoversiktSelvbetjeningService {
 				.build();
 	}
 
-	private Sakstema mapSakstema(Sak s) {
-		final Tema tema = Tema.valueOf(s.getTema());
+	private Sakstema mapSakstema(Arkivsak arkivsak) {
+		final Tema tema = determineTema(arkivsak);
 		return Sakstema.builder()
 				.kode(tema.name())
 				.navn(tema.getTemanavn())
 				.build();
+	}
+
+	private Tema determineTema(Arkivsak arkivsak) {
+		try {
+			return Tema.valueOf(arkivsak.getTema());
+		} catch(IllegalArgumentException e) {
+			log.error("Mapping av tema={} feilet. Dette må rettes.", arkivsak.getTema());
+			return Tema.UKJ;
+		}
 	}
 
 	public Dokumentoversikt queryDokumentoversikt(final String ident, final List<String> tema, DataFetchingEnvironment environment) {
@@ -127,7 +135,7 @@ public class DokumentoversiktSelvbetjeningService {
 		List<Sakstema> sakstema = temaMap.entrySet().stream()
 				// Filtrer ut midlertidige journalposter som ikke har riktig tema.
 				.filter(entry -> tema.contains(entry.getKey().name()))
-				.map(saksTema -> mapSakstema(saksTema, brukerIdenter))
+				.map(st -> mapSakstema(st, saker, brukerIdenter))
 				.sorted(Comparator.comparing(Sakstema::getKode))
 				.collect(Collectors.toList());
 		log.info("dokumentoversiktSelvbetjening hentet dokumentoversikt til person. antall_tema={}, antall_journalposter={}", sakstema.size(),
@@ -138,8 +146,7 @@ public class DokumentoversiktSelvbetjeningService {
 	}
 
 	private Map<FagomradeCode, List<JournalpostDto>> groupedByFagomrade(List<JournalpostDto> filtrerteJournalposter, Saker saker) {
-		Map<String, String> sakIdTemaMap = Stream.concat(saker.getArkivsaker().stream(), saker.getPensjonsaker().stream())
-				.collect(Collectors.toMap(Sak::getArkivsakId, Sak::getTema));
+		Map<String, String> sakIdTemaMap = saker.getArkivsakIdTemaMap();
 		Map<FagomradeCode, List<JournalpostDto>> temaMap = new HashMap<>();
 		for (JournalpostDto journalpostDto : filtrerteJournalposter) {
 			SaksrelasjonDto saksrelasjon = journalpostDto.getSaksrelasjon();
@@ -156,7 +163,7 @@ public class DokumentoversiktSelvbetjeningService {
 		return temaMap;
 	}
 
-	private Sakstema mapSakstema(Map.Entry<FagomradeCode, List<JournalpostDto>> fagomradeCodeListEntry, BrukerIdenter brukerIdenter) {
+	private Sakstema mapSakstema(Map.Entry<FagomradeCode, List<JournalpostDto>> fagomradeCodeListEntry, Saker saker, BrukerIdenter brukerIdenter) {
 		final Tema tema = FagomradeCode.toTema(fagomradeCodeListEntry.getKey());
 
 		return Sakstema.builder()
@@ -164,7 +171,7 @@ public class DokumentoversiktSelvbetjeningService {
 				.navn(tema.getTemanavn())
 				.journalposter(fagomradeCodeListEntry.getValue().stream()
 						.filter(Objects::nonNull)
-						.map(jp -> journalpostMapper.map(jp, brukerIdenter))
+						.map(jp -> journalpostMapper.map(jp, saker, brukerIdenter))
 						.filter(journalpost -> utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter))
 						.map(journalpost -> setDokumentVariant(journalpost, brukerIdenter))
 						.collect(Collectors.toList()))

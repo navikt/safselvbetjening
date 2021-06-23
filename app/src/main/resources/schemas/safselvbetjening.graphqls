@@ -21,11 +21,11 @@ type Sakstema {
     # En liste av journalposter.
     journalposter: [Journalpost]!
 
-    # Tre-bokstavs kode for tema. Eksempel: FOR
-    kode : String
+    # Tre-bokstavs kode for tema. Eksempel: `"FOR"`
+    kode : String!
 
     # Fullt navn for tema. Eksempel: Foreldrepenger
-    navn: String
+    navn: String!
 }
 
 # Et sett med metadata som er nødvendig for å gjenfinne et dokument i arkivet. En journalpost kan ha ett eller flere dokumenter.
@@ -37,11 +37,19 @@ type Journalpost {
     tittel: String
 
     # Sier hvorvidt journalposten er et inngående dokument, et utgående dokument eller et notat.
-    journalposttype: Journalposttype
+    journalposttype: Journalposttype!
 
     # Status på journalposten i joark, f.eks. MOTTATT eller JOURNALFØRT. Journalstatusen gir et indikasjon på hvor i journalførings- eller dokumentproduksjonsprosessen journalposten befinner seg.
     # * Journalposter som er resultat av en feilsituasjon og ikke skal hensyntas for saksbehandling har egne koder, som UTGAAR eller AVBRUTT.
     journalstatus: Journalstatus
+
+    # Temaet/Fagområdet som journalposten og tilhørende sak tilhører, f.eks. `"FOR"`.
+    # * For sakstilknyttede journalposter, er det tema på SAK- eller PSAK-saken som er gjeldende tema.
+    # * For journalposter som enda ikke har fått sakstilknytning, returneres tema på journalposten.
+    tema: String
+
+    # Sier hvilken sak journalposten er knyttet til. En journalpost kan maksimalt være knyttet til én sak, men et dokument kan være knyttet til flere journalposter og dermed flere saker.
+    sak: Sak
 
     # Personen eller organisasjonen som er avsender av dokumentene i journalposten.
     avsender: AvsenderMottaker
@@ -61,6 +69,16 @@ type Journalpost {
     dokumenter: [DokumentInfo]
 }
 
+# Sakstilknytningen til journalposten.
+# * Fagsaken viser til saken slik denne er definert i et fagsystem. Saken identifiseres ved fagsakId, fagsaksystem.
+type Sak {
+    # Saksnummeret i fagsystemet.
+    fagsakId: String
+
+    # Kode som indikerer hvilket fagsystem, eventuelt nummerserie for fagsaker, som fagsaken befinner seg i.
+    fagsaksystem: String
+}
+
 # Dato som kan være relevant for en journalpost. De ulike journalposttypene (inngående, utgående og notat) får returnert ulike relevante datoer.
 # * For eksempel er **DATO_EKSPEDERT** kun relevant for utgående dokumenter, og **DATO_REGISTRERT** kun for inngående.
 type RelevantDato {
@@ -76,10 +94,10 @@ type RelevantDato {
 type AvsenderMottaker {
     # Identifikatoren til parten som er avsender eller mottaker av dokumentene på journalposten.
     # * Normalt et fødselsnummer eller organisasjonsnummer.
-    id: String
+    id: String!
 
     # Identifikatortypen til parten som er avsender eller mottaker av dokumentene på journalposten.
-    type: AvsenderMottakerIdType
+    type: AvsenderMottakerIdType!
 }
 
 # Metadata tilknyttet et bestemt dokument i Joark (evt til flere varianter av samme dokument).
