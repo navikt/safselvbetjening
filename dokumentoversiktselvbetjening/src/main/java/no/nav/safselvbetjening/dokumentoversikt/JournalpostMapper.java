@@ -17,7 +17,6 @@ import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.RelevantDato;
 import no.nav.safselvbetjening.domain.Sak;
 import no.nav.safselvbetjening.domain.SkjermingType;
-import no.nav.safselvbetjening.domain.Tema;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.Saker;
 import org.springframework.stereotype.Component;
@@ -32,6 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.toTema;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.ARKIV;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.SLADDET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
@@ -106,7 +106,7 @@ public class JournalpostMapper {
 	}
 
 	private String getJournalpostTema(JournalpostDto journalpostDto) {
-		return journalpostDto.getFagomrade() == null ? Tema.UKJ.name() : journalpostDto.getFagomrade().name();
+		return toTema(journalpostDto.getFagomrade()).name();
 	}
 
 	private Sak mapSak(JournalpostDto journalpostDto) {

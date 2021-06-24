@@ -22,16 +22,16 @@ import static java.lang.Boolean.TRUE;
  */
 @Slf4j
 @Component
-public class TemaQueryService {
+class TemaQueryService {
 	List<Sakstema> query(final Basedata basedata) {
-		log.info("dokumentoversiktSelvbetjening henter tema.");
+		log.info("dokumentoversiktSelvbetjening henter /tema.");
 		final Saker saker = basedata.getSaker();
 		List<Sakstema> sakstema = saker.getArkivsakerAsStream()
 				.filter(distinctByKey(Arkivsak::getTema))
 				.map(this::mapSakstema)
 				.sorted(Comparator.comparing(Sakstema::getKode))
 				.collect(Collectors.toList());
-		log.info("dokumentoversiktSelvbetjening hentet tema/journalposter. antall_tema={}.", sakstema.size());
+		log.info("dokumentoversiktSelvbetjening hentet /tema. antall_tema={}.", sakstema.size());
 		return sakstema;
 	}
 
@@ -46,7 +46,7 @@ public class TemaQueryService {
 	private Tema determineTema(Arkivsak arkivsak) {
 		try {
 			return Tema.valueOf(arkivsak.getTema());
-		} catch(IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			log.error("Mapping av tema={} feilet. Dette må rettes.", arkivsak.getTema());
 			return Tema.UKJ;
 		}

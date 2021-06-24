@@ -5,7 +5,6 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Sakstema;
@@ -68,7 +67,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			final List<String> tema = temaArgument(environment);
 
 			DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
-			if(selectionSet.containsAnyOf("tema", "journalposter")) {
+			if (selectionSet.containsAnyOf("tema", "journalposter")) {
 				Dokumentoversikt dokumentoversikt = fetchDokumentoversikt(ident, tema, environment);
 				return DataFetcherResult.newResult()
 						.data(dokumentoversikt)
@@ -88,30 +87,32 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		}
 	}
 
-	Dokumentoversikt fetchDokumentoversikt(final String ident, final List<String> tema, final DataFetchingEnvironment environment) {
+	Dokumentoversikt fetchDokumentoversikt(final String ident, final List<String> tema,
+										   final DataFetchingEnvironment environment) {
 		final DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
 		final Basedata basedata = dokumentoversiktSelvbetjeningService.queryBasedata(ident, tema, environment);
-		final List<JournalpostDto> journalpostDtos = fetchBaseJournalposter(basedata, selectionSet);
-		final List<Sakstema> sakstema = fetchSakstema(basedata, tema, journalpostDtos, selectionSet);
-		final List<Journalpost> journalposter = fetchJournalposter(basedata, journalpostDtos, tema, selectionSet);
+		final Journalpostdata filtrerteJournalpostdata = filtrerteJournalposter(basedata, tema, selectionSet);
+		final List<Sakstema> sakstema = fetchSakstema(basedata, filtrerteJournalpostdata, selectionSet);
+		final List<Journalpost> journalposter = fetchJournalposter(filtrerteJournalpostdata, selectionSet);
 		return Dokumentoversikt.builder()
 				.tema(sakstema)
 				.journalposter(journalposter)
 				.build();
 	}
 
-	private List<JournalpostDto> fetchBaseJournalposter(Basedata basedata, DataFetchingFieldSelectionSet selectionSet) {
-		if(selectionSet.containsAnyOf("tema/journalposter", "journalposter")) {
-			return dokumentoversiktSelvbetjeningService.queryBaseJournalposter(basedata);
+	private Journalpostdata filtrerteJournalposter(Basedata basedata, List<String> tema,
+												   DataFetchingFieldSelectionSet selectionSet) {
+		if (selectionSet.containsAnyOf("tema/journalposter", "journalposter")) {
+			return dokumentoversiktSelvbetjeningService.queryFiltrerteJournalposter(basedata, tema);
 		}
-		return new ArrayList<>();
+		return Journalpostdata.empty();
 	}
 
-	private List<Sakstema> fetchSakstema(Basedata basedata, List<String> tema, List<JournalpostDto> journalpostDtos,
+	private List<Sakstema> fetchSakstema(Basedata basedata, Journalpostdata journalpostdata,
 										 DataFetchingFieldSelectionSet selectionSet) {
-		if(selectionSet.contains("tema")) {
+		if (selectionSet.contains("tema")) {
 			if (selectionSet.contains("tema/journalposter")) {
-				return temaJournalposterQueryService.query(basedata, journalpostDtos, tema);
+				return temaJournalposterQueryService.query(journalpostdata);
 			}
 			return temaQueryService.query(basedata);
 		} else {
@@ -119,16 +120,16 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		}
 	}
 
-	private List<Journalpost> fetchJournalposter(Basedata basedata, List<JournalpostDto> journalpostDtos, List<String> tema,
+	private List<Journalpost> fetchJournalposter(Journalpostdata journalpostdata,
 												 DataFetchingFieldSelectionSet selectionSet) {
-		if(selectionSet.contains("journalposter")) {
-			return journalposterQueryService.query(basedata, journalpostDtos, tema);
+		if (selectionSet.contains("journalposter")) {
+			return journalposterQueryService.query(journalpostdata);
 		} else {
 			return new ArrayList<>();
 		}
 	}
 
-	private void validateIdent(final String ident, DataFetchingEnvironment environment) {
+	private void validateIdent(String ident, DataFetchingEnvironment environment) {
 		if (isBlank(ident)) {
 			throw GraphQLException.of(BAD_REQUEST, environment, "Ident argumentet er blankt.");
 		}
@@ -143,11 +144,10 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		final GraphQLRequestContext graphQLRequestContext = environment.getContext();
 		JwtToken jwtToken = graphQLRequestContext.getTokenValidationContext().getFirstValidToken()
 				.orElseThrow(() -> GraphQLException.of(ErrorCode.UNAUTHORIZED, environment, "Ingen gyldige tokens i Authorization headeren."));
-		if(!jwtToken.getJwtTokenClaims().containsClaim("pid", ident)) {
+		if (!jwtToken.getJwtTokenClaims().containsClaim("pid", ident)) {
 			throw GraphQLException.of(ErrorCode.UNAUTHORIZED, environment, "Brukers ident i token matcher ikke ident i query.");
 		}
 	}
-
 
 	private List<String> temaArgument(DataFetchingEnvironment environment) {
 		final List<String> tema = environment.getArgumentOrDefault("tema", new ArrayList<>());
