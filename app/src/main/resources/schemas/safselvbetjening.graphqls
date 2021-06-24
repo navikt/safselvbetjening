@@ -79,6 +79,9 @@ type Sak {
 
     # Kode som indikerer hvilket fagsystem, eventuelt nummerserie for fagsaker, som fagsaken befinner seg i.
     fagsaksystem: String
+
+    # Sier hvorvidt saken inngår i et fagsystem (`FAGSAK`) eller ikke (`GENERELL_SAK`).
+    sakstype: Sakstype!
 }
 
 # Dato som kan være relevant for en journalpost. De ulike journalposttypene (inngående, utgående og notat) får returnert ulike relevante datoer.
@@ -512,4 +515,14 @@ enum Tema {
 
     # Yrkesskade / Menerstatning
     YRK
+}
+
+# Sier hvorvidt saken inngår i et fagsystem (FAGSAK) eller ikke (GENERELL_SAK).
+enum Sakstype {
+
+    # Benyttes normalt for dokumenter som ikke saksbehandles i et fagsystem. Generell sak har ikke saksnummer, men kan ses på som brukerens "mappe" av dokumenter på et gitt tema.
+    GENERELL_SAK
+
+    # Vil si at saken tilhører et fagsystem. Hvilket fagsystem saken tilhører, finnes i feltet fagsaksystem.
+    FAGSAK
 }

@@ -62,7 +62,7 @@ public class JournalpostDtoTestObjects {
 	static final FagsystemCode ARKIVSAKSYSTEM_GOSYS = FagsystemCode.FS22;
 	static final FagsystemCode ARKIVSAKSYSTEM_PENSJON = FagsystemCode.PEN;
 	static final AvsenderMottakerIdTypeCode AVSENDER_MOTTAKER_ID_TYPE_CODE = AvsenderMottakerIdTypeCode.FNR;
-	static final FagomradeCode FAGOMRADE = FagomradeCode.FOR;
+	static final FagomradeCode TEMA = FagomradeCode.FOR;
 	static final String JOURNALFOERT_AV = "Automatisk jobb";
 	static final String BEHANDLINGSTEMA = "ab0072";
 	static final String BEHANDLINGSTEMANAVN = "Foreldrepenger ved adopsjon";
@@ -94,7 +94,7 @@ public class JournalpostDtoTestObjects {
 	static JournalpostDto buildJournalpostDtoUtgaaendeType(JournalStatusCode journalStatusCode) {
 		return baseJournalpostDto()
 				.journalposttype(JournalpostTypeCode.U)
-				.saksrelasjon(new SaksrelasjonDto(ARKIVSAK_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, FAGOMRADE.name(),
+				.saksrelasjon(new SaksrelasjonDto(ARKIVSAK_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, TEMA.name(),
 						FAGSAK_ID, FAGSAK_APPLIKASJON, null, null, null))
 				.utsendingskanal(UtsendingsKanalCode.SDP)
 				.journalstatus(journalStatusCode)
@@ -110,7 +110,7 @@ public class JournalpostDtoTestObjects {
 	static JournalpostDto buildJournalpostDtoNotatType(JournalStatusCode journalStatusCode) {
 		return baseJournalpostDto()
 				.journalposttype(JournalpostTypeCode.N)
-				.saksrelasjon(new SaksrelasjonDto(ARKIVSAK_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, FAGOMRADE.name(),
+				.saksrelasjon(new SaksrelasjonDto(ARKIVSAK_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, TEMA.name(),
 						FAGSAK_ID, FAGSAK_APPLIKASJON, null, null, null))
 				.utsendingskanal(UtsendingsKanalCode.SDP)
 				.journalstatus(journalStatusCode)
@@ -127,7 +127,7 @@ public class JournalpostDtoTestObjects {
 		return baseJournalpostDto()
 				.bruker(BrukerDto.builder().brukerId(BRUKER_ID_PERSON).brukerIdType("PERSON").build())
 				.journalposttype(JournalpostTypeCode.I)
-				.saksrelasjon(new SaksrelasjonDto(ARKIVSAK_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, FAGOMRADE.name(),
+				.saksrelasjon(new SaksrelasjonDto(ARKIVSAK_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, TEMA.name(),
 						FAGSAK_ID, FAGSAK_APPLIKASJON, null, null, null))
 				.mottattDato(MOTTAT_DATO)
 				.journalDato(JOURNAL_DATO)
@@ -152,7 +152,7 @@ public class JournalpostDtoTestObjects {
 				.journalpostId(JOURNALPOST_ID)
 				.nextJournalpostId(405252858L)
 				.innhold(INNHOLD)
-				.fagomrade(FAGOMRADE)
+				.fagomrade(TEMA)
 				.behandlingstema(BEHANDLINGSTEMA)
 				.behandlingstemanavn(BEHANDLINGSTEMANAVN)
 				.avsenderMottakerId(AVSENDER_MOTTAKER_ID)
@@ -240,8 +240,10 @@ public class JournalpostDtoTestObjects {
 	static Saker createSaker() {
 		return new Saker(
 				Collections.singletonList(Joarksak.builder()
-						.tema(FAGOMRADE.name())
+						.tema(TEMA.name())
 						.id(parseInt(ARKIVSAK_ID))
+						.applikasjon(FAGSAK_APPLIKASJON)
+						.fagsakNr(FAGSAK_ID)
 						.build()),
 				Collections.singletonList(Pensjonsak.builder()
 						.tema(PENSJON_TEMA)

@@ -11,4 +11,5 @@ import lombok.Value;
 public class Sak {
 	private final String fagsakId;
 	private final String fagsaksystem;
+	private final Sakstype sakstype;
 }

@@ -16,6 +16,11 @@
            id
            type
          }
+         sak {
+           fagsakId
+           fagsaksystem
+           sakstype
+         }
          kanal
          relevanteDatoer {
            dato

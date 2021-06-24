@@ -10,6 +10,7 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode;
+import no.nav.safselvbetjening.consumer.sak.Joarksak;
 import no.nav.safselvbetjening.domain.Datotype;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
@@ -18,8 +19,10 @@ import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.RelevantDato;
 import no.nav.safselvbetjening.domain.SkjermingType;
 import no.nav.safselvbetjening.domain.Tema;
+import no.nav.safselvbetjening.service.Saker;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,6 +30,7 @@ import static java.lang.Integer.parseInt;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AKTOER_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ARKIVSAKSYSTEM_GOSYS;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ARKIVSAKSYSTEM_PENSJON;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ARKIVSAK_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVSENDER_MOTTAKER_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVS_RETUR_DATO;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.BREVKODE;
@@ -53,6 +57,7 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.PENSJON_SAKID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.PENSJON_TEMA;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.SENDT_PRINT_DATO;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.TEMA;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.TITTEL;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.baseJournalpostDto;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildDokumentWithVarianter;
@@ -70,6 +75,9 @@ import static no.nav.safselvbetjening.domain.Journalposttype.U;
 import static no.nav.safselvbetjening.domain.Journalstatus.EKSPEDERT;
 import static no.nav.safselvbetjening.domain.Journalstatus.JOURNALFOERT;
 import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;
+import static no.nav.safselvbetjening.domain.Sakstype.APPLIKASJON_GENERELL_SAK;
+import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
+import static no.nav.safselvbetjening.domain.Sakstype.GENERELL_SAK;
 import static no.nav.safselvbetjening.domain.Variantformat.ARKIV;
 import static no.nav.safselvbetjening.domain.Variantformat.SLADDET;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -136,6 +144,7 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getTema()).isEqualTo(Tema.FOR.name());
 		assertThat(journalpost.getSak().getFagsakId()).isEqualTo(FAGSAK_ID);
 		assertThat(journalpost.getSak().getFagsaksystem()).isEqualTo(FAGSAK_APPLIKASJON);
+		assertThat(journalpost.getSak().getSakstype()).isEqualTo(FAGSAK);
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().get(0);
 		assertThat(dokumentInfo.getDokumentInfoId()).isEqualTo(DOKUMENT_INFO_ID.toString());
 		assertThat(dokumentInfo.getBrevkode()).isEqualTo(BREVKODE);
@@ -175,6 +184,7 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getTema()).isEqualTo(PENSJON_TEMA);
 		assertThat(journalpost.getSak().getFagsakId()).isEqualTo(PENSJON_SAKID);
 		assertThat(journalpost.getSak().getFagsaksystem()).isEqualTo(FAGSYSTEM_PENSJON);
+		assertThat(journalpost.getSak().getSakstype()).isEqualTo(FAGSAK);
 		assertThat(journalpost.getJournalposttype()).isEqualTo(U);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(EKSPEDERT);
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.SDP);
@@ -188,6 +198,30 @@ class JournalpostMapperTest {
 				new RelevantDato(AVS_RETUR_DATO, Datotype.DATO_AVS_RETUR),
 				new RelevantDato(SENDT_PRINT_DATO, Datotype.DATO_SENDT_PRINT),
 				new RelevantDato(EKSPEDERT_DATO, Datotype.DATO_EKSPEDERT)));
+	}
+
+	@Test
+	void shouldMapSakstypeGenerellSakWhenSaksrelasjonGenerellSak() {
+		Saker saker = new Saker(
+				Collections.singletonList(Joarksak.builder()
+						.tema(TEMA.name())
+						.id(parseInt(ARKIVSAK_ID))
+						.applikasjon(APPLIKASJON_GENERELL_SAK)
+						.fagsakNr(null)
+						.build()), new ArrayList<>());
+		JournalpostDto journalpostDto = buildJournalpostDtoInngaaendeType();
+		journalpostDto.setSaksrelasjon(SaksrelasjonDto.builder()
+				.sakId(ARKIVSAK_ID)
+				.fagsystem(FagsystemCode.FS22)
+				.feilregistrert(false)
+				.tema(TEMA.name())
+				.applikasjon(APPLIKASJON_GENERELL_SAK)
+				.fagsakNr(null)
+				.build());
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, saker, createBrukerIdenter());
+		assertThat(journalpost.getSak().getFagsakId()).isNull();
+		assertThat(journalpost.getSak().getFagsaksystem()).isEqualTo(APPLIKASJON_GENERELL_SAK);
+		assertThat(journalpost.getSak().getSakstype()).isEqualTo(GENERELL_SAK);
 	}
 
 	@Test

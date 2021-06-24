@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 /**
  * @author Joakim Bjørnstad, Jbit AS
  */
@@ -17,6 +19,9 @@ public class AvsenderMottakerMapper {
     private static final Pattern FNR_SIMPLE_REGEX = Pattern.compile("[0-7]\\d{10}");
 
     AvsenderMottaker map(JournalpostDto journalpostDto) {
+        if(isBlank(journalpostDto.getAvsenderMottakerId())) {
+            return null;
+        }
         return AvsenderMottaker.builder()
                 .id(journalpostDto.getAvsenderMottakerId())
                 .type(mapAvsenderMottakerIdType(journalpostDto.getAvsenderMottakerId(), journalpostDto.getAvsenderMottakerIdType()))

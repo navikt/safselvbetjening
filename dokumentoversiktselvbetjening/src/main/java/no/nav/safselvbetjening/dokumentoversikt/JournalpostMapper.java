@@ -41,6 +41,8 @@ import static no.nav.safselvbetjening.domain.Datotype.DATO_JOURNALFOERT;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_OPPRETTET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_REGISTRERT;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_SENDT_PRINT;
+import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
+import static no.nav.safselvbetjening.domain.Sakstype.fromApplikasjon;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -116,14 +118,16 @@ public class JournalpostMapper {
 				return Sak.builder()
 						.fagsakId(saksrelasjon.getSakId())
 						.fagsaksystem(FAGSYSTEM_PENSJON)
+						.sakstype(FAGSAK)
 						.build();
 			} else {
-				if(isBlank(saksrelasjon.getFagsakNr()) || isBlank(saksrelasjon.getApplikasjon())) {
+				if(saksrelasjon.getFagsystem() == null) {
 					return null;
 				}
 				return Sak.builder()
 						.fagsakId(saksrelasjon.getFagsakNr())
 						.fagsaksystem(saksrelasjon.getApplikasjon())
+						.sakstype(fromApplikasjon(saksrelasjon.getApplikasjon()))
 						.build();
 			}
 		}
