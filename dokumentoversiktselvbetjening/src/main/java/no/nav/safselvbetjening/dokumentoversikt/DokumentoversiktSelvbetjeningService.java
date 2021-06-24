@@ -5,18 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.fagarkiv.FagarkivConsumer;
 import no.nav.safselvbetjening.consumer.fagarkiv.FinnJournalposterRequestTo;
-import no.nav.safselvbetjening.consumer.fagarkiv.FinnJournalposterResponseTo;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
-import no.nav.safselvbetjening.domain.Dokumentoversikt;
-import no.nav.safselvbetjening.domain.Journalpost;
-import no.nav.safselvbetjening.domain.Sakstema;
-import no.nav.safselvbetjening.domain.Tema;
 import no.nav.safselvbetjening.graphql.GraphQLException;
-import no.nav.safselvbetjening.service.Arkivsak;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.service.SakService;
@@ -24,33 +16,18 @@ import no.nav.safselvbetjening.service.Saker;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import static java.lang.Boolean.TRUE;
-import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.STATUS_OK;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
 @Component
-public class DokumentoversiktSelvbetjeningService {
+class DokumentoversiktSelvbetjeningService {
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final IdentService identService;
 	private final SakService sakService;
 	private final FagarkivConsumer fagarkivConsumer;
-	private final JournalpostMapper journalpostMapper;
-	private final UtledTilgangService utledTilgangService;
 
 	public DokumentoversiktSelvbetjeningService(final SafSelvbetjeningProperties safSelvbetjeningProperties,
 												final IdentService identService,
@@ -62,64 +39,27 @@ public class DokumentoversiktSelvbetjeningService {
 		this.identService = identService;
 		this.sakService = sakService;
 		this.fagarkivConsumer = fagarkivConsumer;
-		this.journalpostMapper = journalpostMapper;
-		this.utledTilgangService = utledTilgangService;
 	}
 
-	public Dokumentoversikt queryTema(final String ident, final List<String> tema, DataFetchingEnvironment environment) {
-		log.info("dokumentoversiktSelvbetjening henter temaoversikt til person.");
-
+	Basedata queryBasedata(final String ident, final List<String> tema, DataFetchingEnvironment environment) {
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(ident);
 		if (brukerIdenter.isEmpty()) {
 			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen identer på person.");
 		}
 		final Saker saker = sakService.hentSaker(brukerIdenter, tema);
-
-		List<Sakstema> sakstema = saker.getArkivsakerAsStream()
-				.filter(distinctByKey(Arkivsak::getTema))
-				.map(this::mapSakstema)
-				.sorted(Comparator.comparing(Sakstema::getKode))
-				.collect(Collectors.toList());
-
-		log.info("dokumentoversiktSelvbetjening hentet temaoversikt til person. antall_tema={}", sakstema.size());
-		return Dokumentoversikt.builder()
-				.tema(sakstema)
-				.build();
+		return new Basedata(brukerIdenter, saker);
 	}
 
-	private Sakstema mapSakstema(Arkivsak arkivsak) {
-		final Tema tema = determineTema(arkivsak);
-		return Sakstema.builder()
-				.kode(tema.name())
-				.navn(tema.getTemanavn())
-				.build();
-	}
-
-	private Tema determineTema(Arkivsak arkivsak) {
-		try {
-			return Tema.valueOf(arkivsak.getTema());
-		} catch(IllegalArgumentException e) {
-			log.error("Mapping av tema={} feilet. Dette må rettes.", arkivsak.getTema());
-			return Tema.UKJ;
-		}
-	}
-
-	public Dokumentoversikt queryDokumentoversikt(final String ident, final List<String> tema, DataFetchingEnvironment environment) {
-		log.info("dokumentoversiktSelvbetjening henter dokumentoversikt til person.");
-
-		final BrukerIdenter brukerIdenter = identService.hentIdenter(ident);
-		if (brukerIdenter.isEmpty()) {
-			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen identer på person.");
-		}
-		final Saker saker = sakService.hentSaker(brukerIdenter, tema);
-
+	List<JournalpostDto> queryBaseJournalposter(final Basedata basedata) {
+		final BrukerIdenter brukerIdenter = basedata.getBrukerIdenter();
+		final Saker saker = basedata.getSaker();
 		/*
 		 * Regler tilgangskontroll journalpost: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
 		 * 1b) Bruker får ikke se journalposter som er opprettet før 04.06.2016
 		 * 1c) Bruker får kun se ferdigstilte journalposter
 		 * 1d) Bruker får ikke se feilregistrerte journalposter
 		 */
-		FinnJournalposterResponseTo finnJournalposterResponseTo = fagarkivConsumer.finnJournalposter(FinnJournalposterRequestTo.builder()
+		return fagarkivConsumer.finnJournalposter(FinnJournalposterRequestTo.builder()
 				.alleIdenter(brukerIdenter.getFoedselsnummer())
 				.psakSakIds(saker.getPensjonSakIds())
 				.gsakSakIds(saker.getArkivSakIds())
@@ -128,68 +68,7 @@ public class DokumentoversiktSelvbetjeningService {
 				.inkluderJournalStatus(Arrays.asList(JournalStatusCode.MO, JournalStatusCode.M, JournalStatusCode.J, JournalStatusCode.E, JournalStatusCode.FL, JournalStatusCode.FS))
 				.foerste(9999)
 				.visFeilregistrerte(false)
-				.build());
-
-		Map<FagomradeCode, List<JournalpostDto>> temaMap = groupedByFagomrade(finnJournalposterResponseTo.getTilgangJournalposter(), saker);
-
-		List<Sakstema> sakstema = temaMap.entrySet().stream()
-				// Filtrer ut midlertidige journalposter som ikke har riktig tema.
-				.filter(entry -> tema.contains(entry.getKey().name()))
-				.map(st -> mapSakstema(st, saker, brukerIdenter))
-				.sorted(Comparator.comparing(Sakstema::getKode))
-				.collect(Collectors.toList());
-		log.info("dokumentoversiktSelvbetjening hentet dokumentoversikt til person. antall_tema={}, antall_journalposter={}", sakstema.size(),
-				finnJournalposterResponseTo.getTilgangJournalposter().size());
-		return Dokumentoversikt.builder()
-				.tema(sakstema)
-				.build();
+				.build()).getTilgangJournalposter();
 	}
 
-	private Map<FagomradeCode, List<JournalpostDto>> groupedByFagomrade(List<JournalpostDto> filtrerteJournalposter, Saker saker) {
-		Map<String, String> sakIdTemaMap = saker.getArkivsakIdTemaMap();
-		Map<FagomradeCode, List<JournalpostDto>> temaMap = new HashMap<>();
-		for (JournalpostDto journalpostDto : filtrerteJournalposter) {
-			SaksrelasjonDto saksrelasjon = journalpostDto.getSaksrelasjon();
-			if (saksrelasjon != null && isNotBlank(saksrelasjon.getSakId())) {
-				if (sakIdTemaMap.containsKey(saksrelasjon.getSakId())) {
-					temaMap.computeIfAbsent(FagomradeCode.valueOf(sakIdTemaMap.get(saksrelasjon.getSakId())), k -> new ArrayList<>()).add(journalpostDto);
-				} else {
-					temaMap.computeIfAbsent(journalpostDto.getFagomrade(), k -> new ArrayList<>()).add(journalpostDto);
-				}
-			} else {
-				temaMap.computeIfAbsent(journalpostDto.getFagomrade(), k -> new ArrayList<>()).add(journalpostDto);
-			}
-		}
-		return temaMap;
-	}
-
-	private Sakstema mapSakstema(Map.Entry<FagomradeCode, List<JournalpostDto>> fagomradeCodeListEntry, Saker saker, BrukerIdenter brukerIdenter) {
-		final Tema tema = FagomradeCode.toTema(fagomradeCodeListEntry.getKey());
-
-		return Sakstema.builder()
-				.kode(tema.name())
-				.navn(tema.getTemanavn())
-				.journalposter(fagomradeCodeListEntry.getValue().stream()
-						.filter(Objects::nonNull)
-						.map(jp -> journalpostMapper.map(jp, saker, brukerIdenter))
-						.filter(journalpost -> utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter))
-						.map(journalpost -> setDokumentVariant(journalpost, brukerIdenter))
-						.collect(Collectors.toList()))
-				.build();
-	}
-
-	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-		Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-		return t -> seen.putIfAbsent(keyExtractor.apply(t), TRUE) == null;
-	}
-
-	private Journalpost setDokumentVariant(Journalpost journalpost, BrukerIdenter brukerIdenter) {
-		journalpost.getDokumenter().forEach(dokumentInfo -> dokumentInfo.getDokumentvarianter().forEach(
-				dokumentvariant -> {
-					List<String> codes = utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter);
-					dokumentvariant.setBrukerHarTilgang(codes.isEmpty());
-					dokumentvariant.setCode(codes.isEmpty() ? singletonList(STATUS_OK) : codes);
-				}));
-		return journalpost;
-	}
 }
