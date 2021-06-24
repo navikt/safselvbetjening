@@ -20,7 +20,7 @@ class JournalposterQueryService {
 		List<Journalpost> journalposts = journalpostdata.getJournalposter().stream()
 				.sorted(Comparator.comparing(Journalpost::getJournalpostId).reversed())
 				.collect(Collectors.toList());
-		log.info("dokumentoversiktSelvbetjening henter /journalposter. antall_journalposter={}/{}",
+		log.info("dokumentoversiktSelvbetjening hentet /journalposter. antall_journalposter={}/{}",
 				journalpostdata.getAntallEtterFiltrering(), journalpostdata.getAntallFoerFiltrering());
 		return journalposts;
 	}
