@@ -15,8 +15,10 @@ import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.RelevantDato;
+import no.nav.safselvbetjening.domain.Sak;
 import no.nav.safselvbetjening.domain.SkjermingType;
 import no.nav.safselvbetjening.service.BrukerIdenter;
+import no.nav.safselvbetjening.service.Saker;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -25,9 +27,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.toTema;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.ARKIV;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.SLADDET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
@@ -37,6 +41,8 @@ import static no.nav.safselvbetjening.domain.Datotype.DATO_JOURNALFOERT;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_OPPRETTET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_REGISTRERT;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_SENDT_PRINT;
+import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
+import static no.nav.safselvbetjening.domain.Sakstype.fromApplikasjon;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -50,6 +56,7 @@ public class JournalpostMapper {
 	private static final EnumSet<VariantFormatCode> GYLDIGE_VARIANTER = EnumSet.of(ARKIV, SLADDET);
 	private static final String FILTYPE_PDFA = "PDFA";
 	private static final String FILTYPE_PDF = "PDF";
+	static final String FAGSYSTEM_PENSJON = "PP01";
 
 	private final AvsenderMottakerMapper avsenderMottakerMapper;
 
@@ -57,12 +64,14 @@ public class JournalpostMapper {
 		this.avsenderMottakerMapper = avsenderMottakerMapper;
 	}
 
-	Journalpost map(JournalpostDto journalpostDto, BrukerIdenter brukerIdenter) {
+	Journalpost map(JournalpostDto journalpostDto, Saker saker, BrukerIdenter brukerIdenter) {
 		try {
 			return Journalpost.builder()
 					.journalpostId(journalpostDto.getJournalpostId().toString())
 					.journalposttype(journalpostDto.getJournalposttype().toSafJournalposttype())
 					.journalstatus(journalpostDto.getJournalstatus().toSafJournalstatus())
+					.tema(mapTema(journalpostDto, saker))
+					.sak(mapSak(journalpostDto))
 					.tittel(journalpostDto.getInnhold())
 					.kanal(mapKanal(journalpostDto))
 					.avsender(JournalpostTypeCode.I == journalpostDto.getJournalposttype() ? avsenderMottakerMapper.map(journalpostDto) : null)
@@ -75,6 +84,54 @@ public class JournalpostMapper {
 			log.error("Teknisk feil under mapping av journalpost med journalpostId={}.", journalpostDto.getJournalpostId(), e);
 			return null;
 		}
+	}
+
+	private String mapTema(JournalpostDto journalpostDto, Saker saker) {
+		final String journalpostTema = getJournalpostTema(journalpostDto);
+		if (journalpostDto.isTilknyttetSak()) {
+			SaksrelasjonDto saksrelasjon = journalpostDto.getSaksrelasjon();
+			if(FagsystemCode.PEN == saksrelasjon.getFagsystem()) {
+				Map<String, String> arkivsakIdTemaMap = saker.getArkivsakIdTemaMap();
+				return arkivsakIdTemaMap.getOrDefault(saksrelasjon.getSakId(), journalpostTema);
+			} else {
+				// For journalposter som har saksrelasjon og mangler tema, er gjeldende tema lik Journalpost.tema.
+				if(isBlank(saksrelasjon.getTema())) {
+					return journalpostTema;
+				} else {
+					return saksrelasjon.getTema();
+				}
+			}
+		} else {
+			// For journalposter som mangler saksrelasjon, er gjeldende tema lik Journalpost.tema.
+			return journalpostTema;
+		}
+	}
+
+	private String getJournalpostTema(JournalpostDto journalpostDto) {
+		return toTema(journalpostDto.getFagomrade()).name();
+	}
+
+	private Sak mapSak(JournalpostDto journalpostDto) {
+		if(journalpostDto.isTilknyttetSak()) {
+			SaksrelasjonDto saksrelasjon = journalpostDto.getSaksrelasjon();
+			if(FagsystemCode.PEN == saksrelasjon.getFagsystem()) {
+				return Sak.builder()
+						.fagsakId(saksrelasjon.getSakId())
+						.fagsaksystem(FAGSYSTEM_PENSJON)
+						.sakstype(FAGSAK)
+						.build();
+			} else {
+				if(saksrelasjon.getFagsystem() == null) {
+					return null;
+				}
+				return Sak.builder()
+						.fagsakId(saksrelasjon.getFagsakNr())
+						.fagsaksystem(saksrelasjon.getApplikasjon())
+						.sakstype(fromApplikasjon(saksrelasjon.getApplikasjon()))
+						.build();
+			}
+		}
+		return null;
 	}
 
 	private Journalpost.TilgangJournalpost mapJournalpostTilgang(JournalpostDto journalpostDto, BrukerIdenter brukerIdenter) {

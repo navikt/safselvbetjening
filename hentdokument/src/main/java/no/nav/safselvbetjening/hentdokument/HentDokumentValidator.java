@@ -5,7 +5,9 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Set;
 
-import static java.util.Collections.singletonList;
+import static java.util.Arrays.asList;
+import static no.nav.safselvbetjening.domain.Variantformat.ARKIV;
+import static no.nav.safselvbetjening.domain.Variantformat.SLADDET;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
 
 /**
@@ -13,7 +15,7 @@ import static org.apache.commons.lang3.StringUtils.isNumeric;
  */
 @Component
 public class HentDokumentValidator {
-	private static final Set<String> ALLOWED_VARIANTFORMAT = new HashSet<>(singletonList("ARKIV"));
+	private static final Set<String> ALLOWED_VARIANTFORMAT = new HashSet<>(asList(ARKIV.name(), SLADDET.name()));
 	private static final String VARIANTFORMAT_ERRORMSG = String.join(",", ALLOWED_VARIANTFORMAT);
 
 	void validate(HentdokumentRequest hentdokumentRequest) {

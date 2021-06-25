@@ -18,7 +18,10 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.UtsendingsKanalCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode;
 import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
+import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
+import no.nav.safselvbetjening.consumer.sak.Joarksak;
 import no.nav.safselvbetjening.service.BrukerIdenter;
+import no.nav.safselvbetjening.service.Saker;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -29,6 +32,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.lang.Integer.parseInt;
 
 public class JournalpostDtoTestObjects {
 
@@ -51,11 +56,13 @@ public class JournalpostDtoTestObjects {
 	static final Date JOURNAL_DATO = Date.from(JOURNAL_DATO_LDT.atZone(ZoneId.systemDefault()).toInstant());
 	static final Date MOTTAT_DATO = new Date(7000L);
 	static final Date DATO_FERDIGSTILT = new Date(8000L);
-	static final String SAKS_ID = "12345";
+	static final String ARKIVSAK_ID = "12345";
+	static final String FAGSAK_ID = "for-54321";
+	static final String FAGSAK_APPLIKASJON = "FS38";
 	static final FagsystemCode ARKIVSAKSYSTEM_GOSYS = FagsystemCode.FS22;
 	static final FagsystemCode ARKIVSAKSYSTEM_PENSJON = FagsystemCode.PEN;
 	static final AvsenderMottakerIdTypeCode AVSENDER_MOTTAKER_ID_TYPE_CODE = AvsenderMottakerIdTypeCode.FNR;
-	static final FagomradeCode FAGOMRADE = FagomradeCode.FOR;
+	static final FagomradeCode TEMA = FagomradeCode.FOR;
 	static final String JOURNALFOERT_AV = "Automatisk jobb";
 	static final String BEHANDLINGSTEMA = "ab0072";
 	static final String BEHANDLINGSTEMANAVN = "Foreldrepenger ved adopsjon";
@@ -81,12 +88,14 @@ public class JournalpostDtoTestObjects {
 	static final String FILSTORRELSE_1 = "100";
 	static final String FILSTORRELSE_2 = "200";
 	static final String FILTYPE = "PDF";
+	public static final String PENSJON_SAKID = "pensjon-123";
+	public static final String PENSJON_TEMA = FagomradeCode.UFO.name();
 
 	static JournalpostDto buildJournalpostDtoUtgaaendeType(JournalStatusCode journalStatusCode) {
 		return baseJournalpostDto()
 				.journalposttype(JournalpostTypeCode.U)
-				.saksrelasjon(new SaksrelasjonDto(SAKS_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, FAGOMRADE.name(),
-						null, null, null, null, null))
+				.saksrelasjon(new SaksrelasjonDto(ARKIVSAK_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, TEMA.name(),
+						FAGSAK_ID, FAGSAK_APPLIKASJON, null, null, null))
 				.utsendingskanal(UtsendingsKanalCode.SDP)
 				.journalstatus(journalStatusCode)
 				.journalDato(JOURNAL_DATO)
@@ -101,8 +110,8 @@ public class JournalpostDtoTestObjects {
 	static JournalpostDto buildJournalpostDtoNotatType(JournalStatusCode journalStatusCode) {
 		return baseJournalpostDto()
 				.journalposttype(JournalpostTypeCode.N)
-				.saksrelasjon(new SaksrelasjonDto(SAKS_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, FAGOMRADE.name(),
-						null, null, null, null, null))
+				.saksrelasjon(new SaksrelasjonDto(ARKIVSAK_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, TEMA.name(),
+						FAGSAK_ID, FAGSAK_APPLIKASJON, null, null, null))
 				.utsendingskanal(UtsendingsKanalCode.SDP)
 				.journalstatus(journalStatusCode)
 				.journalDato(JOURNAL_DATO)
@@ -118,8 +127,8 @@ public class JournalpostDtoTestObjects {
 		return baseJournalpostDto()
 				.bruker(BrukerDto.builder().brukerId(BRUKER_ID_PERSON).brukerIdType("PERSON").build())
 				.journalposttype(JournalpostTypeCode.I)
-				.saksrelasjon(new SaksrelasjonDto(SAKS_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, FAGOMRADE.name(),
-						null, null, null, null, null))
+				.saksrelasjon(new SaksrelasjonDto(ARKIVSAK_ID, false, ARKIVSAKSYSTEM_GOSYS, AKTOER_ID, TEMA.name(),
+						FAGSAK_ID, FAGSAK_APPLIKASJON, null, null, null))
 				.mottattDato(MOTTAT_DATO)
 				.journalDato(JOURNAL_DATO)
 				.mottakskanal(MottaksKanalCode.NAV_NO)
@@ -143,7 +152,7 @@ public class JournalpostDtoTestObjects {
 				.journalpostId(JOURNALPOST_ID)
 				.nextJournalpostId(405252858L)
 				.innhold(INNHOLD)
-				.fagomrade(FAGOMRADE)
+				.fagomrade(TEMA)
 				.behandlingstema(BEHANDLINGSTEMA)
 				.behandlingstemanavn(BEHANDLINGSTEMANAVN)
 				.avsenderMottakerId(AVSENDER_MOTTAKER_ID)
@@ -226,5 +235,19 @@ public class JournalpostDtoTestObjects {
 		pdlIdent.setHistorisk(historisk);
 		pdlIdent.setGruppe(gruppe);
 		return pdlIdent;
+	}
+
+	static Saker createSaker() {
+		return new Saker(
+				Collections.singletonList(Joarksak.builder()
+						.tema(TEMA.name())
+						.id(parseInt(ARKIVSAK_ID))
+						.applikasjon(FAGSAK_APPLIKASJON)
+						.fagsakNr(FAGSAK_ID)
+						.build()),
+				Collections.singletonList(Pensjonsak.builder()
+						.tema(PENSJON_TEMA)
+						.sakNr(PENSJON_SAKID)
+						.build()));
 	}
 }

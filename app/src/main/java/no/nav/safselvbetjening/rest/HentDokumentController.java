@@ -57,11 +57,11 @@ public class HentDokumentController {
 			@PathVariable String dokumentInfoId,
 			@PathVariable String variantFormat,
 			@RequestHeader(value = NAV_CALLID, required = false) String navCallid) {
-		log.info("hentdokument har mottatt kall. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
 		try {
 			final TokenValidationContext tokenValidationContext = tokenValidationContextHolder.getTokenValidationContext();
 			MDC.put(MDC_CALL_ID, isNotBlank(navCallid) ? navCallid : randomUUID().toString());
 			MDC.put(MDC_CONSUMER_ID, getConsumerIdFromToken(tokenValidationContext));
+			log.info("hentdokument har mottatt kall. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
 			HentdokumentRequest request = HentdokumentRequest.builder()
 					.journalpostId(journalpostId)
 					.dokumentInfoId(dokumentInfoId)

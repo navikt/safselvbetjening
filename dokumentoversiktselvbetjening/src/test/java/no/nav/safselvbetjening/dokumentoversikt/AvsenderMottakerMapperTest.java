@@ -7,7 +7,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.stream.Stream;
 
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVSENDER_MOTTAKER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,16 +21,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AvsenderMottakerMapperTest {
 	private final AvsenderMottakerMapper mapper = new AvsenderMottakerMapper();
 
-	@Test
-	void shouldMapAvsenderMottakerIdTypeNull() {
+	@ParameterizedTest
+	@MethodSource("blankStrings")
+	void shouldMapToNullWhenInputNullOrBlankAndIdTypeNull(final String input) {
 		JournalpostDto journalpostDto = JournalpostDtoTestObjects.buildJournalpostDtoInngaaendeType();
-		journalpostDto.setAvsenderMottakerId(null);
+		journalpostDto.setAvsenderMottakerId(input);
 		journalpostDto.setAvsenderMottakerIdType(null);
 
 		AvsenderMottaker avsenderMottaker = mapper.map(journalpostDto);
 
-		assertThat(avsenderMottaker.getId()).isNull();
-		assertThat(avsenderMottaker.getType()).isEqualTo(AvsenderMottakerIdType.NULL);
+		assertThat(avsenderMottaker).isNull();
+	}
+
+	@SuppressWarnings("unused")
+	static Stream<String> blankStrings() {
+		return Stream.of("", "   ", null);
+	}
+
+	@Test
+	void shouldMapToNullWhenIdBlank() {
+		JournalpostDto journalpostDto = JournalpostDtoTestObjects.buildJournalpostDtoInngaaendeType();
+		journalpostDto.setAvsenderMottakerId("");
+		journalpostDto.setAvsenderMottakerIdType(null);
+
+		AvsenderMottaker avsenderMottaker = mapper.map(journalpostDto);
+
+		assertThat(avsenderMottaker).isNull();
 	}
 
 	@Test
@@ -45,16 +64,6 @@ class AvsenderMottakerMapperTest {
 	@Nested
 	@DisplayName("Test mapping når AvsenderMottakerIdType ikke er satt")
 	class AvsenderMottakerIdTypeIsNull {
-
-		@Test
-		void shouldMapAvsenderMottakerIdTypeNullWhenAvsenderMottakerIdIsNull() {
-			JournalpostDto journalpostDto = buildJournalpostDtoAvsenderMottakerIdTypeNull();
-			journalpostDto.setAvsenderMottakerId(null);
-
-			AvsenderMottaker avsenderMottaker = mapper.map(journalpostDto);
-
-			assertThat(avsenderMottaker.getType()).isEqualTo(AvsenderMottakerIdType.NULL);
-		}
 
 		@Test
 		void shouldMapAvsenderMottakerIdTypeORGNRWhenAvsenderMottakerIdIsOfLength9() {
@@ -103,7 +112,7 @@ class AvsenderMottakerMapperTest {
 		}
 
 		@ParameterizedTest
-		@ValueSource(strings = {"12345", "1234567890123", ""})
+		@ValueSource(strings = {"12345", "1234567890123"})
 		void shouldMapAvsenderMottakerIdTypeUKJENT(String input) {
 			JournalpostDto journalpostDto = buildJournalpostDtoAvsenderMottakerIdTypeNull();
 			journalpostDto.setAvsenderMottakerId(input);

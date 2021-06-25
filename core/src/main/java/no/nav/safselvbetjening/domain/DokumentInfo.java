@@ -4,20 +4,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 import lombok.Value;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 @Value
-@ToString(exclude = "parent")
 @Builder
 public class DokumentInfo {
-
+	@ToString.Exclude
 	private final Journalpost parent;
 
 	private final String dokumentInfoId;
+	@ToString.Exclude
 	private final String tittel;
 	private final String brevkode;
 	private final TilgangDokument tilgangDokument;

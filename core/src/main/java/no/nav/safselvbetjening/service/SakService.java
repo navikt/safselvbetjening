@@ -5,8 +5,8 @@ import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.pensjon.PensjonSakWsConsumer;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
-import no.nav.safselvbetjening.consumer.sak.Arkivsak;
-import no.nav.safselvbetjening.consumer.sak.ArkivsakConsumer;
+import no.nav.safselvbetjening.consumer.sak.Joarksak;
+import no.nav.safselvbetjening.consumer.sak.JoarksakConsumer;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -24,22 +24,22 @@ import java.util.List;
 public class SakService {
 	private static final List<String> TEMA_PENSJON = Arrays.asList("UFO", "PEN");
 	private final PensjonSakWsConsumer pensjonSakWsConsumer;
-	private final ArkivsakConsumer arkivsakConsumer;
+	private final JoarksakConsumer joarksakConsumer;
 
-	public SakService(PensjonSakWsConsumer pensjonSakWsConsumer, ArkivsakConsumer arkivsakConsumer) {
+	public SakService(PensjonSakWsConsumer pensjonSakWsConsumer, JoarksakConsumer joarksakConsumer) {
 		this.pensjonSakWsConsumer = pensjonSakWsConsumer;
-		this.arkivsakConsumer = arkivsakConsumer;
+		this.joarksakConsumer = joarksakConsumer;
 	}
 
 	public Saker hentSaker(BrukerIdenter brukerIdenter, final List<String> tema) {
-		List<Arkivsak> arkivsaker = hentArkivsaker(brukerIdenter.getAktoerIds(), tema);
+		List<Joarksak> arkivsaker = hentArkivsaker(brukerIdenter.getAktoerIds(), tema);
 		List<Pensjonsak> pensjonsaker = hentPensjonSaker(brukerIdenter.getAktivFolkeregisterident(), tema);
 		return new Saker(arkivsaker, pensjonsaker);
 	}
 
-	private List<Arkivsak> hentArkivsaker(final List<String> aktoerIds, final List<String> tema) {
+	private List<Joarksak> hentArkivsaker(final List<String> aktoerIds, final List<String> tema) {
 		try {
-			return arkivsakConsumer.hentSaker(aktoerIds, tema);
+			return joarksakConsumer.hentSaker(aktoerIds, tema);
 		} catch (ConsumerFunctionalException e) {
 			log.warn("Henting av arkivsaker feilet. ", e);
 			return new ArrayList<>();

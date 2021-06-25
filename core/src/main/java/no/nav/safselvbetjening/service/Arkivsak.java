@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class Sak {
+public class Arkivsak {
     private final String arkivsakId;
     private final String tema;
 }
