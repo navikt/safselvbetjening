@@ -16,11 +16,16 @@ type Dokumentoversikt {
     # En liste av tema knyttet til bruker sine saker.
     tema: [Sakstema!]!
 
-    journalposter: [Journalpost]!
+    # En liste av fagsaker til bruker.
+    fagsak: [Fagsak!]!
+
+    # En flat liste med journalposter uten gruppering. Inkluderer både med og uten sakstilknytning.
+    journalposter: [Journalpost!]!
 }
 
+# Gruppering for tema
 type Sakstema {
-    # En liste av journalposter.
+    # En liste av journalposter. Inkluderer både med og uten sakstilknytning.
     journalposter: [Journalpost]!
 
     # Tre-bokstavs kode for tema. Eksempel: `"FOR"`
@@ -28,6 +33,21 @@ type Sakstema {
 
     # Fullt navn for tema. Eksempel: Foreldrepenger
     navn: String!
+}
+
+# Gruppering for fagsak
+type Fagsak {
+    # En liste av journalposter. Inkluderer kun sakstilknyttede og journalførte.
+    journalposter: [Journalpost]!
+
+    # Saksnummeret i fagsystemet.
+    fagsakId: String!
+
+    # Kode som indikerer hvilket fagsystem, eventuelt nummerserie for fagsaker, som fagsaken befinner seg i.
+    fagsaksystem: String!
+
+    # Temaet/Fagområdet som journalposten og tilhørende sak tilhører, f.eks. `"FOR"`.
+    tema: String
 }
 
 # Et sett med metadata som er nødvendig for å gjenfinne et dokument i arkivet. En journalpost kan ha ett eller flere dokumenter.

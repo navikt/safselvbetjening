@@ -18,16 +18,27 @@ import static java.util.stream.Stream.concat;
  */
 @Getter
 public class Saker {
+	public static final String FAGSYSTEM_PENSJON = "PP01";
 	private final List<Arkivsak> joarksaker;
 	private final List<Arkivsak> pensjonsaker;
 	private final Map<String, String> arkivsakIdTemaMap;
 
 	public Saker(final List<Joarksak> joarksaker, final List<Pensjonsak> pensjonsaker) {
 		this.joarksaker = joarksaker.stream()
-				.map(s -> Arkivsak.builder().arkivsakId(s.getId().toString()).tema(s.getTema()).build())
+				.map(s -> Arkivsak.builder()
+						.arkivsakId(s.getId().toString())
+						.tema(s.getTema())
+						.fagsakId(s.getFagsakNr())
+						.fagsaksystem(s.getApplikasjon())
+						.build())
 				.collect(toList());
 		this.pensjonsaker = pensjonsaker.stream()
-				.map(s -> Arkivsak.builder().arkivsakId(s.getSakNr()).tema(s.getTema()).build())
+				.map(s -> Arkivsak.builder()
+						.arkivsakId(s.getSakNr())
+						.tema(s.getTema())
+						.fagsakId(s.getSakNr())
+						.fagsaksystem(FAGSYSTEM_PENSJON)
+						.build())
 				.collect(toList());
 		arkivsakIdTemaMap = getArkivsakerAsStream()
 				.collect(toMap(Arkivsak::getArkivsakId, Arkivsak::getTema));

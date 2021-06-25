@@ -56,7 +56,6 @@ public class JournalpostMapper {
 	private static final EnumSet<VariantFormatCode> GYLDIGE_VARIANTER = EnumSet.of(ARKIV, SLADDET);
 	private static final String FILTYPE_PDFA = "PDFA";
 	private static final String FILTYPE_PDF = "PDF";
-	static final String FAGSYSTEM_PENSJON = "PP01";
 
 	private final AvsenderMottakerMapper avsenderMottakerMapper;
 
@@ -117,7 +116,7 @@ public class JournalpostMapper {
 			if(FagsystemCode.PEN == saksrelasjon.getFagsystem()) {
 				return Sak.builder()
 						.fagsakId(saksrelasjon.getSakId())
-						.fagsaksystem(FAGSYSTEM_PENSJON)
+						.fagsaksystem(Saker.FAGSYSTEM_PENSJON)
 						.sakstype(FAGSAK)
 						.build();
 			} else {

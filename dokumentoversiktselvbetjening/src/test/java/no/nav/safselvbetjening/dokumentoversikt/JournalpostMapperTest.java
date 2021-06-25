@@ -67,7 +67,6 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.buildJournalpostDtoUtgaaendeType;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.createBrukerIdenter;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.createSaker;
-import static no.nav.safselvbetjening.dokumentoversikt.JournalpostMapper.FAGSYSTEM_PENSJON;
 import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
 import static no.nav.safselvbetjening.domain.Journalposttype.I;
 import static no.nav.safselvbetjening.domain.Journalposttype.N;
@@ -80,6 +79,7 @@ import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
 import static no.nav.safselvbetjening.domain.Sakstype.GENERELL_SAK;
 import static no.nav.safselvbetjening.domain.Variantformat.ARKIV;
 import static no.nav.safselvbetjening.domain.Variantformat.SLADDET;
+import static no.nav.safselvbetjening.service.Saker.FAGSYSTEM_PENSJON;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

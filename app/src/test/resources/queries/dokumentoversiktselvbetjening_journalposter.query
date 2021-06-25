@@ -1,0 +1,42 @@
+{
+  dokumentoversiktSelvbetjening(ident: "12345678911", tema: []) {
+    journalposter {
+      journalpostId
+      tittel
+      journalposttype
+      journalstatus
+      tema
+      sak {
+        fagsakId
+        fagsaksystem
+        sakstype
+      }
+      avsender {
+        id
+        type
+      }
+      mottaker {
+        id
+        type
+      }
+      kanal
+      relevanteDatoer {
+        dato
+        datotype
+      }
+      dokumenter {
+        dokumentInfoId
+        tittel
+        brevkode
+        dokumentvarianter {
+          variantformat
+          filuuid
+          filtype
+          filstorrelse
+          brukerHarTilgang
+          code
+        }
+      }
+    }
+  }
+}

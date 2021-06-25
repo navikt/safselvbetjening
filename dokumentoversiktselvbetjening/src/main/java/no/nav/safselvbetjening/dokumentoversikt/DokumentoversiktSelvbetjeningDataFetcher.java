@@ -6,6 +6,7 @@ import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
+import no.nav.safselvbetjening.domain.Fagsak;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
@@ -43,15 +44,21 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	private final DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService;
 	private final TemaQueryService temaQueryService;
 	private final TemaJournalposterQueryService temaJournalposterQueryService;
+	private final FagsakQueryService fagsakQueryService;
+	private final FagsakJournalposterQueryService fagsakJournalposterQueryService;
 	private final JournalposterQueryService journalposterQueryService;
 
 	public DokumentoversiktSelvbetjeningDataFetcher(DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService,
 													TemaQueryService temaQueryService,
 													TemaJournalposterQueryService temaJournalposterQueryService,
+													FagsakQueryService fagsakQueryService,
+													FagsakJournalposterQueryService fagsakJournalposterQueryService,
 													JournalposterQueryService journalposterQueryService) {
 		this.dokumentoversiktSelvbetjeningService = dokumentoversiktSelvbetjeningService;
 		this.temaQueryService = temaQueryService;
 		this.temaJournalposterQueryService = temaJournalposterQueryService;
+		this.fagsakQueryService = fagsakQueryService;
+		this.fagsakJournalposterQueryService = fagsakJournalposterQueryService;
 		this.journalposterQueryService = journalposterQueryService;
 	}
 
@@ -67,7 +74,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			final List<String> tema = temaArgument(environment);
 
 			DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
-			if (selectionSet.containsAnyOf("tema", "journalposter")) {
+			if (selectionSet.containsAnyOf("tema", "fagsak", "journalposter")) {
 				Dokumentoversikt dokumentoversikt = fetchDokumentoversikt(ident, tema, environment);
 				return DataFetcherResult.newResult()
 						.data(dokumentoversikt)
@@ -93,9 +100,11 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		final Basedata basedata = dokumentoversiktSelvbetjeningService.queryBasedata(ident, tema, environment);
 		final Journalpostdata filtrerteJournalpostdata = filtrerteJournalposter(basedata, tema, selectionSet);
 		final List<Sakstema> sakstema = fetchSakstema(basedata, filtrerteJournalpostdata, selectionSet);
+		final List<Fagsak> fagsaker = fetchFagsak(basedata, filtrerteJournalpostdata, selectionSet);
 		final List<Journalpost> journalposter = fetchJournalposter(filtrerteJournalpostdata, selectionSet);
 		return Dokumentoversikt.builder()
 				.tema(sakstema)
+				.fagsak(fagsaker)
 				.journalposter(journalposter)
 				.build();
 	}
@@ -103,7 +112,9 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	private Journalpostdata filtrerteJournalposter(Basedata basedata, List<String> tema,
 												   DataFetchingFieldSelectionSet selectionSet) {
 		if (selectionSet.containsAnyOf("tema/journalposter", "journalposter")) {
-			return dokumentoversiktSelvbetjeningService.queryFiltrerteJournalposter(basedata, tema);
+			return dokumentoversiktSelvbetjeningService.queryFiltrerAlleJournalposter(basedata, tema);
+		} else if(selectionSet.containsAnyOf("fagsak/journalposter")) {
+			return dokumentoversiktSelvbetjeningService.queryFiltrerSakstilknyttedeJournalposter(basedata, tema);
 		}
 		return Journalpostdata.empty();
 	}
@@ -115,6 +126,18 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 				return temaJournalposterQueryService.query(journalpostdata);
 			}
 			return temaQueryService.query(basedata);
+		} else {
+			return new ArrayList<>();
+		}
+	}
+
+	private List<Fagsak> fetchFagsak(Basedata basedata, Journalpostdata journalpostdata,
+									   DataFetchingFieldSelectionSet selectionSet) {
+		if (selectionSet.contains("fagsak")) {
+			if (selectionSet.contains("fagsak/journalposter")) {
+				return fagsakJournalposterQueryService.query(journalpostdata);
+			}
+			return fagsakQueryService.query(basedata);
 		} else {
 			return new ArrayList<>();
 		}
