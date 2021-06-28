@@ -13,6 +13,9 @@ public class Dokumentoversikt {
     private final List<Sakstema> tema = new ArrayList<>();
 
     @Builder.Default
+    private final List<Fagsak> fagsak = new ArrayList<>();
+
+    @Builder.Default
     private final List<Journalpost> journalposter = new ArrayList<>();
 
     public static Dokumentoversikt empty() {

@@ -1,45 +1,127 @@
 {
   dokumentoversiktSelvbetjening(ident: "12345678911", tema: []) {
     tema {
+      journalposter {
+        journalpostId
+        tittel
+        journalposttype
+        journalstatus
+        tema
+        sak {
+          fagsakId
+          fagsaksystem
+          sakstype
+        }
+        avsender {
+          id
+          type
+        }
+        mottaker {
+          id
+          type
+        }
+        kanal
+        relevanteDatoer {
+          dato
+          datotype
+        }
+        dokumenter {
+          dokumentInfoId
+          tittel
+          brevkode
+          dokumentvarianter {
+            variantformat
+            filuuid
+            filtype
+            filstorrelse
+            brukerHarTilgang
+            code
+          }
+        }
+      }
       kode
       navn
-       journalposter {
-         journalpostId
-         tittel
-         journalposttype
-         journalstatus
-         avsender {
-           id
-           type
-         }
-         mottaker {
-           id
-           type
-         }
-         sak {
-           fagsakId
-           fagsaksystem
-           sakstype
-         }
-         kanal
-         relevanteDatoer {
-           dato
-           datotype
-         }
-         dokumenter {
-           dokumentInfoId
-           tittel
-           brevkode
-           dokumentvarianter {
-             variantformat
-             filuuid
-             filtype
-             filstorrelse
-             brukerHarTilgang
-             code
-           }
-         }
-       }
+    }
+    journalposter {
+      journalpostId
+      tittel
+      journalposttype
+      journalstatus
+      tema
+      sak {
+        fagsakId
+        fagsaksystem
+        sakstype
+      }
+      avsender {
+        id
+        type
+      }
+      mottaker {
+        id
+        type
+      }
+      kanal
+      relevanteDatoer {
+        dato
+        datotype
+      }
+      dokumenter {
+        dokumentInfoId
+        tittel
+        brevkode
+        dokumentvarianter {
+          variantformat
+          filuuid
+          filtype
+          filstorrelse
+          brukerHarTilgang
+          code
+        }
+      }
+    }
+    fagsak {
+      journalposter {
+        journalpostId
+        tittel
+        journalposttype
+        journalstatus
+        tema
+        sak {
+          fagsakId
+          fagsaksystem
+          sakstype
+        }
+        avsender {
+          id
+          type
+        }
+        mottaker {
+          id
+          type
+        }
+        kanal
+        relevanteDatoer {
+          dato
+          datotype
+        }
+        dokumenter {
+          dokumentInfoId
+          tittel
+          brevkode
+          dokumentvarianter {
+            variantformat
+            filuuid
+            filtype
+            filstorrelse
+            brukerHarTilgang
+            code
+          }
+        }
+      }
+      fagsakId
+      fagsaksystem
+      tema
     }
   }
 }

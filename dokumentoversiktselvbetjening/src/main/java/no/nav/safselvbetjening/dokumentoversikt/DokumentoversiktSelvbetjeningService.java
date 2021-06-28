@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.fagarkiv.FagarkivConsumer;
 import no.nav.safselvbetjening.consumer.fagarkiv.FinnJournalposterRequestTo;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -34,6 +35,9 @@ import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.STATUS_OK;
 @Slf4j
 @Component
 class DokumentoversiktSelvbetjeningService {
+	private static final List<JournalStatusCode> MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(MO, M, J, E, FL, FS);
+	private static final List<JournalStatusCode> FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(J, E, FL, FS);
+	private static final List<JournalpostTypeCode> ALLE_JOURNALPOSTTYPER = Arrays.asList(JournalpostTypeCode.values());
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final IdentService identService;
 	private final SakService sakService;
@@ -64,18 +68,27 @@ class DokumentoversiktSelvbetjeningService {
 		return new Basedata(brukerIdenter, saker);
 	}
 
+	Journalpostdata queryFiltrerAlleJournalposter(final Basedata basedata, final List<String> tema) {
+		final BrukerIdenter brukerIdenter = basedata.getBrukerIdenter();
+		final Saker saker = basedata.getSaker();
+		List<JournalpostDto> tilgangJournalposter = fagarkivConsumer.finnJournalposter(finnAlleJournalposterRequest(brukerIdenter, saker)).getTilgangJournalposter();
+		return mapOgFiltrerJournalposter(tema, brukerIdenter, saker, tilgangJournalposter);
+	}
+
+	Journalpostdata queryFiltrerSakstilknyttedeJournalposter(final Basedata basedata, final List<String> tema) {
+		final BrukerIdenter brukerIdenter = basedata.getBrukerIdenter();
+		final Saker saker = basedata.getSaker();
+		List<JournalpostDto> tilgangJournalposter = fagarkivConsumer.finnJournalposter(finnFerdigstilteJournalposterRequest(brukerIdenter, saker)).getTilgangJournalposter();
+		return mapOgFiltrerJournalposter(tema, brukerIdenter, saker, tilgangJournalposter);
+	}
+
 	/*
 	 * Henter og filtrerer journalposter etter tilgangsreglene i https://confluence.adeo.no/display/BOA/safselvbetjening+-+Regler+for+innsyn
 	 */
-	Journalpostdata queryFiltrerteJournalposter(final Basedata basedata, final List<String> tema) {
-		final BrukerIdenter brukerIdenter = basedata.getBrukerIdenter();
-		final Saker saker = basedata.getSaker();
-		/*
-		 * 1b) Bruker får ikke se journalposter som er opprettet før 04.06.2016
-		 * 1c) Bruker får kun se ferdigstilte journalposter
-		 * 1d) Bruker får ikke se feilregistrerte journalposter
-		 */
-		List<JournalpostDto> tilgangJournalposter = fagarkivConsumer.finnJournalposter(finnjournalposterRequest(brukerIdenter, saker)).getTilgangJournalposter();
+	private Journalpostdata mapOgFiltrerJournalposter(List<String> tema,
+														BrukerIdenter brukerIdenter,
+														Saker saker,
+														List<JournalpostDto> tilgangJournalposter) {
 		List<Journalpost> filtrerteJournalposter = tilgangJournalposter
 				.stream()
 				.map(journalpostDto -> journalpostMapper.map(journalpostDto, saker, brukerIdenter))
@@ -88,17 +101,37 @@ class DokumentoversiktSelvbetjeningService {
 		return new Journalpostdata(tilgangJournalposter.size(), filtrerteJournalposter);
 	}
 
-	private FinnJournalposterRequestTo finnjournalposterRequest(BrukerIdenter brukerIdenter, Saker saker) {
-		return FinnJournalposterRequestTo.builder()
+	/*
+	 * 1c) Bruker får kun se midlertidige og ferdigstilte journalposter.
+	 */
+	private FinnJournalposterRequestTo finnAlleJournalposterRequest(BrukerIdenter brukerIdenter, Saker saker) {
+		return baseFinnJournalposterRequest(brukerIdenter, saker)
 				.alleIdenter(brukerIdenter.getFoedselsnummer())
+				.inkluderJournalStatus(MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER)
+				.build();
+	}
+
+	/*
+	 * Modifikasjon av 1c - midlertidige journalposter vises ikke da de er uten sakstilknytning.
+	 */
+	private FinnJournalposterRequestTo finnFerdigstilteJournalposterRequest(BrukerIdenter brukerIdenter, Saker saker) {
+		return baseFinnJournalposterRequest(brukerIdenter, saker)
+				.inkluderJournalStatus(FERDIGSTILTE_JOURNALSTATUSER)
+				.build();
+	}
+
+	/*
+	 * 1b) Bruker får ikke se journalposter som er opprettet før 04.06.2016. Dette er datoen den første innsynsløsningen ble lansert.
+	 * 1d) Bruker får ikke se feilregistrerte journalposter.
+	 */
+	private FinnJournalposterRequestTo.FinnJournalposterRequestToBuilder baseFinnJournalposterRequest(BrukerIdenter brukerIdenter, Saker saker) {
+		return FinnJournalposterRequestTo.builder()
 				.psakSakIds(saker.getPensjonSakIds())
 				.gsakSakIds(saker.getArkivSakIds())
 				.fraDato(safSelvbetjeningProperties.getTidligstInnsynDato().toString())
-				.inkluderJournalpostType(Arrays.asList(JournalpostTypeCode.values()))
-				.inkluderJournalStatus(Arrays.asList(MO, M, J, E, FL, FS))
+				.inkluderJournalpostType(ALLE_JOURNALPOSTTYPER)
 				.foerste(9999)
-				.visFeilregistrerte(false)
-				.build();
+				.visFeilregistrerte(false);
 	}
 
 	private Journalpost setDokumentVariant(Journalpost journalpost, BrukerIdenter brukerIdenter) {

@@ -110,7 +110,9 @@
         "sakId": "135737721",
         "feilregistrert": null,
         "fagsystem": "FS22",
-        "aktoerId": "1012345678911"
+        "aktoerId": "1012345678911",
+        "fagsakNr": "fp-12345",
+        "applikasjon": "FS38"
       },
       "datoOpprettet": "2018-12-03T09:31:32.022+0000",
       "mottattDato": "2018-11-22T16:35:08.000+0000",

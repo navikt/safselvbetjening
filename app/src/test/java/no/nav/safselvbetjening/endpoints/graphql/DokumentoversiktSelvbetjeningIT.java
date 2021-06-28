@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.endpoints.graphql;
 
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
+import no.nav.safselvbetjening.domain.Fagsak;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.endpoints.AbstractItest;
 import no.nav.safselvbetjening.graphql.ErrorCode;
@@ -28,7 +29,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private static final String BRUKER_ID = "12345678911";
 
 	@Test
-	void shouldGetDokumentoversiktWhenAllTemaQueried() throws Exception {
+	void shouldGetDokumentoversiktWhenAllQueried() throws Exception {
 		happyStubs();
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
@@ -36,12 +37,79 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
-		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
-		assertThat(data.getTema()).hasSize(2);
-		Sakstema foreldrepenger = data.getTema().get(0);
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertTemaQuery(dokumentoversikt);
+		assertFagsakQuery(dokumentoversikt);
+		assertJournalposterQuery(dokumentoversikt);
+	}
+
+	@Test
+	void shouldGetDokumentoversiktWhenTemaQueried() throws Exception {
+		happyStubs();
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_tema.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertTemaQuery(dokumentoversikt);
+	}
+
+	@Test
+	void shouldGetDokumentoversiktWhenFagsakQueried() throws Exception {
+		happyStubs();
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_fagsak.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertFagsakQuery(dokumentoversikt);
+	}
+
+	@Test
+	void shouldGetDokumentoversiktWhenJournalposterQueried() throws Exception {
+		happyStubs();
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_journalposter.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertJournalposterQuery(dokumentoversikt);
+	}
+
+	private void assertTemaQuery(Dokumentoversikt dokumentoversikt) {
+		assertThat(dokumentoversikt.getTema()).hasSize(2);
+		Sakstema foreldrepenger = dokumentoversikt.getTema().get(0);
+		assertThat(foreldrepenger.getKode()).isEqualTo("FOR");
+		assertThat(foreldrepenger.getNavn()).isEqualTo("Foreldre- og svangerskapspenger");
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
-		Sakstema pensjon = data.getTema().get(1);
+		Sakstema pensjon = dokumentoversikt.getTema().get(1);
+		assertThat(pensjon.getKode()).isEqualTo("UFO");
+		assertThat(pensjon.getNavn()).isEqualTo("Uføretrygd");
 		assertThat(pensjon.getJournalposter()).hasSize(1);
+	}
+
+	private void assertFagsakQuery(Dokumentoversikt dokumentoversikt) {
+		assertThat(dokumentoversikt.getFagsak()).hasSize(2);
+		Fagsak foreldrepenger = dokumentoversikt.getFagsak().get(0);
+		assertThat(foreldrepenger.getFagsakId()).isEqualTo("fp-12345");
+		assertThat(foreldrepenger.getFagsaksystem()).isEqualTo("FS38");
+		assertThat(foreldrepenger.getTema()).isEqualTo("FOR");
+		assertThat(foreldrepenger.getJournalposter()).hasSize(1);
+		Fagsak pensjon = dokumentoversikt.getFagsak().get(1);
+		assertThat(pensjon.getTema()).isEqualTo("UFO");
+		assertThat(pensjon.getFagsakId()).isEqualTo("21998969");
+		assertThat(pensjon.getFagsaksystem()).isEqualTo("PP01");
+		assertThat(pensjon.getJournalposter()).hasSize(1);
+	}
+
+	private void assertJournalposterQuery(Dokumentoversikt dokumentoversikt) {
+		assertThat(dokumentoversikt.getJournalposter()).hasSize(3);
 	}
 
 	@Test
