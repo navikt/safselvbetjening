@@ -14,8 +14,6 @@ import no.nav.security.token.support.core.api.Protected;
 import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.slf4j.MDC;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +29,9 @@ import static no.nav.safselvbetjening.MDCUtils.MDC_CONSUMER_ID;
 import static no.nav.safselvbetjening.MDCUtils.getConsumerIdFromToken;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * Endepunktet til hentDokument, som returnerer et dokument fra joark basert på journalpostId, dokumentInfoId og variantFormat.
@@ -73,7 +74,7 @@ public class HentDokumentController {
 
 			return ResponseEntity.ok()
 					.contentType(response.getMediaType())
-					.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + dokumentInfoId + "_" + variantFormat + response.getExtension())
+					.header(CONTENT_DISPOSITION, "inline; filename=" + dokumentInfoId + "_" + variantFormat + response.getExtension())
 					.body(response.getDokument());
 		} catch (HentTilgangDokumentException e) {
 			String message = format("Tilgang til dokument avvist. journalpostId=%s, dokumentInfoId=%s, variantFormat=%s. reason=%s", journalpostId, dokumentInfoId, variantFormat, e.getMessage());
@@ -81,9 +82,10 @@ public class HentDokumentController {
 			throw e;
 		} catch (JournalpostIkkeFunnetException | DokumentIkkeFunnetException | PdlFunctionalException | PensjonsakIkkeFunnetException e) {
 			log.warn(e.getMessage());
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+			throw new ResponseStatusException(NOT_FOUND, e.getMessage());
 		} catch (HentdokumentRequestException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+			log.warn(e.getMessage()	);
+			throw new ResponseStatusException(BAD_REQUEST, e.getMessage());
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw e;

@@ -16,6 +16,7 @@ import no.nav.safselvbetjening.service.BrukerIdenter;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static no.nav.safselvbetjening.domain.Tema.DAG;
@@ -45,7 +46,7 @@ public class UtledTilgangTestObjects {
 						.id(IDENT)
 						.type(AvsenderMottakerIdType.FNR)
 						.build())
-				.relevanteDatoer(List.of(new RelevantDato(LocalDateTime.now(), Datotype.DATO_JOURNALFOERT)))
+				.relevanteDatoer(List.of(new RelevantDato(new Date(), Datotype.DATO_JOURNALFOERT)))
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.tilgangBruker(Journalpost.TilgangBruker.builder()
 								.brukerId(IDENT)
