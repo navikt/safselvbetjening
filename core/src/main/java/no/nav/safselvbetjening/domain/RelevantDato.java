@@ -22,12 +22,6 @@ public class RelevantDato {
 	private final Datotype datotype;
 
 	@JsonCreator
-	public RelevantDato(@JsonProperty("dato") LocalDateTime dato, @JsonProperty("datotype") Datotype datotype) {
-		this.dato = dato;
-		this.datotype = datotype;
-	}
-
-	@JsonCreator
 	public RelevantDato(@JsonProperty("dato") Date dato, @JsonProperty("datotype") Datotype datotype) {
 		this.dato = toLocalDateTime(dato);
 		this.datotype = datotype;

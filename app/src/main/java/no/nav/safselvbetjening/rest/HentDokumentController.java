@@ -83,6 +83,7 @@ public class HentDokumentController {
 			log.warn(e.getMessage());
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		} catch (HentdokumentRequestException e) {
+			log.warn(e.getMessage()	);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		} catch (Exception e) {
 			log.error(e.getMessage());
