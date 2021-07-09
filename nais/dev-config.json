@@ -15,6 +15,7 @@
   "APPDYNAMICS": "/apikey/appdynamics/dev",
   "APPD_NAME": "safselvbetjening-dev",
   "INGRESSES": [
+    "https://safselvbetjening.dev.intern.nav.no",
     "https://safselvbetjening.dev.adeo.no",
     "https://safselvbetjening.dev-fss-pub.nais.io"
   ]

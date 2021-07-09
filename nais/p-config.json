@@ -15,6 +15,7 @@
   "APPDYNAMICS": "/apikey/appdynamics/prod",
   "APPD_NAME": "safselvbetjening",
   "INGRESSES": [
+    "https://safselvbetjening.intern.nav.no",
     "https://safselvbetjening.nais.adeo.no",
     "https://safselvbetjening.prod-fss-pub.nais.io"
   ]
