@@ -15,8 +15,8 @@ For mer informasjon: [safselvbetjening systemdokumentasjon](https://confluence.a
 
 | cluster    | fss-til-fss     | gcp-til-fss                       |
 | :--------- | :-------------- | :-------------------------------- |
-| `dev-fss`  | `https://safselvbetjening.dev.adeo.no`  |`https://safselvbetjening.dev-fss-pub.nais.io`|
-| `prod-fss` | `https://safselvbetjening.nais.adeo.no` |`https://safselvbetjening.prod-fss-pub.nais.io`|
+| `dev-fss`  | `https://safselvbetjening.dev.intern.nav.no`  |`https://safselvbetjening.dev-fss-pub.nais.io`|
+| `prod-fss` | `https://safselvbetjening.intern.nav.no` |`https://safselvbetjening.prod-fss-pub.nais.io`|
 
 #### Autorisasjon
 
