@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 import java.util.Base64;
 import java.util.List;
 
+import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
+import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INGEN_GYLDIG_TOKEN;
@@ -101,9 +103,10 @@ public class HentDokumentService {
 		JwtToken jwtToken = hentdokumentRequest.getTokenValidationContext().getFirstValidToken()
 				.orElseThrow(() -> new HentTilgangDokumentException(INGEN_GYLDIG_TOKEN, "Ingen gyldige tokens i Authorization headeren."));
 		List<String> identer = brukerIdenter.getIdenter();
-		String pid = jwtToken.getJwtTokenClaims().getStringClaim("pid");
-		if(!identer.contains(pid)) {
-			throw new HentTilgangDokumentException(BRUKER_MATCHER_IKKE_TOKEN, "Bruker på journalpost tilhører ikke bruker i token.");
+		String pid = jwtToken.getJwtTokenClaims().getStringClaim(CLAIM_PID);
+		String sub = jwtToken.getJwtTokenClaims().getStringClaim(CLAIM_SUB);
+		if(!identer.contains(pid) && !identer.contains(sub)) {
+			throw new HentTilgangDokumentException(BRUKER_MATCHER_IKKE_TOKEN, "Bruker på journalpost tilhører ikke bruker i token. Ident må ligge i pid eller sub claim.");
 		}
 	}
 }
