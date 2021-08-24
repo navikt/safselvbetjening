@@ -45,6 +45,17 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
+	void shouldHentDokumentWhenSubToken() {
+		stubPdl();
+		stubAzure();
+		stubHentDokumentDokarkiv();
+		stubHentTilgangJournalpostDokarkiv();
+
+		ResponseEntity<String> responseEntity = callHentDokumentSubToken();
+		assertOkArkivResponse(responseEntity);
+	}
+
+	@Test
 	void hentMidlertidigDokumentHappyPath() {
 		stubPdl();
 		stubAzure();
@@ -225,6 +236,11 @@ class HentDokumentIT extends AbstractItest {
 	private ResponseEntity<String> callHentDokument() {
 		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT.toString();
 		return this.restTemplate.exchange(uri, HttpMethod.GET, createHttpEntityHeaders(BRUKER_ID), String.class);
+	}
+
+	private ResponseEntity<String> callHentDokumentSubToken() {
+		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT.toString();
+		return this.restTemplate.exchange(uri, HttpMethod.GET, createHttpEntityHeadersSubToken(BRUKER_ID), String.class);
 	}
 
 }

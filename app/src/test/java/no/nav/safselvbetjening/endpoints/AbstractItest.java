@@ -58,11 +58,21 @@ public abstract class AbstractItest {
 		}
 	}
 
-	protected String token(String subject) {
-		String issuerId = "tokenx";
-		String audience = "safselvbetjening";
+	protected String pidToken(String subject) {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("pid", subject);
+		return token(subject, claims);
+	}
+
+	protected String subToken(String subject) {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("sub", subject);
+		return token(subject, claims);
+	}
+
+	protected String token(String subject, Map<String, Object> claims) {
+		String issuerId = "tokenx";
+		String audience = "safselvbetjening";
 		return server.issueToken(
 				issuerId,
 				"safselvbetjening",
@@ -80,7 +90,15 @@ public abstract class AbstractItest {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.set(NAV_CALLID, "itest");
-		headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token(subject));
+		headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + pidToken(subject));
+		return new HttpEntity<>(headers);
+	}
+
+	protected HttpEntity<?> createHttpEntityHeadersSubToken(String subject) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set(NAV_CALLID, "itest");
+		headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + subToken(subject));
 		return new HttpEntity<>(headers);
 	}
 
@@ -88,7 +106,15 @@ public abstract class AbstractItest {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.set(NAV_CALLID, "itest");
-		headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token(subject));
+		headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + pidToken(subject));
+		return headers;
+	}
+
+	protected HttpHeaders httpHeadersSubToken(String subject) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set(NAV_CALLID, "itest");
+		headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + subToken(subject));
 		return headers;
 	}
 

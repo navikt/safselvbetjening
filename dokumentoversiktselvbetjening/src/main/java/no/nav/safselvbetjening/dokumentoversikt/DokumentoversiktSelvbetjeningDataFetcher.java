@@ -25,6 +25,8 @@ import java.util.stream.Stream;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CALL_ID;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CONSUMER_ID;
 import static no.nav.safselvbetjening.MDCUtils.getConsumerIdFromToken;
+import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
+import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
 import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
 import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -113,7 +115,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 												   DataFetchingFieldSelectionSet selectionSet) {
 		if (selectionSet.containsAnyOf("tema/journalposter", "journalposter")) {
 			return dokumentoversiktSelvbetjeningService.queryFiltrerAlleJournalposter(basedata, tema);
-		} else if(selectionSet.containsAnyOf("fagsak/journalposter")) {
+		} else if (selectionSet.containsAnyOf("fagsak/journalposter")) {
 			return dokumentoversiktSelvbetjeningService.queryFiltrerSakstilknyttedeJournalposter(basedata, tema);
 		}
 		return Journalpostdata.empty();
@@ -132,7 +134,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	}
 
 	private List<Fagsak> fetchFagsak(Basedata basedata, Journalpostdata journalpostdata,
-									   DataFetchingFieldSelectionSet selectionSet) {
+									 DataFetchingFieldSelectionSet selectionSet) {
 		if (selectionSet.contains("fagsak")) {
 			if (selectionSet.contains("fagsak/journalposter")) {
 				return fagsakJournalposterQueryService.query(journalpostdata);
@@ -167,8 +169,9 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		final GraphQLRequestContext graphQLRequestContext = environment.getContext();
 		JwtToken jwtToken = graphQLRequestContext.getTokenValidationContext().getFirstValidToken()
 				.orElseThrow(() -> GraphQLException.of(ErrorCode.UNAUTHORIZED, environment, "Ingen gyldige tokens i Authorization headeren."));
-		if (!jwtToken.getJwtTokenClaims().containsClaim("pid", ident)) {
-			throw GraphQLException.of(ErrorCode.UNAUTHORIZED, environment, "Brukers ident i token matcher ikke ident i query.");
+		if (!jwtToken.getJwtTokenClaims().containsClaim(CLAIM_PID, ident) &&
+				!jwtToken.getJwtTokenClaims().containsClaim(CLAIM_SUB, ident)) {
+			throw GraphQLException.of(ErrorCode.UNAUTHORIZED, environment, "Brukers ident i token matcher ikke ident i query. Ident må ligge i pid eller sub claim.");
 		}
 	}
 

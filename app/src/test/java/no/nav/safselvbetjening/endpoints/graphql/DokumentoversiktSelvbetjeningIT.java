@@ -44,6 +44,21 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	@Test
+	void shouldGetDokumentoversiktWhenSubClaimUsed() throws Exception {
+		happyStubs();
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversiktSubToken("dokumentoversiktselvbetjening_all.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertTemaQuery(dokumentoversikt);
+		assertFagsakQuery(dokumentoversikt);
+		assertJournalposterQuery(dokumentoversikt);
+	}
+
+	@Test
 	void shouldGetDokumentoversiktWhenTemaQueried() throws Exception {
 		happyStubs();
 
@@ -222,6 +237,12 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private ResponseEntity<GraphQLResponse> callDokumentoversikt(final String queryfile) throws IOException, URISyntaxException {
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/" + queryfile), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(BRUKER_ID), HttpMethod.POST, new URI("/graphql"));
+		return restTemplate.exchange(requestEntity, GraphQLResponse.class);
+	}
+
+	private ResponseEntity<GraphQLResponse> callDokumentoversiktSubToken(final String queryfile) throws IOException, URISyntaxException {
+		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/" + queryfile), null, null);
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeadersSubToken(BRUKER_ID), HttpMethod.POST, new URI("/graphql"));
 		return restTemplate.exchange(requestEntity, GraphQLResponse.class);
 	}
 }
