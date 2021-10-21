@@ -52,6 +52,7 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.JOURNALPOST_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.JOURNAL_DATO;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.JOURNAL_DATO_LDT;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.KANAL_REFERANSE_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.KATEGORI;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.MOTTAT_DATO;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.PENSJON_SAKID;
@@ -98,6 +99,7 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getAvsender().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(journalpost.getAvsender().getType()).isEqualTo(FNR);
 		assertThat(journalpost.getMottaker()).isNull();
+		assertThat(journalpost.getEksternReferanseId()).isEqualTo(KANAL_REFERANSE_ID);
 		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
 				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),
 				new RelevantDato(JOURNAL_DATO, Datotype.DATO_JOURNALFOERT),
