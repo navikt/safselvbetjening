@@ -89,6 +89,10 @@ type Journalpost {
     # Liste over dokumentinfo tilknyttet journalposten.
     # * Dokumentene returneres i følgende sorteringsrekkefølge: Hoveddokumentet først, deretter vedleggene i tilfeldig rekkefølge.
     dokumenter: [DokumentInfo]
+
+    # Brukes for sporing og feilsøking på tvers av systemer.
+    # Eksempler på eksternReferanseId kan være sykmeldingsId for sykmeldinger, Altinn ArchiveReference for Altinn-skjema eller SEDid for SED.
+    eksternReferanseId: String
 }
 
 # Sakstilknytningen til journalposten.

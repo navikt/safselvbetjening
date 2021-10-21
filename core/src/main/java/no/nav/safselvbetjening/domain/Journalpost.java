@@ -28,6 +28,7 @@ public class Journalpost {
 	@Builder.Default
 	private final List<DokumentInfo> dokumenter = new ArrayList<>();
 	private final TilgangJournalpost tilgang;
+	private final String eksternReferanseId;
 
 	@Data
 	@Builder
