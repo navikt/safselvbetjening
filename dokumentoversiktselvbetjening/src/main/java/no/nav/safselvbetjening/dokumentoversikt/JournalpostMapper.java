@@ -73,12 +73,12 @@ public class JournalpostMapper {
 					.sak(mapSak(journalpostDto))
 					.tittel(journalpostDto.getInnhold())
 					.kanal(mapKanal(journalpostDto))
+					.eksternReferanseId(journalpostDto.getKanalReferanseId())
 					.avsender(JournalpostTypeCode.I == journalpostDto.getJournalposttype() ? avsenderMottakerMapper.map(journalpostDto) : null)
 					.mottaker(JournalpostTypeCode.U == journalpostDto.getJournalposttype() ? avsenderMottakerMapper.map(journalpostDto) : null)
 					.relevanteDatoer(mapRelevanteDatoer(journalpostDto))
 					.dokumenter(mapDokumenter(journalpostDto))
 					.tilgang(mapJournalpostTilgang(journalpostDto, brukerIdenter))
-					.eksternReferanseId(journalpostDto.getKanalReferanseId())
 					.build();
 		} catch (Exception e) {
 			log.error("Teknisk feil under mapping av journalpost med journalpostId={}.", journalpostDto.getJournalpostId(), e);

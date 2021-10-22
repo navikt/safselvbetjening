@@ -23,12 +23,12 @@ public class Journalpost {
 	private final AvsenderMottaker avsender;
 	private final AvsenderMottaker mottaker;
 	private final Kanal kanal;
+	private final String eksternReferanseId;
 	@Builder.Default
 	private final List<RelevantDato> relevanteDatoer = new ArrayList<>();
 	@Builder.Default
 	private final List<DokumentInfo> dokumenter = new ArrayList<>();
 	private final TilgangJournalpost tilgang;
-	private final String eksternReferanseId;
 
 	@Data
 	@Builder

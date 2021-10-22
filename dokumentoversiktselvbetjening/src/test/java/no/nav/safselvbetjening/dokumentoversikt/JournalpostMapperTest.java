@@ -96,9 +96,9 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getJournalposttype()).isEqualTo(I);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(JOURNALFOERT);
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.NAV_NO);
+		assertThat(journalpost.getMottaker()).isNull();
 		assertThat(journalpost.getAvsender().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(journalpost.getAvsender().getType()).isEqualTo(FNR);
-		assertThat(journalpost.getMottaker()).isNull();
 		assertThat(journalpost.getEksternReferanseId()).isEqualTo(KANAL_REFERANSE_ID);
 		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
 				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),
