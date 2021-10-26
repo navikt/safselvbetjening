@@ -49,8 +49,8 @@ spec:
     initialDelay: 30
     timeout: 3
   replicas:
-    min: 4
-    max: 10
+    min: {{ MIN_REPLICAS }}
+    max: {{ MAX_REPLICAS }}
   resources:
     limits:
       cpu: 2000m
