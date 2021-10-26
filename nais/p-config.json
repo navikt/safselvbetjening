@@ -14,8 +14,8 @@
   "GCP_CLUSTER": "prod-gcp",
   "APPDYNAMICS": "/apikey/appdynamics/prod",
   "APPD_NAME": "safselvbetjening",
-  "MIN_REPLICAS": "2",
-  "MAX_REPLICAS": "10",
+  "MIN_REPLICAS": 2,
+  "MAX_REPLICAS": 10,
   "INGRESSES": [
     "https://safselvbetjening.intern.nav.no",
     "https://safselvbetjening.nais.adeo.no",
