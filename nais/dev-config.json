@@ -14,8 +14,8 @@
   "GCP_CLUSTER": "dev-gcp",
   "APPDYNAMICS": "/apikey/appdynamics/dev",
   "APPD_NAME": "safselvbetjening-dev",
-  "MIN_REPLICAS": "1",
-  "MAX_REPLICAS": "2",
+  "MIN_REPLICAS": 1,
+  "MAX_REPLICAS": 2,
   "INGRESSES": [
     "https://safselvbetjening.dev.intern.nav.no",
     "https://safselvbetjening.dev.adeo.no",
