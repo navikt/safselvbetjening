@@ -22,7 +22,7 @@ For mer informasjon: [safselvbetjening systemdokumentasjon](https://confluence.a
 
 APIene krever [maskin-til-maskin token på vegne av innbygger](https://security.labs.nais.io/pages/guide/api-kall/sluttbruker/idporten.html).
 
-Kun Azure token er støttet. Brukers fødselsnummer må ligge i `pid` claimet.
+Kun Azure token er støttet. Brukers fødselsnummer må ligge i `pid` eller `sub` claimet.
 
 For tilgang, ta kontakt med teamet eller oppdater `accessPolicy` i [naiserator.yaml](nais/naiserator.yaml) i en PR og informer teamet.
 
