@@ -40,6 +40,11 @@
       "app": "sif-innsyn-api",
       "namespace": "dusseldorf",
       "cluster": "prod-gcp"
+    },
+    {
+      "app": "mininnboks-api",
+      "namespace": "personoversikt",
+      "cluster": "prod-sbs"
     }
   ]
 }
