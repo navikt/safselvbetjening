@@ -11,7 +11,6 @@
   "SAFSELVBETJENING_ENDPOINTS_PENSJONSAK": "https://pensjon-pen.nais.adeo.no/pen/api/pip/hentBrukerOgEnhetstilgangerForSak/v1",
   "SAFSELVBETJENING_PROXY_HOST": "webproxy.nais",
   "SAFSELVBETJENING_PROXY_PORT": "8088",
-  "GCP_CLUSTER": "prod-gcp",
   "APPDYNAMICS": "/apikey/appdynamics/prod",
   "APPD_NAME": "safselvbetjening",
   "MIN_REPLICAS": 4,
@@ -20,5 +19,32 @@
     "https://safselvbetjening.intern.nav.no",
     "https://safselvbetjening.nais.adeo.no",
     "https://safselvbetjening.prod-fss-pub.nais.io"
+  ],
+  "AZURE_IAC_RULES": [
+    {
+      "app": "mine-saker-api",
+      "namespace": "personbruker",
+      "cluster": "prod-gcp"
+    },
+    {
+      "app": "dp-dagpenger",
+      "namespace": "teamdagpenger",
+      "cluster": "prod-gcp"
+    },
+    {
+      "app": "hm-dinehjelpemidler",
+      "namespace": "teamdigihot",
+      "cluster": "prod-gcp"
+    },
+    {
+      "app": "sif-innsyn-api",
+      "namespace": "dusseldorf",
+      "cluster": "prod-gcp"
+    },
+    {
+      "app": "mininnboks-api",
+      "namespace": "personoversikt",
+      "cluster": "prod-sbs"
+    }
   ]
 }

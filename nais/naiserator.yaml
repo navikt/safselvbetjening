@@ -64,6 +64,7 @@ spec:
         mountPath: "/secrets/serviceuser/srvsafselvbetjening"
       - kvPath: {{APPDYNAMICS}}
         mountPath: /var/run/secrets/nais.io/appdynamics
+{{#if AZURE_IAC_RULES}}
   azure:
     application:
       enabled: true
@@ -73,15 +74,9 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: mine-saker-api
-          namespace: personbruker
-          cluster: {{GCP_CLUSTER}}
-        - application: dp-dagpenger
-          namespace: teamdagpenger
-          cluster: {{GCP_CLUSTER}}
-        - application: hm-dinehjelpemidler
-          namespace: teamdigihot
-          cluster: {{GCP_CLUSTER}}
-        - application: sif-innsyn-api
-          namespace: dusseldorf
-          cluster: {{GCP_CLUSTER}}
+      {{#each AZURE_IAC_RULES}}
+        - application: {{app}}
+          namespace: {{namespace}}
+          cluster: {{cluster}}
+      {{/each}}
+{{/if}}
