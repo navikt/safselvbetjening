@@ -26,19 +26,19 @@ public class HentDokumentValidator {
 
 	private void validateJournalpostId(String journalpostId) {
 		if (!isNumeric(journalpostId)) {
-			throw new HentdokumentRequestException("journalpostId er ikke et tall.");
+			throw new HentdokumentRequestException("journalpostId er ikke et tall. journalpostId=" + journalpostId);
 		}
 	}
 
 	private void validateDokumentInfoId(String dokumentInfoId) {
 		if (!isNumeric(dokumentInfoId)) {
-			throw new HentdokumentRequestException("dokumentInfoId er ikke et tall.");
+			throw new HentdokumentRequestException("dokumentInfoId er ikke et tall. dokumentInfoId=" + dokumentInfoId);
 		}
 	}
 
 	private void validateVariantFormat(String variantFormat) {
 		if (!ALLOWED_VARIANTFORMAT.contains(variantFormat)) {
-			throw new HentdokumentRequestException("variantFormat må være en av [" + VARIANTFORMAT_ERRORMSG + "].");
+			throw new HentdokumentRequestException("variantFormat må være en av [" + VARIANTFORMAT_ERRORMSG + "]. variantFormat=" + variantFormat);
 		}
 	}
 }
