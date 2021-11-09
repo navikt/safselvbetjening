@@ -78,7 +78,7 @@ class DokumentoversiktSelvbetjeningService {
 	Journalpostdata queryFiltrerSakstilknyttedeJournalposter(final Basedata basedata, final List<String> tema) {
 		final BrukerIdenter brukerIdenter = basedata.getBrukerIdenter();
 		final Saker saker = basedata.getSaker();
-		List<JournalpostDto> tilgangJournalposter = fagarkivConsumer.finnJournalposter(finnFerdigstilteJournalposterRequest(brukerIdenter, saker)).getTilgangJournalposter();
+		List<JournalpostDto> tilgangJournalposter = fagarkivConsumer.finnJournalposter(finnFerdigstilteJournalposterRequest(saker)).getTilgangJournalposter();
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, saker, tilgangJournalposter);
 	}
 
@@ -105,7 +105,7 @@ class DokumentoversiktSelvbetjeningService {
 	 * 1c) Bruker får kun se midlertidige og ferdigstilte journalposter.
 	 */
 	private FinnJournalposterRequestTo finnAlleJournalposterRequest(BrukerIdenter brukerIdenter, Saker saker) {
-		return baseFinnJournalposterRequest(brukerIdenter, saker)
+		return baseFinnJournalposterRequest(saker)
 				.alleIdenter(brukerIdenter.getFoedselsnummer())
 				.inkluderJournalStatus(MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER)
 				.build();
@@ -114,8 +114,8 @@ class DokumentoversiktSelvbetjeningService {
 	/*
 	 * Modifikasjon av 1c - midlertidige journalposter vises ikke da de er uten sakstilknytning.
 	 */
-	private FinnJournalposterRequestTo finnFerdigstilteJournalposterRequest(BrukerIdenter brukerIdenter, Saker saker) {
-		return baseFinnJournalposterRequest(brukerIdenter, saker)
+	private FinnJournalposterRequestTo finnFerdigstilteJournalposterRequest(Saker saker) {
+		return baseFinnJournalposterRequest(saker)
 				.inkluderJournalStatus(FERDIGSTILTE_JOURNALSTATUSER)
 				.build();
 	}
@@ -124,7 +124,7 @@ class DokumentoversiktSelvbetjeningService {
 	 * 1b) Bruker får ikke se journalposter som er opprettet før 04.06.2016. Dette er datoen den første innsynsløsningen ble lansert.
 	 * 1d) Bruker får ikke se feilregistrerte journalposter.
 	 */
-	private FinnJournalposterRequestTo.FinnJournalposterRequestToBuilder baseFinnJournalposterRequest(BrukerIdenter brukerIdenter, Saker saker) {
+	private FinnJournalposterRequestTo.FinnJournalposterRequestToBuilder baseFinnJournalposterRequest(Saker saker) {
 		return FinnJournalposterRequestTo.builder()
 				.psakSakIds(saker.getPensjonSakIds())
 				.gsakSakIds(saker.getArkivSakIds())
