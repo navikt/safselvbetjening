@@ -223,77 +223,24 @@ class UtledTilgangServiceTest {
 						.tema(TEMA_KONTROLL)
 						.build())
 				.build();
-		boolean actual = utledTilgangService.isJournalpostNotKontrollsakOrFarskapsak(journalpost);
+		boolean actual = utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost);
 		assertThat(actual).isFalse();
 	}
 
 	//	1e - Bruker får ikke innsyn i kontrollsaker
 	// Journalført - med sakstilknytning
 	@Test
-	void shouldReturnFalseWhenJournalfoertAndKontrollsakWithSak() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
-				.tilgang(Journalpost.TilgangJournalpost.builder()
-						.datoOpprettet(LocalDateTime.now())
-						.tema(TEMA_KONTROLL)
-						.tilgangSak(Journalpost.TilgangSak.builder()
-								.aktoerId(AKTOER_ID)
-								.fagsystem(ARKIVSAKSYSTEM_GOSYS)
-								.feilregistrert(false)
-								.tema(TEMA_KONTROLL)
-								.build())
-						.build())
-				.build();
-		boolean actual = utledTilgangService.isJournalpostNotKontrollsakOrFarskapsak(journalpost);
-		assertThat(actual).isFalse();
+	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithSak() {
+		assertThat(getTilgangWhenJournalfoertWithSak(TEMA_FAR)).isFalse();
+		assertThat(getTilgangWhenJournalfoertWithSak(TEMA_KONTROLL)).isFalse();
 	}
 
 	//	1e - Bruker får ikke innsyn i kontrollsaker
 	// Journalført - uten sakstilknytning
 	@Test
-	void shouldReturnFalseWhenJournalfoertAndKontrollsakWithoutSak() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
-				.tilgang(Journalpost.TilgangJournalpost.builder()
-						.datoOpprettet(LocalDateTime.now())
-						.tema(TEMA_KONTROLL)
-						.build())
-				.build();
-		boolean actual = utledTilgangService.isJournalpostNotKontrollsakOrFarskapsak(journalpost);
-		assertThat(actual).isFalse();
-	}
-
-
-	//	1e2 - Bruker får ikke innsyn i farskapssaker
-	// Journalført - med sakstilknytning
-	@Test
-	void shouldReturnFalseWhenJournalfoertAndFarskapsakWithSak() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
-				.tilgang(Journalpost.TilgangJournalpost.builder()
-						.datoOpprettet(LocalDateTime.now())
-						.tema(TEMA_FAR)
-						.tilgangSak(Journalpost.TilgangSak.builder()
-								.aktoerId(AKTOER_ID)
-								.fagsystem(ARKIVSAKSYSTEM_GOSYS)
-								.feilregistrert(false)
-								.tema(TEMA_FAR)
-								.build())
-						.build())
-				.build();
-		boolean actual = utledTilgangService.isJournalpostNotKontrollsakOrFarskapsak(journalpost);
-		assertThat(actual).isFalse();
-	}
-
-	//	1e2 - Bruker får ikke innsyn i farskapssaker
-	// Journalført - uten sakstilknytning
-	@Test
-	void shouldReturnFalseWhenJournalfoertAndFarskapsakWithoutSak() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
-				.tilgang(Journalpost.TilgangJournalpost.builder()
-						.datoOpprettet(LocalDateTime.now())
-						.tema(TEMA_FAR)
-						.build())
-				.build();
-		boolean actual = utledTilgangService.isJournalpostNotKontrollsakOrFarskapsak(journalpost);
-		assertThat(actual).isFalse();
+	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithoutSak() {
+		assertThat(getTilgangWhenJournalfoertWithoutSak(TEMA_FAR)).isFalse();
+		assertThat(getTilgangWhenJournalfoertWithoutSak(TEMA_KONTROLL)).isFalse();
 	}
 
 
@@ -423,4 +370,32 @@ class UtledTilgangServiceTest {
 		boolean ironMountainActual = utledTilgangService.isSkannetDokument(journalpost);
 		assertThat(ironMountainActual).isTrue();
 	}
+
+	boolean getTilgangWhenJournalfoertWithoutSak(String tema){
+		Journalpost journalpost = baseJournalfoertJournalpost()
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.datoOpprettet(LocalDateTime.now())
+						.tema(tema)
+						.build())
+				.build();
+		return utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost);
+	}
+
+	boolean getTilgangWhenJournalfoertWithSak(String tema){
+		Journalpost journalpost = baseJournalfoertJournalpost()
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.datoOpprettet(LocalDateTime.now())
+						.tema(tema)
+						.tilgangSak(Journalpost.TilgangSak.builder()
+								.aktoerId(AKTOER_ID)
+								.fagsystem(ARKIVSAKSYSTEM_GOSYS)
+								.feilregistrert(false)
+								.tema(tema)
+								.build())
+						.build())
+				.build();
+		return utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost);
+
+	}
+
 }
