@@ -55,8 +55,8 @@ public class UtledTilgangService {
 	private static final EnumSet<SkjermingType> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
 	private static final EnumSet<Kanal> MOTTAKS_KANAL_SKAN = EnumSet.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
 	private static final EnumSet<Journalstatus> JOURNALSTATUS_FERDIGSTILT = EnumSet.of(FERDIGSTILT, JOURNALFOERT, EKSPEDERT);
-	private static final List<String> TEMAER_UNTATT_VISNING = Arrays.asList(Tema.KTR.name(), Tema.FAR.name());
-	private static final List<String> FAGOMRADER_UNTATT_VISNING = Arrays.asList(FagomradeCode.KTR.name(), FagomradeCode.FAR.name());
+	private static final List<String> TEMAER_UNNTATT_INNSYN = Arrays.asList(Tema.KTR.name(), Tema.FAR.name());
+	private static final List<String> FAGOMRADER_UNNTATT_INNSYN = Arrays.asList(FagomradeCode.KTR.name(), FagomradeCode.FAR.name());
 
 	private final LocalDateTime tidligstInnsynDato;
 
@@ -209,11 +209,11 @@ public class UtledTilgangService {
 		if (journalstatus != null) {
 			Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 			if (MOTTATT.equals(journalstatus)) {
-				return ! FAGOMRADER_UNTATT_VISNING.contains(tilgang.getTema());
+				return ! FAGOMRADER_UNNTATT_INNSYN.contains(tilgang.getTema());
 			} else if (tilgang.getTilgangSak() != null && JOURNALSTATUS_FERDIGSTILT.contains(journalstatus)) {
-				return ! TEMAER_UNTATT_VISNING.contains(tilgang.getTilgangSak().getTema());
+				return ! TEMAER_UNNTATT_INNSYN.contains(tilgang.getTilgangSak().getTema());
 			} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) && tilgang.getTilgangSak() == null) {
-				return ! FAGOMRADER_UNTATT_VISNING.contains(tilgang.getTema());
+				return ! FAGOMRADER_UNNTATT_INNSYN.contains(tilgang.getTema());
 			}
 		}
 		return true;
