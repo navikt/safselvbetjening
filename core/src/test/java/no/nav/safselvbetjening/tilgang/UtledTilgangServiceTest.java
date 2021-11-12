@@ -213,21 +213,15 @@ class UtledTilgangServiceTest {
 		assertThat(actual).isTrue();
 	}
 
-	//	1e - Bruker får ikke innsyn i kontrollsaker
+	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
 	// Mottatt - ingen sakstilknytning
 	@Test
-	void shouldReturnFalseWhenMottattAndKontrollsak() {
-		Journalpost journalpost = baseMottattJournalpost()
-				.tilgang(Journalpost.TilgangJournalpost.builder()
-						.datoOpprettet(LocalDateTime.now())
-						.tema(TEMA_KONTROLL)
-						.build())
-				.build();
-		boolean actual = utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost);
-		assertThat(actual).isFalse();
+	void shouldReturnFalseWhenMottattAndKontrollsakOrFarskapssak() {
+		assertThat(getTilgangWhenMottattAndKontrollsak(TEMA_FAR)).isFalse();
+		assertThat(getTilgangWhenMottattAndKontrollsak(TEMA_KONTROLL)).isFalse();
 	}
 
-	//	1e - Bruker får ikke innsyn i kontrollsaker
+	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
 	// Journalført - med sakstilknytning
 	@Test
 	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithSak() {
@@ -235,7 +229,7 @@ class UtledTilgangServiceTest {
 		assertThat(getTilgangWhenJournalfoertWithSak(TEMA_KONTROLL)).isFalse();
 	}
 
-	//	1e - Bruker får ikke innsyn i kontrollsaker
+	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
 	// Journalført - uten sakstilknytning
 	@Test
 	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithoutSak() {
@@ -398,4 +392,13 @@ class UtledTilgangServiceTest {
 
 	}
 
+	boolean getTilgangWhenMottattAndKontrollsak(String tema) {
+		Journalpost journalpost = baseMottattJournalpost()
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.datoOpprettet(LocalDateTime.now())
+						.tema(tema)
+						.build())
+				.build();
+		return utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost);
+	}
 }
