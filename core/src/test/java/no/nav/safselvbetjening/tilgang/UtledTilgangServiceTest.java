@@ -25,6 +25,7 @@ import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ARKIVSAKSY
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ARKIVSAKSYSTEM_PENSJON;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.IDENT;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_DAGPENGER;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_FAR;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_KONTROLL;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_PENSJON;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseJournalfoertJournalpost;
@@ -222,7 +223,7 @@ class UtledTilgangServiceTest {
 						.tema(TEMA_KONTROLL)
 						.build())
 				.build();
-		boolean actual = utledTilgangService.isJournalpostNotKontrollsak(journalpost);
+		boolean actual = utledTilgangService.isJournalpostNotKontrollsakOrFarskapsak(journalpost);
 		assertThat(actual).isFalse();
 	}
 
@@ -242,7 +243,7 @@ class UtledTilgangServiceTest {
 								.build())
 						.build())
 				.build();
-		boolean actual = utledTilgangService.isJournalpostNotKontrollsak(journalpost);
+		boolean actual = utledTilgangService.isJournalpostNotKontrollsakOrFarskapsak(journalpost);
 		assertThat(actual).isFalse();
 	}
 
@@ -256,9 +257,45 @@ class UtledTilgangServiceTest {
 						.tema(TEMA_KONTROLL)
 						.build())
 				.build();
-		boolean actual = utledTilgangService.isJournalpostNotKontrollsak(journalpost);
+		boolean actual = utledTilgangService.isJournalpostNotKontrollsakOrFarskapsak(journalpost);
 		assertThat(actual).isFalse();
 	}
+
+
+	//	1e2 - Bruker får ikke innsyn i farskapssaker
+	// Journalført - med sakstilknytning
+	@Test
+	void shouldReturnFalseWhenJournalfoertAndFarskapsakWithSak() {
+		Journalpost journalpost = baseJournalfoertJournalpost()
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.datoOpprettet(LocalDateTime.now())
+						.tema(TEMA_FAR)
+						.tilgangSak(Journalpost.TilgangSak.builder()
+								.aktoerId(AKTOER_ID)
+								.fagsystem(ARKIVSAKSYSTEM_GOSYS)
+								.feilregistrert(false)
+								.tema(TEMA_FAR)
+								.build())
+						.build())
+				.build();
+		boolean actual = utledTilgangService.isJournalpostNotKontrollsakOrFarskapsak(journalpost);
+		assertThat(actual).isFalse();
+	}
+
+	//	1e2 - Bruker får ikke innsyn i farskapssaker
+	// Journalført - uten sakstilknytning
+	@Test
+	void shouldReturnFalseWhenJournalfoertAndFarskapsakWithoutSak() {
+		Journalpost journalpost = baseJournalfoertJournalpost()
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.datoOpprettet(LocalDateTime.now())
+						.tema(TEMA_FAR)
+						.build())
+				.build();
+		boolean actual = utledTilgangService.isJournalpostNotKontrollsakOrFarskapsak(journalpost);
+		assertThat(actual).isFalse();
+	}
+
 
 	//	1f - Bruker får ikke innsyn i journalposter som er begrenset ihht. GDPR
 	@Test

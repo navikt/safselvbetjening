@@ -68,7 +68,7 @@ public class UtledTilgangService {
 			}
 
 			return isBrukerPart(journalpost, brukerIdenter) && isJournalpostNotGDPRRestricted(journalpost) &&
-					isJournalpostNotKontrollsak(journalpost) && isJournalpostForvaltningsnotat(journalpost) &&
+					isJournalpostNotKontrollsakOrFarskapsak(journalpost) && isJournalpostForvaltningsnotat(journalpost) &&
 					isJournalpostNotOrganInternt(journalpost);
 		} catch (Exception e) {
 			log.error("Feil oppstått i utledTilgangJournalpost for journalpost med journalpostId={}.", journalpost.getJournalpostId(), e);
@@ -113,7 +113,7 @@ public class UtledTilgangService {
 		if (isJournalpostFeilregistrert(journalpost)) {
 			throw new HentTilgangDokumentException(FEILREGISTRERT, "Tilgang til journalpost avvist fordi journalpost er feilregistrert");
 		}
-		if (!isJournalpostNotKontrollsak(journalpost)) {
+		if (!isJournalpostNotKontrollsakOrFarskapsak(journalpost)) {
 			throw new HentTilgangDokumentException(KONTROLLSAK, "Tilgang til journalpost avvist fordi journalpost er markert som kontrollsak");
 		}
 		if (!isJournalpostNotGDPRRestricted(journalpost)) {
@@ -198,19 +198,22 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 1e) Bruker får ikke innsyn i kontrollsaker
+	 * 1e) Bruker får ikke innsyn i kontrollsaker eller farskapsaker
 	 */
-	public boolean isJournalpostNotKontrollsak(Journalpost journalpost) {
+	public boolean isJournalpostNotKontrollsakOrFarskapsak(Journalpost journalpost) {
 		Journalstatus journalstatus = journalpost.getJournalstatus();
 
 		if (journalstatus != null) {
 			Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 			if (MOTTATT.equals(journalstatus)) {
-				return !FagomradeCode.KTR.name().equals(tilgang.getTema());
+				return ! (FagomradeCode.KTR.name().equals(tilgang.getTema())
+						|| FagomradeCode.FAR.name().equals(tilgang.getTema()) );
 			} else if (tilgang.getTilgangSak() != null && JOURNALSTATUS_FERDIGSTILT.contains(journalstatus)) {
-				return !Tema.KTR.name().equals(tilgang.getTilgangSak().getTema());
+				return ! (Tema.KTR.name().equals(tilgang.getTilgangSak().getTema())
+						|| Tema.FAR.name().equals(tilgang.getTilgangSak().getTema()));
 			} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) && tilgang.getTilgangSak() == null) {
-				return !FagomradeCode.KTR.toString().equals(tilgang.getTema());
+				return ! (FagomradeCode.KTR.toString().equals(tilgang.getTema())
+						|| FagomradeCode.FAR.toString().equals(tilgang.getTema()));
 			}
 		}
 		return true;
