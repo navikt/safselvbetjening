@@ -9,6 +9,8 @@ import no.nav.safselvbetjening.domain.Journalstatus;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.SkjermingType;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -215,26 +217,52 @@ class UtledTilgangServiceTest {
 
 	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
 	// Mottatt - ingen sakstilknytning
-	@Test
-	void shouldReturnFalseWhenMottattAndKontrollsakOrFarskapssak() {
-		assertThat(getTilgangWhenMottattAndKontrollsak(TEMA_FAR)).isFalse();
-		assertThat(getTilgangWhenMottattAndKontrollsak(TEMA_KONTROLL)).isFalse();
+	@ParameterizedTest
+	@ValueSource(strings = { TEMA_FAR, TEMA_KONTROLL })
+	void shouldReturnFalseWhenMottattAndKontrollsakOrFarskapssak(String tema) {
+		Journalpost journalpost = baseMottattJournalpost()
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.datoOpprettet(LocalDateTime.now())
+						.tema(tema)
+						.build())
+				.build();
+		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost)).isFalse();
+
 	}
 
 	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
 	// Journalført - med sakstilknytning
-	@Test
-	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithSak() {
-		assertThat(getTilgangWhenJournalfoertWithSak(TEMA_FAR)).isFalse();
-		assertThat(getTilgangWhenJournalfoertWithSak(TEMA_KONTROLL)).isFalse();
+	@ParameterizedTest
+	@ValueSource(strings = { TEMA_FAR, TEMA_KONTROLL })
+	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithSak(String tema){
+		Journalpost journalpost = baseJournalfoertJournalpost()
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.datoOpprettet(LocalDateTime.now())
+						.tema(tema)
+						.tilgangSak(Journalpost.TilgangSak.builder()
+								.aktoerId(AKTOER_ID)
+								.fagsystem(ARKIVSAKSYSTEM_GOSYS)
+								.feilregistrert(false)
+								.tema(tema)
+								.build())
+						.build())
+				.build();
+		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost)).isFalse();
+
 	}
 
 	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
 	// Journalført - uten sakstilknytning
-	@Test
-	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithoutSak() {
-		assertThat(getTilgangWhenJournalfoertWithoutSak(TEMA_FAR)).isFalse();
-		assertThat(getTilgangWhenJournalfoertWithoutSak(TEMA_KONTROLL)).isFalse();
+	@ParameterizedTest
+	@ValueSource(strings = { TEMA_FAR, TEMA_KONTROLL })
+	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithoutSak(String tema){
+		Journalpost journalpost = baseJournalfoertJournalpost()
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.datoOpprettet(LocalDateTime.now())
+						.tema(tema)
+						.build())
+				.build();
+		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost)).isFalse();
 	}
 
 
@@ -365,40 +393,4 @@ class UtledTilgangServiceTest {
 		assertThat(ironMountainActual).isTrue();
 	}
 
-	boolean getTilgangWhenJournalfoertWithoutSak(String tema){
-		Journalpost journalpost = baseJournalfoertJournalpost()
-				.tilgang(Journalpost.TilgangJournalpost.builder()
-						.datoOpprettet(LocalDateTime.now())
-						.tema(tema)
-						.build())
-				.build();
-		return utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost);
-	}
-
-	boolean getTilgangWhenJournalfoertWithSak(String tema){
-		Journalpost journalpost = baseJournalfoertJournalpost()
-				.tilgang(Journalpost.TilgangJournalpost.builder()
-						.datoOpprettet(LocalDateTime.now())
-						.tema(tema)
-						.tilgangSak(Journalpost.TilgangSak.builder()
-								.aktoerId(AKTOER_ID)
-								.fagsystem(ARKIVSAKSYSTEM_GOSYS)
-								.feilregistrert(false)
-								.tema(tema)
-								.build())
-						.build())
-				.build();
-		return utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost);
-
-	}
-
-	boolean getTilgangWhenMottattAndKontrollsak(String tema) {
-		Journalpost journalpost = baseMottattJournalpost()
-				.tilgang(Journalpost.TilgangJournalpost.builder()
-						.datoOpprettet(LocalDateTime.now())
-						.tema(tema)
-						.build())
-				.build();
-		return utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost);
-	}
 }
