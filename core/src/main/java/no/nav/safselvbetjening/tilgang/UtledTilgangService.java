@@ -209,11 +209,11 @@ public class UtledTilgangService {
 		if (journalstatus != null) {
 			Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 			if (MOTTATT.equals(journalstatus)) {
-				return ! FAGOMRADER_UNNTATT_INNSYN.contains(tilgang.getTema());
+				return !FAGOMRADER_UNNTATT_INNSYN.contains(tilgang.getTema());
 			} else if (tilgang.getTilgangSak() != null && JOURNALSTATUS_FERDIGSTILT.contains(journalstatus)) {
-				return ! TEMAER_UNNTATT_INNSYN.contains(tilgang.getTilgangSak().getTema());
+				return !TEMAER_UNNTATT_INNSYN.contains(tilgang.getTilgangSak().getTema());
 			} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) && tilgang.getTilgangSak() == null) {
-				return ! FAGOMRADER_UNNTATT_INNSYN.contains(tilgang.getTema());
+				return !FAGOMRADER_UNNTATT_INNSYN.contains(tilgang.getTema());
 			}
 		}
 		return true;
