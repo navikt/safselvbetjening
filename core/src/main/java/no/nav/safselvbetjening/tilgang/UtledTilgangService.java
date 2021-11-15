@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -38,7 +39,7 @@ import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.GDPR;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INNSKRENKET_PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INNSYNSDATO;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.KASSERT;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.KONTROLLSAK;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.KONTROLLSAK_FARSKAPSSAK;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.ORGANINTERNT;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKANNET_DOKUMENT;
@@ -54,6 +55,8 @@ public class UtledTilgangService {
 	private static final EnumSet<SkjermingType> GDPR_SKJERMING_TYPE = EnumSet.of(POL, FEIL);
 	private static final EnumSet<Kanal> MOTTAKS_KANAL_SKAN = EnumSet.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
 	private static final EnumSet<Journalstatus> JOURNALSTATUS_FERDIGSTILT = EnumSet.of(FERDIGSTILT, JOURNALFOERT, EKSPEDERT);
+	private static final List<String> TEMAER_UNNTATT_INNSYN = Arrays.asList(Tema.KTR.name(), Tema.FAR.name());
+	private static final List<String> FAGOMRADER_UNNTATT_INNSYN = Arrays.asList(FagomradeCode.KTR.name(), FagomradeCode.FAR.name());
 
 	private final LocalDateTime tidligstInnsynDato;
 
@@ -68,7 +71,7 @@ public class UtledTilgangService {
 			}
 
 			return isBrukerPart(journalpost, brukerIdenter) && isJournalpostNotGDPRRestricted(journalpost) &&
-					isJournalpostNotKontrollsak(journalpost) && isJournalpostForvaltningsnotat(journalpost) &&
+					isJournalpostNotKontrollsakOrFarskapssak(journalpost) && isJournalpostForvaltningsnotat(journalpost) &&
 					isJournalpostNotOrganInternt(journalpost);
 		} catch (Exception e) {
 			log.error("Feil oppstått i utledTilgangJournalpost for journalpost med journalpostId={}.", journalpost.getJournalpostId(), e);
@@ -113,8 +116,8 @@ public class UtledTilgangService {
 		if (isJournalpostFeilregistrert(journalpost)) {
 			throw new HentTilgangDokumentException(FEILREGISTRERT, "Tilgang til journalpost avvist fordi journalpost er feilregistrert");
 		}
-		if (!isJournalpostNotKontrollsak(journalpost)) {
-			throw new HentTilgangDokumentException(KONTROLLSAK, "Tilgang til journalpost avvist fordi journalpost er markert som kontrollsak");
+		if (!isJournalpostNotKontrollsakOrFarskapssak(journalpost)) {
+			throw new HentTilgangDokumentException(KONTROLLSAK_FARSKAPSSAK, "Tilgang til journalpost avvist fordi journalpost er markert som kontrollsak eller farskapssak");
 		}
 		if (!isJournalpostNotGDPRRestricted(journalpost)) {
 			throw new HentTilgangDokumentException(GDPR, "Tilgang til journalpost avvist ihht. gdpr");
@@ -198,19 +201,19 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 1e) Bruker får ikke innsyn i kontrollsaker
+	 * 1e) Bruker får ikke innsyn i kontrollsaker eller farskapssaker
 	 */
-	public boolean isJournalpostNotKontrollsak(Journalpost journalpost) {
+	public boolean isJournalpostNotKontrollsakOrFarskapssak(Journalpost journalpost) {
 		Journalstatus journalstatus = journalpost.getJournalstatus();
 
 		if (journalstatus != null) {
 			Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 			if (MOTTATT.equals(journalstatus)) {
-				return !FagomradeCode.KTR.name().equals(tilgang.getTema());
+				return !FAGOMRADER_UNNTATT_INNSYN.contains(tilgang.getTema());
 			} else if (tilgang.getTilgangSak() != null && JOURNALSTATUS_FERDIGSTILT.contains(journalstatus)) {
-				return !Tema.KTR.name().equals(tilgang.getTilgangSak().getTema());
+				return !TEMAER_UNNTATT_INNSYN.contains(tilgang.getTilgangSak().getTema());
 			} else if (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) && tilgang.getTilgangSak() == null) {
-				return !FagomradeCode.KTR.toString().equals(tilgang.getTema());
+				return !FAGOMRADER_UNNTATT_INNSYN.contains(tilgang.getTema());
 			}
 		}
 		return true;

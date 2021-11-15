@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import static no.nav.safselvbetjening.domain.Tema.DAG;
+import static no.nav.safselvbetjening.domain.Tema.FAR;
 import static no.nav.safselvbetjening.domain.Tema.KTR;
 import static no.nav.safselvbetjening.domain.Tema.PEN;
 
@@ -29,9 +30,10 @@ public class UtledTilgangTestObjects {
 	static final String ANNEN_PART = "23456789101";
 	static final String AKTOER_ID = "10000000000";
 	static final String ANNEN_AKTOER_ID = "12000000000";
-	static final String TEMA_KONTROLL = KTR.toString();
+	static final String TEMA_KONTROLL = "KTR";
 	static final String TEMA_PENSJON = PEN.toString();
 	static final String TEMA_DAGPENGER = DAG.name();
+	static final String TEMA_FAR = "FAR";
 	static final String ARKIVSAKSYSTEM_GOSYS = "FS22";
 	static final String ARKIVSAKSYSTEM_PENSJON = "PEN";
 

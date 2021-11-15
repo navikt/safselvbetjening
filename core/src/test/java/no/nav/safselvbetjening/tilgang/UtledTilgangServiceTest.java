@@ -9,6 +9,8 @@ import no.nav.safselvbetjening.domain.Journalstatus;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.SkjermingType;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +27,7 @@ import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ARKIVSAKSY
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ARKIVSAKSYSTEM_PENSJON;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.IDENT;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_DAGPENGER;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_FAR;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_KONTROLL;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_PENSJON;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseJournalfoertJournalpost;
@@ -212,53 +215,56 @@ class UtledTilgangServiceTest {
 		assertThat(actual).isTrue();
 	}
 
-	//	1e - Bruker får ikke innsyn i kontrollsaker
+	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
 	// Mottatt - ingen sakstilknytning
-	@Test
-	void shouldReturnFalseWhenMottattAndKontrollsak() {
+	@ParameterizedTest
+	@ValueSource(strings = { TEMA_FAR, TEMA_KONTROLL })
+	void shouldReturnFalseWhenMottattAndKontrollsakOrFarskapssak(String tema) {
 		Journalpost journalpost = baseMottattJournalpost()
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.datoOpprettet(LocalDateTime.now())
-						.tema(TEMA_KONTROLL)
+						.tema(tema)
 						.build())
 				.build();
-		boolean actual = utledTilgangService.isJournalpostNotKontrollsak(journalpost);
-		assertThat(actual).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost)).isFalse();
+
 	}
 
-	//	1e - Bruker får ikke innsyn i kontrollsaker
+	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
 	// Journalført - med sakstilknytning
-	@Test
-	void shouldReturnFalseWhenJournalfoertAndKontrollsakWithSak() {
+	@ParameterizedTest
+	@ValueSource(strings = { TEMA_FAR, TEMA_KONTROLL })
+	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithSak(String tema){
 		Journalpost journalpost = baseJournalfoertJournalpost()
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.datoOpprettet(LocalDateTime.now())
-						.tema(TEMA_KONTROLL)
+						.tema(tema)
 						.tilgangSak(Journalpost.TilgangSak.builder()
 								.aktoerId(AKTOER_ID)
 								.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 								.feilregistrert(false)
-								.tema(TEMA_KONTROLL)
+								.tema(tema)
 								.build())
 						.build())
 				.build();
-		boolean actual = utledTilgangService.isJournalpostNotKontrollsak(journalpost);
-		assertThat(actual).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost)).isFalse();
+
 	}
 
-	//	1e - Bruker får ikke innsyn i kontrollsaker
+	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
 	// Journalført - uten sakstilknytning
-	@Test
-	void shouldReturnFalseWhenJournalfoertAndKontrollsakWithoutSak() {
+	@ParameterizedTest
+	@ValueSource(strings = { TEMA_FAR, TEMA_KONTROLL })
+	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithoutSak(String tema){
 		Journalpost journalpost = baseJournalfoertJournalpost()
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.datoOpprettet(LocalDateTime.now())
-						.tema(TEMA_KONTROLL)
+						.tema(tema)
 						.build())
 				.build();
-		boolean actual = utledTilgangService.isJournalpostNotKontrollsak(journalpost);
-		assertThat(actual).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost)).isFalse();
 	}
+
 
 	//	1f - Bruker får ikke innsyn i journalposter som er begrenset ihht. GDPR
 	@Test
@@ -386,4 +392,5 @@ class UtledTilgangServiceTest {
 		boolean ironMountainActual = utledTilgangService.isSkannetDokument(journalpost);
 		assertThat(ironMountainActual).isTrue();
 	}
+
 }
