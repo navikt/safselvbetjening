@@ -88,10 +88,10 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			log.warn("dokumentoversiktSelvbetjening feilet: " + e.getError().getMessage());
 			return e.toDataFetcherResult();
 		} catch (CallNotPermittedException e) {
-			log.error("dokumentoversiktSelvbetjening circuitbreaker er åpen: " + e.getCausingCircuitBreakerName(), e);
+			log.error("dokumentoversiktSelvbetjening circuitbreaker={} er åpen.", e.getCausingCircuitBreakerName(), e);
 			return DataFetcherResult.newResult()
-					.error(SERVER_ERROR.construct(environment, "Circuitbreaker er åpen: " + e.getCausingCircuitBreakerName() +
-							". Kall til denne tjenesten går ikke gjennom."))
+					.error(SERVER_ERROR.construct(environment, "Circuitbreaker=" + e.getCausingCircuitBreakerName() + " er åpen." +
+							" Kall til denne tjenesten går ikke gjennom."))
 					.build();
 		} catch (Exception e) {
 			log.error("dokumentoversiktSelvbetjening ukjent teknisk feil", e);
