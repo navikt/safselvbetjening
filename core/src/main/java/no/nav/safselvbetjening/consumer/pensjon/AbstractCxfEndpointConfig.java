@@ -3,8 +3,6 @@ package no.nav.safselvbetjening.consumer.pensjon;
 import org.apache.cxf.Bus;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.message.Message;
 
@@ -99,15 +97,4 @@ public abstract class AbstractCxfEndpointConfig {
 		stsConfig.configureSTS(port);
 	}
 
-	void addLoggingInInterceptor() {
-		LoggingInInterceptor loggingInInterceptor = new LoggingInInterceptor();
-		loggingInInterceptor.setPrettyLogging(true);
-		factoryBean.getInInterceptors().add(loggingInInterceptor);
-	}
-
-	void addLoggingOutInterceptor() {
-		LoggingOutInterceptor loggingOutInterceptor = new LoggingOutInterceptor();
-		loggingOutInterceptor.setPrettyLogging(true);
-		factoryBean.getOutInterceptors().add(loggingOutInterceptor);
-	}
 }

@@ -11,7 +11,6 @@ import no.nav.safselvbetjening.domain.Fagsak;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
-import no.nav.safselvbetjening.graphql.ErrorCode;
 import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.graphql.GraphQLRequestContext;
 import no.nav.security.token.support.core.jwt.JwtToken;
@@ -30,6 +29,8 @@ import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
 import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
 import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
+import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
+import static no.nav.safselvbetjening.graphql.GraphQLRequestContext.KEY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
 
@@ -68,12 +69,13 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	@Override
 	public Object get(DataFetchingEnvironment environment) throws Exception {
 		try {
-			final GraphQLRequestContext graphQLRequestContext = environment.getContext();
+			final GraphQLRequestContext graphQLRequestContext = environment.getGraphQlContext().<GraphQLRequestContext>getOrEmpty(KEY)
+					.orElseThrow(() -> GraphQLException.of(SERVER_ERROR, environment, "Kunne ikke hente intern requestcontext."));
 			MDC.put(MDC_CALL_ID, graphQLRequestContext.getNavCallId());
 			MDC.put(MDC_CONSUMER_ID, getConsumerIdFromToken(graphQLRequestContext.getTokenValidationContext()));
 			final String ident = environment.getArgument("ident");
 			validateIdent(ident, environment);
-			validateTokenIdent(ident, environment);
+			validateTokenIdent(ident, environment, graphQLRequestContext);
 			final List<String> tema = temaArgument(environment);
 
 			DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
@@ -172,13 +174,13 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		}
 	}
 
-	private void validateTokenIdent(String ident, DataFetchingEnvironment environment) {
-		final GraphQLRequestContext graphQLRequestContext = environment.getContext();
+	private void validateTokenIdent(String ident, DataFetchingEnvironment environment,
+									GraphQLRequestContext graphQLRequestContext) {
 		JwtToken jwtToken = graphQLRequestContext.getTokenValidationContext().getFirstValidToken()
-				.orElseThrow(() -> GraphQLException.of(ErrorCode.UNAUTHORIZED, environment, "Ingen gyldige tokens i Authorization headeren."));
+				.orElseThrow(() -> GraphQLException.of(UNAUTHORIZED, environment, "Ingen gyldige tokens i Authorization headeren."));
 		if (!jwtToken.getJwtTokenClaims().containsClaim(CLAIM_PID, ident) &&
 				!jwtToken.getJwtTokenClaims().containsClaim(CLAIM_SUB, ident)) {
-			throw GraphQLException.of(ErrorCode.UNAUTHORIZED, environment, "Brukers ident i token matcher ikke ident i query. Ident må ligge i pid eller sub claim.");
+			throw GraphQLException.of(UNAUTHORIZED, environment, "Brukers ident i token matcher ikke ident i query. Ident må ligge i pid eller sub claim.");
 		}
 	}
 
