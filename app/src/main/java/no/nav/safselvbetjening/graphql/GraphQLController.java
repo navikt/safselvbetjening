@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
+import static no.nav.safselvbetjening.graphql.GraphQLRequestContext.KEY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -59,7 +60,7 @@ public class GraphQLController {
 								.query(request.getQuery())
 								.operationName(request.getOperationName())
 								.variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
-								.context(createGraphQLContext(webRequest))
+								.graphQLContext((c) -> c.put(KEY, createGraphQLContext(webRequest)))
 								.build());
 		return executionResult.toSpecification();
 	}

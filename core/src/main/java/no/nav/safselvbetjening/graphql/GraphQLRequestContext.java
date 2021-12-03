@@ -11,6 +11,8 @@ import no.nav.security.token.support.core.context.TokenValidationContext;
 @Value
 @Builder
 public class GraphQLRequestContext {
+	public static final String KEY = GraphQLRequestContext.class.getName();
+
 	private final String navCallId;
 	@ToString.Exclude
 	private final TokenValidationContext tokenValidationContext;
