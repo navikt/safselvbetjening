@@ -1,5 +1,6 @@
 package no.nav.safselvbetjening.hentdokument;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.fagarkiv.FagarkivConsumer;
 import no.nav.safselvbetjening.consumer.fagarkiv.HentDokumentResponseTo;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
@@ -21,14 +22,13 @@ import java.util.List;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
+import static no.nav.safselvbetjening.domain.Kanal.NAV_NO;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INGEN_GYLDIG_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.PARTSINNSYN;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
+@Slf4j
 @Component
 public class HentDokumentService {
 	private final FagarkivConsumer fagarkivConsumer;
@@ -37,24 +37,35 @@ public class HentDokumentService {
 	private final PensjonSakRestConsumer pensjonSakRestConsumer;
 	private final HentDokumentTilgangMapper hentDokumentTilgangMapper;
 	private final HentDokumentValidator hentDokumentValidator;
+	private final KafkaEventProducer kafkaProducer;
 
-	public HentDokumentService(FagarkivConsumer fagarkivConsumer, IdentService identService,
-							   UtledTilgangService utledTilgangService, PensjonSakRestConsumer pensjonSakRestConsumer,
-							   HentDokumentTilgangMapper hentDokumentTilgangMapper, HentDokumentValidator hentDokumentValidator) {
+	public HentDokumentService(
+			FagarkivConsumer fagarkivConsumer,
+			IdentService identService,
+			UtledTilgangService utledTilgangService,
+			PensjonSakRestConsumer pensjonSakRestConsumer,
+			HentDokumentTilgangMapper hentDokumentTilgangMapper,
+			HentDokumentValidator hentDokumentValidator,
+			KafkaEventProducer kafkaProducer
+	) {
 		this.fagarkivConsumer = fagarkivConsumer;
 		this.identService = identService;
 		this.utledTilgangService = utledTilgangService;
 		this.pensjonSakRestConsumer = pensjonSakRestConsumer;
 		this.hentDokumentTilgangMapper = hentDokumentTilgangMapper;
 		this.hentDokumentValidator = hentDokumentValidator;
+		this.kafkaProducer = kafkaProducer;
 	}
 
 	public HentDokument hentDokument(final HentdokumentRequest hentdokumentRequest) {
 		hentDokumentValidator.validate(hentdokumentRequest);
-		doTilgangskontroll(hentdokumentRequest);
+		this.doTilgangskontroll(hentdokumentRequest);
 
-		final HentDokumentResponseTo hentDokumentResponseTo =
-				fagarkivConsumer.hentDokument(hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat());
+		final HentDokumentResponseTo hentDokumentResponseTo = fagarkivConsumer.hentDokument(
+				hentdokumentRequest.getDokumentInfoId(),
+				hentdokumentRequest.getVariantFormat()
+		);
+
 		return HentDokument.builder()
 				.dokument(Base64.getDecoder().decode(hentDokumentResponseTo.getDokument()))
 				.mediaType(hentDokumentResponseTo.getMediaType())
@@ -64,13 +75,17 @@ public class HentDokumentService {
 
 	private void doTilgangskontroll(final HentdokumentRequest hentdokumentRequest) {
 		final TilgangJournalpostResponseTo tilgangJournalpostResponseTo =
-				fagarkivConsumer.tilgangJournalpost(hentdokumentRequest.getJournalpostId(),
-						hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat());
+				fagarkivConsumer.tilgangJournalpost(
+						hentdokumentRequest.getJournalpostId(),
+						hentdokumentRequest.getDokumentInfoId(),
+						hentdokumentRequest.getVariantFormat()
+				);
 
 		final String bruker = findBrukerIdent(tilgangJournalpostResponseTo.getTilgangJournalpostDto());
 		if (isBlank(bruker)) {
 			throw new HentTilgangDokumentException(PARTSINNSYN, "Tilgang til dokument avvist fordi bruker ikke kan utledes");
 		}
+		//TODO: Her henter vi identer
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(bruker);
 		if (brukerIdenter.isEmpty()) {
 			throw new PdlFunctionalException("Finner ingen identer på person i pdl.");
@@ -78,13 +93,40 @@ public class HentDokumentService {
 
 		validateTokenIdent(brukerIdenter, hentdokumentRequest);
 
+		//TODO: Her ligger journalpost
 		Journalpost journalpost = hentDokumentTilgangMapper.map(tilgangJournalpostResponseTo.getTilgangJournalpostDto(), brukerIdenter);
 		utledTilgangService.utledTilgangHentDokument(journalpost, brukerIdenter);
+
+		//TODO: Kjøre kafka tingtangmajig
+		this.doSendKafkaMelding(journalpost, bruker, hentdokumentRequest);
+	}
+
+	private void doSendKafkaMelding(Journalpost journalpost, String bruker, final HentdokumentRequest hentdokumentRequest) {
+		/**
+		 * SJEKK
+		 * innlogget bruker = journalpost.avsendMottakId
+		 * journalpost.utsendingsKanal = DittNAV
+		 * dokumentet er hoveddokument på journalposten
+		 *
+		 * SÅ
+		 * skriv journalpostId til kafka-topic _privat-dokdistdittnav-lestavmottaker
+		 */
+		if (journalpost.getMottaker().getId().equals(bruker) &&
+				NAV_NO.equals(journalpost.getKanal()) &&
+				journalpost.getDokumenter().get(0).getDokumentInfoId().equals(hentdokumentRequest.getDokumentInfoId()) &&
+				!hentdokumentRequest.getJournalpostId().isBlank()
+		) {
+			try{
+				kafkaProducer.publish(hentdokumentRequest.getJournalpostId());
+			}catch (Exception e){
+				log.error("Kunne ikke sende event til kafka topic: ", e);
+			}
+		}
 	}
 
 	private String findBrukerIdent(TilgangJournalpostDto tilgangJournalpostDto) {
 		if (JournalStatusCode.getJournalstatusMidlertidig().contains(tilgangJournalpostDto.getJournalStatus())) {
-			if(tilgangJournalpostDto.getBruker() == null) {
+			if (tilgangJournalpostDto.getBruker() == null) {
 				return null;
 			} else {
 				return tilgangJournalpostDto.getBruker().getBrukerId();
@@ -99,13 +141,16 @@ public class HentDokumentService {
 		return null;
 	}
 
-	private void validateTokenIdent(BrukerIdenter brukerIdenter, HentdokumentRequest hentdokumentRequest) {
+	private void validateTokenIdent(
+			BrukerIdenter brukerIdenter,
+			HentdokumentRequest hentdokumentRequest
+	) {
 		JwtToken jwtToken = hentdokumentRequest.getTokenValidationContext().getFirstValidToken()
 				.orElseThrow(() -> new HentTilgangDokumentException(INGEN_GYLDIG_TOKEN, "Ingen gyldige tokens i Authorization headeren."));
 		List<String> identer = brukerIdenter.getIdenter();
 		String pid = jwtToken.getJwtTokenClaims().getStringClaim(CLAIM_PID);
 		String sub = jwtToken.getJwtTokenClaims().getStringClaim(CLAIM_SUB);
-		if(!identer.contains(pid) && !identer.contains(sub)) {
+		if (!identer.contains(pid) && !identer.contains(sub)) {
 			throw new HentTilgangDokumentException(BRUKER_MATCHER_IKKE_TOKEN, "Bruker på journalpost tilhører ikke bruker i token. Ident må ligge i pid eller sub claim.");
 		}
 	}

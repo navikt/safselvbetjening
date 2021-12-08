@@ -16,6 +16,12 @@
 			<groupId>no.nav.safselvbetjening</groupId>
 			<artifactId>core</artifactId>
 		</dependency>
+
+		<!-- Kafka -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>

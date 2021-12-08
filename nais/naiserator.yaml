@@ -6,6 +6,8 @@ metadata:
   labels:
     team: teamdokumenthandtering
 spec:
+  kafka:
+    pool: { { KAFKA_POOL } }
   env:
     - name: AZURE_APP_TOKEN_URL
       value: {{AZURE_APP_TOKEN_URL}}

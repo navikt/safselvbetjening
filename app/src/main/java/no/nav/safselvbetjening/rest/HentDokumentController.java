@@ -35,8 +35,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * Endepunktet til hentDokument, som returnerer et dokument fra joark basert på journalpostId, dokumentInfoId og variantFormat.
- *
- * @author Joakim Bjørnstad, Jbit AS
  */
 @RestController
 @RequestMapping("rest/")
@@ -46,8 +44,10 @@ public class HentDokumentController {
 	private final HentDokumentService hentDokumentService;
 	private final TokenValidationContextHolder tokenValidationContextHolder;
 
-	public HentDokumentController(HentDokumentService hentDokumentService,
-								  TokenValidationContextHolder tokenValidationContextHolder) {
+	public HentDokumentController(
+			HentDokumentService hentDokumentService,
+			TokenValidationContextHolder tokenValidationContextHolder
+	) {
 		this.hentDokumentService = hentDokumentService;
 		this.tokenValidationContextHolder = tokenValidationContextHolder;
 	}
@@ -84,7 +84,7 @@ public class HentDokumentController {
 			log.warn(e.getMessage());
 			throw new ResponseStatusException(NOT_FOUND, e.getMessage());
 		} catch (HentdokumentRequestException e) {
-			log.warn(e.getMessage()	);
+			log.warn(e.getMessage());
 			throw new ResponseStatusException(BAD_REQUEST, e.getMessage());
 		} catch (Exception e) {
 			log.error(e.getMessage());

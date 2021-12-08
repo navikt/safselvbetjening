@@ -13,7 +13,7 @@ import static org.apache.commons.lang3.StringUtils.isNumeric;
 /**
  * @author Joakim Bjørnstad, Jbit AS
  */
-@Component
+@Component //TODO: skal dette være en komponent?
 public class HentDokumentValidator {
 	private static final Set<String> ALLOWED_VARIANTFORMAT = new HashSet<>(asList(ARKIV.name(), SLADDET.name()));
 	private static final String VARIANTFORMAT_ERRORMSG = String.join(",", ALLOWED_VARIANTFORMAT);
