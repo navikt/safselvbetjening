@@ -32,6 +32,7 @@
 		<resilience4j.version>1.7.1</resilience4j.version>
 		<bcprov-jdk15on.version>1.69</bcprov-jdk15on.version>
 		<lombok.version>1.18.22</lombok.version>
+		<confluent.version>6.1.1</confluent.version>
 		<!-- test -->
 		<okhttp3.version>4.9.1</okhttp3.version>
 		<spring-cloud-starter-contract-stub-runner.version>3.0.2</spring-cloud-starter-contract-stub-runner.version>
@@ -100,6 +101,16 @@
 				<groupId>org.bouncycastle</groupId>
 				<artifactId>bcprov-jdk15on</artifactId>
 				<version>${bcprov-jdk15on.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.confluent</groupId>
+				<artifactId>kafka-avro-serializer</artifactId>
+				<version>${confluent.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.confluent</groupId>
+				<artifactId>kafka-json-serializer</artifactId>
+				<version>${confluent.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.projectlombok</groupId>

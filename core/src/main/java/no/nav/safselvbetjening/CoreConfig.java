@@ -13,6 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.retry.annotation.EnableRetry;
 
 import java.net.URI;
@@ -20,6 +21,7 @@ import java.net.URI;
 @ComponentScan
 @EnableRetry
 @EnableJwtTokenValidation
+@EnableKafka
 @Configuration
 public class CoreConfig {
 	@Bean
