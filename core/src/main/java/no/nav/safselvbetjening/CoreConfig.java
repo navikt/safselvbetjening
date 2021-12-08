@@ -21,7 +21,6 @@ import java.net.URI;
 @ComponentScan
 @EnableRetry
 @EnableJwtTokenValidation
-@EnableKafka
 @Configuration
 public class CoreConfig {
 	@Bean

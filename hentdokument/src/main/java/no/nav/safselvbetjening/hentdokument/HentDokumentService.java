@@ -111,17 +111,19 @@ public class HentDokumentService {
 		 * SÅ
 		 * skriv journalpostId til kafka-topic _privat-dokdistdittnav-lestavmottaker
 		 */
-		if (journalpost.getMottaker().getId().equals(bruker) &&
+		if (journalpost.getMottaker() != null &&
+				bruker.equals(journalpost.getMottaker().getId()) &&
 				NAV_NO.equals(journalpost.getKanal()) &&
 				journalpost.getDokumenter().get(0).getDokumentInfoId().equals(hentdokumentRequest.getDokumentInfoId()) &&
 				!hentdokumentRequest.getJournalpostId().isBlank()
 		) {
-			try{
+			try {
 				kafkaProducer.publish(hentdokumentRequest.getJournalpostId());
-			}catch (Exception e){
+			} catch (Exception e) {
 				log.error("Kunne ikke sende event til kafka topic: ", e);
 			}
 		}
+
 	}
 
 	private String findBrukerIdent(TilgangJournalpostDto tilgangJournalpostDto) {
