@@ -120,7 +120,7 @@ public class HentDokumentService {
 			try {
 				kafkaProducer.publish(hentdokumentRequest.getJournalpostId());
 			} catch (Exception e) {
-				log.error("Kunne ikke sende events til kafka topic: ", e);
+				log.error("Kunne ikke sende event til kafka topic: ", e);
 			}
 		}
 
