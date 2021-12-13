@@ -1,12 +1,17 @@
 package no.nav.safselvbetjening.endpoints.hentDokument;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
+import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode;
 import no.nav.safselvbetjening.endpoints.AbstractItest;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -18,12 +23,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,7 +55,6 @@ import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 @EmbeddedKafka(
 		topics = {
 				"test-ut-topic",
-				"test-inn-topic",
 		},
 		bootstrapServersProperty = "spring.kafka.bootstrap-servers",
 		brokerProperties = {
@@ -56,7 +64,6 @@ import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 		},
 		partitions = 1
 )
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HentDokumentIT extends AbstractItest {
 
 	@Value("${safselvbetjening.topic}")
@@ -78,11 +85,10 @@ class HentDokumentIT extends AbstractItest {
 	public void setUpClass() {
 		// KafkaConsumer for å kunne konsumere meldinger som InngaaendeHendelsePublisher dytter til 'test-ut-topic'
 		this.setUpConsumerForTopicUt();
-
 	}
 
 	public void setUpConsumerForTopicUt() {
-		Map<String, Object> consumerProps = KafkaTestUtils.consumerProps("test-consumer", "true", kafkaEmbedded);
+		Map<String, Object> consumerProps = KafkaTestUtils.consumerProps("test", "true", kafkaEmbedded);
 		consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
 		consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroDeserializer");
 		consumerProps.put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "mock://localhost");
@@ -226,8 +232,12 @@ class HentDokumentIT extends AbstractItest {
 		assertOkArkivResponse(responseEntity);
 	}
 
+
 	@Test
 	void hentDokumentUtgaaendePenHappyPath() {
+
+		//this.sendToUtTopic(new HoveddokumentLest("123", "123"));
+
 		stubPdl();
 		stubAzure();
 		stubHentDokumentDokarkiv();

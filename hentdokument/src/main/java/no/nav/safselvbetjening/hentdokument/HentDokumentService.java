@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.fagarkiv.FagarkivConsumer;
 import no.nav.safselvbetjening.consumer.fagarkiv.HentDokumentResponseTo;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
 import no.nav.safselvbetjening.consumer.pdl.PdlFunctionalException;
@@ -105,15 +104,11 @@ public class HentDokumentService {
 		if (U.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalpostType()) &&
 				(FS.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus()) || E.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus()))
 		) {
-			this.doSendKafkaMelding(journalpost,
-					tilgangJournalpostResponseTo.getTilgangJournalpostDto().getAvsenderMottakerId(),
-					bruker,
-					hentdokumentRequest
-			);
+			this.doSendKafkaMelding(hentdokumentRequest);
 		}
 	}
 
-	private void doSendKafkaMelding(Journalpost journalpost, String journalBruker, String bruker, final HentdokumentRequest hentdokumentRequest) {
+	private void doSendKafkaMelding( final HentdokumentRequest hentdokumentRequest) {
 		/**
 		 * SJEKK
 		 * innlogget bruker = journalpost.avsendMottakId (samme som avsendermottakerId fra tilgangJournalpostResponseTo)
