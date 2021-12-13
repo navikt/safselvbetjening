@@ -162,7 +162,7 @@ Returnerer:
 * `401 Unauthorized` - Dokumentet tilhører ikke bruker i token. Ingen tilgang til dokumentet basert på [regler](https://confluence.adeo.no/pages/viewpage.action?pageId=377182021).
 * `404 Not Found` - Dokumentet eller metadata tilhørende dokumentet finnes ikke. Bruker finnes ikke.
 
-| Nav-Reason-Code    | Beskrivelse                                |
+| Nav-Reason-Code        | Beskrivelse                                |
 | :--------------------- | :----------------------------------------- |
 |ingen_partsinnsyn|Bruker må være part for å se journalposter|
 |opprettet_for_innsynsdato|Bruker får ikke se journalposter som er opprettet før 04.06.2016|
