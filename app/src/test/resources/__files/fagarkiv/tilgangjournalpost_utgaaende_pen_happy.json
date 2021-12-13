@@ -1,0 +1,44 @@
+{
+  "tilgangJournalpostDto": {
+    "journalpostId": "12345",
+    "journalStatus": "FS",
+    "journalpostType": "U",
+    "fagomrade": "PEN",
+    "datoOpprettet": "2019-11-22T15:08:21.506",
+    "journalfoertDato": "2019-11-22T15:08:21.504",
+    "mottakskanal": "NAV_NO",
+    "skjerming": null,
+    "avsenderMottakerId": "12345678911",
+    "bruker": {
+      "brukerId": "12345678911",
+      "brukerType": "PERSON"
+    },
+    "sak": {
+      "sakId": "13000000",
+      "fagsystem": "PEN",
+      "feilregistrert": false,
+      "aktoerId": "1012345678911",
+      "tema": "PEN",
+      "fagsakNr": "333333",
+      "orgnr": null,
+      "applikasjon": "AO01",
+      "opprettetAv": null,
+      "opprettetTidspunkt": "2018-06-05T11:19:55.419+02:00"
+    },
+    "dokument": {
+      "dokumentinfoId": "123",
+      "dokumentstatus": "FERDIGSTILT",
+      "brevkode": "GEN_NOT_003",
+      "kategori": "FORVALTNINGSNOTAT",
+      "organinternt": false,
+      "innskrenketPartsinnsyn": false,
+      "innskrenketTredjepart": false,
+      "kassert": false,
+      "skjerming": null,
+      "variant": {
+        "variantFormat": "ARKIV",
+        "skjerming": null
+      }
+    }
+  }
+}

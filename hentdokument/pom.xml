@@ -22,6 +22,11 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>no.nav.teamdokumenthandtering</groupId>
+			<artifactId>teamdokumenthandtering-avro-schemas</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>

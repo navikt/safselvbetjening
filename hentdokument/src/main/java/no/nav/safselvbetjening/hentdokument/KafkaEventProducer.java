@@ -3,6 +3,7 @@ package no.nav.safselvbetjening.hentdokument;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TopicAuthorizationException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.KafkaException;
 import org.springframework.kafka.core.KafkaProducerException;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -19,7 +20,9 @@ import static no.nav.safselvbetjening.MDCUtils.*;
 @Component
 public class KafkaEventProducer {
 
-	private static final String KAFKA_TOPIC = "privat-dokdistdittnav-lestavmottaker";
+	//todo: endre topic
+	@Value("${safselvbetjening.topic}")
+	private static final String KAFKA_TOPIC = "test-ut-topic";
 	private static final String KAFKA_NOT_AUTHENTICATED = "Not authenticated to publish to topic: ";
 	private static final String KAFKA_FAILED_TO_SEND = "Failed to send message to kafka. Topic: ";
 

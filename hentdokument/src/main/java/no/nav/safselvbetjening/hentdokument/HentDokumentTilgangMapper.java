@@ -37,6 +37,8 @@ public class HentDokumentTilgangMapper {
 			return null;
 		}
 		return DokumentInfo.builder()
+				//TODO: redundant2?
+				.dokumentInfoId(tilgangDokumentInfoDto.getDokumentinfoId())
 				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
 						.innskrenketPartsinnsyn(tilgangDokumentInfoDto.getInnskrenketPartsinnsyn() != null && tilgangDokumentInfoDto.getInnskrenketPartsinnsyn())
 						.innskrenketTredjepart(tilgangDokumentInfoDto.getInnskrenketTredjepart() != null && tilgangDokumentInfoDto.getInnskrenketTredjepart())
@@ -71,7 +73,7 @@ public class HentDokumentTilgangMapper {
 	}
 
 	private Kanal mapTilgangMottakskanal(MottaksKanalCode mottakskanal) {
-		if(mottakskanal == null) {
+		if (mottakskanal == null) {
 			return null;
 		}
 		return mottakskanal.getSafKanal();

@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.fagarkiv.FagarkivConsumer;
 import no.nav.safselvbetjening.consumer.fagarkiv.HentDokumentResponseTo;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
 import no.nav.safselvbetjening.consumer.pdl.PdlFunctionalException;
@@ -15,6 +16,7 @@ import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import org.springframework.stereotype.Component;
+import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 
 import java.util.Base64;
 import java.util.List;
@@ -22,7 +24,9 @@ import java.util.List;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
-import static no.nav.safselvbetjening.domain.Kanal.NAV_NO;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.E;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FS;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode.U;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INGEN_GYLDIG_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.PARTSINNSYN;
@@ -97,28 +101,39 @@ public class HentDokumentService {
 		Journalpost journalpost = hentDokumentTilgangMapper.map(tilgangJournalpostResponseTo.getTilgangJournalpostDto(), brukerIdenter);
 		utledTilgangService.utledTilgangHentDokument(journalpost, brukerIdenter);
 
-		//TODO: Kjøre kafka tingtangmajig
-		this.doSendKafkaMelding(journalpost, bruker, hentdokumentRequest);
+		//TODO: Kjøre kafka
+		if (U.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalpostType()) &&
+				(FS.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus()) || E.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus()))
+		) {
+			this.doSendKafkaMelding(journalpost,
+					tilgangJournalpostResponseTo.getTilgangJournalpostDto().getAvsenderMottakerId(),
+					bruker,
+					hentdokumentRequest
+			);
+		}
 	}
 
-	private void doSendKafkaMelding(Journalpost journalpost, String bruker, final HentdokumentRequest hentdokumentRequest) {
+	private void doSendKafkaMelding(Journalpost journalpost, String journalBruker, String bruker, final HentdokumentRequest hentdokumentRequest) {
 		/**
 		 * SJEKK
-		 * innlogget bruker = journalpost.avsendMottakId
+		 * innlogget bruker = journalpost.avsendMottakId (samme som avsendermottakerId fra tilgangJournalpostResponseTo)
 		 * journalpost.utsendingsKanal = DittNAV
 		 * dokumentet er hoveddokument på journalposten
 		 *
 		 * SÅ
 		 * skriv journalpostId til kafka-topic _privat-dokdistdittnav-lestavmottaker
+		 *
+		 * TODO: Avklare hvordan vi kan se at dokument som hentes er hoveddokument i postjournal
+		 * TODO: Avklare hvordan en test-case fil kan se ut: ref tilgangjournalpost_utgaaende_pen_happy.json??
+		 * TODO: Se hvordan Journalpost mapper setter dokumentInfoId'er
+		 *
+		 * TODO: Sette opp arvo schema i prosjekt
+		 * TODO: Sende journalpostID og dokumentinfoId på kafka topic
 		 */
-		if (journalpost.getMottaker() != null &&
-				bruker.equals(journalpost.getMottaker().getId()) &&
-				NAV_NO.equals(journalpost.getKanal()) &&
-				journalpost.getDokumenter().get(0).getDokumentInfoId().equals(hentdokumentRequest.getDokumentInfoId()) &&
-				!hentdokumentRequest.getJournalpostId().isBlank()
-		) {
+		if (!hentdokumentRequest.getJournalpostId().isBlank() && !hentdokumentRequest.getDokumentInfoId().isBlank()) {
 			try {
-				kafkaProducer.publish(hentdokumentRequest.getJournalpostId());
+				HoveddokumentLest hoveddokumentLest = new HoveddokumentLest(hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId());
+				kafkaProducer.publish(hoveddokumentLest);
 			} catch (Exception e) {
 				log.error("Kunne ikke sende events til kafka topic: ", e);
 			}

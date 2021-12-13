@@ -33,6 +33,7 @@
 		<bcprov-jdk15on.version>1.69</bcprov-jdk15on.version>
 		<lombok.version>1.18.22</lombok.version>
 		<confluent.version>6.1.1</confluent.version>
+		<teamdokumenthandtering-avro-schemas.version>bbea40a3</teamdokumenthandtering-avro-schemas.version>
 		<!-- test -->
 		<okhttp3.version>4.9.1</okhttp3.version>
 		<spring-cloud-starter-contract-stub-runner.version>3.0.2</spring-cloud-starter-contract-stub-runner.version>
@@ -111,6 +112,11 @@
 				<groupId>io.confluent</groupId>
 				<artifactId>kafka-json-serializer</artifactId>
 				<version>${confluent.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>no.nav.teamdokumenthandtering</groupId>
+				<artifactId>teamdokumenthandtering-avro-schemas</artifactId>
+				<version>${teamdokumenthandtering-avro-schemas.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.projectlombok</groupId>
