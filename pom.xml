@@ -45,6 +45,9 @@
 		<repository>
 			<id>github-dok-avro</id>
 			<url>https://maven.pkg.github.com/navikt/teamdokumenthandtering-avro-schemas</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
 		</repository>
 	</repositories>
 
