@@ -88,7 +88,7 @@ public class HentDokumentService {
 		if (isBlank(bruker)) {
 			throw new HentTilgangDokumentException(PARTSINNSYN, "Tilgang til dokument avvist fordi bruker ikke kan utledes");
 		}
-		//TODO: Her henter vi identer
+
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(bruker);
 		if (brukerIdenter.isEmpty()) {
 			throw new PdlFunctionalException("Finner ingen identer på person i pdl.");
@@ -96,11 +96,10 @@ public class HentDokumentService {
 
 		validateTokenIdent(brukerIdenter, hentdokumentRequest);
 
-		//TODO: Her ligger journalpost
 		Journalpost journalpost = hentDokumentTilgangMapper.map(tilgangJournalpostResponseTo.getTilgangJournalpostDto(), brukerIdenter);
 		utledTilgangService.utledTilgangHentDokument(journalpost, brukerIdenter);
 
-		//TODO: Kjøre kafka
+		//TODO: verify logic
 		if (U.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalpostType()) &&
 				(FS.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus()) || E.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus()))
 		) {

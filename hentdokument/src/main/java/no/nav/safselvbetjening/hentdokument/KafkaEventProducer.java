@@ -24,7 +24,6 @@ import static no.nav.safselvbetjening.MDCUtils.*;
 @EnableTransactionManagement
 public class KafkaEventProducer {
 
-	//todo: endre topic
 	@Value("${safselvbetjening.topic}")
 	private static final String KAFKA_TOPIC = "test-ut-topic";
 	private static final String KAFKA_NOT_AUTHENTICATED = "Not authenticated to publish to topic: ";

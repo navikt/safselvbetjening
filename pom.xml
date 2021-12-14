@@ -41,6 +41,13 @@
 		<maven-toolchains-plugin.version>3.0.0</maven-toolchains-plugin.version>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>github-dok-avro</id>
+			<url>https://maven.pkg.github.com/navikt/teamdokumenthandtering-avro-schemas</url>
+		</repository>
+	</repositories>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
