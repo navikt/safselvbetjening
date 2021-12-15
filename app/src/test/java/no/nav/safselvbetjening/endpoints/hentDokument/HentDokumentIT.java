@@ -1,37 +1,101 @@
 package no.nav.safselvbetjening.endpoints.hentDokument;
 
+import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode;
 import no.nav.safselvbetjening.endpoints.AbstractItest;
+import no.nav.safselvbetjening.schemas.HoveddokumentLest;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 
 import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static java.util.Collections.singletonList;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.GDPR;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKANNET_DOKUMENT;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 
+@EmbeddedKafka(
+		topics = {
+				"test-ut-topic",
+		},
+		bootstrapServersProperty = "spring.kafka.bootstrap-servers",
+		brokerProperties = {
+				"offsets.topic.replication.factor=1",
+				"transaction.state.log.replication.factor=1",
+				"transaction.state.log.min.isr=1"
+		},
+		partitions = 1
+)
 class HentDokumentIT extends AbstractItest {
+
+	@Value("${safselvbetjening.dokdistdittnav.kafka.topic}")
+	public static String UT_TOPIC = "test-ut-topic";
+
+	@Autowired
+	@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+	public EmbeddedKafkaBroker kafkaEmbedded;
+
+	public static Consumer<String, HoveddokumentLest> consumer;
 
 	private static final String DOKUMENT_ID = "123";
 	private static final String JOURNALPOST_ID = "123";
 	private static final String BRUKER_ID = "12345678911";
 	private static final VariantFormatCode VARIANTFORMAT = VariantFormatCode.ARKIV;
 	private static final byte[] TEST_FILE_BYTES = "TestThis".getBytes();
+
+	@BeforeEach
+	public void setUpClass() {
+		// KafkaConsumer for å kunne konsumere meldinger som InngaaendeHendelsePublisher dytter til 'test-ut-topic'
+		this.setUpConsumerForTopicUt();
+	}
+
+	public void setUpConsumerForTopicUt() {
+		Map<String, Object> consumerProps = KafkaTestUtils.consumerProps("test", "true", kafkaEmbedded);
+		consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
+		consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroDeserializer");
+		consumerProps.put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "mock://localhost");
+		consumerProps.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, "true");
+
+		consumer = new DefaultKafkaConsumerFactory<String, HoveddokumentLest>(consumerProps)
+				.createConsumer();
+		consumer.subscribe(Collections.singletonList(UT_TOPIC));
+	}
+
+	public List<HoveddokumentLest> getAllCurrentRecordsOnTopicUt() {
+		return StreamSupport.stream(KafkaTestUtils.getRecords(consumer, 2000).records(UT_TOPIC).spliterator(), false)
+				.map(ConsumerRecord::value)
+				.collect(Collectors.toList());
+	}
 
 	@Test
 	void hentFerdigstiltDokumentHappyPath() {
@@ -158,6 +222,58 @@ class HentDokumentIT extends AbstractItest {
 						.withBodyFile("psak/hentbrukerforsak_happy.json")));
 		ResponseEntity<String> responseEntity = callHentDokument();
 		assertOkArkivResponse(responseEntity);
+	}
+
+
+	@Test
+	void hentDokumentUtgaaendePenKafkaHappyPath() {
+		stubPdl();
+		stubAzure();
+		stubHentDokumentDokarkiv();
+
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("fagarkiv/tilgangjournalpost_utgaaende_pen_happy.json")));
+		stubFor(get("/pensjonsak")
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("psak/hentbrukerforsak_happy.json")));
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertOkArkivResponse(responseEntity);
+
+		//Consumer topic og verifiser 1 melding
+		await().atMost(10, SECONDS).untilAsserted(() -> {
+			List<HoveddokumentLest> records = this.getAllCurrentRecordsOnTopicUt();
+			assertEquals(1, records.size());
+			HoveddokumentLest hoveddokumentLest = records.get(0);
+			assertEquals(JOURNALPOST_ID, hoveddokumentLest.getJournalpostId());
+			assertEquals(DOKUMENT_ID, hoveddokumentLest.getDokumentInfoId());
+		});
+	}
+
+	@Test
+	void hentDokumentUtgaaendePenIkkeKafkaHappyPath() {
+		stubPdl();
+		stubAzure();
+		stubHentDokumentDokarkiv();
+
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("fagarkiv/tilgangjournalpost_pen_happy.json")));
+		stubFor(get("/pensjonsak")
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("psak/hentbrukerforsak_happy.json")));
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertOkArkivResponse(responseEntity);
+
+		//Consumer topic og verifiser ingen melding
+		await().atMost(10, SECONDS).untilAsserted(() -> {
+			List<HoveddokumentLest> records = this.getAllCurrentRecordsOnTopicUt();
+			assertEquals(0, records.size());
+		});
 	}
 
 	@Test

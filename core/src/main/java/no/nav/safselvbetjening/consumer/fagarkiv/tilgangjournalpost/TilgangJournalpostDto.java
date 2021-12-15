@@ -13,9 +13,6 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 
 import java.time.LocalDateTime;
 
-/**
- * @author Sigurd Midttun, Visma Consulting.
- */
 @Data
 @Builder
 @NoArgsConstructor

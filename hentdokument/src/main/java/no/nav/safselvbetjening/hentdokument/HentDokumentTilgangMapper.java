@@ -71,7 +71,7 @@ public class HentDokumentTilgangMapper {
 	}
 
 	private Kanal mapTilgangMottakskanal(MottaksKanalCode mottakskanal) {
-		if(mottakskanal == null) {
+		if (mottakskanal == null) {
 			return null;
 		}
 		return mottakskanal.getSafKanal();
