@@ -1,7 +1,6 @@
 package no.nav.safselvbetjening.hentdokument;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TopicAuthorizationException;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,27 +12,27 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.ExecutionException;
 
-import static no.nav.safselvbetjening.MDCUtils.*;
+import static no.nav.safselvbetjening.MDCUtils.getCallId;
 
 @Slf4j
 @Component
 @EnableTransactionManagement
 public class KafkaEventProducer {
 
-	@Value("${safselvbetjening.topic}")
-	private static final String KAFKA_TOPIC = "test-ut-topic";
+
+	private final String KAFKA_TOPIC;
 	private static final String KAFKA_NOT_AUTHENTICATED = "Not authenticated to publish to topic: ";
 	private static final String KAFKA_FAILED_TO_SEND = "Failed to send message to kafka. Topic: ";
 
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 
 
-	KafkaEventProducer(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") KafkaTemplate<String, Object> kafkaTemplate) {
+	KafkaEventProducer(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") KafkaTemplate<String, Object> kafkaTemplate, @Value("${safselvbetjening.topic}") String topic) {
 		this.kafkaTemplate = kafkaTemplate;
+		this.KAFKA_TOPIC = topic;
 	}
 
 	//@Metrics(createErrorMetric = true, errorMetricInclude = KafkaTechnicalException.class)

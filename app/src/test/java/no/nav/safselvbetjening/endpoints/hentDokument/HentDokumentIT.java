@@ -1,20 +1,14 @@
 package no.nav.safselvbetjening.endpoints.hentDokument;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
-import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode;
 import no.nav.safselvbetjening.endpoints.AbstractItest;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -23,16 +17,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,11 +33,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static java.util.Collections.singletonList;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.GDPR;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKANNET_DOKUMENT;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
@@ -251,11 +243,13 @@ class HentDokumentIT extends AbstractItest {
 		assertOkArkivResponse(responseEntity);
 
 		//Consumer topic og verifiser 1 melding
-		List<HoveddokumentLest> records = this.getAllCurrentRecordsOnTopicUt();
-		assertEquals(1, records.size());
-		HoveddokumentLest hoveddokumentLest = records.get(0);
-		assertEquals(JOURNALPOST_ID, hoveddokumentLest.getJournalpostId());
-		assertEquals(DOKUMENT_ID, hoveddokumentLest.getDokumentInfoId());
+		await().atMost(10, SECONDS).untilAsserted(() -> {
+			List<HoveddokumentLest> records = this.getAllCurrentRecordsOnTopicUt();
+			assertEquals(1, records.size());
+			HoveddokumentLest hoveddokumentLest = records.get(0);
+			assertEquals(JOURNALPOST_ID, hoveddokumentLest.getJournalpostId());
+			assertEquals(DOKUMENT_ID, hoveddokumentLest.getDokumentInfoId());
+		});
 	}
 
 	@Test
@@ -276,8 +270,10 @@ class HentDokumentIT extends AbstractItest {
 		assertOkArkivResponse(responseEntity);
 
 		//Consumer topic og verifiser ingen melding
-		List<HoveddokumentLest> records = this.getAllCurrentRecordsOnTopicUt();
-		assertEquals(0, records.size());
+		await().atMost(10, SECONDS).untilAsserted(() -> {
+			List<HoveddokumentLest> records = this.getAllCurrentRecordsOnTopicUt();
+			assertEquals(0, records.size());
+		});
 	}
 
 	@Test

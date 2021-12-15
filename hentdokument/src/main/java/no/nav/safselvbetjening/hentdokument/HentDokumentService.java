@@ -9,13 +9,13 @@ import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJourn
 import no.nav.safselvbetjening.consumer.pdl.PdlFunctionalException;
 import no.nav.safselvbetjening.consumer.pensjon.hentbrukerforsak.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.domain.Journalpost;
+import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import org.springframework.stereotype.Component;
-import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 
 import java.util.Base64;
 import java.util.List;
@@ -107,7 +107,7 @@ public class HentDokumentService {
 		}
 	}
 
-	private void doSendKafkaMelding( final HentdokumentRequest hentdokumentRequest) {
+	private void doSendKafkaMelding(final HentdokumentRequest hentdokumentRequest) {
 		if (!hentdokumentRequest.getJournalpostId().isBlank() && !hentdokumentRequest.getDokumentInfoId().isBlank()) {
 			try {
 				HoveddokumentLest hoveddokumentLest = new HoveddokumentLest(hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId());
