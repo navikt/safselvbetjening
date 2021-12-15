@@ -234,10 +234,7 @@ class HentDokumentIT extends AbstractItest {
 
 
 	@Test
-	void hentDokumentUtgaaendePenHappyPath() {
-
-		//this.sendToUtTopic(new HoveddokumentLest("123", "123"));
-
+	void hentDokumentUtgaaendePenKafkaHappyPath() {
 		stubPdl();
 		stubAzure();
 		stubHentDokumentDokarkiv();
@@ -253,12 +250,34 @@ class HentDokumentIT extends AbstractItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 		assertOkArkivResponse(responseEntity);
 
+		//Consumer topic og verifiser 1 melding
 		List<HoveddokumentLest> records = this.getAllCurrentRecordsOnTopicUt();
 		assertEquals(1, records.size());
 		HoveddokumentLest hoveddokumentLest = records.get(0);
 		assertEquals(JOURNALPOST_ID, hoveddokumentLest.getJournalpostId());
 		assertEquals(DOKUMENT_ID, hoveddokumentLest.getDokumentInfoId());
+	}
 
+	@Test
+	void hentDokumentUtgaaendePenIkkeKafkaHappyPath() {
+		stubPdl();
+		stubAzure();
+		stubHentDokumentDokarkiv();
+
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("fagarkiv/tilgangjournalpost_pen_happy.json")));
+		stubFor(get("/pensjonsak")
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("psak/hentbrukerforsak_happy.json")));
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertOkArkivResponse(responseEntity);
+
+		//Consumer topic og verifiser ingen melding
+		List<HoveddokumentLest> records = this.getAllCurrentRecordsOnTopicUt();
+		assertEquals(0, records.size());
 	}
 
 	@Test

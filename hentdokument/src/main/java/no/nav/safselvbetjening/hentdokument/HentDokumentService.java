@@ -99,7 +99,7 @@ public class HentDokumentService {
 		Journalpost journalpost = hentDokumentTilgangMapper.map(tilgangJournalpostResponseTo.getTilgangJournalpostDto(), brukerIdenter);
 		utledTilgangService.utledTilgangHentDokument(journalpost, brukerIdenter);
 
-		//TODO: verify logic
+		//Journalpost må ha type 'U' (utgaaende) og JournalStatus enten 'FS' (ferdigstilt) eller 'E' (ekspedert) for at vi skal sende kafkamelding
 		if (U.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalpostType()) &&
 				(FS.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus()) || E.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus()))
 		) {
@@ -108,22 +108,6 @@ public class HentDokumentService {
 	}
 
 	private void doSendKafkaMelding( final HentdokumentRequest hentdokumentRequest) {
-		/**
-		 * SJEKK
-		 * innlogget bruker = journalpost.avsendMottakId (samme som avsendermottakerId fra tilgangJournalpostResponseTo)
-		 * journalpost.utsendingsKanal = DittNAV
-		 * dokumentet er hoveddokument på journalposten
-		 *
-		 * SÅ
-		 * skriv journalpostId til kafka-topic _privat-dokdistdittnav-lestavmottaker
-		 *
-		 * TODO: Avklare hvordan vi kan se at dokument som hentes er hoveddokument i postjournal
-		 * TODO: Avklare hvordan en test-case fil kan se ut: ref tilgangjournalpost_utgaaende_pen_happy.json??
-		 * TODO: Se hvordan Journalpost mapper setter dokumentInfoId'er
-		 *
-		 * TODO: Sette opp arvo schema i prosjekt
-		 * TODO: Sende journalpostID og dokumentinfoId på kafka topic
-		 */
 		if (!hentdokumentRequest.getJournalpostId().isBlank() && !hentdokumentRequest.getDokumentInfoId().isBlank()) {
 			try {
 				HoveddokumentLest hoveddokumentLest = new HoveddokumentLest(hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId());
