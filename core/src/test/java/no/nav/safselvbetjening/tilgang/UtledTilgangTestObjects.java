@@ -20,8 +20,6 @@ import java.util.Date;
 import java.util.List;
 
 import static no.nav.safselvbetjening.domain.Tema.DAG;
-import static no.nav.safselvbetjening.domain.Tema.FAR;
-import static no.nav.safselvbetjening.domain.Tema.KTR;
 import static no.nav.safselvbetjening.domain.Tema.PEN;
 
 public class UtledTilgangTestObjects {
@@ -36,6 +34,7 @@ public class UtledTilgangTestObjects {
 	static final String TEMA_FAR = "FAR";
 	static final String ARKIVSAKSYSTEM_GOSYS = "FS22";
 	static final String ARKIVSAKSYSTEM_PENSJON = "PEN";
+	static final LocalDateTime FOER_INNSYNSDATO = LocalDateTime.parse("2016-01-01T12:00");
 
 	static Journalpost.JournalpostBuilder baseJournalpost() {
 		return Journalpost.builder()
@@ -49,20 +48,7 @@ public class UtledTilgangTestObjects {
 						.type(AvsenderMottakerIdType.FNR)
 						.build())
 				.relevanteDatoer(List.of(new RelevantDato(new Date(), Datotype.DATO_JOURNALFOERT)))
-				.tilgang(Journalpost.TilgangJournalpost.builder()
-						.tilgangBruker(Journalpost.TilgangBruker.builder()
-								.brukerId(IDENT)
-								.build())
-						.datoOpprettet(LocalDateTime.now())
-						.tema(TEMA_DAGPENGER)
-						.journalfoertDato(LocalDateTime.now())
-						.tilgangSak(Journalpost.TilgangSak.builder()
-								.aktoerId(AKTOER_ID)
-								.fagsystem(ARKIVSAKSYSTEM_GOSYS)
-								.feilregistrert(false)
-								.tema(TEMA_DAGPENGER)
-								.build())
-						.build())
+				.tilgang(baseTilgangJournalpost().build())
 				.dokumenter(List.of(DokumentInfo.builder()
 						.dokumentInfoId("40000000")
 						.tittel("Søknad om dagpenger")
@@ -81,6 +67,22 @@ public class UtledTilgangTestObjects {
 										.build())
 								.build()))
 						.build()));
+	}
+
+	static Journalpost.TilgangJournalpost.TilgangJournalpostBuilder baseTilgangJournalpost() {
+		return Journalpost.TilgangJournalpost.builder()
+				.tilgangBruker(Journalpost.TilgangBruker.builder()
+						.brukerId(IDENT)
+						.build())
+				.datoOpprettet(LocalDateTime.now())
+				.tema(TEMA_DAGPENGER)
+				.journalfoertDato(LocalDateTime.now())
+				.tilgangSak(Journalpost.TilgangSak.builder()
+						.aktoerId(AKTOER_ID)
+						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
+						.feilregistrert(false)
+						.tema(TEMA_DAGPENGER)
+						.build());
 	}
 
 	static Journalpost.JournalpostBuilder baseJournalfoertJournalpost() {

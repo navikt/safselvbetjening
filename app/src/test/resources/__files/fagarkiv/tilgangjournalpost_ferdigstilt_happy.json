@@ -2,13 +2,13 @@
   "tilgangJournalpostDto": {
     "journalpostId": "12345",
     "journalStatus": "FL",
-    "journalpostType": "N",
+    "journalpostType": "U",
     "fagomrade": "AAP",
     "datoOpprettet": "2019-11-22T15:08:21.506",
     "journalfoertDato": "2019-11-22T15:08:21.504",
     "mottakskanal": null,
     "skjerming": null,
-    "avsenderMottakerId": null,
+    "avsenderMottakerId": "12345678911",
     "bruker": {
       "brukerId": "12345678911",
       "brukerType": "PERSON"
