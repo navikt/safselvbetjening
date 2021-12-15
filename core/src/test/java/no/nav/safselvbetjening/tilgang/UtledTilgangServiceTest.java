@@ -25,6 +25,7 @@ import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_AKTO
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_PART;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ARKIVSAKSYSTEM_GOSYS;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ARKIVSAKSYSTEM_PENSJON;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.FOER_INNSYNSDATO;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.IDENT;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_DAGPENGER;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_FAR;
@@ -32,6 +33,7 @@ import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_KONTR
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_PENSJON;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseJournalfoertJournalpost;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseMottattJournalpost;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseTilgangJournalpost;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.defaultBrukerIdenter;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,6 +48,22 @@ class UtledTilgangServiceTest {
 		SafSelvbetjeningProperties safSelvbetjeningProperties = new SafSelvbetjeningProperties();
 		safSelvbetjeningProperties.setTidligstInnsynDato(LocalDate.of(2016, 6, 4));
 		utledTilgangService = new UtledTilgangService(safSelvbetjeningProperties);
+	}
+
+	@Test
+	void shouldReturnTrueWhenTilgangTilJournalpost() {
+		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost().build(), defaultBrukerIdenter());
+		assertThat(tilgang).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseWhenJournalpostJournaldatoFoerOpprettetDato() {
+		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost()
+				.tilgang(baseTilgangJournalpost()
+						.journalfoertDato(FOER_INNSYNSDATO)
+						.build())
+				.build(), defaultBrukerIdenter());
+		assertThat(tilgang).isFalse();
 	}
 
 	//	1a - Bruker må være part for å se journalposter
@@ -313,12 +331,22 @@ class UtledTilgangServiceTest {
 
 	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	@Test
-	void shouldReturnTrueWhenAvsenderMottakerIdIsAnnenPart() {
+	void shouldReturnFalseWhenAvsenderMottakerIdIsNull() {
 		Journalpost journalpost = baseJournalfoertJournalpost()
-				.tilgang(Journalpost.TilgangJournalpost.builder().avsenderMottakerId(ANNEN_PART).build())
+				.tilgang(baseTilgangJournalpost().avsenderMottakerId(null).build())
 				.build();
-		boolean actual = utledTilgangService.isAvsenderMottakerNotPart(journalpost, defaultBrukerIdenter().getIdenter());
-		assertThat(actual).isTrue();
+		boolean actual = utledTilgangService.isAvsenderMottakerPart(journalpost, defaultBrukerIdenter().getIdenter());
+		assertThat(actual).isFalse();
+	}
+
+	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
+	@Test
+	void shouldReturnFalseWhenAvsenderMottakerIdIsAnnenPart() {
+		Journalpost journalpost = baseJournalfoertJournalpost()
+				.tilgang(baseTilgangJournalpost().avsenderMottakerId(ANNEN_PART).build())
+				.build();
+		boolean actual = utledTilgangService.isAvsenderMottakerPart(journalpost, defaultBrukerIdenter().getIdenter());
+		assertThat(actual).isFalse();
 	}
 
 	//	2b - Bruker får ikke se skannede dokumenter

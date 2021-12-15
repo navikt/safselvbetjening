@@ -44,6 +44,7 @@ import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.ORGANINTERN
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKANNET_DOKUMENT;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.UGYLDIG_JOURNALSTATUS;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Regler for tilgangskontroll for journalposter: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
@@ -69,10 +70,15 @@ public class UtledTilgangService {
 			if (journalpost == null) {
 				return false;
 			}
-
-			return isBrukerPart(journalpost, brukerIdenter) && isJournalpostNotGDPRRestricted(journalpost) &&
-					isJournalpostNotKontrollsakOrFarskapssak(journalpost) && isJournalpostForvaltningsnotat(journalpost) &&
-					isJournalpostNotOrganInternt(journalpost);
+			// Med referanse til tilgangsreglene lenket i javadoc.
+			return isBrukerPart(journalpost, brukerIdenter) && // 1a
+					!isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdato(journalpost) && // 1b
+					isJournalpostFerdigstiltOrMidlertidig(journalpost) && // 1c
+					!isJournalpostFeilregistrert(journalpost) && // 1d
+					isJournalpostNotKontrollsakOrFarskapssak(journalpost) && // 1e
+					isJournalpostNotGDPRRestricted(journalpost) && // 1f
+					isJournalpostForvaltningsnotat(journalpost) && // 1g
+					isJournalpostNotOrganInternt(journalpost); // 1h
 		} catch (Exception e) {
 			log.error("Feil oppstått i utledTilgangJournalpost for journalpost med journalpostId={}.", journalpost.getJournalpostId(), e);
 			return false;
@@ -82,7 +88,7 @@ public class UtledTilgangService {
 	public List<String> utledTilgangDokument(Journalpost journalpost, DokumentInfo dokumentInfo, Dokumentvariant dokumentvariant, BrukerIdenter brukerIdenter) {
 		List<String> feilmeldinger = new ArrayList<>();
 
-		if (isAvsenderMottakerNotPart(journalpost, brukerIdenter.getIdenter())) {
+		if (!isAvsenderMottakerPart(journalpost, brukerIdenter.getIdenter())) {
 			feilmeldinger.add(PARTSINNSYN);
 		}
 		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdato(journalpost)) {
@@ -128,7 +134,7 @@ public class UtledTilgangService {
 		if (!isJournalpostNotOrganInternt(journalpost)) {
 			throw new HentTilgangDokumentException(ORGANINTERNT, "Tilgang til journalpost avvist pga organinterne dokumenter på journalposten");
 		}
-		if (isAvsenderMottakerNotPart(journalpost, brukerIdenter.getIdenter())) {
+		if (!isAvsenderMottakerPart(journalpost, brukerIdenter.getIdenter())) {
 			throw new HentTilgangDokumentException(ANNEN_PART, "Tilgang til dokument avvist fordi dokumentet er sendt til/fra andre parter enn bruker");
 		}
 		if (isSkannetDokument(journalpost)) {
@@ -183,7 +189,7 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 1c) Bruker får kun se ferdigstilte journalposter
+	 * 1c) Bruker får kun se midlertidige eller ferdigstilte journalposter
 	 */
 	boolean isJournalpostFerdigstiltOrMidlertidig(Journalpost journalpost) {
 		return JOURNALSTATUS_FERDIGSTILT.contains(journalpost.getJournalstatus()) || MOTTATT.equals(journalpost.getJournalstatus());
@@ -254,11 +260,15 @@ public class UtledTilgangService {
 	/**
 	 * 2a) Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	 */
-	boolean isAvsenderMottakerNotPart(Journalpost journalpost, List<String> idents) {
+	boolean isAvsenderMottakerPart(Journalpost journalpost, List<String> idents) {
 		final Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 		final String avsenderMottakerId = tilgangJournalpost.getAvsenderMottakerId();
-		if (journalpost.getJournalposttype() != N && avsenderMottakerId != null) {
-			return !idents.contains(avsenderMottakerId);
+		// Notat er unntatt
+		if(journalpost.getJournalposttype() == N) {
+			return true;
+		}
+		if (isNotBlank(avsenderMottakerId)) {
+			return idents.contains(avsenderMottakerId);
 		}
 		return false;
 	}
