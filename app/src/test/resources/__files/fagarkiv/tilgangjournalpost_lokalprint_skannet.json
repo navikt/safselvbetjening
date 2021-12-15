@@ -8,7 +8,7 @@
     "journalfoertDato": "2019-11-22T15:08:21.504",
     "mottakskanal": "SKAN_NETS",
     "skjerming": null,
-    "avsenderMottakerId": null,
+    "avsenderMottakerId": "12345678911",
     "bruker": {
       "brukerId": "12345678911",
       "brukerType": "PERSON"

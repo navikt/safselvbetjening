@@ -121,7 +121,6 @@ class DokumentoversiktSelvbetjeningService {
 	}
 
 	/*
-	 * 1b) Bruker får ikke se journalposter som er opprettet før 04.06.2016. Dette er datoen den første innsynsløsningen ble lansert.
 	 * 1d) Bruker får ikke se feilregistrerte journalposter.
 	 */
 	private FinnJournalposterRequestTo.FinnJournalposterRequestToBuilder baseFinnJournalposterRequest(Saker saker) {
