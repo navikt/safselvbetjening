@@ -15,9 +15,12 @@ import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import no.nav.security.token.support.core.jwt.JwtToken;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
+import java.util.EnumSet;
 import java.util.List;
 
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
@@ -30,6 +33,7 @@ import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.BRUKER_MATC
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INGEN_GYLDIG_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.PARTSINNSYN;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
 @Component
@@ -42,6 +46,9 @@ public class HentDokumentService {
 	private final HentDokumentValidator hentDokumentValidator;
 	private final KafkaEventProducer kafkaProducer;
 
+	private final String KAFKA_TOPIC;
+	private static final EnumSet<JournalStatusCode> KAFKA_FERDIGSTILT = EnumSet.of(FS, E);
+
 	public HentDokumentService(
 			FagarkivConsumer fagarkivConsumer,
 			IdentService identService,
@@ -49,7 +56,8 @@ public class HentDokumentService {
 			PensjonSakRestConsumer pensjonSakRestConsumer,
 			HentDokumentTilgangMapper hentDokumentTilgangMapper,
 			HentDokumentValidator hentDokumentValidator,
-			KafkaEventProducer kafkaProducer
+			KafkaEventProducer kafkaProducer,
+			@Value("${safselvbetjening.dokdistdittnav.kafka.topic}") String kafkaTopic
 	) {
 		this.fagarkivConsumer = fagarkivConsumer;
 		this.identService = identService;
@@ -58,6 +66,7 @@ public class HentDokumentService {
 		this.hentDokumentTilgangMapper = hentDokumentTilgangMapper;
 		this.hentDokumentValidator = hentDokumentValidator;
 		this.kafkaProducer = kafkaProducer;
+		this.KAFKA_TOPIC = kafkaTopic;
 	}
 
 	public HentDokument hentDokument(final HentdokumentRequest hentdokumentRequest) {
@@ -101,19 +110,18 @@ public class HentDokumentService {
 
 		//Journalpost må ha type 'U' (utgaaende) og JournalStatus enten 'FS' (ferdigstilt) eller 'E' (ekspedert) for at vi skal sende kafkamelding
 		if (U.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalpostType()) &&
-				(FS.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus()) || E.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus()))
-		) {
+				KAFKA_FERDIGSTILT.contains(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus())){
 			this.doSendKafkaMelding(hentdokumentRequest);
 		}
 	}
 
 	private void doSendKafkaMelding(final HentdokumentRequest hentdokumentRequest) {
-		if (!hentdokumentRequest.getJournalpostId().isBlank() && !hentdokumentRequest.getDokumentInfoId().isBlank()) {
+		if (isNotBlank(hentdokumentRequest.getJournalpostId()) && isNotBlank(hentdokumentRequest.getDokumentInfoId())) {
 			try {
 				HoveddokumentLest hoveddokumentLest = new HoveddokumentLest(hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId());
 				kafkaProducer.publish(hoveddokumentLest);
 			} catch (Exception e) {
-				log.error("Kunne ikke sende events til kafka topic: ", e);
+				log.error("Kunne ikke sende events til kafka topic={}, feilmelding={}", KAFKA_TOPIC, e.getMessage(), e);
 			}
 		}
 

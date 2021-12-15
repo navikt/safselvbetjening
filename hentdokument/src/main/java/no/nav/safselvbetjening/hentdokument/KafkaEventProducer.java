@@ -21,21 +21,17 @@ import static no.nav.safselvbetjening.MDCUtils.getCallId;
 @Component
 @EnableTransactionManagement
 public class KafkaEventProducer {
-
-
 	private final String KAFKA_TOPIC;
 	private static final String KAFKA_NOT_AUTHENTICATED = "Not authenticated to publish to topic: ";
 	private static final String KAFKA_FAILED_TO_SEND = "Failed to send message to kafka. Topic: ";
 
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 
-
-	KafkaEventProducer(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") KafkaTemplate<String, Object> kafkaTemplate, @Value("${safselvbetjening.topic}") String topic) {
+	KafkaEventProducer(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") KafkaTemplate<String, Object> kafkaTemplate, @Value("${safselvbetjening.dokdistdittnav.kafka.topic}") String topic) {
 		this.kafkaTemplate = kafkaTemplate;
 		this.KAFKA_TOPIC = topic;
 	}
 
-	//@Metrics(createErrorMetric = true, errorMetricInclude = KafkaTechnicalException.class)
 	@Retryable(backoff = @Backoff(delay = 500))
 	void publish(Object event) {
 
@@ -49,7 +45,7 @@ public class KafkaEventProducer {
 
 		try {
 			SendResult<String, Object> sendResult = kafkaTemplate.send(producerRecord).get();
-			log.info("Message stored on topic. Timestamp={}, partition={}, offset={}, topic={}",
+			log.info("Lest av bruker hendelse skrevet til topic. Timestamp={}, partition={}, offset={}, topic={}",
 					sendResult.getRecordMetadata().timestamp(),
 					sendResult.getRecordMetadata().partition(),
 					sendResult.getRecordMetadata().offset(),
