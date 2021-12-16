@@ -71,12 +71,18 @@ public class HentDokumentService {
 
 	public HentDokument hentDokument(final HentdokumentRequest hentdokumentRequest) {
 		hentDokumentValidator.validate(hentdokumentRequest);
-		this.doTilgangskontroll(hentdokumentRequest);
+		TilgangJournalpostResponseTo tilgangJournalpostResponseTo = this.doTilgangskontroll(hentdokumentRequest);
 
 		final HentDokumentResponseTo hentDokumentResponseTo = fagarkivConsumer.hentDokument(
 				hentdokumentRequest.getDokumentInfoId(),
 				hentdokumentRequest.getVariantFormat()
 		);
+
+		//Journalpost må ha type 'U' (utgaaende) og JournalStatus enten 'FS' (ferdigstilt) eller 'E' (ekspedert) for at vi skal sende kafkamelding
+		if (U.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalpostType()) &&
+				KAFKA_FERDIGSTILT.contains(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus())){
+			this.doSendKafkaMelding(hentdokumentRequest);
+		}
 
 		return HentDokument.builder()
 				.dokument(Base64.getDecoder().decode(hentDokumentResponseTo.getDokument()))
@@ -85,7 +91,7 @@ public class HentDokumentService {
 				.build();
 	}
 
-	private void doTilgangskontroll(final HentdokumentRequest hentdokumentRequest) {
+	private TilgangJournalpostResponseTo doTilgangskontroll(final HentdokumentRequest hentdokumentRequest) {
 		final TilgangJournalpostResponseTo tilgangJournalpostResponseTo =
 				fagarkivConsumer.tilgangJournalpost(
 						hentdokumentRequest.getJournalpostId(),
@@ -108,11 +114,7 @@ public class HentDokumentService {
 		Journalpost journalpost = hentDokumentTilgangMapper.map(tilgangJournalpostResponseTo.getTilgangJournalpostDto(), brukerIdenter);
 		utledTilgangService.utledTilgangHentDokument(journalpost, brukerIdenter);
 
-		//Journalpost må ha type 'U' (utgaaende) og JournalStatus enten 'FS' (ferdigstilt) eller 'E' (ekspedert) for at vi skal sende kafkamelding
-		if (U.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalpostType()) &&
-				KAFKA_FERDIGSTILT.contains(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus())){
-			this.doSendKafkaMelding(hentdokumentRequest);
-		}
+		return tilgangJournalpostResponseTo;
 	}
 
 	private void doSendKafkaMelding(final HentdokumentRequest hentdokumentRequest) {
