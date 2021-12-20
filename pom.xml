@@ -22,7 +22,7 @@
 	</modules>
 
 	<properties>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 		<graphql-java.version>17.3</graphql-java.version>
 		<logstash-logback-encoder.version>6.6</logstash-logback-encoder.version>
 		<pensjon-sak-v1-tjenestespesifikasjon.version>1.2019.09.25-00.21-49b69f0625e0
