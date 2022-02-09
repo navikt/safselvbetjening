@@ -1,7 +1,7 @@
 kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
-  name: {{ APP_NAME }}
+  name: {{APP_NAME}}
   namespace: teamdokumenthandtering
   labels:
     team: teamdokumenthandtering
@@ -29,6 +29,8 @@ spec:
       value: {{SAFSELVBETJENING_PROXY_HOST}}
     - name: SAFSELVBETJENING_PROXY_PORT
       value: "{{SAFSELVBETJENING_PROXY_PORT}}"
+    - name: DOKDISTDITTNAV_TOPIC
+      value: {{DOKDISTDITTNAV_TOPIC}}
     - name: APPD_NAME
       value: {{APPD_NAME}}
   ingresses:

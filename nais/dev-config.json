@@ -1,6 +1,7 @@
 {
   "APP_NAME": "safselvbetjening",
   "KAFKA_POOL": "nav-dev",
+  "DOKDISTDITTNAV_TOPIC": "teamdokumenthandtering.privat-dokdistdittnav-lestavmottaker",
   "SERVICEUSER_VAULT_PATH": "/serviceuser/data/dev/srvsafselvbetjening",
   "AZURE_TENANT": "trygdeetaten.no",
   "AZURE_APP_TOKEN_URL": "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/oauth2/v2.0/token",

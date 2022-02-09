@@ -57,7 +57,7 @@ public class HentDokumentService {
 			HentDokumentTilgangMapper hentDokumentTilgangMapper,
 			HentDokumentValidator hentDokumentValidator,
 			KafkaEventProducer kafkaProducer,
-			@Value("${safselvbetjening.dokdistdittnav.kafka.topic}") String kafkaTopic
+			@Value("${dokdistdittnav.topic}") String kafkaTopic
 	) {
 		this.fagarkivConsumer = fagarkivConsumer;
 		this.identService = identService;
