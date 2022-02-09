@@ -49,7 +49,7 @@
       "cluster": "dev-sbs"
     },
     {
-      "app": "mininnboks-api-q2",
+      "app": "mininnboks-api-q1",
       "namespace": "personoversikt",
       "cluster": "dev-sbs"
     }
