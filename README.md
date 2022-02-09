@@ -15,7 +15,7 @@ For mer informasjon: [safselvbetjening systemdokumentasjon](https://confluence.a
 
 | cluster    | fss-til-fss     | gcp-til-fss                       | sbs-til-fss        |
 | :--------- | :-------------- | :-------------------------------- | :----------------- |
-| `dev-fss`  | `https://safselvbetjening.dev.intern.nav.no`  |`https://safselvbetjening.dev-fss-pub.nais.io`| `https://api-gw-q1.adeo.no/safselvbetjening` |
+| `dev-fss`  | `https://safselvbetjening.dev.intern.nav.no`  |`https://safselvbetjening.dev-fss-pub.nais.io`| `https://api-gw-q2.adeo.no/safselvbetjening` |
 | `prod-fss` | `https://safselvbetjening.intern.nav.no` |`https://safselvbetjening.prod-fss-pub.nais.io`|  `https://api-gw.adeo.no/safselvbetjening` |
 
 Kontakt teamet for å bli lagt til som api-gw konsument.
