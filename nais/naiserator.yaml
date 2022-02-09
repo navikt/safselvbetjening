@@ -1,7 +1,7 @@
 kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
-  name: safselvbetjening
+  name: {{ APP_NAME }}
   namespace: teamdokumenthandtering
   labels:
     team: teamdokumenthandtering

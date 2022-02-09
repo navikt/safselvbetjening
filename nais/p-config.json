@@ -1,4 +1,5 @@
 {
+  "APP_NAME": "safselvbetjening",
   "KAFKA_POOL": "nav-prod",
   "SERVICEUSER_VAULT_PATH": "/serviceuser/data/prod/srvsafselvbetjening",
   "AZURE_TENANT": "nav.no",
