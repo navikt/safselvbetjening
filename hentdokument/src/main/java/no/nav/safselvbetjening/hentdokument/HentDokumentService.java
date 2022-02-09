@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.hentdokument;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.fagarkiv.FagarkivConsumer;
 import no.nav.safselvbetjening.consumer.fagarkiv.HentDokumentResponseTo;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
@@ -15,8 +16,6 @@ import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import no.nav.security.token.support.core.jwt.JwtToken;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
@@ -45,8 +44,8 @@ public class HentDokumentService {
 	private final HentDokumentTilgangMapper hentDokumentTilgangMapper;
 	private final HentDokumentValidator hentDokumentValidator;
 	private final KafkaEventProducer kafkaProducer;
+	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 
-	private final String KAFKA_TOPIC;
 	private static final EnumSet<JournalStatusCode> KAFKA_FERDIGSTILT = EnumSet.of(FS, E);
 
 	public HentDokumentService(
@@ -57,7 +56,7 @@ public class HentDokumentService {
 			HentDokumentTilgangMapper hentDokumentTilgangMapper,
 			HentDokumentValidator hentDokumentValidator,
 			KafkaEventProducer kafkaProducer,
-			@Value("${dokdistdittnav.topic}") String kafkaTopic
+			SafSelvbetjeningProperties safSelvbetjeningProperties
 	) {
 		this.fagarkivConsumer = fagarkivConsumer;
 		this.identService = identService;
@@ -66,7 +65,7 @@ public class HentDokumentService {
 		this.hentDokumentTilgangMapper = hentDokumentTilgangMapper;
 		this.hentDokumentValidator = hentDokumentValidator;
 		this.kafkaProducer = kafkaProducer;
-		this.KAFKA_TOPIC = kafkaTopic;
+		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 	}
 
 	public HentDokument hentDokument(final HentdokumentRequest hentdokumentRequest) {
@@ -123,7 +122,7 @@ public class HentDokumentService {
 				HoveddokumentLest hoveddokumentLest = new HoveddokumentLest(hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId());
 				kafkaProducer.publish(hoveddokumentLest);
 			} catch (Exception e) {
-				log.error("Kunne ikke sende events til kafka topic={}, feilmelding={}", KAFKA_TOPIC, e.getMessage(), e);
+				log.error("Kunne ikke sende events til kafka topic={}, feilmelding={}", safSelvbetjeningProperties.getTopics().getDokdistdittnav(), e.getMessage(), e);
 			}
 		}
 

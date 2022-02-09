@@ -58,7 +58,7 @@ import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 )
 class HentDokumentIT extends AbstractItest {
 
-	@Value("${safselvbetjening.dokdistdittnav.kafka.topic}")
+	@Value("${safselvbetjening.topics.dokdistdittnav}")
 	public static String UT_TOPIC = "test-ut-topic";
 
 	@Autowired

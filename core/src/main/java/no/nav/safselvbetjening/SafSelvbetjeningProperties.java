@@ -20,6 +20,7 @@ public class SafSelvbetjeningProperties {
     private final Endpoints endpoints = new Endpoints();
     private final Serviceuser serviceuser = new Serviceuser();
     private final Proxy proxy = new Proxy();
+    private final Topics topics = new Topics();
 
     /**
      * Cut-off dato for innsyn fra innbygger. Dokumenter før denne dato skal ikke hentes eller vises.
@@ -89,5 +90,16 @@ public class SafSelvbetjeningProperties {
         public boolean isSet() {
             return isNotBlank(host);
         }
+    }
+
+    @Data
+    @Validated
+    public static class Topics {
+    	/**
+    	 * Kafka topic for kommunikasjon mot dokdistdittnav
+    	 */
+        @NotEmpty
+        private String dokdistdittnav;
+
     }
 }
