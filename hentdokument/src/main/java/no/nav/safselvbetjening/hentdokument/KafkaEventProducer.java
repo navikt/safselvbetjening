@@ -57,12 +57,12 @@ public class KafkaEventProducer {
 			if (executionException.getCause() instanceof KafkaProducerException) {
 				KafkaProducerException kafkaProducerException = (KafkaProducerException) executionException.getCause();
 				if (kafkaProducerException.getCause() instanceof TopicAuthorizationException) {
-					throw new KafkaTechnicalException(KAFKA_NOT_AUTHENTICATED + KAFKA_TOPIC, kafkaProducerException.getCause());
+					throw new KafkaTechnicalException(KAFKA_NOT_AUTHENTICATED + safSelvbetjeningProperties.getTopics().getDokdistdittnav(), kafkaProducerException.getCause());
 				}
 			}
-			throw new KafkaTechnicalException(KAFKA_FAILED_TO_SEND + KAFKA_TOPIC, executionException);
+			throw new KafkaTechnicalException(KAFKA_FAILED_TO_SEND + safSelvbetjeningProperties.getTopics().getDokdistdittnav(), executionException);
 		} catch (InterruptedException | KafkaException e) {
-			throw new KafkaTechnicalException(KAFKA_FAILED_TO_SEND + KAFKA_TOPIC, e);
+			throw new KafkaTechnicalException(KAFKA_FAILED_TO_SEND + safSelvbetjeningProperties.getTopics().getDokdistdittnav(), e);
 		}
 	}
 
