@@ -21,5 +21,37 @@
   "INGRESSES": [
     "https://safselvbetjening-q1.dev.intern.nav.no",
     "https://safselvbetjening-q1.dev-fss-pub.nais.io"
+  ],
+  "AZURE_IAC_RULES": [
+    {
+      "app": "mine-saker-api",
+      "namespace": "personbruker",
+      "cluster": "dev-gcp"
+    },
+    {
+      "app": "dp-dagpenger",
+      "namespace": "teamdagpenger",
+      "cluster": "dev-gcp"
+    },
+    {
+      "app": "hm-dinehjelpemidler",
+      "namespace": "teamdigihot",
+      "cluster": "dev-gcp"
+    },
+    {
+      "app": "sif-innsyn-api",
+      "namespace": "dusseldorf",
+      "cluster": "dev-gcp"
+    },
+    {
+      "app": "mininnboks-api-q0",
+      "namespace": "personoversikt",
+      "cluster": "dev-sbs"
+    },
+    {
+      "app": "mininnboks-api-q1",
+      "namespace": "personoversikt",
+      "cluster": "dev-sbs"
+    }
   ]
 }
