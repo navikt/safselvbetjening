@@ -20,7 +20,6 @@
   "MAX_REPLICAS": 2,
   "INGRESSES": [
     "https://safselvbetjening.dev.intern.nav.no",
-    "https://safselvbetjening.dev.adeo.no",
     "https://safselvbetjening.dev-fss-pub.nais.io"
   ],
   "AZURE_IAC_RULES": [
