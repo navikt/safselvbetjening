@@ -1,0 +1,57 @@
+{
+  "APP_NAME": "safselvbetjening-q1",
+  "KAFKA_POOL": "nav-dev",
+  "SERVICEUSER_VAULT_PATH": "/serviceuser/data/dev/srvsafselvbetjening",
+  "AZURE_TENANT": "trygdeetaten.no",
+  "AZURE_APP_TOKEN_URL": "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/oauth2/v2.0/token",
+  "AZURE_APP_SCOPE": "api://dev-fss.pdl.pdl-api-q1/.default",
+  "SAFSELVBETJENING_ENDPOINTS_PDL": "https://pdl-api-q1.dev.intern.nav.no/graphql",
+  "SAFSELVBETJENING_ENDPOINTS_SAK": "https://sak-q1.dev.adeo.no/api/v1/saker",
+  "SAFSELVBETJENING_ENDPOINTS_FAGARKIV": "https://dokarkiv-q1.dev.adeo.no/hentjournalsakinfo",
+  "SAFSELVBETJENING_ENDPOINTS_PENSJON": "https://pensjon-pen-q1.nais.preprod.local/pen/services/PensjonSak_v1",
+  "SAFSELVBETJENING_ENDPOINTS_SAMLSTS": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
+  "SAFSELVBETJENING_ENDPOINTS_PENSJONSAK": "https://pensjon-pen-q1.nais.preprod.local/pen/api/pip/hentBrukerOgEnhetstilgangerForSak/v1",
+  "SAFSELVBETJENING_PROXY_HOST": "webproxy.nais",
+  "SAFSELVBETJENING_PROXY_PORT": "8088",
+  "SAFSELVBETJENING_TOPICS_DOKDISTDITTNAV": "teamdokumenthandtering.privat-dokdistdittnav-lestavmottaker-q1",
+  "APPDYNAMICS": "/apikey/appdynamics/dev",
+  "APPD_NAME": "safselvbetjening-q1",
+  "MIN_REPLICAS": 1,
+  "MAX_REPLICAS": 2,
+  "INGRESSES": [
+    "https://safselvbetjening-q1.dev.intern.nav.no",
+    "https://safselvbetjening-q1.dev-fss-pub.nais.io"
+  ],
+  "AZURE_IAC_RULES": [
+    {
+      "app": "mine-saker-api",
+      "namespace": "personbruker",
+      "cluster": "dev-gcp"
+    },
+    {
+      "app": "dp-dagpenger",
+      "namespace": "teamdagpenger",
+      "cluster": "dev-gcp"
+    },
+    {
+      "app": "hm-dinehjelpemidler",
+      "namespace": "teamdigihot",
+      "cluster": "dev-gcp"
+    },
+    {
+      "app": "sif-innsyn-api",
+      "namespace": "dusseldorf",
+      "cluster": "dev-gcp"
+    },
+    {
+      "app": "mininnboks-api-q0",
+      "namespace": "personoversikt",
+      "cluster": "dev-sbs"
+    },
+    {
+      "app": "mininnboks-api-q1",
+      "namespace": "personoversikt",
+      "cluster": "dev-sbs"
+    }
+  ]
+}

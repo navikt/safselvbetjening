@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.hentdokument;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TopicAuthorizationException;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,22 +22,23 @@ import static no.nav.safselvbetjening.MDCUtils.getCallId;
 @Component
 @EnableTransactionManagement
 public class KafkaEventProducer {
-	private final String KAFKA_TOPIC;
 	private static final String KAFKA_NOT_AUTHENTICATED = "Not authenticated to publish to topic: ";
 	private static final String KAFKA_FAILED_TO_SEND = "Failed to send message to kafka. Topic: ";
+	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 
-	KafkaEventProducer(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") KafkaTemplate<String, Object> kafkaTemplate, @Value("${safselvbetjening.dokdistdittnav.kafka.topic}") String topic) {
+	KafkaEventProducer(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") KafkaTemplate<String, Object> kafkaTemplate,
+					   SafSelvbetjeningProperties safSelvbetjeningProperties) {
 		this.kafkaTemplate = kafkaTemplate;
-		this.KAFKA_TOPIC = topic;
+		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 	}
 
 	@Retryable(backoff = @Backoff(delay = 500))
 	void publish(Object event) {
 
 		ProducerRecord<String, Object> producerRecord = new ProducerRecord(
-				KAFKA_TOPIC,
+				safSelvbetjeningProperties.getTopics().getDokdistdittnav(),
 				null,
 				System.currentTimeMillis(),
 				getCallId(),
@@ -55,12 +57,12 @@ public class KafkaEventProducer {
 			if (executionException.getCause() instanceof KafkaProducerException) {
 				KafkaProducerException kafkaProducerException = (KafkaProducerException) executionException.getCause();
 				if (kafkaProducerException.getCause() instanceof TopicAuthorizationException) {
-					throw new KafkaTechnicalException(KAFKA_NOT_AUTHENTICATED + KAFKA_TOPIC, kafkaProducerException.getCause());
+					throw new KafkaTechnicalException(KAFKA_NOT_AUTHENTICATED + safSelvbetjeningProperties.getTopics().getDokdistdittnav(), kafkaProducerException.getCause());
 				}
 			}
-			throw new KafkaTechnicalException(KAFKA_FAILED_TO_SEND + KAFKA_TOPIC, executionException);
+			throw new KafkaTechnicalException(KAFKA_FAILED_TO_SEND + safSelvbetjeningProperties.getTopics().getDokdistdittnav(), executionException);
 		} catch (InterruptedException | KafkaException e) {
-			throw new KafkaTechnicalException(KAFKA_FAILED_TO_SEND + KAFKA_TOPIC, e);
+			throw new KafkaTechnicalException(KAFKA_FAILED_TO_SEND + safSelvbetjeningProperties.getTopics().getDokdistdittnav(), e);
 		}
 	}
 

@@ -1,4 +1,5 @@
 {
+  "APP_NAME": "safselvbetjening",
   "KAFKA_POOL": "nav-prod",
   "SERVICEUSER_VAULT_PATH": "/serviceuser/data/prod/srvsafselvbetjening",
   "AZURE_TENANT": "nav.no",
@@ -12,6 +13,7 @@
   "SAFSELVBETJENING_ENDPOINTS_PENSJONSAK": "https://pensjon-pen.nais.adeo.no/pen/api/pip/hentBrukerOgEnhetstilgangerForSak/v1",
   "SAFSELVBETJENING_PROXY_HOST": "webproxy.nais",
   "SAFSELVBETJENING_PROXY_PORT": "8088",
+  "SAFSELVBETJENING_TOPICS_DOKDISTDITTNAV": "teamdokumenthandtering.privat-dokdistdittnav-lestavmottaker",
   "APPDYNAMICS": "/apikey/appdynamics/prod",
   "APPD_NAME": "safselvbetjening",
   "MIN_REPLICAS": 4,

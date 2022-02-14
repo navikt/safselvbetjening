@@ -15,7 +15,7 @@ For mer informasjon: [safselvbetjening systemdokumentasjon](https://confluence.a
 
 | cluster    | fss-til-fss     | gcp-til-fss                       | sbs-til-fss        |
 | :--------- | :-------------- | :-------------------------------- | :----------------- |
-| `dev-fss`  | `https://safselvbetjening.dev.intern.nav.no`  |`https://safselvbetjening.dev-fss-pub.nais.io`| `https://api-gw-q1.adeo.no/safselvbetjening` |
+| `dev-fss`  | `https://safselvbetjening.dev.intern.nav.no`  |`https://safselvbetjening.dev-fss-pub.nais.io`| `https://api-gw-q2.adeo.no/safselvbetjening` |
 | `prod-fss` | `https://safselvbetjening.intern.nav.no` |`https://safselvbetjening.prod-fss-pub.nais.io`|  `https://api-gw.adeo.no/safselvbetjening` |
 
 Kontakt teamet for å bli lagt til som api-gw konsument.
@@ -26,7 +26,7 @@ APIene krever [maskin-til-maskin token på vegne av innbygger](https://security.
 
 Kun Azure token er støttet. Brukers fødselsnummer må ligge i `pid` eller `sub` claimet.
 
-For tilgang, ta kontakt med teamet eller oppdater `AZURE_IAC_RULES` i [dev-config.json](nais/dev-config.json)/[prod-config.json](nais/prod-config.json) i en PR og informer teamet.
+For tilgang, ta kontakt med teamet eller oppdater `AZURE_IAC_RULES` i [dev-config.json](nais/q2-config.json)/[prod-config.json](nais/prod-config.json) i en PR og informer teamet.
 
 #### GraphQL dokumentoversiktSelvbetjening
 

@@ -1,5 +1,5 @@
 naiseratorPipeline {
     applicationName = "safselvbetjening"
     dockerfileDir = "."
-    deployEnvironmentQ = "dev"
+    deployEnvironmentQ = "q1, q2"
 }
