@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.4</version>
+		<version>2.6.6</version>
 	</parent>
 
 	<groupId>no.nav.safselvbetjening</groupId>
@@ -28,9 +28,9 @@
 		<pensjon-sak-v1-tjenestespesifikasjon.version>1.2019.09.25-00.21-49b69f0625e0
 		</pensjon-sak-v1-tjenestespesifikasjon.version>
 		<cxf.version>3.5.1</cxf.version>
-		<token-support.version>2.0.12</token-support.version>
+		<token-support.version>2.0.14</token-support.version>
 		<resilience4j.version>1.7.1</resilience4j.version>
-		<bcprov-jdk15on.version>1.69</bcprov-jdk15on.version>
+		<bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
 		<lombok.version>1.18.22</lombok.version>
 		<confluent.version>7.0.1</confluent.version>
 		<teamdokumenthandtering-avro-schemas.version>f3479251</teamdokumenthandtering-avro-schemas.version>
@@ -81,13 +81,10 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-spring-boot-starter-jaxws</artifactId>
+				<artifactId>cxf-bom</artifactId>
 				<version>${cxf.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-rt-ws-security</artifactId>
-				<version>${cxf.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>no.nav.security</groupId>
