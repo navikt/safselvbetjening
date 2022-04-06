@@ -17,8 +17,8 @@ public enum Kanal {
 	INGEN_DISTRIBUSJON("Ingen distribusjon"),
 	UKJENT("Ukjent"),
 	NAV_NO_UINNLOGGET("Ditt NAV uten ID-porten-pålogging"),
-	INNSENDT_NAV_ANSATT("Innsendt av Nav-ansatt"),
-	NAV_NO_CHAT("Innlogget chatkanal");
+	INNSENDT_NAV_ANSATT("Registrert av Nav-ansatt"),
+	NAV_NO_CHAT("Innlogget samtale");
 
 	private final String kanalnavn;
 
