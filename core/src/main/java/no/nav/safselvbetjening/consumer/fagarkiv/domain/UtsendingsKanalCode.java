@@ -12,7 +12,8 @@ public enum UtsendingsKanalCode {
 	EIA(Kanal.EIA),
 	INGEN_DISTRIBUSJON(Kanal.INGEN_DISTRIBUSJON),
 	TRYGDERETTEN(Kanal.TRYGDERETTEN),
-	HELSENETTET(Kanal.HELSENETTET);
+	HELSENETTET(Kanal.HELSENETTET),
+	NAV_NO_CHAT(Kanal.NAV_NO_CHAT);
 
 	private final Kanal safKanal;
 
