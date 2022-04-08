@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.security.token.support.core.api.Protected;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.cache.CacheMetricsRegistrar;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,7 +51,8 @@ public class GraphQLController {
 	@Autowired
 	public GraphQLController(GraphQLWiring graphQLWiring,
 							 TokenValidationContextHolder tokenValidationContextHolder,
-							 CacheManager cacheManager) {
+							 CacheManager cacheManager,
+							 CacheMetricsRegistrar cacheMetricsRegistrar) {
 		this.tokenValidationContextHolder = tokenValidationContextHolder;
 		SchemaParser schemaParser = new SchemaParser();
 		InputStreamReader schema = new InputStreamReader(requireNonNull(getClass().getClassLoader().getResourceAsStream("schemas/safselvbetjening.graphqls")));
@@ -58,7 +60,9 @@ public class GraphQLController {
 		TypeDefinitionRegistry typeRegistry = schemaParser.parse(schema);
 		SchemaGenerator schemaGenerator = new SchemaGenerator();
 		this.graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, graphQLWiring.createRuntimeWiring());
-		this.cache = (Cache<String, PreparsedDocumentEntry>) requireNonNull(cacheManager.getCache(GRAPHQL_QUERY_CACHE)).getNativeCache();
+		org.springframework.cache.Cache cache = cacheManager.getCache(GRAPHQL_QUERY_CACHE);
+		cacheMetricsRegistrar.bindCacheToRegistry(cache);
+		this.cache = (Cache<String, PreparsedDocumentEntry>) requireNonNull(cache).getNativeCache();
 	}
 
 	@PostMapping(value = "/graphql", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
