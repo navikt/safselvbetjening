@@ -13,7 +13,9 @@ public enum UtsendingsKanalCode {
 	INGEN_DISTRIBUSJON(Kanal.INGEN_DISTRIBUSJON),
 	TRYGDERETTEN(Kanal.TRYGDERETTEN),
 	HELSENETTET(Kanal.HELSENETTET),
-	NAV_NO_CHAT(Kanal.NAV_NO_CHAT);
+	NAV_NO_CHAT(Kanal.NAV_NO_CHAT),
+	DPV(Kanal.DPV),
+	DPVS(Kanal.DPVS);
 
 	private final Kanal safKanal;
 
