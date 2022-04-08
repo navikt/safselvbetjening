@@ -9,10 +9,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static no.nav.safselvbetjening.cache.CacheConfig.AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE;
+import static no.nav.safselvbetjening.cache.CacheConfig.GRAPHQL_QUERY_CACHE;
 
 @Configuration
 @Profile("itest")
@@ -21,10 +22,13 @@ public class LokalCacheTestConfig {
 	@Primary
 	CacheManager cacheManager() {
 		SimpleCacheManager manager = new SimpleCacheManager();
-		manager.setCaches(Collections.singletonList(
+		manager.setCaches(List.of(
 				new CaffeineCache(AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE, Caffeine.newBuilder()
 						.expireAfterWrite(15, TimeUnit.MINUTES)
 						.maximumSize(1)
+						.build()),
+				new CaffeineCache(GRAPHQL_QUERY_CACHE, Caffeine.newBuilder()
+						.maximumSize(10)
 						.build())));
 		return manager;
 	}
