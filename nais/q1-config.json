@@ -29,6 +29,11 @@
       "cluster": "dev-gcp"
     },
     {
+      "app": "mine-saker-api",
+      "namespace": "min-side",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "dp-dagpenger",
       "namespace": "teamdagpenger",
       "cluster": "dev-gcp"
