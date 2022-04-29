@@ -31,6 +31,8 @@ import static org.springframework.http.HttpMethod.POST;
 @Component
 public class FagarkivConsumer {
 	private static final String FAGARKIV_INSTANCE = "fagarkiv";
+	private static final String FAGARKIVTILGANGJOURNALPOST_INSTANCE = "fagarkivtilgangjournalpost";
+	private static final String FAGARKIVHENTDOKUMENT_INSTANCE = "fagarkivhentdokument";
 	private final RestTemplate restTemplate;
 
 	@Autowired
@@ -60,7 +62,7 @@ public class FagarkivConsumer {
 		}
 	}
 
-	@CircuitBreaker(name = FAGARKIV_INSTANCE)
+	@CircuitBreaker(name = FAGARKIVTILGANGJOURNALPOST_INSTANCE)
 	public TilgangJournalpostResponseTo tilgangJournalpost(final String journalpostId, final String dokumentInfoId, final String variantFormat) {
 		try {
 			return restTemplate.exchange("/henttilgangjournalpost/{journalpostId}/{dokumentInfoId}/{variantFormat}",
@@ -80,7 +82,7 @@ public class FagarkivConsumer {
 		}
 	}
 
-	@CircuitBreaker(name = FAGARKIV_INSTANCE)
+	@CircuitBreaker(name = FAGARKIVHENTDOKUMENT_INSTANCE)
 	public HentDokumentResponseTo hentDokument(final String dokumentInfoId, final String variantFormat) {
 		try {
 			ResponseEntity<String> responseEntity = restTemplate.exchange("/hentdokument/{dokumentInfoId}/{variantFormat}",
