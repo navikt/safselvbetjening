@@ -8,5 +8,5 @@ public enum FagsystemCode {
     /**
      * GOSYS
      */
-    FS22;
+    FS22
 }
