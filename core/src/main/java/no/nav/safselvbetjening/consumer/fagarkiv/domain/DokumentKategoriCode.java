@@ -63,5 +63,5 @@ public enum DokumentKategoriCode {
 	/**
 	 * Klage eller anke
 	 */
-	KA;
+	KA
 }

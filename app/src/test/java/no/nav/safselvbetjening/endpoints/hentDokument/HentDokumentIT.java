@@ -301,7 +301,7 @@ class HentDokumentIT extends AbstractItest {
 		stubHentDokumentDokarkiv();
 		stubHentTilgangJournalpostDokarkiv();
 
-		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT.toString();
+		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT;
 		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, createHttpEntityHeaders("22222222222"), String.class);
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
@@ -350,12 +350,12 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	private ResponseEntity<String> callHentDokument() {
-		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT.toString();
+		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT;
 		return this.restTemplate.exchange(uri, HttpMethod.GET, createHttpEntityHeaders(BRUKER_ID), String.class);
 	}
 
 	private ResponseEntity<String> callHentDokumentSubToken() {
-		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT.toString();
+		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT;
 		return this.restTemplate.exchange(uri, HttpMethod.GET, createHttpEntityHeadersSubToken(BRUKER_ID), String.class);
 	}
 

@@ -43,6 +43,6 @@ public class PdlResponse {
     }
 
     public enum PdlGruppe {
-        FOLKEREGISTERIDENT, AKTORID, NPID;
+        FOLKEREGISTERIDENT, AKTORID, NPID
     }
 }

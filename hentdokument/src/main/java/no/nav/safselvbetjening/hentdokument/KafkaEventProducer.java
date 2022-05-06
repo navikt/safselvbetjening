@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TopicAuthorizationException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.KafkaException;
 import org.springframework.kafka.core.KafkaProducerException;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -28,7 +27,7 @@ public class KafkaEventProducer {
 
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 
-	KafkaEventProducer(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") KafkaTemplate<String, Object> kafkaTemplate,
+	KafkaEventProducer(KafkaTemplate<String, Object> kafkaTemplate,
 					   SafSelvbetjeningProperties safSelvbetjeningProperties) {
 		this.kafkaTemplate = kafkaTemplate;
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
@@ -37,7 +36,7 @@ public class KafkaEventProducer {
 	@Retryable(backoff = @Backoff(delay = 500))
 	void publish(Object event) {
 
-		ProducerRecord<String, Object> producerRecord = new ProducerRecord(
+		ProducerRecord<String, Object> producerRecord = new ProducerRecord<>(
 				safSelvbetjeningProperties.getTopics().getDokdistdittnav(),
 				null,
 				System.currentTimeMillis(),
