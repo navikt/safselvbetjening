@@ -25,11 +25,6 @@
   "AZURE_IAC_RULES": [
     {
       "app": "mine-saker-api",
-      "namespace": "personbruker",
-      "cluster": "dev-gcp"
-    },
-    {
-      "app": "mine-saker-api",
       "namespace": "min-side",
       "cluster": "dev-gcp"
     },
