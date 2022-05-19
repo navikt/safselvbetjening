@@ -48,6 +48,11 @@
       "app": "mininnboks-api",
       "namespace": "personoversikt",
       "cluster": "prod-sbs"
+    },
+    {
+      "app": "innsending-api",
+      "namespace": "team-soknad",
+      "cluster": "prod-gcp"
     }
   ]
 }
