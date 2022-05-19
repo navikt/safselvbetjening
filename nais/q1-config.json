@@ -52,6 +52,11 @@
       "app": "mininnboks-api-q1",
       "namespace": "personoversikt",
       "cluster": "dev-sbs"
+    },
+    {
+      "app": "innsending-api",
+      "namespace": "team-soknad",
+      "cluster": "dev-gcp"
     }
   ]
 }
