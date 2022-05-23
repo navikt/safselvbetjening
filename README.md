@@ -24,7 +24,7 @@ Kontakt teamet for å bli lagt til som api-gw konsument.
 
 APIene krever [maskin-til-maskin token på vegne av innbygger](https://security.labs.nais.io/pages/guide/api-kall/sluttbruker/idporten.html).
 
-Kun Azure token er støttet. Brukers fødselsnummer må ligge i `pid` eller `sub` claimet.
+Kun tokenx vekslede tokens er støttet. Brukers fødselsnummer må ligge i `pid` eller `sub` claimet.
 
 For tilgang, ta kontakt med teamet eller oppdater `AZURE_IAC_RULES` i [dev-config.json](nais/q2-config.json)/[prod-config.json](nais/prod-config.json) i en PR og informer teamet.
 
