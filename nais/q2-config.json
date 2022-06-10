@@ -57,6 +57,11 @@
       "app": "mininnboks-api-q1",
       "namespace": "personoversikt",
       "cluster": "dev-sbs"
+    },
+    {
+      "app": "pensjon-pselv-q2",
+      "namespace": "teampensjon",
+      "cluster": "dev-gcp"
     }
   ]
 }
