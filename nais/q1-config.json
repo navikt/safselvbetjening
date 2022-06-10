@@ -57,6 +57,21 @@
       "app": "innsending-api",
       "namespace": "team-soknad",
       "cluster": "dev-gcp"
+    },
+    {
+      "app": "pensjon-pselv-q0",
+      "namespace": "teampensjon",
+      "cluster": "dev-gcp"
+    },
+    {
+      "app": "pensjon-pselv-q1",
+      "namespace": "teampensjon",
+      "cluster": "dev-gcp"
+    },
+    {
+      "app": "pensjon-pselv-q4",
+      "namespace": "teampensjon",
+      "cluster": "dev-gcp"
     }
   ]
 }
