@@ -53,6 +53,11 @@
       "app": "innsending-api",
       "namespace": "team-soknad",
       "cluster": "prod-gcp"
+    },
+    {
+      "app": "pensjon-pselv",
+      "namespace": "pensjondeployer",
+      "cluster": "prod-gcp"
     }
   ]
 }
