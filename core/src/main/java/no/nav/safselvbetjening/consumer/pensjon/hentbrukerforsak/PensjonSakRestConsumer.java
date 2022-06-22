@@ -4,9 +4,9 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.NavHeaders;
-import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
+import no.nav.safselvbetjening.consumer.azure.TokenConsumer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
@@ -20,7 +20,9 @@ import org.springframework.web.client.RestTemplate;
 import java.time.Duration;
 
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
+import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Slf4j
 @Component
@@ -29,26 +31,29 @@ public class PensjonSakRestConsumer {
 	private static final String PENSJON_SAK_REST_INSTANCE = "pensjonSakRest";
 	private final RestTemplate restTemplate;
 	private final String pensjonsakUrl;
+	private final TokenConsumer tokenConsumer;
+	private final String pensjonsakScope;
 
 	public PensjonSakRestConsumer(final RestTemplateBuilder restTemplateBuilder,
-								  final SafSelvbetjeningProperties safSelvbetjeningProperties,
+								  final TokenConsumer tokenConsumer,
 								  final ClientHttpRequestFactory clientHttpRequestFactory,
-								  @Value("${safselvbetjening.endpoints.pensjonsak}") String pensjonsakUrl) {
+								  @Value("${safselvbetjening.endpoints.pensjonsak}") String pensjonsakUrl,
+								  @Value("${safselvbetjening.endpoints.pensjonsak.scope}") String pensjonsakScope) {
+		this.pensjonsakScope = pensjonsakScope;
 		this.restTemplate = restTemplateBuilder
-				.basicAuthentication(safSelvbetjeningProperties.getServiceuser().getUsername(),
-						safSelvbetjeningProperties.getServiceuser().getPassword())
 				.setReadTimeout(Duration.ofSeconds(60))
 				.setConnectTimeout(Duration.ofSeconds(5))
 				.requestFactory(() -> clientHttpRequestFactory)
 				.build();
 		this.pensjonsakUrl = pensjonsakUrl;
+		this.tokenConsumer = tokenConsumer;
 	}
 
 	@Retry(name = PENSJON_SAK_REST_INSTANCE)
 	@CircuitBreaker(name = PENSJON_SAK_REST_INSTANCE)
 	public HentBrukerForSakResponseTo hentBrukerForSak(final String sakId) {
 		try {
-			HttpHeaders headers = new HttpHeaders();
+			HttpHeaders headers = createHeaders();
 			headers.add("sakId", sakId);
 			headers.add(NavHeaders.NAV_CALLID, getCallId());
 
@@ -66,5 +71,13 @@ public class PensjonSakRestConsumer {
 			throw new ConsumerFunctionalException("hentBrukerForSak feilet funksjonelt med statusKode={}. Feilmelding={}" + e
 					.getStatusCode() + e.getMessage(), e);
 		}
+	}
+
+	private HttpHeaders createHeaders() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(APPLICATION_JSON);
+		headers.setBearerAuth(tokenConsumer.getClientCredentialToken(pensjonsakScope).getAccess_token());
+		headers.set(NAV_CALLID, getCallId());
+		return headers;
 	}
 }
