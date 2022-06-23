@@ -31,7 +31,6 @@
 		<token-support.version>2.1.0</token-support.version>
 		<resilience4j.version>1.7.1</resilience4j.version>
 		<bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
-		<lombok.version>1.18.24</lombok.version>
 		<confluent.version>7.1.1</confluent.version>
 		<teamdokumenthandtering-avro-schemas.version>f3479251</teamdokumenthandtering-avro-schemas.version>
 		<!-- test -->
