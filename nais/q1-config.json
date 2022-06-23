@@ -11,6 +11,7 @@
   "SAFSELVBETJENING_ENDPOINTS_PENSJON": "https://pensjon-pen-q1.nais.preprod.local/pen/services/PensjonSak_v1",
   "SAFSELVBETJENING_ENDPOINTS_SAMLSTS": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
   "SAFSELVBETJENING_ENDPOINTS_PENSJONSAK": "https://pensjon-pen-q1.nais.preprod.local/pen/api/pip/hentBrukerOgEnhetstilgangerForSak/v1",
+  "SAFSELVBETJENING_ENDPOINTS_PENSJONSAK_SCOPE": "api://dev-fss.teampensjon.pensjon-pen-q1/.default",
   "SAFSELVBETJENING_PROXY_HOST": "webproxy.nais",
   "SAFSELVBETJENING_PROXY_PORT": "8088",
   "SAFSELVBETJENING_TOPICS_DOKDISTDITTNAV": "teamdokumenthandtering.privat-dokdistdittnav-lestavmottaker-q1",

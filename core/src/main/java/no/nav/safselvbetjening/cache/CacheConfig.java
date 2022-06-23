@@ -31,7 +31,7 @@ public class CacheConfig {
 		manager.setCaches(List.of(
 				new CaffeineCache(AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE, Caffeine.newBuilder()
 						.expireAfterWrite(50, MINUTES)
-						.maximumSize(1)
+						.maximumSize(10)
 						.build()),
 				new CaffeineCache(GRAPHQL_QUERY_CACHE, Caffeine.newBuilder()
 						.maximumSize(1_000)
