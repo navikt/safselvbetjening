@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.7</version>
+		<version>2.7.0</version>
 	</parent>
 
 	<groupId>no.nav.safselvbetjening</groupId>
@@ -23,18 +23,17 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<graphql-java.version>18.0</graphql-java.version>
-		<logstash-logback-encoder.version>7.0.1</logstash-logback-encoder.version>
+		<graphql-java.version>18.1</graphql-java.version>
+		<logstash-logback-encoder.version>7.2</logstash-logback-encoder.version>
 		<pensjon-sak-v1-tjenestespesifikasjon.version>1.2019.09.25-00.21-49b69f0625e0
 		</pensjon-sak-v1-tjenestespesifikasjon.version>
 		<cxf.version>3.5.2</cxf.version>
-		<token-support.version>2.0.15</token-support.version>
+		<token-support.version>2.1.0</token-support.version>
 		<resilience4j.version>1.7.1</resilience4j.version>
 		<bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
-		<lombok.version>1.18.22</lombok.version>
-		<confluent.version>7.0.1</confluent.version>
+		<lombok.version>1.18.24</lombok.version>
+		<confluent.version>7.1.1</confluent.version>
 		<teamdokumenthandtering-avro-schemas.version>f3479251</teamdokumenthandtering-avro-schemas.version>
-		<kafka.version>2.8.1</kafka.version>
 		<!-- test -->
 		<okhttp3.version>4.9.1</okhttp3.version>
 		<spring-cloud-starter-contract-stub-runner.version>3.0.2</spring-cloud-starter-contract-stub-runner.version>
@@ -139,20 +138,6 @@
 				<artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
 				<version>${spring-cloud-starter-contract-stub-runner.version}</version>
 				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.kafka</groupId>
-				<artifactId>kafka-clients</artifactId>
-				<classifier>test</classifier>
-				<scope>test</scope>
-				<version>${kafka.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.kafka</groupId>
-				<artifactId>kafka_2.13</artifactId>
-				<classifier>test</classifier>
-				<scope>test</scope>
-				<version>${kafka.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
