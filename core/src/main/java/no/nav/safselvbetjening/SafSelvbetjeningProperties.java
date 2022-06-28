@@ -35,8 +35,8 @@ public class SafSelvbetjeningProperties {
         /**
          * URL til PDL (Persondataløsningen).
          */
-        @NotEmpty
-        private String pdl;
+        @NotNull
+        private AzureEndpoint pdl;
         /**
          * URL til sak API.
          */
@@ -60,8 +60,23 @@ public class SafSelvbetjeningProperties {
         /**
          * URL til PensjonSakRestconsumer.
          */
+        @NotNull
+        private AzureEndpoint pensjonsak;
+    }
+
+    @Data
+    @Validated
+    public static class AzureEndpoint {
+        /**
+         * Url til tjeneste som har azure autorisasjon
+         */
         @NotEmpty
-        private String pensjonsak;
+        private String url;
+        /**
+         * Scope til azure client credential flow
+         */
+        @NotEmpty
+        private String scope;
     }
 
     @Data

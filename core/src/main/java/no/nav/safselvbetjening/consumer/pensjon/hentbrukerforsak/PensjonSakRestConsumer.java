@@ -4,10 +4,10 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.NavHeaders;
+import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.azure.TokenConsumer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -37,15 +37,15 @@ public class PensjonSakRestConsumer {
 	public PensjonSakRestConsumer(final RestTemplateBuilder restTemplateBuilder,
 								  final TokenConsumer tokenConsumer,
 								  final ClientHttpRequestFactory clientHttpRequestFactory,
-								  @Value("${safselvbetjening.endpoints.pensjonsak}") String pensjonsakUrl,
-								  @Value("${safselvbetjening.endpoints.pensjonsak.scope}") String pensjonsakScope) {
-		this.pensjonsakScope = pensjonsakScope;
+								  final SafSelvbetjeningProperties safSelvbetjeningProperties) {
+		SafSelvbetjeningProperties.AzureEndpoint pensjonsak = safSelvbetjeningProperties.getEndpoints().getPensjonsak();
+		this.pensjonsakScope = pensjonsak.getScope();
+		this.pensjonsakUrl = pensjonsak.getUrl();
 		this.restTemplate = restTemplateBuilder
 				.setReadTimeout(Duration.ofSeconds(60))
 				.setConnectTimeout(Duration.ofSeconds(5))
 				.requestFactory(() -> clientHttpRequestFactory)
 				.build();
-		this.pensjonsakUrl = pensjonsakUrl;
 		this.tokenConsumer = tokenConsumer;
 	}
 
