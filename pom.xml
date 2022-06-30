@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.0</version>
+		<version>2.7.1</version>
 	</parent>
 
 	<groupId>no.nav.safselvbetjening</groupId>
@@ -23,7 +23,7 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<graphql-java.version>18.1</graphql-java.version>
+		<graphql-java.version>18.2</graphql-java.version>
 		<logstash-logback-encoder.version>7.2</logstash-logback-encoder.version>
 		<pensjon-sak-v1-tjenestespesifikasjon.version>1.2019.09.25-00.21-49b69f0625e0
 		</pensjon-sak-v1-tjenestespesifikasjon.version>
