@@ -73,6 +73,11 @@
       "app": "pensjon-pselv-q4",
       "namespace": "teampensjon",
       "cluster": "dev-gcp"
+    },
+    {
+      "app": "klage-dittnav-api",
+      "namespace": "klage",
+      "cluster": "dev-gcp"
     }
   ]
 }
