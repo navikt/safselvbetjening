@@ -32,7 +32,7 @@
 		<resilience4j.version>1.7.1</resilience4j.version>
 		<bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
 		<confluent.version>7.2.1</confluent.version>
-		<teamdokumenthandtering-avro-schemas.version>f3479251</teamdokumenthandtering-avro-schemas.version>
+		<teamdokumenthandtering-avro-schemas.version>357738b9</teamdokumenthandtering-avro-schemas.version>
 		<!-- test -->
 		<okhttp3.version>4.9.1</okhttp3.version>
 		<spring-cloud-starter-contract-stub-runner.version>3.0.2</spring-cloud-starter-contract-stub-runner.version>
