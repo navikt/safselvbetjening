@@ -26,6 +26,7 @@ import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_ORGAN_INTERNT;
 import static no.nav.safselvbetjening.domain.Innsyn.VISES_FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.domain.Innsyn.VISES_MANUELT_GODKJENT;
 import static no.nav.safselvbetjening.domain.Innsyn.VISES_MASKINELT_GODKJENT;
+import static no.nav.safselvbetjening.domain.Innsyn.valueOf;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_IM;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_NETS;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_PEN;
@@ -351,6 +352,46 @@ class UtledTilgangServiceTest {
 						.build()))
 				.build();
 		boolean actual = utledTilgangService.isJournalpostNotOrganInternt(journalpost);
+		assertThat(actual).isFalse();
+	}
+
+	//	1i) Bruker kan ikke få se journalposter som innsyn begynner med SKJULES_*
+	@ParameterizedTest
+	@ValueSource(strings= {"SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_ORGAN_INTERNT", "SKJULES_FEILSENDT", "SKJULES_BRUKERS_ØNSKE"})
+	void shouldReturnTrueWhenJournalpostInnsynSkjult(String innsyn) {
+		Journalpost journalpost = baseJournalfoertJournalpost()
+				.dokumenter(List.of(DokumentInfo.builder()
+						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+								.organinternt(false)
+								.build())
+						.build(), DokumentInfo.builder()
+						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+								.organinternt(true)
+								.build())
+						.build()))
+				.innsyn(valueOf(innsyn))
+				.build();
+		boolean actual = utledTilgangService.isJournalpostInnsynSkjult(journalpost);
+		assertThat(actual).isTrue();
+	}
+
+	//	1i)
+	@ParameterizedTest
+	@ValueSource(strings= {"VISES_FORVALTNINGSNOTAT", "VISES_MANUELT_GODKJENT", "VISES_MASKINELT_GODKJENT", "BRUK_STANDARDREGLER"})
+	void shouldReturnFalseWhenJournalpostInnsynErIKkeSkjult(String innsyn) {
+		Journalpost journalpost = baseJournalfoertJournalpost()
+				.dokumenter(List.of(DokumentInfo.builder()
+						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+								.organinternt(false)
+								.build())
+						.build(), DokumentInfo.builder()
+						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+								.organinternt(true)
+								.build())
+						.build()))
+				.innsyn(valueOf(innsyn))
+				.build();
+		boolean actual = utledTilgangService.isJournalpostInnsynSkjult(journalpost);
 		assertThat(actual).isFalse();
 	}
 

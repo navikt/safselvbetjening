@@ -21,6 +21,8 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.FAR;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.KTR;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.FS22;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.InnsynCode.getInnsynStartWithSkjules;
@@ -47,6 +49,7 @@ import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.KONTROLLSAK
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.ORGANINTERNT;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKANNET_DOKUMENT;
+import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKJULT_INNSYN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.UGYLDIG_JOURNALSTATUS;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -61,7 +64,7 @@ public class UtledTilgangService {
 	private static final EnumSet<Kanal> MOTTAKS_KANAL_SKAN = EnumSet.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
 	private static final EnumSet<Journalstatus> JOURNALSTATUS_FERDIGSTILT = EnumSet.of(FERDIGSTILT, JOURNALFOERT, EKSPEDERT);
 	private static final List<String> TEMAER_UNNTATT_INNSYN = Arrays.asList(Tema.KTR.name(), Tema.FAR.name());
-	private static final List<String> FAGOMRADER_UNNTATT_INNSYN = Arrays.asList(FagomradeCode.KTR.name(), FagomradeCode.FAR.name());
+	private static final List<String> FAGOMRADER_UNNTATT_INNSYN = Arrays.asList(KTR.name(), FAR.name());
 
 	private final LocalDateTime tidligstInnsynDato;
 
@@ -82,8 +85,8 @@ public class UtledTilgangService {
 					isJournalpostNotKontrollsakOrFarskapssak(journalpost) && // 1e
 					isJournalpostNotGDPRRestricted(journalpost) && // 1f
 					isJournalpostForvaltningsnotat(journalpost) && // 1g
-					isJournalpostNotOrganInternt(journalpost) &&
-					isJournalpostInnsynSkjult(journalpost); // 1h
+					isJournalpostNotOrganInternt(journalpost) && // 1h
+					!isJournalpostInnsynSkjult(journalpost); // 1i
 		} catch (Exception e) {
 			log.error("Feil oppstått i utledTilgangJournalpost for journalpost med journalpostId={}.", journalpost.getJournalpostId(), e);
 			return false;
@@ -138,6 +141,9 @@ public class UtledTilgangService {
 		}
 		if (!isJournalpostNotOrganInternt(journalpost)) {
 			throw new HentTilgangDokumentException(ORGANINTERNT, "Tilgang til journalpost avvist pga organinterne dokumenter på journalposten");
+		}
+		if(isJournalpostInnsynSkjult(journalpost)){
+			throw new HentTilgangDokumentException(SKJULT_INNSYN, "Tilgang til journalpost avvist pga journalpost er skjult");
 		}
 		if (!isAvsenderMottakerPart(journalpost, brukerIdenter.getIdenter())) {
 			throw new HentTilgangDokumentException(ANNEN_PART, "Tilgang til dokument avvist fordi dokumentet er sendt til/fra andre parter enn bruker");
@@ -286,7 +292,7 @@ public class UtledTilgangService {
 		if (journalpost.getInnsyn() != null) {
 			return getInnsynStartWithSkjules().contains(valueOf(journalpost.getInnsyn().name()));
 		}
-		return true;
+		return false;
 	}
 
 	/**
