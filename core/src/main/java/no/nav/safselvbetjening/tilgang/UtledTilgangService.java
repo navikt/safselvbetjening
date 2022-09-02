@@ -2,7 +2,6 @@ package no.nav.safselvbetjening.tilgang;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -142,7 +141,7 @@ public class UtledTilgangService {
 		if (!isJournalpostNotOrganInternt(journalpost)) {
 			throw new HentTilgangDokumentException(ORGANINTERNT, "Tilgang til journalpost avvist pga organinterne dokumenter på journalposten");
 		}
-		if(isJournalpostInnsynSkjult(journalpost)){
+		if (isJournalpostInnsynSkjult(journalpost)) {
 			throw new HentTilgangDokumentException(SKJULT_INNSYN, "Tilgang til journalpost avvist pga journalpost er skjult");
 		}
 		if (!isAvsenderMottakerPart(journalpost, brukerIdenter.getIdenter())) {
