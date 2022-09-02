@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.toTema;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.InnsynCode.mapToInnsyn;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.ARKIV;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.SLADDET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
@@ -41,6 +42,9 @@ import static no.nav.safselvbetjening.domain.Datotype.DATO_JOURNALFOERT;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_OPPRETTET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_REGISTRERT;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_SENDT_PRINT;
+import static no.nav.safselvbetjening.domain.Kanal.INGEN_DISTRIBUSJON;
+import static no.nav.safselvbetjening.domain.Kanal.LOKAL_UTSKRIFT;
+import static no.nav.safselvbetjening.domain.Kanal.SENTRAL_UTSKRIFT;
 import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
 import static no.nav.safselvbetjening.domain.Sakstype.fromApplikasjon;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -79,6 +83,7 @@ public class JournalpostMapper {
 					.relevanteDatoer(mapRelevanteDatoer(journalpostDto))
 					.dokumenter(mapDokumenter(journalpostDto))
 					.tilgang(mapJournalpostTilgang(journalpostDto, brukerIdenter))
+					.innsyn(mapToInnsyn(journalpostDto.getInnsyn()))
 					.build();
 		} catch (Exception e) {
 			log.error("Teknisk feil under mapping av journalpost med journalpostId={}.", journalpostDto.getJournalpostId(), e);
@@ -90,12 +95,12 @@ public class JournalpostMapper {
 		final String journalpostTema = getJournalpostTema(journalpostDto);
 		if (journalpostDto.isTilknyttetSak()) {
 			SaksrelasjonDto saksrelasjon = journalpostDto.getSaksrelasjon();
-			if(FagsystemCode.PEN == saksrelasjon.getFagsystem()) {
+			if (FagsystemCode.PEN == saksrelasjon.getFagsystem()) {
 				Map<String, String> arkivsakIdTemaMap = saker.getArkivsakIdTemaMap();
 				return arkivsakIdTemaMap.getOrDefault(saksrelasjon.getSakId(), journalpostTema);
 			} else {
 				// For journalposter som har saksrelasjon og mangler tema, er gjeldende tema lik Journalpost.tema.
-				if(isBlank(saksrelasjon.getTema())) {
+				if (isBlank(saksrelasjon.getTema())) {
 					return journalpostTema;
 				} else {
 					return saksrelasjon.getTema();
@@ -112,16 +117,16 @@ public class JournalpostMapper {
 	}
 
 	private Sak mapSak(JournalpostDto journalpostDto) {
-		if(journalpostDto.isTilknyttetSak()) {
+		if (journalpostDto.isTilknyttetSak()) {
 			SaksrelasjonDto saksrelasjon = journalpostDto.getSaksrelasjon();
-			if(FagsystemCode.PEN == saksrelasjon.getFagsystem()) {
+			if (FagsystemCode.PEN == saksrelasjon.getFagsystem()) {
 				return Sak.builder()
 						.fagsakId(saksrelasjon.getSakId())
 						.fagsaksystem(Saker.FAGSYSTEM_PENSJON)
 						.sakstype(FAGSAK)
 						.build();
 			} else {
-				if(saksrelasjon.getFagsystem() == null) {
+				if (saksrelasjon.getFagsystem() == null) {
 					return null;
 				}
 				return Sak.builder()
@@ -150,7 +155,7 @@ public class JournalpostMapper {
 	}
 
 	private Kanal mapTilgangMottakskanal(MottaksKanalCode mottakskanal) {
-		if(mottakskanal == null) {
+		if (mottakskanal == null) {
 			return null;
 		}
 		return mottakskanal.getSafKanal();
@@ -261,7 +266,7 @@ public class JournalpostMapper {
 				}
 				return journalpostDto.getUtsendingskanal().getSafKanal();
 			case N:
-				return Kanal.INGEN_DISTRIBUSJON;
+				return INGEN_DISTRIBUSJON;
 			default:
 				return null;
 		}
@@ -270,11 +275,11 @@ public class JournalpostMapper {
 	private Kanal mapManglendeUtsendingskanal(JournalpostDto journalpostDto) {
 		switch (journalpostDto.getJournalstatus()) {
 			case FL:
-				return Kanal.LOKAL_UTSKRIFT;
+				return LOKAL_UTSKRIFT;
 			case FS:
-				return Kanal.SENTRAL_UTSKRIFT;
+				return SENTRAL_UTSKRIFT;
 			case E:
-				return Kanal.SENTRAL_UTSKRIFT;
+				return SENTRAL_UTSKRIFT;
 			default:
 				return null;
 		}

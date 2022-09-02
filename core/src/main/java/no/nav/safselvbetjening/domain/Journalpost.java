@@ -29,6 +29,7 @@ public class Journalpost {
 	@Builder.Default
 	private final List<DokumentInfo> dokumenter = new ArrayList<>();
 	private final TilgangJournalpost tilgang;
+	private final Innsyn innsyn;
 
 	@Data
 	@Builder
