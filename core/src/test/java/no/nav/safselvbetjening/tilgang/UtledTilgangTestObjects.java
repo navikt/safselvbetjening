@@ -28,15 +28,15 @@ public class UtledTilgangTestObjects {
 	static final String ANNEN_PART = "23456789101";
 	static final String AKTOER_ID = "10000000000";
 	static final String ANNEN_AKTOER_ID = "12000000000";
-	static final String TEMA_KONTROLL = "KTR";
-	static final String TEMA_PENSJON = PEN.toString();
-	static final String TEMA_DAGPENGER = DAG.name();
-	static final String TEMA_FAR = "FAR";
+	public static final String TEMA_KONTROLL = "KTR";
+	public static final String TEMA_PENSJON = PEN.toString();
+	public static final String TEMA_DAGPENGER = DAG.name();
+	public static final String TEMA_FAR = "FAR";
 	static final String ARKIVSAKSYSTEM_GOSYS = "FS22";
-	static final String ARKIVSAKSYSTEM_PENSJON = "PEN";
+	public static final String ARKIVSAKSYSTEM_PENSJON = "PEN";
 	static final LocalDateTime FOER_INNSYNSDATO = LocalDateTime.parse("2016-01-01T12:00");
 
-	static Journalpost.JournalpostBuilder baseJournalpost() {
+	static Journalpost.JournalpostBuilder baseJournalpost(String tema) {
 		return Journalpost.builder()
 				.journalpostId("40000000")
 				.tittel("Søknad om dagpenger")
@@ -48,7 +48,7 @@ public class UtledTilgangTestObjects {
 						.type(AvsenderMottakerIdType.FNR)
 						.build())
 				.relevanteDatoer(List.of(new RelevantDato(new Date(), Datotype.DATO_JOURNALFOERT)))
-				.tilgang(baseTilgangJournalpost().build())
+				.tilgang(baseTilgangJournalpost(tema).build())
 				.dokumenter(List.of(DokumentInfo.builder()
 						.dokumentInfoId("40000000")
 						.tittel("Søknad om dagpenger")
@@ -69,28 +69,28 @@ public class UtledTilgangTestObjects {
 						.build()));
 	}
 
-	static Journalpost.TilgangJournalpost.TilgangJournalpostBuilder baseTilgangJournalpost() {
+	static Journalpost.TilgangJournalpost.TilgangJournalpostBuilder baseTilgangJournalpost(String tema) {
 		return Journalpost.TilgangJournalpost.builder()
 				.tilgangBruker(Journalpost.TilgangBruker.builder()
 						.brukerId(IDENT)
 						.build())
 				.datoOpprettet(LocalDateTime.now())
-				.tema(TEMA_DAGPENGER)
+				.tema(tema)
 				.journalfoertDato(LocalDateTime.now())
 				.tilgangSak(Journalpost.TilgangSak.builder()
 						.aktoerId(AKTOER_ID)
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(false)
-						.tema(TEMA_DAGPENGER)
+						.tema(tema)
 						.build());
 	}
 
-	static Journalpost.JournalpostBuilder baseJournalfoertJournalpost() {
-		return baseJournalpost().journalstatus(Journalstatus.JOURNALFOERT);
+	static Journalpost.JournalpostBuilder baseJournalfoertJournalpost(String tema) {
+		return baseJournalpost(tema).journalstatus(Journalstatus.JOURNALFOERT);
 	}
 
 	static Journalpost.JournalpostBuilder baseMottattJournalpost() {
-		return baseJournalpost().journalstatus(Journalstatus.MOTTATT)
+		return baseJournalpost(TEMA_DAGPENGER).journalstatus(Journalstatus.MOTTATT)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.tilgangBruker(null)
 						.datoOpprettet(LocalDateTime.now())

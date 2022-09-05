@@ -256,10 +256,10 @@ public class UtledTilgangService {
 		List<DokumentInfo> dokumenter = journalpost.getDokumenter();
 		if (journalpost.getJournalposttype() == N && !dokumenter.isEmpty() && dokumenter.get(0).getTilgangDokument() != null) {
 			boolean isForvaltningsnotat = FORVALTNINGSNOTAT.toString().equals(dokumenter.get(0).getTilgangDokument().getKategori());
-			if (journalpost.getInnsyn() != null) {
-				return isForvaltningsnotat || getInnsynStartWithVises().contains(valueOf(journalpost.getInnsyn().name()));
+			if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
+				return isForvaltningsnotat;
 			}
-			return isForvaltningsnotat;
+			return isForvaltningsnotat || getInnsynStartWithVises().contains(valueOf(journalpost.getInnsyn().name()));
 		}
 		return true;
 	}
@@ -314,7 +314,7 @@ public class UtledTilgangService {
 		Kanal mottakskanal = journalpost.getTilgang().getMottakskanal();
 		if (mottakskanal != null) {
 			if (journalpost.getInnsyn() != null) {
-				return MOTTAKS_KANAL_SKAN.contains(mottakskanal) && !getInnsynStartWithVises().contains(valueOf(journalpost.getInnsyn().name()));
+				return !(MOTTAKS_KANAL_SKAN.contains(mottakskanal) && isInnsynStartWithVises(journalpost));
 			}
 			return MOTTAKS_KANAL_SKAN.contains(mottakskanal);
 		}
@@ -359,7 +359,7 @@ public class UtledTilgangService {
 		if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
 			return !isTemaKTRorFAR;
 		}
-		return !isTemaKTRorFAR || isTemaKTRorFAR && isInnsynStartWithVises(journalpost);
+		return !isTemaKTRorFAR || (isTemaKTRorFAR && isInnsynStartWithVises(journalpost));
 	}
 
 	boolean isJournalpostNotKTRorFAROrInnsynVistWithFagomradeFARorKTR(Journalpost journalpost) {
@@ -367,7 +367,7 @@ public class UtledTilgangService {
 		if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
 			return !isFagomradeKTRorFAR;
 		}
-		return !isFagomradeKTRorFAR || isFagomradeKTRorFAR && isInnsynStartWithVises(journalpost);
+		return !isFagomradeKTRorFAR || (isFagomradeKTRorFAR && isInnsynStartWithVises(journalpost));
 	}
 
 	boolean isInnsynStartWithVises(Journalpost journalpost) {
