@@ -67,6 +67,12 @@ class UtledTilgangServiceTest {
 	}
 
 	@Test
+	void shouldReturnTrueWhenTilgangTilJournalpostWithInnsyn() {
+		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost().innsyn(VISES_MANUELT_GODKJENT).build(), defaultBrukerIdenter());
+		assertThat(tilgang).isTrue();
+	}
+
+	@Test
 	void shouldReturnFalseWhenJournalpostJournaldatoFoerOpprettetDato() {
 		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost()
 				.tilgang(baseTilgangJournalpost()
@@ -269,7 +275,7 @@ class UtledTilgangServiceTest {
 						.tema(tema)
 						.build())
 				.build();
-		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost)).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssakAndInnsynNotStartWithVises(journalpost)).isFalse();
 
 	}
 
@@ -291,7 +297,7 @@ class UtledTilgangServiceTest {
 						.build())
 				.innsyn(SKJULES_BRUKERS_ØNSKE)
 				.build();
-		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost)).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssakAndInnsynNotStartWithVises(journalpost)).isFalse();
 
 	}
 
@@ -306,7 +312,7 @@ class UtledTilgangServiceTest {
 						.tema(tema)
 						.build())
 				.build();
-		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost)).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssakAndInnsynNotStartWithVises(journalpost)).isFalse();
 	}
 
 
@@ -357,40 +363,19 @@ class UtledTilgangServiceTest {
 
 	//	1i) Bruker kan ikke få se journalposter som innsyn begynner med SKJULES_*
 	@ParameterizedTest
-	@ValueSource(strings= {"SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_ORGAN_INTERNT", "SKJULES_FEILSENDT", "SKJULES_BRUKERS_ØNSKE"})
+	@ValueSource(strings = {"SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_ORGAN_INTERNT", "SKJULES_FEILSENDT", "SKJULES_BRUKERS_ØNSKE"})
 	void shouldReturnTrueWhenJournalpostInnsynSkjult(String innsyn) {
-		Journalpost journalpost = baseJournalfoertJournalpost()
-				.dokumenter(List.of(DokumentInfo.builder()
-						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-								.organinternt(false)
-								.build())
-						.build(), DokumentInfo.builder()
-						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-								.organinternt(true)
-								.build())
-						.build()))
-				.innsyn(valueOf(innsyn))
-				.build();
+		Journalpost journalpost = getBaseJournalfoertJournalpostWithInnsyn(innsyn);
 		boolean actual = utledTilgangService.isJournalpostInnsynSkjult(journalpost);
 		assertThat(actual).isTrue();
 	}
 
-	//	1i)
+	//	1i)  Bruker kan få se journalposter Hvis innsyn begynner ikke med SKJULES_*
 	@ParameterizedTest
-	@ValueSource(strings= {"VISES_FORVALTNINGSNOTAT", "VISES_MANUELT_GODKJENT", "VISES_MASKINELT_GODKJENT", "BRUK_STANDARDREGLER"})
+	@ValueSource(strings = {"VISES_FORVALTNINGSNOTAT", "VISES_MANUELT_GODKJENT", "VISES_MASKINELT_GODKJENT", "BRUK_STANDARDREGLER"})
 	void shouldReturnFalseWhenJournalpostInnsynErIKkeSkjult(String innsyn) {
-		Journalpost journalpost = baseJournalfoertJournalpost()
-				.dokumenter(List.of(DokumentInfo.builder()
-						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-								.organinternt(false)
-								.build())
-						.build(), DokumentInfo.builder()
-						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-								.organinternt(true)
-								.build())
-						.build()))
-				.innsyn(valueOf(innsyn))
-				.build();
+
+		Journalpost journalpost = getBaseJournalfoertJournalpostWithInnsyn(innsyn);
 		boolean actual = utledTilgangService.isJournalpostInnsynSkjult(journalpost);
 		assertThat(actual).isFalse();
 	}
@@ -502,6 +487,21 @@ class UtledTilgangServiceTest {
 				.build();
 		boolean ironMountainActual = utledTilgangService.isSkannetDokumentAndNotInnsynStartWithVises(journalpost);
 		assertThat(ironMountainActual).isTrue();
+	}
+
+	private Journalpost getBaseJournalfoertJournalpostWithInnsyn(String innsyn) {
+		return baseJournalfoertJournalpost()
+				.dokumenter(List.of(DokumentInfo.builder()
+						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+								.organinternt(false)
+								.build())
+						.build(), DokumentInfo.builder()
+						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+								.organinternt(true)
+								.build())
+						.build()))
+				.innsyn(valueOf(innsyn))
+				.build();
 	}
 
 }

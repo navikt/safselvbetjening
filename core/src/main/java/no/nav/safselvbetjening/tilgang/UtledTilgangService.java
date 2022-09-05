@@ -81,7 +81,7 @@ public class UtledTilgangService {
 					!isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynNotStartWithVises(journalpost) && // 1b
 					isJournalpostFerdigstiltOrMidlertidig(journalpost) && // 1c
 					!isJournalpostFeilregistrert(journalpost) && // 1d
-					isJournalpostNotKontrollsakOrFarskapssak(journalpost) && // 1e
+					isJournalpostNotKontrollsakOrFarskapssakAndInnsynNotStartWithVises(journalpost) && // 1e
 					isJournalpostNotGDPRRestricted(journalpost) && // 1f
 					isJournalpostForvaltningsnotat(journalpost) && // 1g
 					isJournalpostNotOrganInternt(journalpost) && // 1h
@@ -129,7 +129,7 @@ public class UtledTilgangService {
 		if (isJournalpostFeilregistrert(journalpost)) {
 			throw new HentTilgangDokumentException(FEILREGISTRERT, "Tilgang til journalpost avvist fordi journalpost er feilregistrert");
 		}
-		if (!isJournalpostNotKontrollsakOrFarskapssak(journalpost)) {
+		if (!isJournalpostNotKontrollsakOrFarskapssakAndInnsynNotStartWithVises(journalpost)) {
 			throw new HentTilgangDokumentException(KONTROLLSAK_FARSKAPSSAK, "Tilgang til journalpost avvist fordi journalpost er markert som kontrollsak eller farskapssak");
 		}
 		if (!isJournalpostNotGDPRRestricted(journalpost)) {
@@ -191,17 +191,17 @@ public class UtledTilgangService {
 	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynNotStartWithVises(Journalpost journalpost) {
 		Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 		if (tilgang.getJournalfoertDato() == null) {
-			if (journalpost.getInnsyn() == null) {
+			if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
 				return tilgang.getDatoOpprettet().isBefore(tidligstInnsynDato);
 			}
-			return tilgang.getDatoOpprettet().isBefore(tidligstInnsynDato) && !getInnsynStartWithVises().contains(valueOf(journalpost.getInnsyn().name()));
+			return tilgang.getDatoOpprettet().isBefore(tidligstInnsynDato) && !isInnsynStartWithVises(journalpost);
 		} else {
-			if (journalpost.getInnsyn() == null) {
+			if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
 				return (tilgang.getJournalfoertDato().isBefore(tidligstInnsynDato) ||
 						tilgang.getDatoOpprettet().isBefore(tidligstInnsynDato));
 			}
 			return (tilgang.getJournalfoertDato().isBefore(tidligstInnsynDato) ||
-					tilgang.getDatoOpprettet().isBefore(tidligstInnsynDato)) && !getInnsynStartWithVises().contains(valueOf(journalpost.getInnsyn().name()));
+					tilgang.getDatoOpprettet().isBefore(tidligstInnsynDato)) && !isInnsynStartWithVises(journalpost);
 		}
 	}
 
@@ -226,22 +226,16 @@ public class UtledTilgangService {
 	/**
 	 * 1e) Bruker får ikke innsyn i kontrollsaker eller farskapssaker med mindre innsyn begynner med VISES_*.
 	 */
-	public boolean isJournalpostNotKontrollsakOrFarskapssak(Journalpost journalpost) {
+	public boolean isJournalpostNotKontrollsakOrFarskapssakAndInnsynNotStartWithVises(Journalpost journalpost) {
 		Journalstatus journalstatus = journalpost.getJournalstatus();
 
 		if (journalstatus != null) {
 			Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 
 			if (MOTTATT.equals(journalstatus) || (JOURNALSTATUS_FERDIGSTILT.contains(journalstatus) && tilgang.getTilgangSak() == null)) {
-				if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
-					return !FAGOMRADER_UNNTATT_INNSYN.contains(tilgang.getTema());
-				}
-				return FAGOMRADER_UNNTATT_INNSYN.contains(tilgang.getTema()) && getInnsynStartWithVises().contains(valueOf(journalpost.getInnsyn().name()));
+				return isJournalpostNotKTRorFAROrInnsynVistWithFagomradeFARorKTR(journalpost);
 			} else if (tilgang.getTilgangSak() != null && JOURNALSTATUS_FERDIGSTILT.contains(journalstatus)) {
-				if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
-					return !TEMAER_UNNTATT_INNSYN.contains(tilgang.getTilgangSak().getTema());
-				}
-				return TEMAER_UNNTATT_INNSYN.contains(tilgang.getTilgangSak().getTema()) && getInnsynStartWithVises().contains(valueOf(journalpost.getInnsyn().name()));
+				return isJournalpostNotKTRorFAROrInnsynVistWithTeamFARorKTR(journalpost);
 			}
 		}
 		return true;
@@ -261,11 +255,11 @@ public class UtledTilgangService {
 	public boolean isJournalpostForvaltningsnotat(Journalpost journalpost) {
 		List<DokumentInfo> dokumenter = journalpost.getDokumenter();
 		if (journalpost.getJournalposttype() == N && !dokumenter.isEmpty() && dokumenter.get(0).getTilgangDokument() != null) {
+			boolean isForvaltningsnotat = FORVALTNINGSNOTAT.toString().equals(dokumenter.get(0).getTilgangDokument().getKategori());
 			if (journalpost.getInnsyn() != null) {
-				return FORVALTNINGSNOTAT.toString().equals(dokumenter.get(0).getTilgangDokument().getKategori()) ||
-						getInnsynStartWithVises().contains(valueOf(journalpost.getInnsyn().name()));
+				return isForvaltningsnotat || getInnsynStartWithVises().contains(valueOf(journalpost.getInnsyn().name()));
 			}
-			return FORVALTNINGSNOTAT.toString().equals(dokumenter.get(0).getTilgangDokument().getKategori());
+			return isForvaltningsnotat;
 		}
 		return true;
 	}
@@ -358,5 +352,25 @@ public class UtledTilgangService {
 			return tilgangDokument.isKassert();
 		}
 		return false;
+	}
+
+	boolean isJournalpostNotKTRorFAROrInnsynVistWithTeamFARorKTR(Journalpost journalpost) {
+		boolean isTemaKTRorFAR = TEMAER_UNNTATT_INNSYN.contains(journalpost.getTilgang().getTilgangSak().getTema());
+		if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
+			return !isTemaKTRorFAR;
+		}
+		return !isTemaKTRorFAR || isTemaKTRorFAR && isInnsynStartWithVises(journalpost);
+	}
+
+	boolean isJournalpostNotKTRorFAROrInnsynVistWithFagomradeFARorKTR(Journalpost journalpost) {
+		boolean isFagomradeKTRorFAR = FAGOMRADER_UNNTATT_INNSYN.contains(journalpost.getTilgang().getTema());
+		if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
+			return !isFagomradeKTRorFAR;
+		}
+		return !isFagomradeKTRorFAR || isFagomradeKTRorFAR && isInnsynStartWithVises(journalpost);
+	}
+
+	boolean isInnsynStartWithVises(Journalpost journalpost) {
+		return getInnsynStartWithVises().contains(valueOf(journalpost.getInnsyn().name()));
 	}
 }
