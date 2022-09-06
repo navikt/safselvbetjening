@@ -203,27 +203,41 @@ class UtledTilgangServiceTest {
 	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
 	// Journalført før innsynsdato
 	@Test
-	void shouldReturnTrueWhenJournalfoertBeforeInnsynsdatoNotStartedWithVISES() {
+	void shouldReturnTrueWhenJournalfoertBeforeInnsynsdato() {
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER)
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.journalfoertDato(LocalDateTime.of(2016, 5, 6, 0, 0))
+						.build())
+				.build();
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
+		assertThat(actual).isTrue();
+	}
+
+	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
+	// Journalført før innsynsdato og hvis innsyn er BRUK_STANDARDREGLER.
+	@Test
+	void shouldReturnTrueWhenJournalfoertBeforeInnsynsdatoAndInnsynWithBrukStandardRegler() {
 		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.journalfoertDato(LocalDateTime.of(2016, 5, 6, 0, 0))
 						.build())
 				.innsyn(BRUK_STANDARDREGLER)
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynNotStartWithVises(journalpost);
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
 		assertThat(actual).isTrue();
 	}
 
 	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
-	// Journalført før innsynsdato
+	// Journalført før innsynsdato og hvis innsyn er null.
 	@Test
 	void shouldReturnTrueWhenJournalfoertBeforeInnsynsdatoAndInnsynIsNull() {
 		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.journalfoertDato(LocalDateTime.of(2016, 5, 6, 0, 0))
 						.build())
+				.innsyn(null)
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynNotStartWithVises(journalpost);
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
 		assertThat(actual).isTrue();
 	}
 
@@ -238,7 +252,7 @@ class UtledTilgangServiceTest {
 						.build())
 				.innsyn(SKJULES_BRUKERS_ØNSKE)
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynNotStartWithVises(journalpost);
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
 		assertThat(actual).isTrue();
 	}
 
@@ -275,7 +289,7 @@ class UtledTilgangServiceTest {
 						.tema(tema)
 						.build())
 				.build();
-		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssakAndInnsynNotStartWithVises(journalpost)).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssakAndInnsynIsNotVises(journalpost)).isFalse();
 
 	}
 
@@ -297,7 +311,7 @@ class UtledTilgangServiceTest {
 						.build())
 				.innsyn(SKJULES_BRUKERS_ØNSKE)
 				.build();
-		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssakAndInnsynNotStartWithVises(journalpost)).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssakAndInnsynIsNotVises(journalpost)).isFalse();
 
 	}
 
@@ -312,7 +326,7 @@ class UtledTilgangServiceTest {
 						.tema(tema)
 						.build())
 				.build();
-		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssakAndInnsynNotStartWithVises(journalpost)).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssakAndInnsynIsNotVises(journalpost)).isFalse();
 	}
 
 
@@ -473,7 +487,7 @@ class UtledTilgangServiceTest {
 						.build())
 				.innsyn(innsyn)
 				.build();
-		return utledTilgangService.isSkannetDokumentAndNotInnsynStartWithVises(journalpost);
+		return utledTilgangService.isSkannetDokumentAndInnsynIsNotVises(journalpost);
 	}
 
 	private void assertSkannetDokumentLokalUtskrift(final Kanal kanal, Innsyn innsyn) {
@@ -485,7 +499,7 @@ class UtledTilgangServiceTest {
 						.build())
 				.innsyn(innsyn)
 				.build();
-		boolean ironMountainActual = utledTilgangService.isSkannetDokumentAndNotInnsynStartWithVises(journalpost);
+		boolean ironMountainActual = utledTilgangService.isSkannetDokumentAndInnsynIsNotVises(journalpost);
 		assertThat(ironMountainActual).isTrue();
 	}
 

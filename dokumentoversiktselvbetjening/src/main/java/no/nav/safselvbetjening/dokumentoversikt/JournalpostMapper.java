@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.toTema;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.InnsynCode.mapToInnsyn;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.ARKIV;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.SLADDET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
@@ -42,6 +41,7 @@ import static no.nav.safselvbetjening.domain.Datotype.DATO_JOURNALFOERT;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_OPPRETTET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_REGISTRERT;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_SENDT_PRINT;
+import static no.nav.safselvbetjening.domain.Innsyn.valueOf;
 import static no.nav.safselvbetjening.domain.Kanal.INGEN_DISTRIBUSJON;
 import static no.nav.safselvbetjening.domain.Kanal.LOKAL_UTSKRIFT;
 import static no.nav.safselvbetjening.domain.Kanal.SENTRAL_UTSKRIFT;
@@ -83,7 +83,7 @@ public class JournalpostMapper {
 					.relevanteDatoer(mapRelevanteDatoer(journalpostDto))
 					.dokumenter(mapDokumenter(journalpostDto))
 					.tilgang(mapJournalpostTilgang(journalpostDto, brukerIdenter))
-					.innsyn(mapToInnsyn(journalpostDto.getInnsyn()))
+					.innsyn(isBlank(journalpostDto.getInnsyn()) ? null : valueOf(journalpostDto.getInnsyn()))
 					.build();
 		} catch (Exception e) {
 			log.error("Teknisk feil under mapping av journalpost med journalpostId={}.", journalpostDto.getJournalpostId(), e);
@@ -273,16 +273,12 @@ public class JournalpostMapper {
 	}
 
 	private Kanal mapManglendeUtsendingskanal(JournalpostDto journalpostDto) {
-		switch (journalpostDto.getJournalstatus()) {
-			case FL:
-				return LOKAL_UTSKRIFT;
-			case FS:
-				return SENTRAL_UTSKRIFT;
-			case E:
-				return SENTRAL_UTSKRIFT;
-			default:
-				return null;
-		}
+		return switch (journalpostDto.getJournalstatus()) {
+			case FL -> LOKAL_UTSKRIFT;
+			case FS -> SENTRAL_UTSKRIFT;
+			case E -> SENTRAL_UTSKRIFT;
+			default -> null;
+		};
 	}
 
 	private List<RelevantDato> mapRelevanteDatoer(JournalpostDto journalpostDto) {
