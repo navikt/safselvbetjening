@@ -94,6 +94,11 @@ type Journalpost {
     # * Dokumentene returneres i følgende sorteringsrekkefølge: Hoveddokumentet først, deretter vedleggene i tilfeldig rekkefølge.
     dokumenter: [DokumentInfo]
 
+    # Temaet/Fagområdet som journalposten og tilhørende sak tilhører, f.eks. `"FOR"`.
+    # * For sakstilknyttede journalposter, er det tema på SAK- eller PSAK-saken som er gjeldende tema.
+    # * For journalposter som enda ikke har fått sakstilknytning, returneres tema på journalposten.
+    innsyn: [Innsyn]
+
 }
 
 # Sakstilknytningen til journalposten.
@@ -558,4 +563,33 @@ enum Sakstype {
 
     # Vil si at saken tilhører et fagsystem. Hvilket fagsystem saken tilhører, finnes i feltet fagsaksystem.
     FAGSAK
+}
+
+# Gi bruker innsyn i dokumenter, f.eks. **VISES_MASKINELT_GODKJENT**.
+# Innsyn reglene styrer utvalget av journalposter og dokumenter som en innlogget eksternbruker/innbygger får innsyn i på nav.no.
+enum Innsyn {
+
+    # Standardreglene avgjør hvorvidt dokumentet vises og har ingen effekt på innsyn
+    BRUK_STANDARDREGLER
+
+    #Vises dokumenter på nav.no etter maskinell godkjenning
+    VISES_MASKINELT_GODKJENT
+
+    #Vises på nav.no etter gjennomgang av en NAV-ansatt
+    VISES_MANUELT_GODKJENT
+
+    #Vises på nav.no fordi dokumentet er markert som forvaltningsnotat
+    VISES_FORVALTNINGSNOTAT
+
+    #Skjules på nav.no fordi dokumentet ble sendt til feil bruker
+    SKJULES_FEILSENDT
+
+    #Skjules på nav.no etter brukers eget ønske
+    SKJULES_BRUKERS_ONSKE
+
+    #Skjules på nav.no fordi dokumentet er markert som organinternt
+    SKJULES_ORGAN_INTERNT
+
+    #Skjules på nav.no fordi dokumentet er markert som innskrenket partsinnsyn
+    SKJULES_INNSKRENKET_PARTSINNSYN
 }

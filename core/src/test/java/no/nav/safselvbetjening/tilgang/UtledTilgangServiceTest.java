@@ -67,9 +67,21 @@ class UtledTilgangServiceTest {
 	}
 
 	@Test
-	void shouldReturnTrueWhenTilgangTilJournalpostWithInnsyn() {
+	void shouldReturnTrueWhenTilgangTilJournalpostWithInnsynBrukerStandardRegler() {
+		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER).innsyn(BRUK_STANDARDREGLER).build(), defaultBrukerIdenter());
+		assertThat(tilgang).isTrue();
+	}
+
+	@Test
+	void shouldReturnTrueWhenTilgangTilJournalpostWithInnsynIsVises() {
 		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_FAR).innsyn(VISES_MANUELT_GODKJENT).build(), defaultBrukerIdenter());
 		assertThat(tilgang).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseeWhenTilgangTilJournalpostWithInnsynIsSjult() {
+		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER).innsyn(SKJULES_ORGAN_INTERNT).build(), defaultBrukerIdenter());
+		assertThat(tilgang).isFalse();
 	}
 
 	@Test
@@ -289,7 +301,7 @@ class UtledTilgangServiceTest {
 						.tema(tema)
 						.build())
 				.build();
-		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssakAndInnsynIsNotVises(journalpost)).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost)).isFalse();
 
 	}
 
@@ -311,7 +323,7 @@ class UtledTilgangServiceTest {
 						.build())
 				.innsyn(SKJULES_BRUKERS_ØNSKE)
 				.build();
-		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssakAndInnsynIsNotVises(journalpost)).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost)).isFalse();
 
 	}
 
@@ -326,7 +338,7 @@ class UtledTilgangServiceTest {
 						.tema(tema)
 						.build())
 				.build();
-		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssakAndInnsynIsNotVises(journalpost)).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost)).isFalse();
 	}
 
 

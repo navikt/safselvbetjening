@@ -83,7 +83,7 @@ public class JournalpostMapper {
 					.relevanteDatoer(mapRelevanteDatoer(journalpostDto))
 					.dokumenter(mapDokumenter(journalpostDto))
 					.tilgang(mapJournalpostTilgang(journalpostDto, brukerIdenter))
-					.innsyn(isBlank(journalpostDto.getInnsyn()) ? null : valueOf(journalpostDto.getInnsyn()))
+					.innsyn(journalpostDto.getInnsyn() == null ? null : valueOf(journalpostDto.getInnsyn().name()))
 					.build();
 		} catch (Exception e) {
 			log.error("Teknisk feil under mapping av journalpost med journalpostId={}.", journalpostDto.getJournalpostId(), e);
@@ -275,8 +275,7 @@ public class JournalpostMapper {
 	private Kanal mapManglendeUtsendingskanal(JournalpostDto journalpostDto) {
 		return switch (journalpostDto.getJournalstatus()) {
 			case FL -> LOKAL_UTSKRIFT;
-			case FS -> SENTRAL_UTSKRIFT;
-			case E -> SENTRAL_UTSKRIFT;
+			case FS, E -> SENTRAL_UTSKRIFT;
 			default -> null;
 		};
 	}

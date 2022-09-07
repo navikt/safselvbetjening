@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
+import static no.nav.safselvbetjening.domain.Innsyn.valueOf;
+
 @Component
 public class HentDokumentTilgangMapper {
 
@@ -29,6 +31,7 @@ public class HentDokumentTilgangMapper {
 				.kanal(mapKanal(tilgangJournalpostDto))
 				.tilgang(mapJournalpostTilgang(tilgangJournalpostDto, brukerIdenter))
 				.dokumenter(Collections.singletonList(mapDokumenter(tilgangJournalpostDto.getDokument())))
+				.innsyn(tilgangJournalpostDto.getInnsyn() == null ? null : valueOf(tilgangJournalpostDto.getInnsyn().name()))
 				.build();
 	}
 

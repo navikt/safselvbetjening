@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.hentdokument;
 
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.InnsynCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
@@ -37,6 +38,7 @@ public class HentDokumentTestObjects {
 				.dokument(createDokumentInfoDto().build())
 				.skjerming(SkjermingTypeCode.POL)
 				.bruker(TilgangBrukerDto.builder().brukerId(IDENT).build())
+				.innsyn(InnsynCode.BRUK_STANDARDREGLER)
 				.sak(TilgangSakDto.builder()
 						.aktoerId(AKTOER_ID)
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
