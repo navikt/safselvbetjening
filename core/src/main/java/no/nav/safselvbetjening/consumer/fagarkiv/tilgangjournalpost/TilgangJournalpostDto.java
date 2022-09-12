@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.InnsynCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
@@ -30,4 +31,5 @@ public class TilgangJournalpostDto {
 	private TilgangSakDto sak;
 	private SkjermingTypeCode skjerming;
 	private TilgangDokumentInfoDto dokument;
+	private InnsynCode innsyn;
 }

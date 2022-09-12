@@ -93,7 +93,6 @@ type Journalpost {
     # Liste over dokumentinfo tilknyttet journalposten.
     # * Dokumentene returneres i følgende sorteringsrekkefølge: Hoveddokumentet først, deretter vedleggene i tilfeldig rekkefølge.
     dokumenter: [DokumentInfo]
-
 }
 
 # Sakstilknytningen til journalposten.

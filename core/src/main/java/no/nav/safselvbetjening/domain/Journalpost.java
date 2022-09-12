@@ -42,6 +42,7 @@ public class Journalpost {
 		private final SkjermingType skjerming;
 		private final TilgangSak tilgangSak;
 		private final TilgangBruker tilgangBruker;
+		private final Innsyn innsyn;
 	}
 
 	@Data

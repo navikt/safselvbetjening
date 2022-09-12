@@ -1,0 +1,144 @@
+{
+  "tilgangJournalposter": [
+    {
+      "journalpostId": 429837417,
+      "prevJournalpostId": null,
+      "nextJournalpostId": 429837329,
+      "totaltAntall": 3,
+      "journalForendeEnhetId": "9999",
+      "innhold": "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger",
+      "fagomrade": "FOR",
+      "journalstatus": "J",
+      "avsenderMottakerNavn": "HARRY POTTER",
+      "journalfortAvNavn": "TMOT010",
+      "mottakskanal": "NAV_NO",
+      "utsendingskanal": null,
+      "journalposttype": "I",
+      "innsyn": "VISES_MANUELT_GODKJENT",
+      "saksrelasjon": {
+        "sakId": "135738496",
+        "feilregistrert": null,
+        "fagsystem": "FS22",
+        "aktoerId": "1012345678911"
+      },
+      "datoOpprettet": "2018-12-12T20:31:17.286+0000",
+      "mottattDato": "2018-12-12T21:31:10.000+0000",
+      "journalDato": "2018-12-12T20:31:17.284+0000",
+      "sendtPrintDato": null,
+      "ekspedertDato": null,
+      "skjerming": null,
+      "dokumenter": [
+        {
+          "dokumentInfoId": 441828510,
+          "dokumentstatus": null,
+          "brevkode": null,
+          "skjerming": null,
+          "varianter": [
+            {
+              "variantf": "ARKIV",
+              "skjerming": null
+            }
+          ],
+          "tittel": "Bekreftelse fra arbeidsgiver",
+          "logiske": []
+        }
+      ],
+      "kanalReferanseId": "123"
+    },
+    {
+      "journalpostId": 429837329,
+      "prevJournalpostId": 429837417,
+      "nextJournalpostId": 429812815,
+      "totaltAntall": 3,
+      "journalForendeEnhetId": "9999",
+      "innhold": "Søknad om Uføretrygd",
+      "fagomrade": "UFO",
+      "journalstatus": "J",
+      "avsenderMottakerNavn": "HARRY POTTER",
+      "journalfortAvNavn": "TMOT010",
+      "mottakskanal": "NAV_NO",
+      "utsendingskanal": null,
+      "journalposttype": "I",
+      "innsyn": "VISES_MANUELT_GODKJENT",
+      "saksrelasjon": {
+        "sakId": "21998969",
+        "feilregistrert": null,
+        "fagsystem": "PEN"
+      },
+      "bruker": {
+        "brukerId": "12345678911",
+        "brukerIdType": "PERSON"
+      },
+      "datoOpprettet": "2018-12-12T08:21:59.592+0000",
+      "mottattDato": "2018-12-12T09:21:55.000+0000",
+      "journalDato": "2018-12-12T08:21:59.585+0000",
+      "sendtPrintDato": null,
+      "ekspedertDato": null,
+      "skjerming": null,
+      "dokumenter": [
+        {
+          "dokumentInfoId": 441828384,
+          "dokumentstatus": null,
+          "brevkode": null,
+          "varianter": [
+            {
+              "variantf": "ARKIV",
+              "skjerming": null
+            }
+          ],
+          "tittel": "Søknad om Uføretrygd",
+          "logiske": [],
+          "skjerming": null
+        }
+      ],
+      "kanalReferanseId": "123"
+    },
+    {
+      "journalpostId": 429812815,
+      "prevJournalpostId": 429837329,
+      "nextJournalpostId": null,
+      "totaltAntall": 3,
+      "skjerming": null,
+      "journalForendeEnhetId": "9999",
+      "innhold": "SØKNAD_FORELDREPENGER_FØDSEL",
+      "fagomrade": "FOR",
+      "journalstatus": "J",
+      "avsenderMottakerNavn": "HARRY POTTER",
+      "journalfortAvNavn": "TMOT010",
+      "mottakskanal": "NAV_NO",
+      "utsendingskanal": null,
+      "journalposttype": "I",
+      "innsyn": "VISES_MASKINELT_GODKJENT",
+      "saksrelasjon": {
+        "sakId": "135737721",
+        "feilregistrert": null,
+        "fagsystem": "FS22",
+        "aktoerId": "1012345678911",
+        "fagsakNr": "fp-12345",
+        "applikasjon": "FS38"
+      },
+      "datoOpprettet": "2018-12-03T09:31:32.022+0000",
+      "mottattDato": "2018-11-22T16:35:08.000+0000",
+      "journalDato": "2018-12-03T09:31:32.010+0000",
+      "sendtPrintDato": null,
+      "ekspedertDato": null,
+      "dokumenter": [
+        {
+          "skjerming": null,
+          "dokumentInfoId": 441803683,
+          "dokumentstatus": null,
+          "brevkode": null,
+          "varianter": [
+            {
+              "variantf": "ARKIV",
+              "skjerming": null
+            }
+          ],
+          "tittel": "Søknad om foreldrepenger ved fødsel",
+          "logiske": []
+        }
+      ],
+      "kanalReferanseId": "123"
+    }
+  ]
+}

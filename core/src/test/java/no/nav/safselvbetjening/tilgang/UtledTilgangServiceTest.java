@@ -3,6 +3,7 @@ package no.nav.safselvbetjening.tilgang;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
+import no.nav.safselvbetjening.domain.Innsyn;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Journalposttype;
 import no.nav.safselvbetjening.domain.Journalstatus;
@@ -17,6 +18,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
+import static no.nav.safselvbetjening.domain.Innsyn.BRUK_STANDARDREGLER;
+import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_BRUKERS_ØNSKE;
+import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_FEILSENDT;
+import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_INNSKRENKET_PARTSINNSYN;
+import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_ORGAN_INTERNT;
+import static no.nav.safselvbetjening.domain.Innsyn.VISES_FORVALTNINGSNOTAT;
+import static no.nav.safselvbetjening.domain.Innsyn.VISES_MANUELT_GODKJENT;
+import static no.nav.safselvbetjening.domain.Innsyn.VISES_MASKINELT_GODKJENT;
+import static no.nav.safselvbetjening.domain.Innsyn.valueOf;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_IM;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_NETS;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_PEN;
@@ -52,14 +62,32 @@ class UtledTilgangServiceTest {
 
 	@Test
 	void shouldReturnTrueWhenTilgangTilJournalpost() {
-		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost().build(), defaultBrukerIdenter());
+		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER, null).build(), defaultBrukerIdenter());
 		assertThat(tilgang).isTrue();
 	}
 
 	@Test
+	void shouldReturnTrueWhenTilgangTilJournalpostWithInnsynBrukerStandardRegler() {
+		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER, null).build(), defaultBrukerIdenter());
+		assertThat(tilgang).isTrue();
+	}
+
+	@Test
+	void shouldReturnTrueWhenTilgangTilJournalpostWithInnsynIsVises() {
+		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_FAR, VISES_MANUELT_GODKJENT).build(), defaultBrukerIdenter());
+		assertThat(tilgang).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseeWhenTilgangTilJournalpostWithInnsynIsSjult() {
+		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER, SKJULES_ORGAN_INTERNT).build(), defaultBrukerIdenter());
+		assertThat(tilgang).isFalse();
+	}
+
+	@Test
 	void shouldReturnFalseWhenJournalpostJournaldatoFoerOpprettetDato() {
-		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost()
-				.tilgang(baseTilgangJournalpost()
+		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
+				.tilgang(baseTilgangJournalpost(TEMA_DAGPENGER, null)
 						.journalfoertDato(FOER_INNSYNSDATO)
 						.build())
 				.build(), defaultBrukerIdenter());
@@ -112,7 +140,7 @@ class UtledTilgangServiceTest {
 	// 	Journalført - har sakstilknytning og bruker i gsak (FS22)
 	@Test
 	void shouldReturnTrueWhenJournalfoertInGsakAndBrukerPart() {
-		Journalpost journalpost = baseJournalfoertJournalpost().build();
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null).build();
 		boolean brukerPart = utledTilgangService.isBrukerPart(journalpost, defaultBrukerIdenter());
 		assertThat(brukerPart).isTrue();
 	}
@@ -121,7 +149,7 @@ class UtledTilgangServiceTest {
 	// 	Journalført - har sakstilknytning og bruker i pensjon (PEN)
 	@Test
 	void shouldReturnTrueWhenJournalfoertInPensjonAndBrukerPart() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.tilgangBruker(null)
 						.datoOpprettet(LocalDateTime.now())
@@ -142,7 +170,7 @@ class UtledTilgangServiceTest {
 	// 	Journalført - har sakstilknytning og bruker i gsak (FS22)
 	@Test
 	void shouldReturnFalseWhenJournalfoertInGsakAndAnnenPart() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.tilgangBruker(Journalpost.TilgangBruker.builder()
 								.brukerId(ANNEN_PART)
@@ -166,7 +194,7 @@ class UtledTilgangServiceTest {
 	// 	Journalført - har sakstilknytning og bruker i pensjon (PEN)
 	@Test
 	void shouldReturnFalseWhenJournalfoertInPensjonAndAnnenPart() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.tilgangBruker(Journalpost.TilgangBruker.builder()
 								.brukerId(ANNEN_PART)
@@ -187,34 +215,63 @@ class UtledTilgangServiceTest {
 	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
 	// Journalført før innsynsdato
 	@Test
-	void shouldReturnTrueWhenJournalfoertBeforeInnsynsdato() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
+	void shouldReturnFalseWhenJournalfoertBeforeInnsynsdatoAndStartedWithVises() {
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, VISES_MANUELT_GODKJENT)
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.journalfoertDato(LocalDateTime.of(2016, 5, 6, 0, 0))
+						.innsyn(VISES_MANUELT_GODKJENT)
+						.build())
+				.build();
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
+		assertThat(actual).isFalse();
+	}
+
+	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
+	// Journalført før innsynsdato og hvis innsyn er BRUK_STANDARDREGLER.
+	@Test
+	void shouldReturnTrueWhenJournalfoertBeforeInnsynsdatoAndInnsynWithBrukStandardRegler() {
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER)
+				.tilgang(Journalpost.TilgangJournalpost.builder()
+						.journalfoertDato(LocalDateTime.of(2016, 5, 6, 0, 0))
+						.innsyn(BRUK_STANDARDREGLER)
+						.build())
+				.build();
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
+		assertThat(actual).isTrue();
+	}
+
+	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
+	// Journalført før innsynsdato og hvis innsyn er null.
+	@Test
+	void shouldReturnTrueWhenJournalfoertBeforeInnsynsdatoAndInnsynIsNull() {
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.journalfoertDato(LocalDateTime.of(2016, 5, 6, 0, 0))
 						.build())
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdato(journalpost);
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
 		assertThat(actual).isTrue();
 	}
 
 	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
 	// Opprettet før innsynsdato
 	@Test
-	void shouldReturnTrueWhenOpprettetBeforeInnsynsdato() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
+	void shouldReturnTrueWhenOpprettetBeforeInnsynsdatoAndNotStartedWithVISES() {
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, SKJULES_BRUKERS_ØNSKE)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.journalfoertDato(LocalDateTime.of(2017, 5, 6, 0, 0))
 						.datoOpprettet(LocalDateTime.of(2015, 5, 6, 0, 0))
+						.innsyn(SKJULES_BRUKERS_ØNSKE)
 						.build())
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdato(journalpost);
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
 		assertThat(actual).isTrue();
 	}
 
 	//	1c - Bruker får kun se midlertidige og ferdigstilte journalposter
 	@Test
 	void shouldReturnFalseWhenNotJournalfoertOrMottatt() {
-		Journalpost journalpost = baseJournalfoertJournalpost().journalstatus(Journalstatus.UNDER_ARBEID).build();
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null).journalstatus(Journalstatus.UNDER_ARBEID).build();
 		boolean actual = utledTilgangService.isJournalpostFerdigstiltOrMidlertidig(journalpost);
 		assertThat(actual).isFalse();
 	}
@@ -222,7 +279,7 @@ class UtledTilgangServiceTest {
 	//	1d - Bruker får ikke se feilregistrerte journalposter
 	@Test
 	void shouldReturnTrueWhenFeilregistrert() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.tilgangSak(Journalpost.TilgangSak.builder()
 								.feilregistrert(true)
@@ -236,7 +293,7 @@ class UtledTilgangServiceTest {
 	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
 	// Mottatt - ingen sakstilknytning
 	@ParameterizedTest
-	@ValueSource(strings = { TEMA_FAR, TEMA_KONTROLL })
+	@ValueSource(strings = {TEMA_FAR, TEMA_KONTROLL})
 	void shouldReturnFalseWhenMottattAndKontrollsakOrFarskapssak(String tema) {
 		Journalpost journalpost = baseMottattJournalpost()
 				.tilgang(Journalpost.TilgangJournalpost.builder()
@@ -244,16 +301,16 @@ class UtledTilgangServiceTest {
 						.tema(tema)
 						.build())
 				.build();
-		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost)).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost)).isFalse();
 
 	}
 
 	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
 	// Journalført - med sakstilknytning
 	@ParameterizedTest
-	@ValueSource(strings = { TEMA_FAR, TEMA_KONTROLL })
-	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithSak(String tema){
-		Journalpost journalpost = baseJournalfoertJournalpost()
+	@ValueSource(strings = {TEMA_FAR, TEMA_KONTROLL})
+	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithSak(String tema) {
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, SKJULES_BRUKERS_ØNSKE)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.datoOpprettet(LocalDateTime.now())
 						.tema(tema)
@@ -265,29 +322,29 @@ class UtledTilgangServiceTest {
 								.build())
 						.build())
 				.build();
-		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost)).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost)).isFalse();
 
 	}
 
 	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
 	// Journalført - uten sakstilknytning
 	@ParameterizedTest
-	@ValueSource(strings = { TEMA_FAR, TEMA_KONTROLL })
-	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithoutSak(String tema){
-		Journalpost journalpost = baseJournalfoertJournalpost()
+	@ValueSource(strings = {TEMA_FAR, TEMA_KONTROLL})
+	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithoutSak(String tema) {
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.datoOpprettet(LocalDateTime.now())
 						.tema(tema)
 						.build())
 				.build();
-		assertThat(utledTilgangService.isJournalpostNotKontrollsakOrFarskapssak(journalpost)).isFalse();
+		assertThat(utledTilgangService.isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost)).isFalse();
 	}
 
 
 	//	1f - Bruker får ikke innsyn i journalposter som er begrenset ihht. GDPR
 	@Test
 	void shouldReturnFalseWhenBegrensetWithGdpr() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.skjerming(SkjermingType.POL)
 						.build())
@@ -299,7 +356,7 @@ class UtledTilgangServiceTest {
 	//	1g - Bruker får ikke innsyn i notater (jp.type = N) med mindre det er et forvaltningsnotat
 	@Test
 	void shouldReturnTrueWhenForvaltningsnotat() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.journalposttype(Journalposttype.N)
 				.dokumenter(List.of(DokumentInfo.builder()
 						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
@@ -314,7 +371,7 @@ class UtledTilgangServiceTest {
 	//	1h - Bruker får ikke innsyn journalposter der et eller flere dokumenter markert som organinternt
 	@Test
 	void shouldReturnFalseWhenAtleastOneDokumentIsOrganintern() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.dokumenter(List.of(DokumentInfo.builder()
 						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
 								.organinternt(false)
@@ -329,11 +386,30 @@ class UtledTilgangServiceTest {
 		assertThat(actual).isFalse();
 	}
 
+	//	1i) Bruker kan ikke få se journalposter som innsyn begynner med SKJULES_*
+	@ParameterizedTest
+	@ValueSource(strings = {"SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_ORGAN_INTERNT", "SKJULES_FEILSENDT", "SKJULES_BRUKERS_ØNSKE"})
+	void shouldReturnTrueWhenJournalpostInnsynSkjult(String innsyn) {
+		Journalpost journalpost = getBaseJournalfoertJournalpostWithInnsyn(innsyn);
+		boolean actual = utledTilgangService.isJournalpostInnsynSkjult(journalpost.getTilgang());
+		assertThat(actual).isTrue();
+	}
+
+	//	1i)  Bruker kan få se journalposter Hvis innsyn begynner ikke med SKJULES_*
+	@ParameterizedTest
+	@ValueSource(strings = {"VISES_FORVALTNINGSNOTAT", "VISES_MANUELT_GODKJENT", "VISES_MASKINELT_GODKJENT", "BRUK_STANDARDREGLER"})
+	void shouldReturnFalseWhenJournalpostInnsynErIKkeSkjult(String innsyn) {
+
+		Journalpost journalpost = getBaseJournalfoertJournalpostWithInnsyn(innsyn);
+		boolean actual = utledTilgangService.isJournalpostInnsynSkjult(journalpost.getTilgang());
+		assertThat(actual).isFalse();
+	}
+
 	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	@Test
 	void shouldReturnFalseWhenAvsenderMottakerIdIsNull() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
-				.tilgang(baseTilgangJournalpost().avsenderMottakerId(null).build())
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
+				.tilgang(baseTilgangJournalpost(TEMA_DAGPENGER, null).avsenderMottakerId(null).build())
 				.build();
 		boolean actual = utledTilgangService.isAvsenderMottakerPart(journalpost, defaultBrukerIdenter().getIdenter());
 		assertThat(actual).isFalse();
@@ -342,8 +418,8 @@ class UtledTilgangServiceTest {
 	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	@Test
 	void shouldReturnFalseWhenAvsenderMottakerIdIsAnnenPart() {
-		Journalpost journalpost = baseJournalfoertJournalpost()
-				.tilgang(baseTilgangJournalpost().avsenderMottakerId(ANNEN_PART).build())
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
+				.tilgang(baseTilgangJournalpost(TEMA_DAGPENGER, null).avsenderMottakerId(ANNEN_PART).build())
 				.build();
 		boolean actual = utledTilgangService.isAvsenderMottakerPart(journalpost, defaultBrukerIdenter().getIdenter());
 		assertThat(actual).isFalse();
@@ -352,17 +428,33 @@ class UtledTilgangServiceTest {
 	//	2b - Bruker får ikke se skannede dokumenter
 	@Test
 	void shouldReturnTrueWhenSkannetDokument() {
-		assertSkannetDokument(SKAN_IM);
-		assertSkannetDokument(SKAN_NETS);
-		assertSkannetDokument(SKAN_PEN);
+		boolean imSkannetDokument = isSkannetDokument(SKAN_IM, SKJULES_BRUKERS_ØNSKE);
+		boolean netsSkannetDokument = isSkannetDokument(SKAN_NETS, SKJULES_INNSKRENKET_PARTSINNSYN);
+		boolean penSkannetDokument = isSkannetDokument(SKAN_PEN, SKJULES_ORGAN_INTERNT);
+
+		assertThat(imSkannetDokument).isTrue();
+		assertThat(netsSkannetDokument).isTrue();
+		assertThat(penSkannetDokument).isTrue();
 	}
 
 	//	2b - Bruker får ikke se skannede dokumenter - lokal utskrift - journalposttype U - mottakskanal satt
 	@Test
 	void shouldReturnTrueWhenSkannetDokumentAndLokalUtskrift() {
-		assertSkannetDokumentLokalUtskrift(SKAN_IM);
-		assertSkannetDokumentLokalUtskrift(SKAN_NETS);
-		assertSkannetDokumentLokalUtskrift(SKAN_PEN);
+		assertSkannetDokumentLokalUtskrift(SKAN_IM, BRUK_STANDARDREGLER);
+		assertSkannetDokumentLokalUtskrift(SKAN_NETS, SKJULES_FEILSENDT);
+		assertSkannetDokumentLokalUtskrift(SKAN_PEN, SKJULES_ORGAN_INTERNT);
+	}
+
+	//	2b - Bruker får se skannede dokumenter og innsyn starter med VISES_*
+	@Test
+	void shouldReturnFalseWhenSkannetDokumentAndStartsWithVises() {
+		boolean imSkannetDokument = isSkannetDokument(SKAN_IM, VISES_MANUELT_GODKJENT);
+		boolean netsSkannetDokument = isSkannetDokument(SKAN_NETS, VISES_FORVALTNINGSNOTAT);
+		boolean penSkannetDokument = isSkannetDokument(SKAN_PEN, VISES_MASKINELT_GODKJENT);
+
+		assertThat(imSkannetDokument).isFalse();
+		assertThat(netsSkannetDokument).isFalse();
+		assertThat(penSkannetDokument).isFalse();
 	}
 
 	//	2d - Dokumenter markert som innskrenketPartsinnsyn skal ikke vises
@@ -391,34 +483,49 @@ class UtledTilgangServiceTest {
 	@Test
 	void shouldReturnWhenDokumentIsKassert() {
 		boolean actual = utledTilgangService.isDokumentKassert(DokumentInfo.builder().tilgangDokument(
-				DokumentInfo.TilgangDokument.builder()
-						.kassert(true)
-						.build())
+						DokumentInfo.TilgangDokument.builder()
+								.kassert(true)
+								.build())
 				.build());
 		assertThat(actual).isTrue();
 	}
 
-	private void assertSkannetDokument(final Kanal kanal) {
-		Journalpost journalpost = baseJournalfoertJournalpost()
+	private boolean isSkannetDokument(final Kanal kanal, Innsyn innsyn) {
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.kanal(kanal)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.mottakskanal(kanal)
+						.innsyn(innsyn)
 						.build())
 				.build();
-		boolean ironMountainActual = utledTilgangService.isSkannetDokument(journalpost);
-		assertThat(ironMountainActual).isTrue();
+		return utledTilgangService.isSkannetDokumentAndInnsynIsNotVises(journalpost);
 	}
 
-	private void assertSkannetDokumentLokalUtskrift(final Kanal kanal) {
-		Journalpost journalpost = baseJournalfoertJournalpost()
+	private void assertSkannetDokumentLokalUtskrift(final Kanal kanal, Innsyn innsyn) {
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.journalposttype(Journalposttype.U)
 				.kanal(kanal)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.mottakskanal(kanal)
+						.innsyn(innsyn)
 						.build())
 				.build();
-		boolean ironMountainActual = utledTilgangService.isSkannetDokument(journalpost);
+		boolean ironMountainActual = utledTilgangService.isSkannetDokumentAndInnsynIsNotVises(journalpost);
 		assertThat(ironMountainActual).isTrue();
+	}
+
+	private Journalpost getBaseJournalfoertJournalpostWithInnsyn(String innsyn) {
+		return baseJournalfoertJournalpost(TEMA_DAGPENGER, valueOf(innsyn))
+				.dokumenter(List.of(DokumentInfo.builder()
+						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+								.organinternt(false)
+								.build())
+						.build(), DokumentInfo.builder()
+						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+								.organinternt(true)
+								.build())
+						.build()))
+				.build();
 	}
 
 }

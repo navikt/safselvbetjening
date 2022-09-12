@@ -134,6 +134,20 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
+	void hentDokumentWhenInnsynIsVises() {
+		stubPdl();
+		stubAzure();
+		stubHentDokumentDokarkiv();
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("fagarkiv/tilgangjournalpost_innsynvises.json")));
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertOkArkivResponse(responseEntity);
+	}
+
+	@Test
 	void hentDokumentNotFound() {
 		stubPdl();
 		stubAzure();

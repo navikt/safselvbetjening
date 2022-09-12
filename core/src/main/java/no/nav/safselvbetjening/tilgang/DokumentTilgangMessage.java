@@ -17,4 +17,5 @@ public class DokumentTilgangMessage {
 	public static final String ANNEN_PART = "annen_part";
 	public static final String INGEN_GYLDIG_TOKEN = "ingen_gyldig_token";
 	public static final String BRUKER_MATCHER_IKKE_TOKEN = "bruker_matcher_ikke_token";
+	public static final String SKJULT_INNSYN = "skjult_innsyn";
 }
