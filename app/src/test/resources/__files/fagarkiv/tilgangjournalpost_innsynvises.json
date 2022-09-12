@@ -9,7 +9,6 @@
     "mottakskanal": null,
     "skjerming": null,
     "avsenderMottakerId": "12345678911",
-    "innsyn": "VISES_MANUELT_GODKJENT",
     "bruker": {
       "brukerId": "12345678911",
       "brukerType": "PERSON"

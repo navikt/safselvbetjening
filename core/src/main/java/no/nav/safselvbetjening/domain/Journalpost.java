@@ -29,7 +29,6 @@ public class Journalpost {
 	@Builder.Default
 	private final List<DokumentInfo> dokumenter = new ArrayList<>();
 	private final TilgangJournalpost tilgang;
-	private final Innsyn innsyn;
 
 	@Data
 	@Builder
@@ -43,6 +42,7 @@ public class Journalpost {
 		private final SkjermingType skjerming;
 		private final TilgangSak tilgangSak;
 		private final TilgangBruker tilgangBruker;
+		private final Innsyn innsyn;
 	}
 
 	@Data

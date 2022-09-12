@@ -7,7 +7,6 @@
         journalposttype
         journalstatus
         tema
-        innsyn
         sak {
           fagsakId
           fagsaksystem

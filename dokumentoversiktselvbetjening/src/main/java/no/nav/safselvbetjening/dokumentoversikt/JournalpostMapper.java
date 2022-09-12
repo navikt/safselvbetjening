@@ -3,6 +3,7 @@ package no.nav.safselvbetjening.dokumentoversikt;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
+import no.nav.safselvbetjening.consumer.fagarkiv.domain.InnsynCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
@@ -12,6 +13,7 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
+import no.nav.safselvbetjening.domain.Innsyn;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.RelevantDato;
@@ -83,7 +85,6 @@ public class JournalpostMapper {
 					.relevanteDatoer(mapRelevanteDatoer(journalpostDto))
 					.dokumenter(mapDokumenter(journalpostDto))
 					.tilgang(mapJournalpostTilgang(journalpostDto, brukerIdenter))
-					.innsyn(journalpostDto.getInnsyn() == null ? null : valueOf(journalpostDto.getInnsyn().name()))
 					.build();
 		} catch (Exception e) {
 			log.error("Teknisk feil under mapping av journalpost med journalpostId={}.", journalpostDto.getJournalpostId(), e);
@@ -151,6 +152,7 @@ public class JournalpostMapper {
 				.skjerming(mapSkjermingType(journalpostDto.getSkjerming()))
 				.tilgangBruker(Journalpost.TilgangBruker.builder().brukerId(brukerId).build())
 				.tilgangSak(mapTilgangSak(journalpostDto.getSaksrelasjon(), brukerIdenter))
+				.innsyn(mapInnsyn(journalpostDto.getInnsyn()))
 				.build();
 	}
 
@@ -182,19 +184,22 @@ public class JournalpostMapper {
 				.build();
 	}
 
+	private Innsyn mapInnsyn(InnsynCode innsynCode) {
+		if (innsynCode == null) {
+			return null;
+		}
+		return valueOf(innsynCode.name());
+	}
+
 	private SkjermingType mapSkjermingType(SkjermingTypeCode skjermingTypeCode) {
 		if (skjermingTypeCode == null) {
 			return null;
 		}
 
-		switch (skjermingTypeCode) {
-			case POL:
-				return SkjermingType.POL;
-			case FEIL:
-				return SkjermingType.FEIL;
-			default:
-				return null;
-		}
+		return switch (skjermingTypeCode) {
+			case POL -> SkjermingType.POL;
+			case FEIL -> SkjermingType.FEIL;
+		};
 	}
 
 	private List<DokumentInfo> mapDokumenter(JournalpostDto journalpostDto) {

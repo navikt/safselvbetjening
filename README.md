@@ -162,22 +162,22 @@ Returnerer:
 * `401 Unauthorized` - Dokumentet tilhører ikke bruker i token. Ingen tilgang til dokumentet basert på [regler](https://confluence.adeo.no/pages/viewpage.action?pageId=377182021).
 * `404 Not Found` - Dokumentet eller metadata tilhørende dokumentet finnes ikke. Bruker finnes ikke.
 
-| Nav-Reason-Code           | Beskrivelse                                                                                                       |
-|:--------------------------|:------------------------------------------------------------------------------------------------------------------|
-| ingen_partsinnsyn         | Bruker må være part for å se journalposter                                                                        |
-| opprettet_for_innsynsdato | Bruker får ikke se journalposter som er opprettet før 04.06.2016                                                  |
-| skannet_dokument          | Bruker får ikke se skannede dokumenter                                                                            |
-| innskrenket_partsinnsyn   | Dokumenter markert som innskrenketPartsinnsyn skal ikke vises                                                     |
-| gdpr                      | Dokumenter som er begrenset ihht. gdpr                                                                            |
-| kassert_dokument          | Kasserte dokumenter skal ikke vises                                                                               |
-| ugyldig_journalstatus     | Bruker får kun se midlertidige og ferdigstilte journalposter                                                      |
-| feilregistrert            | Bruker får ikke se feilregistrerte journalposter                                                                  |
-| kontrollsak               | Bruker får ikke innsyn i kontrollsaker                                                                            |
-| forvaltningsnotat         | Bruker får ikke innsyn i notater med mindre det er et forvaltningsnotat                                           |
-| organinternt              | Bruker får ikke innsyn journalposter der et eller flere dokumenter markert som organinternt                       |
-| annen_part                | Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises                                          |
-| bruker_matcher_ikke_token | Bruker på dokumentet matcher ikke bruker i token                                                                  |
-| skjult_innsyn             | Bruker får ikke se journalposter som begynner innsyn med SKJULES_* |
+| Nav-Reason-Code           | Beskrivelse                                                                                                                                                        |
+|:--------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ingen_partsinnsyn         | Bruker må være part for å se journalposter                                                                                                                         |
+| opprettet_for_innsynsdato | Bruker får ikke se journalposter som er opprettet før 04.06.2016                                                                                                   |
+| skannet_dokument          | Bruker får ikke se skannede dokumenter                                                                                                                             |
+| innskrenket_partsinnsyn   | Dokumenter markert som innskrenketPartsinnsyn skal ikke vises                                                                                                      |
+| gdpr                      | Dokumenter som er begrenset ihht. gdpr                                                                                                                             |
+| kassert_dokument          | Kasserte dokumenter skal ikke vises                                                                                                                                |
+| ugyldig_journalstatus     | Bruker får kun se midlertidige og ferdigstilte journalposter                                                                                                       |
+| feilregistrert            | Bruker får ikke se feilregistrerte journalposter                                                                                                                   |
+| kontrollsak               | Bruker får ikke innsyn i kontrollsaker                                                                                                                             |
+| forvaltningsnotat         | Bruker får ikke innsyn i notater med mindre det er et forvaltningsnotat                                                                                            |
+| organinternt              | Bruker får ikke innsyn journalposter der et eller flere dokumenter markert som organinternt                                                                        |
+| annen_part                | Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises                                                                                           |
+| bruker_matcher_ikke_token | Bruker på dokumentet matcher ikke bruker i token                                                                                                                   |
+| skjult_innsyn             | Innsyn reglene styrer utvalget av journalposter og dokumenter som en innlogget bruker får innsyn på nav.no. Bruker får ikke se skjult journalposter. |
 
 
 ## Utvikling

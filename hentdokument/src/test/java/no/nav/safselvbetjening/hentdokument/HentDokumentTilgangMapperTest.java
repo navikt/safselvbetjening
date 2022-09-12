@@ -54,7 +54,6 @@ class HentDokumentTilgangMapperTest {
 		assertEquals(I, journalpost.getJournalposttype());
 		assertEquals(MOTTATT, journalpost.getJournalstatus());
 		assertEquals(NAV_NO, journalpost.getKanal());
-		assertEquals(BRUK_STANDARDREGLER, journalpost.getInnsyn());
 
 		Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 		assertEquals(DATO_OPPRETTET, tilgang.getDatoOpprettet());
@@ -70,6 +69,7 @@ class HentDokumentTilgangMapperTest {
 		assertEquals(ARKIVSAKSYSTEM_GOSYS, tilgangSak.getFagsystem());
 		assertEquals(TEMA, tilgangSak.getTema());
 		assertTrue(tilgangSak.isFeilregistrert());
+		assertEquals(BRUK_STANDARDREGLER, tilgang.getInnsyn());
 
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().get(0);
 		assertEquals(SkjermingType.FEIL, dokumentInfo.getDokumentvarianter().get(0).getTilgangVariant().getSkjerming());

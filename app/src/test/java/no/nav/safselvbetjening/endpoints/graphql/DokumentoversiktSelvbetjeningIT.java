@@ -97,6 +97,32 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertJournalposterQuery(dokumentoversikt);
 	}
 
+	@Test
+	void shouldGetDokumentoversiktWhenJournalposterQueriedWithInnsynVises() throws Exception {
+		happyStubWithInnsyn("finnjournalposter_innsyn_vises.json");
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_journalposter.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertJournalposterQuery(dokumentoversikt);
+	}
+
+	@Test
+	void shouldGetDokumentoversiktWhenJournalposterQueriedWithInnsynSkjules() throws Exception {
+		happyStubWithInnsyn("finnjournalposter_innsyn_skjules.json");
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_journalposter.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertThat(dokumentoversikt.getJournalposter()).hasSize(0);
+	}
+
 	private void assertTemaQuery(Dokumentoversikt dokumentoversikt) {
 		assertThat(dokumentoversikt.getTema()).hasSize(2);
 		Sakstema foreldrepenger = dokumentoversikt.getTema().get(0);
@@ -232,6 +258,14 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubSak();
 		stubPensjonSak();
 		stubFagarkiv();
+	}
+
+	private void happyStubWithInnsyn(String fileName) {
+		stubAzure();
+		stubPdl();
+		stubSak();
+		stubPensjonSak();
+		stubFagarkiv(fileName);
 	}
 
 	private ResponseEntity<GraphQLResponse> callDokumentoversikt(final String queryfile) throws IOException, URISyntaxException {

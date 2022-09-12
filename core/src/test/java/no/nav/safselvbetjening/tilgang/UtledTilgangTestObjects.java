@@ -6,6 +6,7 @@ import no.nav.safselvbetjening.domain.AvsenderMottakerIdType;
 import no.nav.safselvbetjening.domain.Datotype;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
+import no.nav.safselvbetjening.domain.Innsyn;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Journalposttype;
 import no.nav.safselvbetjening.domain.Journalstatus;
@@ -36,7 +37,7 @@ public class UtledTilgangTestObjects {
 	public static final String ARKIVSAKSYSTEM_PENSJON = "PEN";
 	static final LocalDateTime FOER_INNSYNSDATO = LocalDateTime.parse("2016-01-01T12:00");
 
-	static Journalpost.JournalpostBuilder baseJournalpost(String tema) {
+	static Journalpost.JournalpostBuilder baseJournalpost(String tema, Innsyn innsyn) {
 		return Journalpost.builder()
 				.journalpostId("40000000")
 				.tittel("Søknad om dagpenger")
@@ -48,7 +49,7 @@ public class UtledTilgangTestObjects {
 						.type(AvsenderMottakerIdType.FNR)
 						.build())
 				.relevanteDatoer(List.of(new RelevantDato(new Date(), Datotype.DATO_JOURNALFOERT)))
-				.tilgang(baseTilgangJournalpost(tema).build())
+				.tilgang(baseTilgangJournalpost(tema, innsyn).build())
 				.dokumenter(List.of(DokumentInfo.builder()
 						.dokumentInfoId("40000000")
 						.tittel("Søknad om dagpenger")
@@ -69,7 +70,7 @@ public class UtledTilgangTestObjects {
 						.build()));
 	}
 
-	static Journalpost.TilgangJournalpost.TilgangJournalpostBuilder baseTilgangJournalpost(String tema) {
+	static Journalpost.TilgangJournalpost.TilgangJournalpostBuilder baseTilgangJournalpost(String tema, Innsyn innsyn) {
 		return Journalpost.TilgangJournalpost.builder()
 				.tilgangBruker(Journalpost.TilgangBruker.builder()
 						.brukerId(IDENT)
@@ -77,6 +78,7 @@ public class UtledTilgangTestObjects {
 				.datoOpprettet(LocalDateTime.now())
 				.tema(tema)
 				.journalfoertDato(LocalDateTime.now())
+				.innsyn(innsyn)
 				.tilgangSak(Journalpost.TilgangSak.builder()
 						.aktoerId(AKTOER_ID)
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
@@ -85,12 +87,12 @@ public class UtledTilgangTestObjects {
 						.build());
 	}
 
-	static Journalpost.JournalpostBuilder baseJournalfoertJournalpost(String tema) {
-		return baseJournalpost(tema).journalstatus(Journalstatus.JOURNALFOERT);
+	static Journalpost.JournalpostBuilder baseJournalfoertJournalpost(String tema, Innsyn innsyn) {
+		return baseJournalpost(tema, innsyn).journalstatus(Journalstatus.JOURNALFOERT);
 	}
 
 	static Journalpost.JournalpostBuilder baseMottattJournalpost() {
-		return baseJournalpost(TEMA_DAGPENGER).journalstatus(Journalstatus.MOTTATT)
+		return baseJournalpost(TEMA_DAGPENGER, null).journalstatus(Journalstatus.MOTTATT)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.tilgangBruker(null)
 						.datoOpprettet(LocalDateTime.now())

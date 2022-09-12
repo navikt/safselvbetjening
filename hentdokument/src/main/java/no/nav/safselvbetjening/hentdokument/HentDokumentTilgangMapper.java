@@ -31,7 +31,6 @@ public class HentDokumentTilgangMapper {
 				.kanal(mapKanal(tilgangJournalpostDto))
 				.tilgang(mapJournalpostTilgang(tilgangJournalpostDto, brukerIdenter))
 				.dokumenter(Collections.singletonList(mapDokumenter(tilgangJournalpostDto.getDokument())))
-				.innsyn(tilgangJournalpostDto.getInnsyn() == null ? null : valueOf(tilgangJournalpostDto.getInnsyn().name()))
 				.build();
 	}
 
@@ -70,6 +69,7 @@ public class HentDokumentTilgangMapper {
 				.skjerming(mapSkjermingType(tilgangJournalpostDto.getSkjerming()))
 				.tilgangBruker(mapTilgangBruker(tilgangJournalpostDto.getBruker()))
 				.tilgangSak(mapTilgangSak(tilgangJournalpostDto.getSak(), brukerIdenter))
+				.innsyn(tilgangJournalpostDto.getInnsyn() == null ? null : valueOf(tilgangJournalpostDto.getInnsyn().name()))
 				.build();
 	}
 
@@ -106,14 +106,10 @@ public class HentDokumentTilgangMapper {
 			return null;
 		}
 
-		switch (skjermingTypeCode) {
-			case POL:
-				return SkjermingType.POL;
-			case FEIL:
-				return SkjermingType.FEIL;
-			default:
-				return null;
-		}
+		return switch (skjermingTypeCode) {
+			case POL -> SkjermingType.POL;
+			case FEIL -> SkjermingType.FEIL;
+		};
 	}
 
 	private Kanal mapKanal(TilgangJournalpostDto tilgangJournalpostDto) {
@@ -142,15 +138,11 @@ public class HentDokumentTilgangMapper {
 	}
 
 	private Kanal mapManglendeUtsendingskanal(TilgangJournalpostDto tilgangJournalpostDto) {
-		switch (tilgangJournalpostDto.getJournalStatus()) {
-			case FL:
-				return Kanal.LOKAL_UTSKRIFT;
-			case FS:
-				return Kanal.SENTRAL_UTSKRIFT;
-			case E:
-				return Kanal.SENTRAL_UTSKRIFT;
-			default:
-				return null;
-		}
+		return switch (tilgangJournalpostDto.getJournalStatus()) {
+			case FL -> Kanal.LOKAL_UTSKRIFT;
+			case FS -> Kanal.SENTRAL_UTSKRIFT;
+			case E -> Kanal.SENTRAL_UTSKRIFT;
+			default -> null;
+		};
 	}
 }

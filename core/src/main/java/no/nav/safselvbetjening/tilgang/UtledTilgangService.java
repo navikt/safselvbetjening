@@ -92,7 +92,7 @@ public class UtledTilgangService {
 					isJournalpostNotGDPRRestricted(journalpost) && // 1f
 					isJournalpostForvaltningsnotat(journalpost) && // 1g
 					isJournalpostNotOrganInternt(journalpost) && // 1h
-					!isJournalpostInnsynSkjult(journalpost); // 1i
+					!isJournalpostInnsynSkjult(journalpost.getTilgang()); // 1i
 		} catch (Exception e) {
 			log.error("Feil oppstått i utledTilgangJournalpost for journalpost med journalpostId={}.", journalpost.getJournalpostId(), e);
 			return false;
@@ -148,7 +148,7 @@ public class UtledTilgangService {
 		if (!isJournalpostNotOrganInternt(journalpost)) {
 			throw new HentTilgangDokumentException(ORGANINTERNT, "Tilgang til journalpost avvist pga organinterne dokumenter på journalposten");
 		}
-		if (isJournalpostInnsynSkjult(journalpost)) {
+		if (isJournalpostInnsynSkjult(journalpost.getTilgang())) {
 			throw new HentTilgangDokumentException(SKJULT_INNSYN, "Tilgang til journalpost avvist pga journalpost er skjult");
 		}
 		if (!isAvsenderMottakerPart(journalpost, brukerIdenter.getIdenter())) {
@@ -198,17 +198,17 @@ public class UtledTilgangService {
 	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(Journalpost journalpost) {
 		Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 		if (tilgang.getJournalfoertDato() == null) {
-			if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
+			if (tilgang.getInnsyn() == null || BRUK_STANDARDREGLER.equals(tilgang.getInnsyn())) {
 				return tilgang.getDatoOpprettet().isBefore(tidligstInnsynDato);
 			}
-			return tilgang.getDatoOpprettet().isBefore(tidligstInnsynDato) && !isJournalpostInnsynVises(journalpost);
+			return tilgang.getDatoOpprettet().isBefore(tidligstInnsynDato) && !isJournalpostInnsynVises(journalpost.getTilgang());
 		} else {
-			if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
+			if (tilgang.getInnsyn() == null || BRUK_STANDARDREGLER.equals(tilgang.getInnsyn())) {
 				return (tilgang.getJournalfoertDato().isBefore(tidligstInnsynDato) ||
 						tilgang.getDatoOpprettet().isBefore(tidligstInnsynDato));
 			}
 			return (tilgang.getJournalfoertDato().isBefore(tidligstInnsynDato) ||
-					tilgang.getDatoOpprettet().isBefore(tidligstInnsynDato)) && !isJournalpostInnsynVises(journalpost);
+					tilgang.getDatoOpprettet().isBefore(tidligstInnsynDato)) && !isJournalpostInnsynVises(journalpost.getTilgang());
 		}
 	}
 
@@ -261,12 +261,13 @@ public class UtledTilgangService {
 	 */
 	public boolean isJournalpostForvaltningsnotat(Journalpost journalpost) {
 		List<DokumentInfo> dokumenter = journalpost.getDokumenter();
+		Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
 		if (journalpost.getJournalposttype() == N && !dokumenter.isEmpty() && dokumenter.get(0).getTilgangDokument() != null) {
 			boolean isForvaltningsnotat = FORVALTNINGSNOTAT.toString().equals(dokumenter.get(0).getTilgangDokument().getKategori());
-			if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
+			if (tilgang.getInnsyn() == null || BRUK_STANDARDREGLER.equals(tilgang.getInnsyn())) {
 				return isForvaltningsnotat;
 			}
-			return isForvaltningsnotat || isJournalpostInnsynVises(journalpost);
+			return isForvaltningsnotat || isJournalpostInnsynVises(tilgang);
 		}
 		return true;
 	}
@@ -288,9 +289,9 @@ public class UtledTilgangService {
 	/**
 	 * 1i) Bruker kan ikke få se journalposter som innsyn begynner med SKJULES_*
 	 */
-	public boolean isJournalpostInnsynSkjult(Journalpost journalpost) {
-		if (journalpost.getInnsyn() != null) {
-			return SKJUL_INNSYN.contains(journalpost.getInnsyn());
+	public boolean isJournalpostInnsynSkjult(Journalpost.TilgangJournalpost tilgang) {
+		if (tilgang.getInnsyn() != null) {
+			return SKJUL_INNSYN.contains(tilgang.getInnsyn());
 		}
 		return false;
 	}
@@ -306,8 +307,9 @@ public class UtledTilgangService {
 			return true;
 		}
 		if (isNotBlank(avsenderMottakerId)) {
-			if (journalpost.getInnsyn() != null) {
-				return idents.contains(avsenderMottakerId) ? idents.contains(avsenderMottakerId) : isJournalpostInnsynVises(journalpost);
+			if (tilgangJournalpost.getInnsyn() != null) {
+				return idents.contains(avsenderMottakerId) ? idents.contains(avsenderMottakerId) :
+						isJournalpostInnsynVises(journalpost.getTilgang());
 			}
 			return idents.contains(avsenderMottakerId);
 		}
@@ -319,9 +321,10 @@ public class UtledTilgangService {
 	 */
 	boolean isSkannetDokumentAndInnsynIsNotVises(Journalpost journalpost) {
 		Kanal mottakskanal = journalpost.getTilgang().getMottakskanal();
+		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 		if (mottakskanal != null) {
-			if (journalpost.getInnsyn() != null && (MOTTAKS_KANAL_SKAN.contains(mottakskanal))) {
-				return !isJournalpostInnsynVises(journalpost);
+			if (tilgangJournalpost.getInnsyn() != null && (MOTTAKS_KANAL_SKAN.contains(mottakskanal))) {
+				return !isJournalpostInnsynVises(tilgangJournalpost);
 			}
 			return MOTTAKS_KANAL_SKAN.contains(mottakskanal);
 		}
@@ -363,22 +366,23 @@ public class UtledTilgangService {
 
 	boolean isJournalpostTemaNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(Journalpost journalpost) {
 		boolean isTemaUnntattInnsyn = TEMAER_UNNTATT_INNSYN.contains(journalpost.getTilgang().getTilgangSak().getTema());
-		if (journalpost.getInnsyn() != null && isTemaUnntattInnsyn) {
-			return isJournalpostInnsynVises(journalpost);
+		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
+		if (tilgangJournalpost.getInnsyn() != null && isTemaUnntattInnsyn) {
+			return isJournalpostInnsynVises(journalpost.getTilgang());
 		}
 		return !isTemaUnntattInnsyn;
 	}
 
 	boolean isJournalpostFagomradeNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(Journalpost journalpost) {
 		boolean isFagomradeUnntattInnsyn = FAGOMRADER_UNNTATT_INNSYN.contains(journalpost.getTilgang().getTema());
-		if (journalpost.getInnsyn() != null && isFagomradeUnntattInnsyn) {
-			return isJournalpostInnsynVises(journalpost);
+		if (journalpost.getTilgang().getInnsyn() != null && isFagomradeUnntattInnsyn) {
+			return isJournalpostInnsynVises(journalpost.getTilgang());
 		}
 		return !isFagomradeUnntattInnsyn;
 	}
 
-	public boolean isJournalpostInnsynVises(Journalpost journalpost) {
-		return journalpost.getInnsyn() != null && VIS_INNSYN.contains(journalpost.getInnsyn());
+	public boolean isJournalpostInnsynVises(Journalpost.TilgangJournalpost tilgang) {
+		return tilgang.getInnsyn() != null && VIS_INNSYN.contains(tilgang.getInnsyn());
 	}
 
 }

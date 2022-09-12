@@ -14,6 +14,7 @@
       "mottakskanal": "NAV_NO",
       "utsendingskanal": null,
       "journalposttype": "I",
+      "innsyn": "SKJULES_BRUKERS_ØNSKE",
       "saksrelasjon": {
         "sakId": "135738496",
         "feilregistrert": null,
@@ -58,6 +59,7 @@
       "mottakskanal": "NAV_NO",
       "utsendingskanal": null,
       "journalposttype": "I",
+      "innsyn": "SKJULES_BRUKERS_ØNSKE",
       "saksrelasjon": {
         "sakId": "21998969",
         "feilregistrert": null,
@@ -106,6 +108,7 @@
       "mottakskanal": "NAV_NO",
       "utsendingskanal": null,
       "journalposttype": "I",
+      "innsyn": "SKJULES_BRUKERS_ØNSKE",
       "saksrelasjon": {
         "sakId": "135737721",
         "feilregistrert": null,
