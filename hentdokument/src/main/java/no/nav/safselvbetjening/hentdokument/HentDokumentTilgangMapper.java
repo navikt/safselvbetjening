@@ -109,6 +109,7 @@ public class HentDokumentTilgangMapper {
 		return switch (skjermingTypeCode) {
 			case POL -> SkjermingType.POL;
 			case FEIL -> SkjermingType.FEIL;
+			default -> null;
 		};
 	}
 
@@ -140,8 +141,7 @@ public class HentDokumentTilgangMapper {
 	private Kanal mapManglendeUtsendingskanal(TilgangJournalpostDto tilgangJournalpostDto) {
 		return switch (tilgangJournalpostDto.getJournalStatus()) {
 			case FL -> Kanal.LOKAL_UTSKRIFT;
-			case FS -> Kanal.SENTRAL_UTSKRIFT;
-			case E -> Kanal.SENTRAL_UTSKRIFT;
+			case FS, E -> Kanal.SENTRAL_UTSKRIFT;
 			default -> null;
 		};
 	}

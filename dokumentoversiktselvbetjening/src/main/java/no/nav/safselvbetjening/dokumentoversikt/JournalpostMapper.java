@@ -199,6 +199,7 @@ public class JournalpostMapper {
 		return switch (skjermingTypeCode) {
 			case POL -> SkjermingType.POL;
 			case FEIL -> SkjermingType.FEIL;
+			default -> null;
 		};
 	}
 
