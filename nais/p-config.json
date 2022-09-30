@@ -26,6 +26,11 @@
   ],
   "AZURE_IAC_RULES": [
     {
+      "app": "soknad-api",
+      "namespace": "aap",
+      "cluster": "prod-gcp"
+    },
+    {
       "app": "mine-saker-api",
       "namespace": "min-side",
       "cluster": "prod-gcp"
