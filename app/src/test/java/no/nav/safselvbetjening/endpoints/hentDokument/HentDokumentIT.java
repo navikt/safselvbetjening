@@ -25,8 +25,11 @@ import java.util.stream.StreamSupport;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
@@ -231,6 +234,8 @@ class HentDokumentIT extends AbstractItest {
 						.withBodyFile("fagarkiv/tilgangjournalpost_pen_happy.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
+		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
 		assertOkArkivResponse(responseEntity);
 	}
 
@@ -248,6 +253,8 @@ class HentDokumentIT extends AbstractItest {
 						.withBodyFile("fagarkiv/tilgangjournalpost_utgaaende_pen_happy.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
+		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
 		assertOkArkivResponse(responseEntity);
 
 		//Consumer topic og verifiser 1 melding
@@ -273,6 +280,8 @@ class HentDokumentIT extends AbstractItest {
 						.withBodyFile("fagarkiv/tilgangjournalpost_pen_happy.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
+		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
 		assertOkArkivResponse(responseEntity);
 
 		//Consumer topic og verifiser ingen melding
@@ -295,6 +304,8 @@ class HentDokumentIT extends AbstractItest {
 						.withBodyFile("fagarkiv/tilgangjournalpost_pen_happy.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
+		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
 		assertEquals(NOT_FOUND, responseEntity.getStatusCode());
 	}
 

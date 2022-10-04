@@ -187,7 +187,6 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		Sakstema foreldrepenger = data.getTema().get(0);
 
 		verify(1, getRequestedFor(urlMatching(".*/sammendrag")));
-
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
 	}
 
@@ -202,9 +201,9 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 
-		verify(1, getRequestedFor(urlMatching(".*/springapi/sak/sammendrag")));
 
 		assertThat(data.getTema()).hasSize(2);
+		verify(1, getRequestedFor(urlMatching(".*/springapi/sak/sammendrag")));
 		verify(0, postRequestedFor(urlEqualTo("/fagarkiv")));
 	}
 
