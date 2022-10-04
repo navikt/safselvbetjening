@@ -1,17 +1,20 @@
 package no.nav.safselvbetjening.consumer.pensjon;
 
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.LocalDateTime;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
-@Data
-@Builder
-public class Pensjonsak {
-	String sakNr;
-	String tema;
-	LocalDateTime datoOpprettet;
+public record Pensjonsak(
+		String sakNr,
+		String tema
+) {
+
+	@JsonCreator
+	public Pensjonsak(
+			@JsonProperty("sakId") String sakNr,
+			@JsonProperty("arkivtema") String tema
+	) {
+		this.sakNr = sakNr;
+		this.tema = tema;
+	}
 }

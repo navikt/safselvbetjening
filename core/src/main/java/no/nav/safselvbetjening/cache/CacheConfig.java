@@ -14,15 +14,12 @@ import java.util.List;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Configuration
 @EnableCaching
 @Profile({"nais", "local"})
 public class CacheConfig {
 	public static final String GRAPHQL_QUERY_CACHE = "graphql_query_cache";
-	public static final String AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE = "RESTSTS";
+	public static final String AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE = "azureClientCredentialToken";
 
 	@Bean
 	@Primary

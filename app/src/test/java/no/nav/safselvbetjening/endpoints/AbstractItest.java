@@ -6,7 +6,6 @@ import no.nav.safselvbetjening.consumer.azure.TokenResponse;
 import no.nav.security.mock.oauth2.MockOAuth2Server;
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
-import org.apache.cxf.helpers.IOUtils;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,10 +15,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import wiremock.org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,12 +30,18 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-		classes = {Application.class, STSTestConfig.class, AbstractItest.Config.class})
+@SpringBootTest(
+		webEnvironment = RANDOM_PORT,
+		classes = {Application.class, AbstractItest.Config.class}
+)
 @EnableMockOAuth2Server
 @ActiveProfiles("itest")
 @AutoConfigureWireMock(port = 0)
@@ -89,33 +93,33 @@ public abstract class AbstractItest {
 
 	protected HttpEntity<?> createHttpEntityHeaders(String subject) {
 		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setContentType(APPLICATION_JSON);
 		headers.set(NAV_CALLID, "itest");
-		headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + pidToken(subject));
+		headers.set(AUTHORIZATION, "Bearer " + pidToken(subject));
 		return new HttpEntity<>(headers);
 	}
 
 	protected HttpEntity<?> createHttpEntityHeadersSubToken(String subject) {
 		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setContentType(APPLICATION_JSON);
 		headers.set(NAV_CALLID, "itest");
-		headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + subToken(subject));
+		headers.set(AUTHORIZATION, "Bearer " + subToken(subject));
 		return new HttpEntity<>(headers);
 	}
 
 	protected HttpHeaders httpHeaders(String subject) {
 		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setContentType(APPLICATION_JSON);
 		headers.set(NAV_CALLID, "itest");
-		headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + pidToken(subject));
+		headers.set(AUTHORIZATION, "Bearer " + pidToken(subject));
 		return headers;
 	}
 
 	protected HttpHeaders httpHeadersSubToken(String subject) {
 		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setContentType(APPLICATION_JSON);
 		headers.set(NAV_CALLID, "itest");
-		headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + subToken(subject));
+		headers.set(AUTHORIZATION, "Bearer " + subToken(subject));
 		return headers;
 	}
 
@@ -125,8 +129,8 @@ public abstract class AbstractItest {
 
 	protected void stubAzure() {
 		stubFor(post("/azure_token")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("azure/token_response.json")));
 	}
 
@@ -136,8 +140,8 @@ public abstract class AbstractItest {
 
 	protected void stubPdl(final String fil) {
 		stubFor(post("/pdl")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("pdl/" + fil)));
 	}
 
@@ -147,20 +151,27 @@ public abstract class AbstractItest {
 
 	protected void stubSak(final String fil) {
 		stubFor(get(urlMatching("/sak\\?aktoerId=1012345678911\\&tema=.*"))
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("sak/" + fil)));
 	}
 
-	protected void stubPensjonSak() {
-		stubPensjonSak("pensjonsak_happy.xml");
+	protected void stubPensjonssaker() {
+		stubPensjonssaker("hentpensjonssaker_happy.json");
 	}
 
-	protected void stubPensjonSak(final String fil) {
-		stubFor(post("/pensjon")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_XML_VALUE)
-						.withBodyFile("pensjonsak/" + fil)));
+	protected void stubPensjonssaker(final String fil) {
+		stubFor(get("/pensjon/springapi/sak/sammendrag")
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("psak/" + fil)));
+	}
+
+	protected void stubPensjonHentBrukerForSak(final String fil) {
+		stubFor(get("/pensjon/api/pip/hentBrukerOgEnhetstilgangerForSak/v1")
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("psak/" + fil)));
 	}
 
 	protected void stubFagarkiv() {
@@ -169,8 +180,8 @@ public abstract class AbstractItest {
 
 	protected void stubFagarkiv(final String fil) {
 		stubFor(post("/fagarkiv/finnjournalposter")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/" + fil)));
 	}
 }

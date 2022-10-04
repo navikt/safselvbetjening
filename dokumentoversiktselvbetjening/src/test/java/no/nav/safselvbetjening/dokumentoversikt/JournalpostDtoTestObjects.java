@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.Integer.parseInt;
+import static java.time.LocalTime.now;
+import static java.util.Collections.singletonList;
 
 public class JournalpostDtoTestObjects {
 
@@ -166,7 +168,7 @@ public class JournalpostDtoTestObjects {
 				.journalstatus(JournalStatusCode.J)
 				.skjerming(SKJERMING_TYPE_CODE_POL)
 				.kanalReferanseId(KANAL_REFERANSE_ID)
-				.tilleggsopplysninger(Collections.singletonList(TilleggsopplysningDto.builder()
+				.tilleggsopplysninger(singletonList(TilleggsopplysningDto.builder()
 						.nokkel(TILLEGGSOPPLYSNING_NOKKEL)
 						.verdi(TILLEGGSOPPLYSNING_VERDI)
 						.build()))
@@ -187,7 +189,7 @@ public class JournalpostDtoTestObjects {
 	}
 
 	private static List<DokumentInfoDto> buildDokument() {
-		return Collections.singletonList(baseDokumentInfoDto()
+		return singletonList(baseDokumentInfoDto()
 				.varianter(Arrays.asList(VariantDto.builder()
 								.skjerming(SKJERMING_TYPE_CODE_POL)
 								.variantf(VARIANT_FORMAT_CODE_ARKIV)
@@ -208,7 +210,7 @@ public class JournalpostDtoTestObjects {
 	}
 
 	static List<DokumentInfoDto> buildDokumentWithVarianter(String... varianter) {
-		return Collections.singletonList(baseDokumentInfoDto()
+		return singletonList(baseDokumentInfoDto()
 				.varianter(Stream.of(varianter).map(variant -> VariantDto.builder()
 						.variantf(VariantFormatCode.valueOf(variant))
 						.build()).collect(Collectors.toList()))
@@ -219,7 +221,7 @@ public class JournalpostDtoTestObjects {
 		LogiskVedleggDto logiskVedleggDto = new LogiskVedleggDto();
 		logiskVedleggDto.setVedleggId(LOGISK_VEDLEGG_ID);
 		logiskVedleggDto.setTittel(LOGISK_VEDLEGG_TITTEL);
-		return Collections.singletonList(logiskVedleggDto);
+		return singletonList(logiskVedleggDto);
 	}
 
 	static BrukerIdenter createBrukerIdenter() {
@@ -239,15 +241,12 @@ public class JournalpostDtoTestObjects {
 
 	static Saker createSaker() {
 		return new Saker(
-				Collections.singletonList(Joarksak.builder()
+				singletonList(Joarksak.builder()
 						.tema(TEMA.name())
 						.id(parseInt(ARKIVSAK_ID))
 						.applikasjon(FAGSAK_APPLIKASJON)
 						.fagsakNr(FAGSAK_ID)
 						.build()),
-				Collections.singletonList(Pensjonsak.builder()
-						.tema(PENSJON_TEMA)
-						.sakNr(PENSJON_SAKID)
-						.build()));
+				singletonList(new Pensjonsak(PENSJON_SAKID, PENSJON_TEMA)));
 	}
 }

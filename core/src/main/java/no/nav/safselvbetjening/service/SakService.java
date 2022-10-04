@@ -3,16 +3,17 @@ package no.nav.safselvbetjening.service;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
-import no.nav.safselvbetjening.consumer.pensjon.PensjonSakWsConsumer;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
+import no.nav.safselvbetjening.consumer.pensjon.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.consumer.sak.Joarksak;
 import no.nav.safselvbetjening.consumer.sak.JoarksakConsumer;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 /**
  * Tjeneste som konsoliderer arkivsaker fra fagarkivet og pensjonssaker.
@@ -23,17 +24,17 @@ import java.util.List;
 @Component
 public class SakService {
 	private static final List<String> TEMA_PENSJON = Arrays.asList("UFO", "PEN");
-	private final PensjonSakWsConsumer pensjonSakWsConsumer;
+	private final PensjonSakRestConsumer pensjonSakRestConsumer;
 	private final JoarksakConsumer joarksakConsumer;
 
-	public SakService(PensjonSakWsConsumer pensjonSakWsConsumer, JoarksakConsumer joarksakConsumer) {
-		this.pensjonSakWsConsumer = pensjonSakWsConsumer;
+	public SakService(PensjonSakRestConsumer pensjonSakRestConsumer, JoarksakConsumer joarksakConsumer) {
+		this.pensjonSakRestConsumer = pensjonSakRestConsumer;
 		this.joarksakConsumer = joarksakConsumer;
 	}
 
 	public Saker hentSaker(BrukerIdenter brukerIdenter, final List<String> tema) {
 		List<Joarksak> arkivsaker = hentArkivsaker(brukerIdenter.getAktoerIds(), tema);
-		List<Pensjonsak> pensjonsaker = hentPensjonSaker(brukerIdenter.getAktivFolkeregisterident(), tema);
+		List<Pensjonsak> pensjonsaker = hentPensjonssaker(brukerIdenter.getAktivFolkeregisterident(), tema);
 		return new Saker(arkivsaker, pensjonsaker);
 	}
 
@@ -42,25 +43,25 @@ public class SakService {
 			return joarksakConsumer.hentSaker(aktoerIds, tema);
 		} catch (ConsumerFunctionalException e) {
 			log.warn("Henting av arkivsaker feilet. ", e);
-			return new ArrayList<>();
+			return emptyList();
 		} catch (ConsumerTechnicalException e) {
 			log.warn("Henting av arkivsaker feilet teknisk. ", e);
-			return new ArrayList<>();
+			return emptyList();
 		}
 	}
 
-	private List<Pensjonsak> hentPensjonSaker(final String aktivFolkeregisterident, final List<String> tema) {
+	private List<Pensjonsak> hentPensjonssaker(final String aktivFolkeregisterident, final List<String> tema) {
 		if (Collections.disjoint(tema, TEMA_PENSJON)) {
-			return new ArrayList<>();
+			return emptyList();
 		}
 		try {
-			return pensjonSakWsConsumer.hentSakSammendragListe(aktivFolkeregisterident);
+			return pensjonSakRestConsumer.hentPensjonssaker(aktivFolkeregisterident);
 		} catch (ConsumerFunctionalException e) {
 			log.warn("Henting av pensjonssaker feilet. ", e);
-			return new ArrayList<>();
+			return emptyList();
 		} catch (Exception e) {
 			log.error("Henting av pensjonssaker feilet teknisk. ", e);
-			return new ArrayList<>();
+			return emptyList();
 		}
 	}
 }
