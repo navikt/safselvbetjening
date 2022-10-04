@@ -209,9 +209,7 @@ Forbehold:
 * `SecurityTokenServiceProvider` endepunktet fungerer kun i VDI. Så p.t. ikke mulig å hente pensjonssaker ved utvikling fra laptop gjennom naisdevice.
 
 ## Deploy
-
-Deploy av appen er gjort av Jenkins etter push/merge til `master`:
-[safselvbetjening jenkins](https://dok-jenkins.adeo.no/job/safselvbetjening/job/master/)
+Deploy av appen blir gjort vha. Github Actions.
 
 ## Drift
 
