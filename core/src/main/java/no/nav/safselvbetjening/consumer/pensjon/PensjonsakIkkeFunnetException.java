@@ -1,4 +1,4 @@
-package no.nav.safselvbetjening.consumer.pensjon.hentbrukerforsak;
+package no.nav.safselvbetjening.consumer.pensjon;
 
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 

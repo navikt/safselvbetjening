@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.fagarkiv.DokumentIkkeFunnetException;
 import no.nav.safselvbetjening.consumer.fagarkiv.JournalpostIkkeFunnetException;
 import no.nav.safselvbetjening.consumer.pdl.PdlFunctionalException;
-import no.nav.safselvbetjening.consumer.pensjon.hentbrukerforsak.PensjonsakIkkeFunnetException;
+import no.nav.safselvbetjening.consumer.pensjon.PensjonsakIkkeFunnetException;
 import no.nav.safselvbetjening.hentdokument.HentDokument;
 import no.nav.safselvbetjening.hentdokument.HentDokumentService;
 import no.nav.safselvbetjening.hentdokument.HentdokumentRequest;

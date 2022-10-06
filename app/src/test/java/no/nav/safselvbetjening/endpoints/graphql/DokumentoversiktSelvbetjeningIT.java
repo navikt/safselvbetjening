@@ -16,11 +16,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.POST;
 
 /**
  * @author Joakim Bjørnstad, Jbit AS
@@ -171,7 +174,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldGetPartialDokumentoversiktWhenPensjonSakFails() throws Exception {
 		happyStubs();
-		stubPensjonSak("pensjonsak_error.xml");
+		stubPensjonssaker("hentpensjonssaker_error.json");
 		stubFagarkiv("finnjournalposter_missing_pen.json");
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
@@ -182,6 +185,8 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertThat(data.getTema()).hasSize(1);
 		Sakstema foreldrepenger = data.getTema().get(0);
+
+		verify(1, getRequestedFor(urlMatching(".*/sammendrag")));
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
 	}
 
@@ -195,7 +200,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+
+
 		assertThat(data.getTema()).hasSize(2);
+		verify(1, getRequestedFor(urlMatching(".*/springapi/sak/sammendrag")));
 		verify(0, postRequestedFor(urlEqualTo("/fagarkiv")));
 	}
 
@@ -226,7 +234,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdent() throws Exception {
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), HttpMethod.POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -256,7 +264,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubAzure();
 		stubPdl();
 		stubSak();
-		stubPensjonSak();
+		stubPensjonssaker();
 		stubFagarkiv();
 	}
 
@@ -264,19 +272,19 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubAzure();
 		stubPdl();
 		stubSak();
-		stubPensjonSak();
+		stubPensjonssaker();
 		stubFagarkiv(fileName);
 	}
 
 	private ResponseEntity<GraphQLResponse> callDokumentoversikt(final String queryfile) throws IOException, URISyntaxException {
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/" + queryfile), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(BRUKER_ID), HttpMethod.POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(BRUKER_ID), POST, new URI("/graphql"));
 		return restTemplate.exchange(requestEntity, GraphQLResponse.class);
 	}
 
 	private ResponseEntity<GraphQLResponse> callDokumentoversiktSubToken(final String queryfile) throws IOException, URISyntaxException {
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/" + queryfile), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeadersSubToken(BRUKER_ID), HttpMethod.POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeadersSubToken(BRUKER_ID), POST, new URI("/graphql"));
 		return restTemplate.exchange(requestEntity, GraphQLResponse.class);
 	}
 }

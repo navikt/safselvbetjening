@@ -11,10 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
@@ -22,7 +18,6 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,18 +25,30 @@ import java.util.stream.StreamSupport;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.ARKIV;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.GDPR;
 import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKANNET_DOKUMENT;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_PDF;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 
 @EmbeddedKafka(
@@ -49,11 +56,6 @@ import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 				"test-ut-topic",
 		},
 		bootstrapServersProperty = "spring.kafka.bootstrap-servers",
-		brokerProperties = {
-				"offsets.topic.replication.factor=1",
-				"transaction.state.log.replication.factor=1",
-				"transaction.state.log.min.isr=1"
-		},
 		partitions = 1
 )
 class HentDokumentIT extends AbstractItest {
@@ -70,7 +72,7 @@ class HentDokumentIT extends AbstractItest {
 	private static final String DOKUMENT_ID = "123";
 	private static final String JOURNALPOST_ID = "123";
 	private static final String BRUKER_ID = "12345678911";
-	private static final VariantFormatCode VARIANTFORMAT = VariantFormatCode.ARKIV;
+	private static final VariantFormatCode VARIANTFORMAT = ARKIV;
 	private static final byte[] TEST_FILE_BYTES = "TestThis".getBytes();
 
 	@BeforeEach
@@ -86,9 +88,8 @@ class HentDokumentIT extends AbstractItest {
 		consumerProps.put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "mock://localhost");
 		consumerProps.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, "true");
 
-		consumer = new DefaultKafkaConsumerFactory<String, HoveddokumentLest>(consumerProps)
-				.createConsumer();
-		consumer.subscribe(Collections.singletonList(UT_TOPIC));
+		consumer = new DefaultKafkaConsumerFactory<String, HoveddokumentLest>(consumerProps).createConsumer();
+		consumer.subscribe(singletonList(UT_TOPIC));
 	}
 
 	public List<HoveddokumentLest> getAllCurrentRecordsOnTopicUt() {
@@ -125,8 +126,8 @@ class HentDokumentIT extends AbstractItest {
 		stubAzure();
 		stubHentDokumentDokarkiv();
 		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/tilgangjournalpost_midlertidig_happy.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
@@ -139,8 +140,8 @@ class HentDokumentIT extends AbstractItest {
 		stubAzure();
 		stubHentDokumentDokarkiv();
 		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/tilgangjournalpost_innsynvises.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
@@ -153,20 +154,20 @@ class HentDokumentIT extends AbstractItest {
 		stubAzure();
 		stubHentTilgangJournalpostDokarkiv();
 		stubFor(get("/fagarkiv/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.NOT_FOUND.value())));
+				.willReturn(aResponse().withStatus(NOT_FOUND.value())));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
-		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+		assertEquals(NOT_FOUND, responseEntity.getStatusCode());
 	}
 
 	@Test
 	void shouldReturnBadRequestWhenJournalpostIdNotNumeric() {
 		stubAzure();
 
-		String uri = "/rest/hentdokument/123456a/" + DOKUMENT_ID + "/" + VARIANTFORMAT.toString();
-		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, createHttpEntityHeaders(BRUKER_ID), String.class);
+		String uri = "/rest/hentdokument/123456a/" + DOKUMENT_ID + "/" + VARIANTFORMAT;
+		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, GET, createHttpEntityHeaders(BRUKER_ID), String.class);
 
-		assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+		assertEquals(BAD_REQUEST, responseEntity.getStatusCode());
 	}
 
 	@Test
@@ -174,10 +175,10 @@ class HentDokumentIT extends AbstractItest {
 		stubPdl();
 		stubAzure();
 		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.NOT_FOUND.value())));
+				.willReturn(aResponse().withStatus(NOT_FOUND.value())));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
-		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+		assertEquals(NOT_FOUND, responseEntity.getStatusCode());
 	}
 
 	@Test
@@ -186,10 +187,10 @@ class HentDokumentIT extends AbstractItest {
 		stubAzure();
 		stubHentDokumentDokarkiv();
 		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
+				.willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR.value())));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
+		assertEquals(INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
 	}
 
 	@Test
@@ -198,12 +199,12 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 		stubHentDokumentDokarkiv();
 		stubFor(post("/pdl")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("pdl/pdl_not_found.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
-		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+		assertEquals(NOT_FOUND, responseEntity.getStatusCode());
 	}
 
 	@Test
@@ -212,8 +213,8 @@ class HentDokumentIT extends AbstractItest {
 		stubAzure();
 
 		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/tilgangjournalpost_gdpr.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
@@ -225,16 +226,16 @@ class HentDokumentIT extends AbstractItest {
 		stubPdl();
 		stubAzure();
 		stubHentDokumentDokarkiv();
+		stubPensjonHentBrukerForSak("hentbrukerforsak_happy.json");
 
 		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/tilgangjournalpost_pen_happy.json")));
-		stubFor(get("/pensjonsak")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("psak/hentbrukerforsak_happy.json")));
+
 		ResponseEntity<String> responseEntity = callHentDokument();
+
+		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
 		assertOkArkivResponse(responseEntity);
 	}
 
@@ -244,16 +245,16 @@ class HentDokumentIT extends AbstractItest {
 		stubPdl();
 		stubAzure();
 		stubHentDokumentDokarkiv();
+		stubPensjonHentBrukerForSak("hentbrukerforsak_happy.json");
 
 		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/tilgangjournalpost_utgaaende_pen_happy.json")));
-		stubFor(get("/pensjonsak")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("psak/hentbrukerforsak_happy.json")));
+
 		ResponseEntity<String> responseEntity = callHentDokument();
+
+		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
 		assertOkArkivResponse(responseEntity);
 
 		//Consumer topic og verifiser 1 melding
@@ -271,16 +272,16 @@ class HentDokumentIT extends AbstractItest {
 		stubPdl();
 		stubAzure();
 		stubHentDokumentDokarkiv();
+		stubPensjonHentBrukerForSak("hentbrukerforsak_happy.json");
 
 		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/tilgangjournalpost_pen_happy.json")));
-		stubFor(get("/pensjonsak")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("psak/hentbrukerforsak_happy.json")));
+
 		ResponseEntity<String> responseEntity = callHentDokument();
+
+		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
 		assertOkArkivResponse(responseEntity);
 
 		//Consumer topic og verifiser ingen melding
@@ -295,17 +296,17 @@ class HentDokumentIT extends AbstractItest {
 		stubPdl();
 		stubAzure();
 		stubHentDokumentDokarkiv();
+		stubPensjonHentBrukerForSak("hentbrukerforsak_empty.json");
 
 		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/tilgangjournalpost_pen_happy.json")));
-		stubFor(get("/pensjonsak")
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("psak/hentbrukerforsak_empty.json")));
+
 		ResponseEntity<String> responseEntity = callHentDokument();
-		assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+
+		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
+		assertEquals(NOT_FOUND, responseEntity.getStatusCode());
 	}
 
 	@Test
@@ -316,9 +317,9 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 
 		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT;
-		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, createHttpEntityHeaders("22222222222"), String.class);
+		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, GET, createHttpEntityHeaders("22222222222"), String.class);
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(BRUKER_MATCHER_IKKE_TOKEN));
 	}
 
@@ -330,47 +331,47 @@ class HentDokumentIT extends AbstractItest {
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(SKANNET_DOKUMENT));
 	}
 
 	private void stubHentDokumentDokarkiv() {
 		stubFor(get("/fagarkiv/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_PDF_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_PDF_VALUE)
 						.withBody(Base64.getEncoder().encode(TEST_FILE_BYTES))));
 	}
 
 	private void stubHentTilgangJournalpostDokarkiv() {
 		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/tilgangjournalpost_ferdigstilt_happy.json")));
 	}
 
 	private void stubHentTilgangJournalpostDokarkiv(final String file) {
 		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
-						.withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/" + file)));
 	}
 
 	private void assertOkArkivResponse(ResponseEntity<String> responseEntity) {
 		assertEquals(DOKUMENT_ID + "_" + VARIANTFORMAT + ".pdf", responseEntity.getHeaders().getContentDisposition().getFilename());
-		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-		assertEquals(MediaType.APPLICATION_PDF, responseEntity.getHeaders().getContentType());
+		assertEquals(OK, responseEntity.getStatusCode());
+		assertEquals(APPLICATION_PDF, responseEntity.getHeaders().getContentType());
 		assertEquals("inline", responseEntity.getHeaders().getContentDisposition().getType());
 		assertEquals(new String(TEST_FILE_BYTES), responseEntity.getBody());
 	}
 
 	private ResponseEntity<String> callHentDokument() {
 		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT;
-		return this.restTemplate.exchange(uri, HttpMethod.GET, createHttpEntityHeaders(BRUKER_ID), String.class);
+		return this.restTemplate.exchange(uri, GET, createHttpEntityHeaders(BRUKER_ID), String.class);
 	}
 
 	private ResponseEntity<String> callHentDokumentSubToken() {
 		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT;
-		return this.restTemplate.exchange(uri, HttpMethod.GET, createHttpEntityHeadersSubToken(BRUKER_ID), String.class);
+		return this.restTemplate.exchange(uri, GET, createHttpEntityHeadersSubToken(BRUKER_ID), String.class);
 	}
 
 }

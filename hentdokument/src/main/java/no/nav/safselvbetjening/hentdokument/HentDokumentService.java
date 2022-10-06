@@ -8,7 +8,7 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
 import no.nav.safselvbetjening.consumer.pdl.PdlFunctionalException;
-import no.nav.safselvbetjening.consumer.pensjon.hentbrukerforsak.PensjonSakRestConsumer;
+import no.nav.safselvbetjening.consumer.pensjon.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import no.nav.safselvbetjening.service.BrukerIdenter;
@@ -137,7 +137,7 @@ public class HentDokumentService {
 			}
 		} else if (JournalStatusCode.getJournalstatusFerdigstilt().contains(tilgangJournalpostDto.getJournalStatus())) {
 			if (PEN.toString().equals(tilgangJournalpostDto.getSak().getFagsystem())) {
-				return pensjonSakRestConsumer.hentBrukerForSak(tilgangJournalpostDto.getSak().getSakId()).getFnr();
+				return pensjonSakRestConsumer.hentBrukerForSak(tilgangJournalpostDto.getSak().getSakId()).fnr();
 			} else {
 				return tilgangJournalpostDto.getSak().getAktoerId();
 			}

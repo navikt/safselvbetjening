@@ -34,9 +34,9 @@ public class Saker {
 				.collect(toList());
 		this.pensjonsaker = pensjonsaker.stream()
 				.map(s -> Arkivsak.builder()
-						.arkivsakId(s.getSakNr())
-						.tema(s.getTema())
-						.fagsakId(s.getSakNr())
+						.arkivsakId(s.sakNr())
+						.tema(s.tema())
+						.fagsakId(s.sakNr())
 						.fagsaksystem(FAGSYSTEM_PENSJON)
 						.build())
 				.collect(toList());
@@ -50,11 +50,11 @@ public class Saker {
 
 	public List<String> getArkivSakIds() {
 		return joarksaker.stream()
-				.map(Arkivsak::getArkivsakId).collect(Collectors.toUnmodifiableList());
+				.map(Arkivsak::getArkivsakId).toList();
 	}
 
 	public List<String> getPensjonSakIds() {
 		return pensjonsaker.stream()
-				.map(Arkivsak::getArkivsakId).collect(Collectors.toUnmodifiableList());
+				.map(Arkivsak::getArkivsakId).toList();
 	}
 }
