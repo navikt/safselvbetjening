@@ -7,7 +7,6 @@ import no.nav.safselvbetjening.endpoints.AbstractItest;
 import no.nav.safselvbetjening.graphql.ErrorCode;
 import no.nav.safselvbetjening.graphql.GraphQLRequest;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +22,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpMethod.POST;
 
 /**
@@ -188,6 +188,27 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		verify(1, getRequestedFor(urlMatching(".*/sammendrag")));
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
+	}
+
+	@Test
+	void shouldFilterOutPensjonssakerWithArkivtemaNull() throws Exception {
+		happyStubs();
+		stubPensjonssaker("hentpensjonssaker_happy_arkivtema_null.json");
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertThat(data.getTema()).hasSize(2);
+
+		Sakstema sakstemaPensjon = data.getTema().get(1);
+		assertEquals("UFO", sakstemaPensjon.getKode());
+		assertEquals("21998969", sakstemaPensjon.getJournalposter().get(0).getSak().getFagsakId());
+
+		verify(1, getRequestedFor(urlMatching(".*/sammendrag")));
+		assertThat(sakstemaPensjon.getJournalposter()).hasSize(1);
 	}
 
 	@Test
