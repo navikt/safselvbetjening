@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
-import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Tjeneste som konsoliderer arkivsaker fra fagarkivet og pensjonssaker.
@@ -59,13 +59,7 @@ public class SakService {
 		try {
 			return pensjonSakRestConsumer.hentPensjonssaker(aktivFolkeregisterident)
 					.stream()
-					.filter(sak -> {
-						if (isNull(sak.arkivtema())) {
-							log.info("Pensjonsak med sakId={} har arkivtema=null", sak.sakId());
-							return false;
-						}
-						return true;
-					})
+					.filter(sak -> nonNull(sak.arkivtema()))
 					.collect(Collectors.toList());
 		} catch (ConsumerFunctionalException e) {
 			log.warn("Henting av pensjonssaker feilet. ", e);
