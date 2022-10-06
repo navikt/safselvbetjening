@@ -6,7 +6,6 @@ import no.nav.safselvbetjening.consumer.sak.Joarksak;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -34,9 +33,9 @@ public class Saker {
 				.collect(toList());
 		this.pensjonsaker = pensjonsaker.stream()
 				.map(s -> Arkivsak.builder()
-						.arkivsakId(s.sakNr())
-						.tema(s.tema())
-						.fagsakId(s.sakNr())
+						.arkivsakId(s.sakId())
+						.tema(s.arkivtema())
+						.fagsakId(s.sakId())
 						.fagsaksystem(FAGSYSTEM_PENSJON)
 						.build())
 				.collect(toList());

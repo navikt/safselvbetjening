@@ -5,16 +5,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 public record Pensjonsak(
-		String sakNr,
-		String tema
+		String sakId,
+		String arkivtema
 ) {
 
 	@JsonCreator
 	public Pensjonsak(
-			@JsonProperty("sakId") String sakNr,
-			@JsonProperty("arkivtema") String tema
+			@JsonProperty("sakId") String sakId,
+			@JsonProperty("arkivtema") String arkivtema
 	) {
-		this.sakNr = sakNr;
-		this.tema = tema;
+		this.sakId = sakId;
+		this.arkivtema = arkivtema;
 	}
 }

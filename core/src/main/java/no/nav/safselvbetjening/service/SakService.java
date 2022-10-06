@@ -3,8 +3,8 @@ package no.nav.safselvbetjening.service;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
-import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.consumer.pensjon.PensjonSakRestConsumer;
+import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.consumer.sak.Joarksak;
 import no.nav.safselvbetjening.consumer.sak.JoarksakConsumer;
 import org.springframework.stereotype.Component;
@@ -12,8 +12,10 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
 
 /**
  * Tjeneste som konsoliderer arkivsaker fra fagarkivet og pensjonssaker.
@@ -55,7 +57,16 @@ public class SakService {
 			return emptyList();
 		}
 		try {
-			return pensjonSakRestConsumer.hentPensjonssaker(aktivFolkeregisterident);
+			return pensjonSakRestConsumer.hentPensjonssaker(aktivFolkeregisterident)
+					.stream()
+					.filter(sak -> {
+						if (isNull(sak.arkivtema())) {
+							log.info("Pensjonsak med sakId={} har arkivtema=null", sak.sakId());
+							return false;
+						}
+						return true;
+					})
+					.collect(Collectors.toList());
 		} catch (ConsumerFunctionalException e) {
 			log.warn("Henting av pensjonssaker feilet. ", e);
 			return emptyList();

@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 public class Sakstema {
     @Builder.Default
-    private final List<Journalpost> journalposter = new ArrayList<>();
-    private final String kode;
-    private final String navn;
+    List<Journalpost> journalposter = new ArrayList<>();
+    String kode;
+    String navn;
 }
