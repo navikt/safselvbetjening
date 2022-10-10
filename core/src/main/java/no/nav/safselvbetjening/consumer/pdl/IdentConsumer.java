@@ -6,8 +6,6 @@ import java.util.List;
 
 /**
  * Interface for tjenester relatert til henting av identer.
- *
- * @author Joakim Bjørnstad, Jbit AS
  */
 public interface IdentConsumer {
     /**

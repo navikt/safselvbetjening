@@ -1,6 +1,6 @@
 {
-  "access_token": "dummy",
-  "token_type": "dummy",
-  "expires_in": "2019-11-22T15:08:21.504",
-  "error": "none"
+  "token_type": "Bearer",
+  "expires_in": 3599,
+  "ext_expires_in": 3599,
+  "access_token": "AzureAccessToken"
 }

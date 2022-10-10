@@ -25,9 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpMethod.POST;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private static final String BRUKER_ID = "12345678911";
 

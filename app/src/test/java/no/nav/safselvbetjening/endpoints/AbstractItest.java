@@ -129,7 +129,8 @@ public abstract class AbstractItest {
 
 	protected void stubAzure() {
 		stubFor(post("/azure_token")
-				.willReturn(aResponse().withStatus(OK.value())
+				.willReturn(aResponse()
+						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("azure/token_response.json")));
 	}
