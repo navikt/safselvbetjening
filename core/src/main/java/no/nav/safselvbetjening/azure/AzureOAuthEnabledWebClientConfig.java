@@ -14,15 +14,14 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_ID;
+import static org.springframework.security.oauth2.core.AuthorizationGrantType.CLIENT_CREDENTIALS;
+import static org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 
 @Configuration
 public class AzureOAuthEnabledWebClientConfig {
@@ -77,13 +76,16 @@ public class AzureOAuthEnabledWebClientConfig {
 	}
 
 	@Bean
-	ClientRegistration clientRegistration(AzureProperties azureProperties, SafSelvbetjeningProperties safSelvbetjeningProperties) {
-		return ClientRegistration.withRegistrationId(CLIENT_REGISTRATION_ID)
-				.tokenUri(azureProperties.tokenUrl())
-				.clientId(azureProperties.clientId())
-				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-				.scope(safSelvbetjeningProperties.getEndpoints().getPensjon().getScope(), safSelvbetjeningProperties.getEndpoints().getPdl().getScope())
+	ClientRegistration clientRegistration(AzureProperties azureTokenProperties, SafSelvbetjeningProperties safSelvbetjeningProperties) {
+		return ClientRegistration.withRegistrationId(AzureProperties.CLIENT_REGISTRATION_ID)
+				.tokenUri(azureTokenProperties.tokenUrl())
+				.clientId(azureTokenProperties.clientId())
+				.clientSecret(azureTokenProperties.clientSecret())
+				.clientAuthenticationMethod(CLIENT_SECRET_BASIC)
+				.authorizationGrantType(CLIENT_CREDENTIALS)
+				.scope(
+						safSelvbetjeningProperties.getEndpoints().getPensjon().getScope(),
+						safSelvbetjeningProperties.getEndpoints().getPdl().getScope())
 				.build();
 	}
 }
