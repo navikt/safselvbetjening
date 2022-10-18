@@ -21,9 +21,16 @@ public record AzureProperties(
 	public static final String SPRING_DEFAULT_PRINCIPAL = "anonymousUser";
 	public static final String CLIENT_REGISTRATION_ID = "azure";
 
-	public static OAuth2AuthorizeRequest getOAuth2AuthorizeRequestForAzure() {
+	public static OAuth2AuthorizeRequest getOAuth2AuthorizeRequestForAzurePdl() {
 		return OAuth2AuthorizeRequest
-				.withClientRegistrationId(CLIENT_REGISTRATION_ID)
+				.withClientRegistrationId(CLIENT_REGISTRATION_ID + "pdl")
+				.principal(SPRING_DEFAULT_PRINCIPAL)
+				.build();
+	}
+
+	public static OAuth2AuthorizeRequest getOAuth2AuthorizeRequestForAzurePensjon() {
+		return OAuth2AuthorizeRequest
+				.withClientRegistrationId(CLIENT_REGISTRATION_ID + "pensjon")
 				.principal(SPRING_DEFAULT_PRINCIPAL)
 				.build();
 	}

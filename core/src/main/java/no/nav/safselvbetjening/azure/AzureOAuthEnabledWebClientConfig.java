@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
+import java.util.List;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.springframework.security.oauth2.core.AuthorizationGrantType.CLIENT_CREDENTIALS;
@@ -71,21 +72,29 @@ public class AzureOAuthEnabledWebClientConfig {
 	}
 
 	@Bean
-	ReactiveClientRegistrationRepository clientRegistrationRepository(ClientRegistration clientRegistration) {
+	ReactiveClientRegistrationRepository clientRegistrationRepository(List<ClientRegistration> clientRegistration) {
 		return new InMemoryReactiveClientRegistrationRepository(clientRegistration);
 	}
 
 	@Bean
-	ClientRegistration clientRegistration(AzureProperties azureTokenProperties, SafSelvbetjeningProperties safSelvbetjeningProperties) {
-		return ClientRegistration.withRegistrationId(AzureProperties.CLIENT_REGISTRATION_ID)
-				.tokenUri(azureTokenProperties.tokenUrl())
-				.clientId(azureTokenProperties.clientId())
-				.clientSecret(azureTokenProperties.clientSecret())
-				.clientAuthenticationMethod(CLIENT_SECRET_BASIC)
-				.authorizationGrantType(CLIENT_CREDENTIALS)
-				.scope(
-						safSelvbetjeningProperties.getEndpoints().getPensjon().getScope(),
-						safSelvbetjeningProperties.getEndpoints().getPdl().getScope())
-				.build();
+	List<ClientRegistration> clientRegistration(AzureProperties azureTokenProperties, SafSelvbetjeningProperties safSelvbetjeningProperties) {
+		return List.of(
+				ClientRegistration.withRegistrationId(AzureProperties.CLIENT_REGISTRATION_ID + "pensjon")
+						.tokenUri(azureTokenProperties.tokenUrl())
+						.clientId(azureTokenProperties.clientId())
+						.clientSecret(azureTokenProperties.clientSecret())
+						.clientAuthenticationMethod(CLIENT_SECRET_BASIC)
+						.authorizationGrantType(CLIENT_CREDENTIALS)
+						.scope(safSelvbetjeningProperties.getEndpoints().getPensjon().getScope())
+						.build(),
+				ClientRegistration.withRegistrationId(AzureProperties.CLIENT_REGISTRATION_ID + "pdl")
+						.tokenUri(azureTokenProperties.tokenUrl())
+						.clientId(azureTokenProperties.clientId())
+						.clientSecret(azureTokenProperties.clientSecret())
+						.clientAuthenticationMethod(CLIENT_SECRET_BASIC)
+						.authorizationGrantType(CLIENT_CREDENTIALS)
+						.scope(safSelvbetjeningProperties.getEndpoints().getPdl().getScope())
+						.build()
+		);
 	}
 }

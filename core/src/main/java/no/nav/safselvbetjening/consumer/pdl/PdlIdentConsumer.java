@@ -91,7 +91,7 @@ class PdlIdentConsumer implements IdentConsumer {
 	}
 
 	private Consumer<Map<String, Object>> getOAuth2AuthorizedClient() {
-		Mono<OAuth2AuthorizedClient> clientMono = oAuth2AuthorizedClientManager.authorize(AzureProperties.getOAuth2AuthorizeRequestForAzure());
+		Mono<OAuth2AuthorizedClient> clientMono = oAuth2AuthorizedClientManager.authorize(AzureProperties.getOAuth2AuthorizeRequestForAzurePdl());
 		return ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(clientMono.block());
 	}
 }
