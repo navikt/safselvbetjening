@@ -36,8 +36,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * GraphQL endepunktet til applikasjonen.
- *
- * @author Joakim Bjørnstad, Jbit AS
  */
 @Controller
 @Slf4j

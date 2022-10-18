@@ -1,4 +1,4 @@
-package no.nav.safselvbetjening;
+package no.nav.safselvbetjening.azure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;

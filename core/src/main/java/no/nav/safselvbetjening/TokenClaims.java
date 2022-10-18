@@ -1,8 +1,5 @@
 package no.nav.safselvbetjening;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 public final class TokenClaims {
 	// Brukerident ligger i pid claim på tokenet for flyten idporten -> tokenx
 	public static final String CLAIM_PID = "pid";

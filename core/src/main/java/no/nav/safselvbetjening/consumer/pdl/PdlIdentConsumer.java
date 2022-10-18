@@ -2,98 +2,96 @@ package no.nav.safselvbetjening.consumer.pdl;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+import no.nav.safselvbetjening.azure.AzureProperties;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.PersonIkkeFunnetException;
-import no.nav.safselvbetjening.consumer.azure.TokenConsumer;
-import no.nav.safselvbetjening.consumer.azure.TokenResponse;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
-import java.net.URI;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
-import static java.util.Objects.requireNonNull;
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * PDL implementasjon av {@link IdentConsumer}
- *
- * @author Joakim Bjørnstad, Jbit AS
  */
 @Component
 class PdlIdentConsumer implements IdentConsumer {
 	private static final String PDL_INSTANCE = "pdl";
 	private static final String PERSON_IKKE_FUNNET_CODE = "not_found";
 
-	private final RestTemplate restTemplate;
-	private final URI pdlUri;
-	private final TokenConsumer tokenConsumer;
-	private final String pdlScope;
+	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
+	private final WebClient webClient;
+	private final ReactiveOAuth2AuthorizedClientManager oAuth2AuthorizedClientManager;
 
 	public PdlIdentConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
-							final RestTemplateBuilder restTemplateBuilder,
-							final TokenConsumer tokenConsumer,
-							final ClientHttpRequestFactory clientHttpRequestFactory) {
-		SafSelvbetjeningProperties.AzureEndpoint pdl = safSelvbetjeningProperties.getEndpoints().getPdl();
-		this.restTemplate = restTemplateBuilder
-				.setConnectTimeout(Duration.ofSeconds(3))
-				.setReadTimeout(Duration.ofSeconds(20))
-				.requestFactory(() -> clientHttpRequestFactory)
-				.build();
-		this.pdlUri = UriComponentsBuilder.fromHttpUrl(pdl.getUrl()).build().toUri();
-		this.tokenConsumer = tokenConsumer;
-		this.pdlScope = pdl.getScope();
+							final WebClient webClient,
+							final ReactiveOAuth2AuthorizedClientManager oAuth2AuthorizedClientManager
+	) {
+		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
+		this.webClient = webClient;
+		this.oAuth2AuthorizedClientManager = oAuth2AuthorizedClientManager;
 	}
 
 	@Retry(name = PDL_INSTANCE)
 	@CircuitBreaker(name = PDL_INSTANCE)
 	@Override
 	public List<PdlResponse.PdlIdent> hentIdenter(final String ident) throws PersonIkkeFunnetException {
-		try {
-			final RequestEntity<PdlRequest> requestEntity = baseRequest()
-					.body(mapHentIdenterQuery(ident));
-			final PdlResponse pdlResponse = requireNonNull(restTemplate.exchange(requestEntity, PdlResponse.class).getBody());
 
-			if (pdlResponse.getErrors() == null || pdlResponse.getErrors().isEmpty()) {
-				return pdlResponse.getData().getHentIdenter().getIdenter();
-			} else {
-				if (PERSON_IKKE_FUNNET_CODE.equals(pdlResponse.getErrors().get(0).getExtensions().getCode())) {
-					throw new PersonIkkeFunnetException("Fant ikke aktørid for person i pdl.");
-				}
-				throw new PdlFunctionalException("Kunne ikke hente aktørid for folkeregisterident i pdl. " + pdlResponse.getErrors());
+		PdlResponse pdlResponse = webClient.post()
+				.uri(safSelvbetjeningProperties.getEndpoints().getPdl().getUrl())
+				.attributes(getOAuth2AuthorizedClient())
+				.headers(this::createHeaders)
+				.bodyValue(mapHentIdenterQuery(ident))
+				.retrieve()
+				.bodyToMono(PdlResponse.class)
+				.doOnError(handleErrorPdl())
+				.block();
+
+		if (pdlResponse.getErrors() == null || pdlResponse.getErrors().isEmpty()) {
+			return pdlResponse.getData().getHentIdenter().getIdenter();
+		} else {
+			if (PERSON_IKKE_FUNNET_CODE.equals(pdlResponse.getErrors().get(0).getExtensions().getCode())) {
+				throw new PersonIkkeFunnetException("Fant ikke aktørid for person i pdl.");
 			}
-		} catch (HttpClientErrorException e) {
-			throw new PdlFunctionalException("Kall mot pdl feilet funksjonelt.", e);
+			throw new PdlFunctionalException("Kunne ikke hente aktørid for folkeregisterident i pdl. " + pdlResponse.getErrors());
 		}
 	}
 
 	private PdlRequest mapHentIdenterQuery(final String ident) {
-		final HashMap<String, Object> variables = new HashMap<>();
+		String query = "query hentIdenter($ident: ID!) {hentIdenter(ident: $ident, historikk: true) {identer { ident gruppe historisk } } }";
+		final HashMap<String, String> variables = new HashMap<>();
 		variables.put("ident", ident);
-		return PdlRequest.builder()
-				.query("query hentIdenter($ident: ID!) {hentIdenter(ident: $ident, historikk: true) {identer { ident gruppe historisk } } }")
-				.variables(variables)
-				.build();
+
+		return new PdlRequest(query, variables);
 	}
 
-	private RequestEntity.BodyBuilder baseRequest() {
-		TokenResponse clientCredentialToken = tokenConsumer.getClientCredentialToken(pdlScope);
-		return RequestEntity.post(pdlUri)
-				.accept(APPLICATION_JSON)
-				.header(NAV_CALLID, getCallId())
-				.header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-				.header(AUTHORIZATION, "Bearer " + clientCredentialToken.getAccess_token());
+	private Consumer<Throwable> handleErrorPdl() {
+		return error -> {
+			if (error instanceof WebClientResponseException && ((WebClientResponseException) error).getStatusCode().is4xxClientError()) {
+				throw new PdlFunctionalException("Kall mot pdl feilet funksjonelt.", error);
+			}
+		};
+	}
+
+	private void createHeaders(HttpHeaders headers) {
+		headers.setContentType(APPLICATION_JSON);
+		headers.set(NAV_CALLID, getCallId());
+	}
+
+	private Consumer<Map<String, Object>> getOAuth2AuthorizedClient() {
+		Mono<OAuth2AuthorizedClient> clientMono = oAuth2AuthorizedClientManager.authorize(AzureProperties.getOAuth2AuthorizeRequestForAzure());
+		return ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(clientMono.block());
 	}
 }

@@ -41,8 +41,10 @@ public class FagarkivConsumer {
 							final ClientHttpRequestFactory clientHttpRequestFactory) {
 		restTemplate = restTemplateBuilder
 				.rootUri(safSelvbetjeningProperties.getEndpoints().getFagarkiv())
-				.basicAuthentication(safSelvbetjeningProperties.getServiceuser().getUsername(),
-						safSelvbetjeningProperties.getServiceuser().getPassword())
+				.basicAuthentication(
+						safSelvbetjeningProperties.getServiceuser().getUsername(),
+						safSelvbetjeningProperties.getServiceuser().getPassword()
+				)
 				.setReadTimeout(Duration.ofSeconds(60))
 				.setConnectTimeout(Duration.ofSeconds(5))
 				.requestFactory(() -> clientHttpRequestFactory)

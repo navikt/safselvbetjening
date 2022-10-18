@@ -12,8 +12,6 @@ import static java.util.Collections.singletonMap;
 
 /**
  * Kopiert fra navikt/pdl
- *
- *
  */
 @Getter
 @RequiredArgsConstructor

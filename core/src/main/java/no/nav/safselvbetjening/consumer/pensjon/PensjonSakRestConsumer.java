@@ -3,7 +3,7 @@ package no.nav.safselvbetjening.consumer.pensjon;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.safselvbetjening.AzureProperties;
+import no.nav.safselvbetjening.azure.AzureProperties;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;

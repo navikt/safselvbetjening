@@ -66,6 +66,7 @@ spec:
         mountPath: "/secrets/serviceuser/srvsafselvbetjening"
       - kvPath: {{APPDYNAMICS}}
         mountPath: /var/run/secrets/nais.io/appdynamics
+  webproxy: true
 {{#if AZURE_IAC_RULES}}
   azure:
     application:
