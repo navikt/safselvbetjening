@@ -10,8 +10,6 @@
   "SAFSELVBETJENING_ENDPOINTS_FAGARKIV": "https://dokarkiv.nais.adeo.no/hentjournalsakinfo",
   "SAFSELVBETJENING_ENDPOINTS_PENSJON_URL": "https://pensjon-pen.nais.adeo.no/pen/",
   "SAFSELVBETJENING_ENDPOINTS_PENSJON_SCOPE": "api://prod-fss.pensjondeployer.pensjon-pen/.default",
-  "SAFSELVBETJENING_PROXY_HOST": "webproxy.nais",
-  "SAFSELVBETJENING_PROXY_PORT": "8088",
   "SAFSELVBETJENING_TOPICS_DOKDISTDITTNAV": "teamdokumenthandtering.privat-dokdistdittnav-lestavmottaker",
   "APPDYNAMICS": "/apikey/appdynamics/prod",
   "APPD_NAME": "safselvbetjening",

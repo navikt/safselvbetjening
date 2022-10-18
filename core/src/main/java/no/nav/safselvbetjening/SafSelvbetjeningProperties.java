@@ -19,7 +19,6 @@ public class SafSelvbetjeningProperties {
 
     private final Endpoints endpoints = new Endpoints();
     private final Serviceuser serviceuser = new Serviceuser();
-    private final Proxy proxy = new Proxy();
     private final Topics topics = new Topics();
 
     /**
@@ -87,17 +86,6 @@ public class SafSelvbetjeningProperties {
         @NotEmpty
         @ToString.Exclude
         private String password;
-    }
-
-    @Data
-    @Validated
-    public static class Proxy {
-        private String host;
-        private int port;
-
-        public boolean isSet() {
-            return isNotBlank(host);
-        }
     }
 
     @Data
