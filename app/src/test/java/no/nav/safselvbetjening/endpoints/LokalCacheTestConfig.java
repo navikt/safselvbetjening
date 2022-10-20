@@ -11,8 +11,6 @@ import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static no.nav.safselvbetjening.cache.CacheConfig.AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE;
 import static no.nav.safselvbetjening.cache.CacheConfig.GRAPHQL_QUERY_CACHE;
 
 @Configuration
@@ -23,10 +21,6 @@ public class LokalCacheTestConfig {
 	CacheManager cacheManager() {
 		SimpleCacheManager manager = new SimpleCacheManager();
 		manager.setCaches(List.of(
-				new CaffeineCache(AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE, Caffeine.newBuilder()
-						.expireAfterWrite(15, MINUTES)
-						.maximumSize(1)
-						.build()),
 				new CaffeineCache(GRAPHQL_QUERY_CACHE, Caffeine.newBuilder()
 						.maximumSize(10)
 						.build())));

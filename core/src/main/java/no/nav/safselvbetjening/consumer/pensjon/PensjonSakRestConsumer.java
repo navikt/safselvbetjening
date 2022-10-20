@@ -32,7 +32,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @Component
 public class PensjonSakRestConsumer {
 
-	private static final String PENSJON_SAK_REST_INSTANCE = "pensjonSakRest";
+	private static final String PENSJON_INSTANCE = "pensjon";
+
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final WebClient webClient;
 	private final ReactiveOAuth2AuthorizedClientManager oAuth2AuthorizedClientManager;
@@ -47,8 +48,8 @@ public class PensjonSakRestConsumer {
 		this.oAuth2AuthorizedClientManager = oAuth2AuthorizedClientManager;
 	}
 
-	@Retry(name = PENSJON_SAK_REST_INSTANCE)
-	@CircuitBreaker(name = PENSJON_SAK_REST_INSTANCE)
+	@Retry(name = PENSJON_INSTANCE)
+	@CircuitBreaker(name = PENSJON_INSTANCE)
 	public HentBrukerForSakResponseTo hentBrukerForSak(final String sakId) {
 
 		var result = webClient.get()
@@ -71,15 +72,15 @@ public class PensjonSakRestConsumer {
 	private Consumer<Throwable> handleErrorBrukerForSak() {
 		return error -> {
 			if (error instanceof WebClientResponseException response && ((WebClientResponseException) error).getStatusCode().is4xxClientError()) {
-				throw new ConsumerFunctionalException(String.format("hentBrukerForSak feilet funksjonelt med statusKode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error);
+				throw new ConsumerFunctionalException(String.format("hentBrukerForSak feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error);
 			} else {
 				throw new ConsumerTechnicalException(String.format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
 			}
 		};
 	}
 
-	@Retry(name = PENSJON_SAK_REST_INSTANCE)
-	@CircuitBreaker(name = PENSJON_SAK_REST_INSTANCE)
+	@Retry(name = PENSJON_INSTANCE)
+	@CircuitBreaker(name = PENSJON_INSTANCE)
 	public List<Pensjonsak> hentPensjonssaker(final String personident) {
 		if (isBlank(personident)) {
 			return emptyList();

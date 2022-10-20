@@ -12,24 +12,17 @@ import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
-
 @Configuration
 @EnableCaching
 @Profile({"nais", "local"})
 public class CacheConfig {
 	public static final String GRAPHQL_QUERY_CACHE = "graphql_query_cache";
-	public static final String AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE = "azureClientCredentialToken";
 
 	@Bean
 	@Primary
 	CacheManager cacheManager() {
 		SimpleCacheManager manager = new SimpleCacheManager();
 		manager.setCaches(List.of(
-				new CaffeineCache(AZURE_CLIENT_CREDENTIAL_TOKEN_CACHE, Caffeine.newBuilder()
-						.expireAfterWrite(50, MINUTES)
-						.maximumSize(10)
-						.build()),
 				new CaffeineCache(GRAPHQL_QUERY_CACHE, Caffeine.newBuilder()
 						.maximumSize(1_000)
 						.recordStats()
