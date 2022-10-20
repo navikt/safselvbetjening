@@ -19,18 +19,12 @@ public record AzureProperties(
 		@NotEmpty String wellKnownUrl
 ) {
 	public static final String SPRING_DEFAULT_PRINCIPAL = "anonymousUser";
-	public static final String CLIENT_REGISTRATION_ID = "azure";
+	public static final String CLIENT_REGISTRATION_ID_PDL = "azure-pdl";
+	public static final String CLIENT_REGISTRATION_ID_PENSJON = "azure-pensjon";
 
-	public static OAuth2AuthorizeRequest getOAuth2AuthorizeRequestForAzurePdl() {
+	public static OAuth2AuthorizeRequest getOAuth2AuthorizeRequestForAzure(String clientRegistrationId) {
 		return OAuth2AuthorizeRequest
-				.withClientRegistrationId(CLIENT_REGISTRATION_ID + "pdl")
-				.principal(SPRING_DEFAULT_PRINCIPAL)
-				.build();
-	}
-
-	public static OAuth2AuthorizeRequest getOAuth2AuthorizeRequestForAzurePensjon() {
-		return OAuth2AuthorizeRequest
-				.withClientRegistrationId(CLIENT_REGISTRATION_ID + "pensjon")
+				.withClientRegistrationId(clientRegistrationId)
 				.principal(SPRING_DEFAULT_PRINCIPAL)
 				.build();
 	}

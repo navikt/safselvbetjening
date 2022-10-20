@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
+import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_ID_PDL;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 /**
@@ -91,7 +92,7 @@ class PdlIdentConsumer implements IdentConsumer {
 	}
 
 	private Consumer<Map<String, Object>> getOAuth2AuthorizedClient() {
-		Mono<OAuth2AuthorizedClient> clientMono = oAuth2AuthorizedClientManager.authorize(AzureProperties.getOAuth2AuthorizeRequestForAzurePdl());
+		Mono<OAuth2AuthorizedClient> clientMono = oAuth2AuthorizedClientManager.authorize(AzureProperties.getOAuth2AuthorizeRequestForAzure(CLIENT_REGISTRATION_ID_PDL));
 		return ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(clientMono.block());
 	}
 }

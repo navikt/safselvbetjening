@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import static java.util.Collections.emptyList;
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
+import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_ID_PENSJON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -115,7 +116,7 @@ public class PensjonSakRestConsumer {
 	}
 
 	private Consumer<Map<String, Object>> getOAuth2AuthorizedClient() {
-		Mono<OAuth2AuthorizedClient> clientMono = oAuth2AuthorizedClientManager.authorize(AzureProperties.getOAuth2AuthorizeRequestForAzurePensjon());
+		Mono<OAuth2AuthorizedClient> clientMono = oAuth2AuthorizedClientManager.authorize(AzureProperties.getOAuth2AuthorizeRequestForAzure(CLIENT_REGISTRATION_ID_PENSJON));
 		return ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(clientMono.block());
 	}
 
