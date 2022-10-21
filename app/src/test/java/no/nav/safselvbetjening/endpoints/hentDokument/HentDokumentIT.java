@@ -52,9 +52,7 @@ import static org.springframework.http.MediaType.APPLICATION_PDF;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 
 @EmbeddedKafka(
-		topics = {
-				"test-ut-topic",
-		},
+		topics = {"test-ut-topic"},
 		bootstrapServersProperty = "spring.kafka.bootstrap-servers",
 		partitions = 1
 )

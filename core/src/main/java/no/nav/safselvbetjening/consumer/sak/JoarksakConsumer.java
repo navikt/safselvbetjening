@@ -44,8 +44,10 @@ public class JoarksakConsumer {
 		this.restTemplate = restTemplateBuilder
 				.setReadTimeout(Duration.ofSeconds(20))
 				.setConnectTimeout(Duration.ofSeconds(5))
-				.basicAuthentication(safSelvbetjeningProperties.getServiceuser().getUsername(),
-						safSelvbetjeningProperties.getServiceuser().getPassword())
+				.basicAuthentication(
+						safSelvbetjeningProperties.getServiceuser().getUsername(),
+						safSelvbetjeningProperties.getServiceuser().getPassword()
+				)
 				.requestFactory(() -> clientHttpRequestFactory)
 				.build();
 	}

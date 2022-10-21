@@ -8,11 +8,11 @@
 		</encoder>
 	</appender>
 
-<!--	<root level="INFO">-->
-<!--		<appender-ref ref="CONSOLE"/>-->
-<!--	</root>-->
+	<root level="WARN">
+		<appender-ref ref="CONSOLE"/>
+	</root>
 
-	<logger name="no.nav.saf" level="INFO" additivity="false">
+	<logger name="no.nav.safselvbetjening" level="INFO" additivity="false">
 		<appender-ref ref="CONSOLE"/>
 	</logger>
 

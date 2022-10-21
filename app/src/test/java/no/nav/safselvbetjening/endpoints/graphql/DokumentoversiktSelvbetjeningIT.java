@@ -4,10 +4,8 @@ import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Fagsak;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.endpoints.AbstractItest;
-import no.nav.safselvbetjening.graphql.ErrorCode;
 import no.nav.safselvbetjening.graphql.GraphQLRequest;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 
@@ -21,13 +19,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Objects.requireNonNull;
+import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
+import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
+import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpStatus.OK;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private static final String BRUKER_ID = "12345678911";
 
@@ -37,7 +36,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
@@ -52,7 +51,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversiktSubToken("dokumentoversiktselvbetjening_all.query");
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
@@ -67,7 +66,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_tema.query");
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
@@ -80,7 +79,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_fagsak.query");
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
@@ -93,7 +92,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_journalposter.query");
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
@@ -106,7 +105,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_journalposter.query");
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
@@ -119,7 +118,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_journalposter.query");
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
@@ -162,7 +161,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_for.query");
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
@@ -179,7 +178,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
@@ -197,7 +196,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
@@ -217,7 +216,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_tema_only.query");
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
@@ -249,7 +248,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
 				.extracting(e -> e.getExtensions().getCode())
-				.contains(ErrorCode.NOT_FOUND.getText());
+				.contains(NOT_FOUND.getText());
 	}
 
 	@Test
@@ -260,7 +259,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
 				.extracting(e -> e.getExtensions().getCode())
-				.contains(ErrorCode.UNAUTHORIZED.getText());
+				.contains(UNAUTHORIZED.getText());
 	}
 
 	@Test
@@ -269,7 +268,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
 				.extracting(e -> e.getExtensions().getCode())
-				.contains(ErrorCode.BAD_REQUEST.getText());
+				.contains(BAD_REQUEST.getText());
 	}
 
 	@Test
@@ -278,7 +277,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
 				.extracting(e -> e.getExtensions().getCode())
-				.contains(ErrorCode.BAD_REQUEST.getText());
+				.contains(BAD_REQUEST.getText());
 	}
 
 	private void happyStubs() {
