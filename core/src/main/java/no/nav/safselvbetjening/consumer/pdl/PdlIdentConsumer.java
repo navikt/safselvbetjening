@@ -80,7 +80,7 @@ class PdlIdentConsumer implements IdentConsumer {
 
 	private Consumer<Throwable> handleErrorPdl() {
 		return error -> {
-			if (error instanceof WebClientResponseException && ((WebClientResponseException) error).getStatusCode().is4xxClientError()) {
+			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
 				throw new PdlFunctionalException("Kall mot pdl feilet funksjonelt.", error);
 			}
 		};

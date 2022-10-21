@@ -73,8 +73,8 @@ public class PensjonSakRestConsumer {
 
 	private Consumer<Throwable> handleErrorBrukerForSak() {
 		return error -> {
-			if (error instanceof WebClientResponseException response && ((WebClientResponseException) error).getStatusCode().is4xxClientError()) {
-				throw new ConsumerFunctionalException(String.format("hentBrukerForSak feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error);
+			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
+				throw new ConsumerFunctionalException(String.format("hentBrukerForSak feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), response.getMessage()), error);
 			} else {
 				throw new ConsumerTechnicalException(String.format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
 			}
@@ -101,14 +101,14 @@ public class PensjonSakRestConsumer {
 
 	private Consumer<Throwable> handleErrorPensjonssaker() {
 		return error -> {
-			if (error instanceof WebClientResponseException response && ((WebClientResponseException) error).getStatusCode().is4xxClientError()) {
+			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
 				if (response.getStatusCode() == NOT_FOUND) {
 					throw new ConsumerFunctionalException(
-							String.format("hentPensjonssaker feilet funksjonelt (person ikke funnet). Statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error
+							String.format("hentPensjonssaker feilet funksjonelt (person ikke funnet). Statuskode=%s. Feilmelding=%s", response.getStatusCode(), response.getMessage()), error
 					);
 				}
 				throw new ConsumerFunctionalException(
-						String.format("hentPensjonssaker feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error
+						String.format("hentPensjonssaker feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), response.getMessage()), error
 				);
 			} else {
 				throw new ConsumerTechnicalException(String.format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
