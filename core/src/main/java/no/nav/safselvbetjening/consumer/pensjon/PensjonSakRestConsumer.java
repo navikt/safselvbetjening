@@ -33,7 +33,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @Component
 public class PensjonSakRestConsumer {
 
-	private static final String PENSJON_INSTANCE = "pensjon";
+	private static final String PENSJON_INSTANCE_BRUKER_FOR_SAK = "pensjonbrukerforsak";
+	private static final String PENSJON_INSTANCE_PENSJONSSAKER = "pensjonpensjonssaker";
 
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final WebClient webClient;
@@ -49,8 +50,8 @@ public class PensjonSakRestConsumer {
 		this.oAuth2AuthorizedClientManager = oAuth2AuthorizedClientManager;
 	}
 
-	@Retry(name = PENSJON_INSTANCE)
-	@CircuitBreaker(name = PENSJON_INSTANCE)
+	@Retry(name = PENSJON_INSTANCE_BRUKER_FOR_SAK)
+	@CircuitBreaker(name = PENSJON_INSTANCE_BRUKER_FOR_SAK)
 	public HentBrukerForSakResponseTo hentBrukerForSak(final String sakId) {
 
 		var result = webClient.get()
@@ -80,8 +81,8 @@ public class PensjonSakRestConsumer {
 		};
 	}
 
-	@Retry(name = PENSJON_INSTANCE)
-	@CircuitBreaker(name = PENSJON_INSTANCE)
+	@Retry(name = PENSJON_INSTANCE_PENSJONSSAKER)
+	@CircuitBreaker(name = PENSJON_INSTANCE_PENSJONSSAKER)
 	public List<Pensjonsak> hentPensjonssaker(final String personident) {
 		if (isBlank(personident)) {
 			return emptyList();
