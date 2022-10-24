@@ -147,7 +147,7 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubPensjonssaker(final String fil) {
-		stubFor(get("/pensjon/springapi/sak/sammendrag")
+		stubFor(get("/pensjon/pen/springapi/sak/sammendrag")
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -155,7 +155,7 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubPensjonHentBrukerForSak(final String fil) {
-		stubFor(get("/pensjon/api/pip/hentBrukerOgEnhetstilgangerForSak/v1")
+		stubFor(get("/pensjon/pen/api/pip/hentBrukerOgEnhetstilgangerForSak/v1")
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)

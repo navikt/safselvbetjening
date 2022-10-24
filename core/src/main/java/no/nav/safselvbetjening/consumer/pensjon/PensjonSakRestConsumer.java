@@ -9,6 +9,7 @@ import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;
@@ -55,7 +56,7 @@ public class PensjonSakRestConsumer {
 	public HentBrukerForSakResponseTo hentBrukerForSak(final String sakId) {
 
 		var result = webClient.get()
-				.uri(safSelvbetjeningProperties.getEndpoints().getPensjon().getUrl() + "/api/pip/hentBrukerOgEnhetstilgangerForSak/v1")
+				.uri(safSelvbetjeningProperties.getEndpoints().getPensjon().getUrl() + "/pen/api/pip/hentBrukerOgEnhetstilgangerForSak/v1")
 				.attributes(getOAuth2AuthorizedClient())
 				.headers(this::createHeaders)
 				.header("sakId", sakId)
@@ -89,11 +90,21 @@ public class PensjonSakRestConsumer {
 		}
 
 		return webClient.get()
-				.uri(safSelvbetjeningProperties.getEndpoints().getPensjon().getUrl() + "/springapi/sak/sammendrag")
+				.uri(safSelvbetjeningProperties.getEndpoints().getPensjon().getUrl() + "/pen/springapi/sak/sammendrag")
 				.attributes(getOAuth2AuthorizedClient())
 				.headers(this::createHeaders)
 				.header("fnr", personident)
 				.retrieve()
+				.onStatus(HttpStatus::is4xxClientError, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(body -> {
+					if (clientResponse.statusCode() == NOT_FOUND) {
+						return Mono.error(new ConsumerFunctionalException(
+								String.format("hentPensjonssaker feilet funksjonelt (person ikke funnet). Statuskode=%s. Feilmelding=%s", clientResponse.statusCode(), body)
+						));
+					}
+					return Mono.error(new ConsumerFunctionalException(
+							String.format("hentPensjonssaker feilet funksjonelt med statuskode=%s. Feilmelding=%s", clientResponse.statusCode(), body)
+					));
+				}))
 				.bodyToMono(new ParameterizedTypeReference<List<Pensjonsak>>() {})
 				.doOnError(handleErrorPensjonssaker())
 				.block();
@@ -101,15 +112,8 @@ public class PensjonSakRestConsumer {
 
 	private Consumer<Throwable> handleErrorPensjonssaker() {
 		return error -> {
-			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-				if (response.getStatusCode() == NOT_FOUND) {
-					throw new ConsumerFunctionalException(
-							String.format("hentPensjonssaker feilet funksjonelt (person ikke funnet). Statuskode=%s. Feilmelding=%s", response.getStatusCode(), response.getMessage()), error
-					);
-				}
-				throw new ConsumerFunctionalException(
-						String.format("hentPensjonssaker feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), response.getMessage()), error
-				);
+			if (error instanceof ConsumerFunctionalException response) {
+				throw response;
 			} else {
 				throw new ConsumerTechnicalException(String.format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
 			}
