@@ -8,8 +8,9 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -17,9 +18,9 @@ import org.springframework.retry.annotation.EnableRetry;
 
 import java.net.URI;
 
-@ComponentScan
 @EnableRetry
 @EnableJwtTokenValidation
+@EnableAutoConfiguration(exclude = UserDetailsServiceAutoConfiguration.class)
 @Configuration
 public class CoreConfig {
 	@Bean
