@@ -19,7 +19,7 @@
     "https://safselvbetjening.nais.adeo.no",
     "https://safselvbetjening.prod-fss-pub.nais.io"
   ],
-  "AZURE_IAC_RULES": [
+  "ACCESS_POLICY_INBOUND_RULES": [
     {
       "app": "soknad-api",
       "namespace": "aap",

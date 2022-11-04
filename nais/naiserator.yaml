@@ -63,16 +63,16 @@ spec:
       - kvPath: {{APPDYNAMICS}}
         mountPath: /var/run/secrets/nais.io/appdynamics
   webproxy: true
-{{#if AZURE_IAC_RULES}}
   azure:
     application:
       enabled: true
   tokenx:
     enabled: true
+{{#if ACCESS_POLICY_INBOUND_RULES}}
   accessPolicy:
     inbound:
       rules:
-      {{#each AZURE_IAC_RULES}}
+      {{#each ACCESS_POLICY_INBOUND_RULES}}
         - application: {{app}}
           namespace: {{namespace}}
           cluster: {{cluster}}

@@ -18,7 +18,7 @@
     "https://safselvbetjening.dev.intern.nav.no",
     "https://safselvbetjening.dev-fss-pub.nais.io"
   ],
-  "AZURE_IAC_RULES": [
+  "ACCESS_POLICY_INBOUND_RULES": [
     {
       "app": "soknad-api",
       "namespace": "aap",
