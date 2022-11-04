@@ -26,7 +26,7 @@ APIene krever [maskin-til-maskin token på vegne av innbygger](https://security.
 
 Kun tokenx vekslede tokens er støttet. Brukers fødselsnummer må ligge i `pid` eller `sub` claimet.
 
-For tilgang, ta kontakt med teamet eller oppdater `AZURE_IAC_RULES` i [dev-config.json](nais/q2-config.json)/[prod-config.json](nais/prod-config.json) i en PR og informer teamet.
+For tilgang, ta kontakt med teamet eller oppdater `ACCESS_POLICY_INBOUND_RULES` i [q2-config.json](nais/q2-config.json)/[p-config.json](nais/p-config.json) i en PR og informer teamet.
 
 #### GraphQL dokumentoversiktSelvbetjening
 
@@ -204,9 +204,6 @@ Profile: `nais` (prod-likt) eller `local` (bedre logging)
 Angi VM-options fra vault:  https://vault.adeo.no/ui/vault/secrets/secret/show/dokument/safselvbetjening
 
 Det kan hende clientSecret fra Azure er utløpt. [Da må dette hentes på nytt](https://confluence.adeo.no/display/TDOK/HOWTO+-+Azure). Snakk med teamet hvis det behøves.
-
-Forbehold:
-* `SecurityTokenServiceProvider` endepunktet fungerer kun i VDI. Så p.t. ikke mulig å hente pensjonssaker ved utvikling fra laptop gjennom naisdevice.
 
 ## Deploy
 Deploy av appen blir gjort vha. Github Actions.
