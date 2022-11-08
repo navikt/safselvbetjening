@@ -47,9 +47,6 @@ import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseTilgan
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.defaultBrukerIdenter;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 class UtledTilgangServiceTest {
 
 	private final UtledTilgangService utledTilgangService;

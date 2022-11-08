@@ -3,7 +3,7 @@ safselvbetjening
 
 ## Funksjonalitet
 
-safselvbetjening tilbyr tjenester for dokumentoversikt og henting av dokument for innbygger.
+safselvbetjening tilbyr tjenester for innsyn til dokumentene til bruker.
 
 Tjenesten støtter ikke oppslag fra saksbehandlere. For dette skal man bruke [saf](https://github.com/navikt/saf).
 
@@ -182,7 +182,7 @@ Returnerer:
 
 ## Utvikling
 ### Forutsetninger
-* JDK 11
+* JDK 17
 * Maven 3
 
 ### Bygging
