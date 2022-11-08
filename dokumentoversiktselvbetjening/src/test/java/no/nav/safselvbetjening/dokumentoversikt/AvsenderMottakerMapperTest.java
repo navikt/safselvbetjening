@@ -15,9 +15,6 @@ import java.util.stream.Stream;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVSENDER_MOTTAKER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 class AvsenderMottakerMapperTest {
 	private final AvsenderMottakerMapper mapper = new AvsenderMottakerMapper();
 

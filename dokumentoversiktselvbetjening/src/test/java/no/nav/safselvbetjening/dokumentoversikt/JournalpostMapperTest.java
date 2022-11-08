@@ -83,9 +83,6 @@ import static no.nav.safselvbetjening.domain.Variantformat.SLADDET;
 import static no.nav.safselvbetjening.service.Saker.FAGSYSTEM_PENSJON;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 class JournalpostMapperTest {
 	private final JournalpostMapper journalpostMapper = new JournalpostMapper(new AvsenderMottakerMapper());
 
