@@ -1,21 +1,5 @@
-###Maven##
-HELP.md
-target/
-*.mvn
-mvnw*
+# Maven
+target
 
-### IntelliJ IDEA ###
+# IntelliJ IDEA
 *.idea
-*.iws
-*.iml
-*.ipr
-atlassian-ide-plugin.xml
-
-#Eclipse
-.classpath
-.project
-.settings
-
-*.tm*.epoch
-*.lck
-*.log
