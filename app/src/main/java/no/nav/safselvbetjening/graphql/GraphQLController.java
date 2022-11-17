@@ -12,7 +12,6 @@ import graphql.schema.idl.TypeDefinitionRegistry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.token.support.core.api.Protected;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.cache.CacheMetricsRegistrar;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Controller;
@@ -46,7 +45,6 @@ public class GraphQLController {
 	private final Cache<String, PreparsedDocumentEntry> cache;
 
 	@SuppressWarnings("unchecked")
-	@Autowired
 	public GraphQLController(GraphQLWiring graphQLWiring,
 							 TokenValidationContextHolder tokenValidationContextHolder,
 							 CacheManager cacheManager,
