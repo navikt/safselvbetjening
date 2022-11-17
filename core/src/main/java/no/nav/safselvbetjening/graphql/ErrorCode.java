@@ -1,13 +1,15 @@
 package no.nav.safselvbetjening.graphql;
 
 import graphql.ErrorClassification;
-import graphql.ErrorType;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import static graphql.ErrorType.DataFetchingException;
+import static graphql.ErrorType.ExecutionAborted;
+import static graphql.ErrorType.ValidationError;
 import static java.util.Collections.singletonMap;
 
 /**
@@ -16,10 +18,10 @@ import static java.util.Collections.singletonMap;
 @Getter
 @RequiredArgsConstructor
 public enum ErrorCode {
-    UNAUTHORIZED(ErrorType.ExecutionAborted, "unauthorized"),
-    NOT_FOUND(ErrorType.ExecutionAborted, "not_found"),
-    BAD_REQUEST(ErrorType.ValidationError, "bad_request"),
-    SERVER_ERROR(ErrorType.DataFetchingException, "server_error");
+    UNAUTHORIZED(ExecutionAborted, "unauthorized"),
+    NOT_FOUND(ExecutionAborted, "not_found"),
+    BAD_REQUEST(ValidationError, "bad_request"),
+    SERVER_ERROR(DataFetchingException, "server_error");
 
     private final ErrorClassification type;
     private final String text;

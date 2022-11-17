@@ -10,13 +10,13 @@ import java.util.List;
 @Builder
 public class Dokumentoversikt {
     @Builder.Default
-    private final List<Sakstema> tema = new ArrayList<>();
+    List<Sakstema> tema = new ArrayList<>();
 
     @Builder.Default
-    private final List<Fagsak> fagsak = new ArrayList<>();
+    List<Fagsak> fagsak = new ArrayList<>();
 
     @Builder.Default
-    private final List<Journalpost> journalposter = new ArrayList<>();
+    List<Journalpost> journalposter = new ArrayList<>();
 
     public static Dokumentoversikt empty() {
         return  Dokumentoversikt.builder().build();

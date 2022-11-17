@@ -13,16 +13,16 @@ import java.util.List;
 @Builder
 public class DokumentInfo {
 	@ToString.Exclude
-	private final Journalpost parent;
+	Journalpost parent;
 
-	private final String dokumentInfoId;
+	String dokumentInfoId;
 	@ToString.Exclude
-	private final String tittel;
-	private final String brevkode;
-	private final TilgangDokument tilgangDokument;
+	String tittel;
+	String brevkode;
+	TilgangDokument tilgangDokument;
 
 	@Builder.Default
-	private final List<Dokumentvariant> dokumentvarianter = new ArrayList<>();
+	List<Dokumentvariant> dokumentvarianter = new ArrayList<>();
 
 	@Data
 	@Builder

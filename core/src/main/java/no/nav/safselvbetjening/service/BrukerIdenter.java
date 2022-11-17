@@ -19,22 +19,22 @@ public class BrukerIdenter {
 
     public BrukerIdenter(final List<PdlResponse.PdlIdent> pdlIdenter) {
         for(PdlResponse.PdlIdent pdlIdent : pdlIdenter) {
-            switch(pdlIdent.getGruppe()) {
-                case AKTORID:
-                    if(!pdlIdent.isHistorisk()) {
+            switch (pdlIdent.getGruppe()) {
+                case AKTORID -> {
+                    if (!pdlIdent.isHistorisk()) {
                         this.aktivAktoerId = pdlIdent.getIdent();
                     }
                     this.aktoerIds.add(pdlIdent.getIdent());
-                    break;
-                case FOLKEREGISTERIDENT:
-                    if(!pdlIdent.isHistorisk()) {
+                }
+                case FOLKEREGISTERIDENT -> {
+                    if (!pdlIdent.isHistorisk()) {
                         this.aktivFolkeregisterident = pdlIdent.getIdent();
                     }
                     this.foedselsnummer.add(pdlIdent.getIdent());
-                    break;
-                default:
-                    // noop
-                    break;
+                }
+                default -> {
+                }
+                // noop
             }
         }
     }
