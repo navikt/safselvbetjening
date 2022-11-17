@@ -7,9 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
 
-/**
- * @author Sigurd Midttun, Visma Consulting.
- */
 @Data
 @Builder
 @NoArgsConstructor

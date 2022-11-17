@@ -8,6 +8,6 @@ import lombok.Value;
 @Builder
 public class AvsenderMottaker {
 	@ToString.Exclude
-	private final String id;
-	private final AvsenderMottakerIdType type;
+	String id;
+	AvsenderMottakerIdType type;
 }

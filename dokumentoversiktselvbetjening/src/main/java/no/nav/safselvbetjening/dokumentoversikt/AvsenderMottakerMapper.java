@@ -11,9 +11,6 @@ import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Component
 public class AvsenderMottakerMapper {
     private static final Pattern FNR_SIMPLE_REGEX = Pattern.compile("[0-7]\\d{10}");
@@ -30,18 +27,13 @@ public class AvsenderMottakerMapper {
 
     private AvsenderMottakerIdType mapAvsenderMottakerIdType(String avsenderMottakerId, AvsenderMottakerIdTypeCode avsenderMottakerIdTypeCode) {
         if (avsenderMottakerIdTypeCode != null) {
-            switch (avsenderMottakerIdTypeCode) {
-                case FNR:
-                    return AvsenderMottakerIdType.FNR;
-                case ORGNR:
-                    return AvsenderMottakerIdType.ORGNR;
-                case HPRNR:
-                    return AvsenderMottakerIdType.HPRNR;
-                case UTL_ORG:
-                    return AvsenderMottakerIdType.UTL_ORG;
-                default:
-                    return AvsenderMottakerIdType.UKJENT;
-            }
+            return switch (avsenderMottakerIdTypeCode) {
+                case FNR -> AvsenderMottakerIdType.FNR;
+                case ORGNR -> AvsenderMottakerIdType.ORGNR;
+                case HPRNR -> AvsenderMottakerIdType.HPRNR;
+                case UTL_ORG -> AvsenderMottakerIdType.UTL_ORG;
+                default -> AvsenderMottakerIdType.UKJENT;
+            };
 
         } else {
             if (avsenderMottakerId == null) {

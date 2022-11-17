@@ -16,9 +16,6 @@ import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Slf4j
 @Component
 public class FagsakQueryService {

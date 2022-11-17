@@ -10,9 +10,6 @@ import static no.nav.safselvbetjening.domain.Variantformat.ARKIV;
 import static no.nav.safselvbetjening.domain.Variantformat.SLADDET;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Component
 public class HentDokumentValidator {
 	private static final Set<String> ALLOWED_VARIANTFORMAT = new HashSet<>(asList(ARKIV.name(), SLADDET.name()));

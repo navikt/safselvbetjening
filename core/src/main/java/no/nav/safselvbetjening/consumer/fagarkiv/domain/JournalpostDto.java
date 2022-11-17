@@ -10,9 +10,6 @@ import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

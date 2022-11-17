@@ -13,22 +13,22 @@ import java.util.List;
 @Value
 @Builder
 public class Journalpost {
-	private final String journalpostId;
+	String journalpostId;
 	@ToString.Exclude
-	private final String tittel;
-	private final Journalposttype journalposttype;
-	private final Journalstatus journalstatus;
-	private final String tema;
-	private final Sak sak;
-	private final AvsenderMottaker avsender;
-	private final AvsenderMottaker mottaker;
-	private final Kanal kanal;
-	private final String eksternReferanseId;
+	String tittel;
+	Journalposttype journalposttype;
+	Journalstatus journalstatus;
+	String tema;
+	Sak sak;
+	AvsenderMottaker avsender;
+	AvsenderMottaker mottaker;
+	Kanal kanal;
+	String eksternReferanseId;
 	@Builder.Default
-	private final List<RelevantDato> relevanteDatoer = new ArrayList<>();
+	List<RelevantDato> relevanteDatoer = new ArrayList<>();
 	@Builder.Default
-	private final List<DokumentInfo> dokumenter = new ArrayList<>();
-	private final TilgangJournalpost tilgang;
+	List<DokumentInfo> dokumenter = new ArrayList<>();
+	TilgangJournalpost tilgang;
 
 	@Data
 	@Builder

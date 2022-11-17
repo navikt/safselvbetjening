@@ -53,8 +53,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Mapper fra fagarkivet sitt domene til safselvbetjening sitt domene.
- *
- * @author Joakim Bjørnstad, Jbit AS
  */
 @Slf4j
 @Component

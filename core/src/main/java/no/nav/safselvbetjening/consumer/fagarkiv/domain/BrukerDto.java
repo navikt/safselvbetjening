@@ -5,9 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

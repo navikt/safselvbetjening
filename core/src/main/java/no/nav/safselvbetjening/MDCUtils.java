@@ -9,9 +9,6 @@ import java.util.UUID;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 public final class MDCUtils {
 	public static final String MDC_CALL_ID = "callId";
 	public static final String MDC_CONSUMER_ID = "consumerId";

@@ -8,9 +8,6 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

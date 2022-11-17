@@ -34,9 +34,6 @@ import static no.nav.safselvbetjening.graphql.GraphQLRequestContext.KEY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Slf4j
 @Component
 public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Object> {

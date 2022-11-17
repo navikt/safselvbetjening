@@ -7,7 +7,6 @@ import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,9 +23,6 @@ import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Slf4j
 @Component
 public class FagarkivConsumer {
@@ -35,7 +31,6 @@ public class FagarkivConsumer {
 	private static final String FAGARKIVHENTDOKUMENT_INSTANCE = "fagarkivhentdokument";
 	private final RestTemplate restTemplate;
 
-	@Autowired
 	public FagarkivConsumer(final RestTemplateBuilder restTemplateBuilder,
 							final SafSelvbetjeningProperties safSelvbetjeningProperties,
 							final ClientHttpRequestFactory clientHttpRequestFactory) {

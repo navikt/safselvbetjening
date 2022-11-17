@@ -14,9 +14,6 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Slf4j
 @Component
 public class FagsakJournalposterQueryService {

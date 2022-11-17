@@ -9,10 +9,10 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Value
 @Builder
 public class Arkivsak {
-    private final String arkivsakId;
-    private final String tema;
-    private final String fagsakId;
-    private final String fagsaksystem;
+    String arkivsakId;
+    String tema;
+    String fagsakId;
+    String fagsaksystem;
 
     public String getFagSakIdAndFagsaksystem() {
         if(isBlank(fagsakId) && isBlank(fagsaksystem)) {

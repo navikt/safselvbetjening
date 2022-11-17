@@ -8,13 +8,11 @@ import java.util.List;
 
 /**
  * Holder journalpost svar fra joark med litt stats.
- *
- * @author Joakim Bjørnstad, Jbit AS
  */
 @Value
 class Journalpostdata {
-	private final int antallFoerFiltrering;
-	private final List<Journalpost> journalposter;
+	int antallFoerFiltrering;
+	List<Journalpost> journalposter;
 
 	int getAntallEtterFiltrering() {
 		return journalposter.size();
