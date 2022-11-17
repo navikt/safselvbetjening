@@ -10,9 +10,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Data
 public class RelevantDato {
 	// Fallback for datoer som er påkrevd men av ukjente årsaker ikke finnes.

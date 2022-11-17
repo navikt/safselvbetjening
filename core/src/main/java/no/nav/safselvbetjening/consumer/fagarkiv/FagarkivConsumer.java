@@ -24,9 +24,6 @@ import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Slf4j
 @Component
 public class FagarkivConsumer {

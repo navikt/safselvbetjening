@@ -6,9 +6,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 class HentDokumentValidatorTest {
 	private final HentDokumentValidator validator = new HentDokumentValidator();
 

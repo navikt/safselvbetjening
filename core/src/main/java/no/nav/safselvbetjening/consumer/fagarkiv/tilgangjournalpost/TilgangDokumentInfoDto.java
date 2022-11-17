@@ -6,9 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 
-/**
- * @author Sigurd Midttun, Visma Consulting.
- */
 @Data
 @Builder
 @NoArgsConstructor

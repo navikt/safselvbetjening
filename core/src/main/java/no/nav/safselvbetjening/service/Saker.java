@@ -12,9 +12,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Stream.concat;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Getter
 public class Saker {
 	public static final String FAGSYSTEM_PENSJON = "PP01";

@@ -8,9 +8,6 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 
 import java.util.List;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Data
 @Builder
 public class FinnJournalposterRequestTo {

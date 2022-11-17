@@ -8,9 +8,6 @@ import org.springframework.stereotype.Component;
 import static graphql.schema.idl.TypeRuntimeWiring.newTypeWiring;
 import static no.nav.safselvbetjening.graphql.DateTimeScalar.DATE_TIME;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Component
 @Slf4j
 public class GraphQLWiring {

@@ -3,9 +3,6 @@ package no.nav.safselvbetjening.domain;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 public enum Tema {
 	AAP("Arbeidsavklaringspenger"),
 	AAR("Aa-registeret"),

@@ -10,9 +10,6 @@ import java.time.LocalDateTime;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 final class DateTimeScalar {
 	static final GraphQLScalarType DATE_TIME = GraphQLScalarType.newScalar()
 			.name("DateTime")

@@ -5,9 +5,6 @@ import no.nav.safselvbetjening.domain.Dokumentoversikt;
 
 import java.util.List;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Data
 public class GraphQLResponse {
 	private DataWrapper data;

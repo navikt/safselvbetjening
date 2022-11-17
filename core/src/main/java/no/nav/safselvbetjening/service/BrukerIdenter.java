@@ -9,9 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 public class BrukerIdenter {
     @Getter
     private String aktivAktoerId;

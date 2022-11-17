@@ -19,8 +19,6 @@ import static java.util.Objects.nonNull;
 
 /**
  * Tjeneste som konsoliderer arkivsaker fra fagarkivet og pensjonssaker.
- *
- * @author Joakim Bjørnstad, Jbit AS
  */
 @Slf4j
 @Component

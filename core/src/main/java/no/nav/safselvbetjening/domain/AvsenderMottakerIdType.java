@@ -1,8 +1,5 @@
 package no.nav.safselvbetjening.domain;
 
-/**
- * @author Olav Røstvold Thorsen, Visma Consulting.
- */
 public enum AvsenderMottakerIdType {
 	FNR,
 	ORGNR,

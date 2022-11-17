@@ -6,9 +6,6 @@ import lombok.Data;
 
 import java.time.ZonedDateTime;
 
-/**
- * @author Joakim Bjørnstad, Jbit AS
- */
 @Data
 @Builder
 @AllArgsConstructor

@@ -7,8 +7,6 @@ import java.util.Map;
 
 /**
  * Mapper fra mimetype til filendelse for filtyper som er kjent for fagarkivet til NAV.
- *
- * @author Joakim Bjørnstad, Jbit AS
  */
 public final class MimetypeFileextensionMapper {
 	private static final Map<String, String> mimetypeFileextensions = new HashMap<>();
