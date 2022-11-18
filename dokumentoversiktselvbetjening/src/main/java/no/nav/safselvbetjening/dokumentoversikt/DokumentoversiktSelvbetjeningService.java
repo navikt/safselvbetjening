@@ -29,6 +29,7 @@ import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.J;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.M;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.MO;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_IKKE_FUNNET_I_PDL;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 
 @Slf4j
@@ -61,7 +62,7 @@ class DokumentoversiktSelvbetjeningService {
 	Basedata queryBasedata(final String ident, final List<String> tema, final DataFetchingEnvironment environment) {
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(ident);
 		if (brukerIdenter.isEmpty()) {
-			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen identer på person.");
+			throw GraphQLException.of(NOT_FOUND, environment, FEILMELDING_BRUKER_IKKE_FUNNET_I_PDL);
 		}
 		final Saker saker = sakService.hentSaker(brukerIdenter, tema);
 		return new Basedata(brukerIdenter, saker);
