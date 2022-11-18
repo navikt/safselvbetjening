@@ -28,9 +28,11 @@ import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.E;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FS;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode.U;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.BRUKER_MATCHER_IKKE_TOKEN;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INGEN_GYLDIG_TOKEN;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.PARTSINNSYN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_INGEN_GYLDIG_TOKEN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_PARTSINNSYN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_INGEN_GYLDIG_TOKEN;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -100,7 +102,7 @@ public class HentDokumentService {
 
 		final String bruker = findBrukerIdent(tilgangJournalpostResponseTo.getTilgangJournalpostDto());
 		if (isBlank(bruker)) {
-			throw new HentTilgangDokumentException(PARTSINNSYN, "Tilgang til dokument avvist fordi bruker ikke kan utledes");
+			throw new HentTilgangDokumentException(DENY_REASON_PARTSINNSYN, "Tilgang til dokument avvist fordi bruker ikke kan utledes");
 		}
 
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(bruker);
@@ -150,12 +152,12 @@ public class HentDokumentService {
 			HentdokumentRequest hentdokumentRequest
 	) {
 		JwtToken jwtToken = hentdokumentRequest.getTokenValidationContext().getFirstValidToken()
-				.orElseThrow(() -> new HentTilgangDokumentException(INGEN_GYLDIG_TOKEN, "Ingen gyldige tokens i Authorization headeren."));
+				.orElseThrow(() -> new HentTilgangDokumentException(DENY_REASON_INGEN_GYLDIG_TOKEN, FEILMELDING_INGEN_GYLDIG_TOKEN));
 		List<String> identer = brukerIdenter.getIdenter();
 		String pid = jwtToken.getJwtTokenClaims().getStringClaim(CLAIM_PID);
 		String sub = jwtToken.getJwtTokenClaims().getStringClaim(CLAIM_SUB);
 		if (!identer.contains(pid) && !identer.contains(sub)) {
-			throw new HentTilgangDokumentException(BRUKER_MATCHER_IKKE_TOKEN, "Bruker på journalpost tilhører ikke bruker i token. Ident må ligge i pid eller sub claim.");
+			throw new HentTilgangDokumentException(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 		}
 	}
 }

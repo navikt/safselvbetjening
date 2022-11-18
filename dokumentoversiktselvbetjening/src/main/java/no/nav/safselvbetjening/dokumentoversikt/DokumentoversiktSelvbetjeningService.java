@@ -30,7 +30,6 @@ import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.M;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.MO;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.STATUS_OK;
 
 @Slf4j
 @Component
@@ -134,6 +133,7 @@ class DokumentoversiktSelvbetjeningService {
 	}
 
 	private Journalpost setDokumentVariant(Journalpost journalpost, BrukerIdenter brukerIdenter) {
+		String STATUS_OK = "ok";
 		journalpost.getDokumenter().forEach(dokumentInfo -> dokumentInfo.getDokumentvarianter().forEach(
 				dokumentvariant -> {
 					List<String> codes = utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter);

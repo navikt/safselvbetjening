@@ -64,7 +64,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	}
 
 	@Override
-	public Object get(DataFetchingEnvironment environment) throws Exception {
+	public Object get(DataFetchingEnvironment environment) {
 		try {
 			final GraphQLRequestContext graphQLRequestContext = environment.getGraphQlContext().<GraphQLRequestContext>getOrEmpty(KEY)
 					.orElseThrow(() -> GraphQLException.of(SERVER_ERROR, environment, "Kunne ikke hente intern requestcontext."));

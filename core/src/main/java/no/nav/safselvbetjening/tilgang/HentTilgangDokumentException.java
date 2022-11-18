@@ -2,16 +2,18 @@ package no.nav.safselvbetjening.tilgang;
 
 import lombok.Getter;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 public class HentTilgangDokumentException extends ResponseStatusException {
+
 	@Getter
 	private final String reasonCode;
+
 	public HentTilgangDokumentException(String reasonCode, String message) {
-		super(HttpStatus.UNAUTHORIZED, message);
+		super(UNAUTHORIZED, message);
 		this.reasonCode = reasonCode;
 	}
 

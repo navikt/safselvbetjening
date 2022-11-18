@@ -43,18 +43,34 @@ import static no.nav.safselvbetjening.domain.Kanal.SKAN_NETS;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_PEN;
 import static no.nav.safselvbetjening.domain.SkjermingType.FEIL;
 import static no.nav.safselvbetjening.domain.SkjermingType.POL;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.ANNEN_PART;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.FEILREGISTRERT;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.GDPR;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INNSKRENKET_PARTSINNSYN;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.INNSYNSDATO;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.KASSERT;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.KONTROLLSAK_FARSKAPSSAK;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.ORGANINTERNT;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.PARTSINNSYN;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKANNET_DOKUMENT;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.SKJULT_INNSYN;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.UGYLDIG_JOURNALSTATUS;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_ANNEN_PART;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_FEILREGISTRERT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_FORVALTNINGSNOTAT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_INNSKRENKET_PARTSINNSYN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_INNSYNSDATO;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_KASSERT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_TEMAER_UNNTATT_INNSYN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_ORGANINTERNT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_PARTSINNSYN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKANNET_DOKUMENT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKJULT_INNSYN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_UGYLDIG_JOURNALSTATUS;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_ANNEN_PART;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_FEILREGISTRERT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_FORVALTNINGSNOTAT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_GDPR;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_INNSKRENKET_PARTSINNSYN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_INNSYNSDATO;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_KASSERT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_ORGANINTERNT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_PARTSINNSYN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_SKANNET;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_SKJULT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_TEMAER_UNNTATT_INNSYN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_UGYLDIG_JOURNALSTATUS;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.lagFeilmeldingForDokument;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.lagFeilmeldingForJournalpost;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -103,73 +119,77 @@ public class UtledTilgangService {
 		List<String> feilmeldinger = new ArrayList<>();
 
 		if (!isAvsenderMottakerPart(journalpost, brukerIdenter.getIdenter())) {
-			feilmeldinger.add(PARTSINNSYN);
+			feilmeldinger.add(DENY_REASON_PARTSINNSYN);
 		}
 		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost)) {
-			feilmeldinger.add(INNSYNSDATO);
+			feilmeldinger.add(DENY_REASON_INNSYNSDATO);
 		}
 		if (isSkannetDokumentAndInnsynIsNotVises(journalpost)) {
-			feilmeldinger.add(SKANNET_DOKUMENT);
+			feilmeldinger.add(DENY_REASON_SKANNET_DOKUMENT);
 		}
 		if (isDokumentInnskrenketPartsinnsyn(dokumentInfo)) {
-			feilmeldinger.add(INNSKRENKET_PARTSINNSYN);
+			feilmeldinger.add(DENY_REASON_INNSKRENKET_PARTSINNSYN);
 		}
 		if (isDokumentGDPRRestricted(dokumentvariant)) {
-			feilmeldinger.add(GDPR);
+			feilmeldinger.add(DENY_REASON_GDPR);
 		}
 		if (isDokumentKassert(dokumentInfo)) {
-			feilmeldinger.add(KASSERT);
+			feilmeldinger.add(DENY_REASON_KASSERT);
 		}
 		return feilmeldinger;
 	}
 
 	public void utledTilgangHentDokument(Journalpost journalpost, BrukerIdenter brukerIdenter) {
+
+		// Tilgang for journalpost
 		if (!isBrukerPart(journalpost, brukerIdenter)) {
-			throw new HentTilgangDokumentException(PARTSINNSYN, "Tilgang til journalpost avvist fordi bruker ikke er part");
+			throw new HentTilgangDokumentException(DENY_REASON_PARTSINNSYN, lagFeilmeldingForJournalpost(FEILMELDING_PARTSINNSYN));
 		}
 		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost)) {
-			throw new HentTilgangDokumentException(INNSYNSDATO, "Tilgang til journalpost avvist fordi journalposten er opprettet før tidligst innsynsdato");
+			throw new HentTilgangDokumentException(DENY_REASON_INNSYNSDATO, lagFeilmeldingForJournalpost(FEILMELDING_INNSYNSDATO));
 		}
 		if (!isJournalpostFerdigstiltOrMidlertidig(journalpost)) {
-			throw new HentTilgangDokumentException(UGYLDIG_JOURNALSTATUS, "Tilgang til journalpost avvist fordi journalpost er ikke ferdigstilt eller midlertidig");
+			throw new HentTilgangDokumentException(DENY_REASON_UGYLDIG_JOURNALSTATUS, lagFeilmeldingForJournalpost(FEILMELDING_UGYLDIG_JOURNALSTATUS));
 		}
 		if (isJournalpostFeilregistrert(journalpost)) {
-			throw new HentTilgangDokumentException(FEILREGISTRERT, "Tilgang til journalpost avvist fordi journalpost er feilregistrert");
+			throw new HentTilgangDokumentException(DENY_REASON_FEILREGISTRERT, lagFeilmeldingForJournalpost(FEILMELDING_FEILREGISTRERT));
 		}
 		if (!isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost)) {
-			throw new HentTilgangDokumentException(KONTROLLSAK_FARSKAPSSAK, "Tilgang til journalpost avvist fordi journalpost er markert som kontrollsak eller farskapssak");
+			throw new HentTilgangDokumentException(DENY_REASON_TEMAER_UNNTATT_INNSYN, lagFeilmeldingForJournalpost(FEILMELDING_TEMAER_UNNTATT_INNSYN));
 		}
 		if (!isJournalpostNotGDPRRestricted(journalpost)) {
-			throw new HentTilgangDokumentException(GDPR, "Tilgang til journalpost avvist ihht. gdpr");
+			throw new HentTilgangDokumentException(DENY_REASON_GDPR, lagFeilmeldingForJournalpost(FEILMELDING_GDPR));
 		}
 		if (!isJournalpostForvaltningsnotat(journalpost)) {
-			throw new HentTilgangDokumentException(DokumentTilgangMessage.FORVALTNINGSNOTAT, "Tilgang til journalpost avvist fordi journalpost er notat, men hoveddokumentet er ikke forvaltningsnotat");
+			throw new HentTilgangDokumentException(DENY_REASON_FORVALTNINGSNOTAT, lagFeilmeldingForJournalpost(FEILMELDING_FORVALTNINGSNOTAT));
 		}
 		if (!isJournalpostNotOrganInternt(journalpost)) {
-			throw new HentTilgangDokumentException(ORGANINTERNT, "Tilgang til journalpost avvist pga organinterne dokumenter på journalposten");
+			throw new HentTilgangDokumentException(DENY_REASON_ORGANINTERNT, lagFeilmeldingForJournalpost(FEILMELDING_ORGANINTERNT));
 		}
 		if (isJournalpostInnsynSkjult(journalpost.getTilgang())) {
-			throw new HentTilgangDokumentException(SKJULT_INNSYN, "Tilgang til journalpost avvist pga journalpost er skjult");
+			throw new HentTilgangDokumentException(DENY_REASON_SKJULT_INNSYN, lagFeilmeldingForJournalpost(FEILMELDING_SKJULT));
 		}
+
+		// Tilgang for dokument
 		if (!isAvsenderMottakerPart(journalpost, brukerIdenter.getIdenter())) {
-			throw new HentTilgangDokumentException(ANNEN_PART, "Tilgang til dokument avvist fordi dokumentet er sendt til/fra andre parter enn bruker");
+			throw new HentTilgangDokumentException(DENY_REASON_ANNEN_PART, lagFeilmeldingForDokument(FEILMELDING_ANNEN_PART));
 		}
 		if (isSkannetDokumentAndInnsynIsNotVises(journalpost)) {
-			throw new HentTilgangDokumentException(SKANNET_DOKUMENT, "Tilgang til dokument avvist fordi dokumentet er skannet.");
+			throw new HentTilgangDokumentException(DENY_REASON_SKANNET_DOKUMENT, lagFeilmeldingForDokument(FEILMELDING_SKANNET));
 		}
 		if (isDokumentInnskrenketPartsinnsyn(journalpost.getDokumenter().get(0))) {
-			throw new HentTilgangDokumentException(INNSKRENKET_PARTSINNSYN, "Tilgang til dokument avvist fordi dokument er markert med innskrenket partsinnsyn");
+			throw new HentTilgangDokumentException(DENY_REASON_INNSKRENKET_PARTSINNSYN, lagFeilmeldingForDokument(FEILMELDING_INNSKRENKET_PARTSINNSYN));
 		}
 		if (isDokumentGDPRRestricted(journalpost.getDokumenter().get(0).getDokumentvarianter().get(0))) {
-			throw new HentTilgangDokumentException(GDPR, "Tilgang til dokument avvist ihht. gdrp");
+			throw new HentTilgangDokumentException(DENY_REASON_GDPR, lagFeilmeldingForDokument(FEILMELDING_GDPR));
 		}
 		if (isDokumentKassert(journalpost.getDokumenter().get(0))) {
-			throw new HentTilgangDokumentException(KASSERT, "Tilgang til dokument avvist fordi dokumentet er kassert");
+			throw new HentTilgangDokumentException(DENY_REASON_KASSERT, lagFeilmeldingForDokument(FEILMELDING_KASSERT));
 		}
 	}
 
 	/**
-	 * 1a) Bruker må være part for å se journalposter
+	 * 1a) Bruker må være part for å se journalpost
 	 */
 	public boolean isBrukerPart(Journalpost journalpost, BrukerIdenter identer) {
 		Journalstatus journalstatus = journalpost.getJournalstatus();
@@ -213,7 +233,7 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 1c) Bruker får kun se midlertidige eller ferdigstilte journalposter
+	 * 1c) Bruker får kun se midlertidige eller ferdigstilte journalposter (status M, MO, J, FS, FL eller E)
 	 */
 	boolean isJournalpostFerdigstiltOrMidlertidig(Journalpost journalpost) {
 		return JOURNALSTATUS_FERDIGSTILT.contains(journalpost.getJournalstatus()) || MOTTATT.equals(journalpost.getJournalstatus());
@@ -249,7 +269,7 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 1f) Bruker kan ikke få se journalposter som er begrenset ihht. gdpr
+	 * 1f) Bruker får ikke se journalposter som er begrenset ihht. GDPR
 	 */
 	public boolean isJournalpostNotGDPRRestricted(Journalpost journalpost) {
 		return !GDPR_SKJERMING_TYPE.contains(journalpost.getTilgang().getSkjerming());
@@ -273,7 +293,7 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 1h) Journalposter som har organinterne dokumenter skal ikke vises
+	 * 1h) Journalposter med ett eller flere dokumenter markert som organinternt skal ikke vises
 	 */
 	public boolean isJournalpostNotOrganInternt(Journalpost journalpost) {
 		if (!journalpost.getDokumenter().isEmpty()) {
@@ -287,7 +307,7 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 1i) Bruker kan ikke få se journalposter som innsyn begynner med SKJULES_*
+	 * 1i) Bruker kan ikke få se journalposter der innsyn begynner med SKJULES_*
 	 */
 	public boolean isJournalpostInnsynSkjult(Journalpost.TilgangJournalpost tilgang) {
 		if (tilgang.getInnsyn() != null) {
@@ -343,7 +363,7 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 2e) Dokumenter som er begrenset ihht. gdpr skal ikke vises
+	 * 2e) Dokumenter som er begrenset ihht. GDPR skal ikke vises
 	 */
 	boolean isDokumentGDPRRestricted(Dokumentvariant dokumentvariant) {
 		Dokumentvariant.TilgangVariant tilgangVariant = dokumentvariant.getTilgangVariant();
