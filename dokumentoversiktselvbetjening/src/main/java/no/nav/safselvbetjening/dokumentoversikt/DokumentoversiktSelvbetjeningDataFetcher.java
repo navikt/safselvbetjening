@@ -99,7 +99,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 							" Kall til denne tjenesten går ikke gjennom."))
 					.build();
 		} catch (Exception e) {
-			log.error("dokumentoversiktSelvbetjening ukjent teknisk feil", e);
+			log.error("dokumentoversiktSelvbetjening ukjent teknisk feil. Undersøk grunnen og håndter feilen i koden slik at dette kan unngås.", e);
 			return DataFetcherResult.newResult()
 					.error(SERVER_ERROR.construct(environment, FEILMELDING_UKJENT_TEKNISK_FEIL))
 					.build();

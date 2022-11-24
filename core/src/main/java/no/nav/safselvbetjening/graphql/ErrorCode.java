@@ -30,7 +30,7 @@ public enum ErrorCode {
     public static final String FEILMELDING_IDENT_ER_BLANK = "Ident i query er blank. Denne må være satt.";
     public static final String FEILMELDING_IDENT_ER_UGYLDIG = "Ident i query er ugyldig. Det må være et gyldig fødselsnummer eller aktørid.";
     public static final String FEILMELDING_KUNNE_IKKE_HENTE_INTERN_REQUESTCONTEXT = "Kunne ikke hente intern requestcontext.";
-    public static final String FEILMELDING_UKJENT_TEKNISK_FEIL = "Ukjent teknisk feil.";
+    public static final String FEILMELDING_UKJENT_TEKNISK_FEIL = "Ukjent teknisk feil. Gi beskjed på Slack-kanal #team_dokumentløsninger hvis du ser denne feilmeldingen.";
 
     private final ErrorClassification type;
     private final String text;
