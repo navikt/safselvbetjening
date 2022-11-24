@@ -28,6 +28,12 @@ import static no.nav.safselvbetjening.MDCUtils.getConsumerIdFromToken;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
 import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_IDENT_ER_BLANK;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_IDENT_ER_UGYLDIG;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_KUNNE_IKKE_HENTE_INTERN_REQUESTCONTEXT;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_TOKEN_MANGLER_I_HEADER;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_TOKEN_MISMATCH;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_UKJENT_TEKNISK_FEIL;
 import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
 import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
 import static no.nav.safselvbetjening.graphql.GraphQLRequestContext.KEY;
@@ -64,10 +70,10 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	}
 
 	@Override
-	public Object get(DataFetchingEnvironment environment) throws Exception {
+	public Object get(DataFetchingEnvironment environment) {
 		try {
 			final GraphQLRequestContext graphQLRequestContext = environment.getGraphQlContext().<GraphQLRequestContext>getOrEmpty(KEY)
-					.orElseThrow(() -> GraphQLException.of(SERVER_ERROR, environment, "Kunne ikke hente intern requestcontext."));
+					.orElseThrow(() -> GraphQLException.of(SERVER_ERROR, environment, FEILMELDING_KUNNE_IKKE_HENTE_INTERN_REQUESTCONTEXT));
 			MDC.put(MDC_CALL_ID, graphQLRequestContext.getNavCallId());
 			MDC.put(MDC_CONSUMER_ID, getConsumerIdFromToken(graphQLRequestContext.getTokenValidationContext()));
 			final String ident = environment.getArgument("ident");
@@ -93,9 +99,9 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 							" Kall til denne tjenesten går ikke gjennom."))
 					.build();
 		} catch (Exception e) {
-			log.error("dokumentoversiktSelvbetjening ukjent teknisk feil", e);
+			log.error("dokumentoversiktSelvbetjening ukjent teknisk feil. Undersøk grunnen og håndter feilen i koden slik at dette kan unngås.", e);
 			return DataFetcherResult.newResult()
-					.error(SERVER_ERROR.construct(environment, "Ukjent teknisk feil."))
+					.error(SERVER_ERROR.construct(environment, FEILMELDING_UKJENT_TEKNISK_FEIL))
 					.build();
 		} finally {
 			MDC.clear();
@@ -162,22 +168,21 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 
 	private void validateIdent(String ident, DataFetchingEnvironment environment) {
 		if (isBlank(ident)) {
-			throw GraphQLException.of(BAD_REQUEST, environment, "Ident argumentet er blankt.");
+			throw GraphQLException.of(BAD_REQUEST, environment, FEILMELDING_IDENT_ER_BLANK);
 		}
 
 		if (!isNumeric(ident)) {
-			throw GraphQLException.of(BAD_REQUEST, environment, "Ident argumentet er ugyldig. " +
-					"Det må være et fødselsnummer eller en aktørid.");
+			throw GraphQLException.of(BAD_REQUEST, environment, FEILMELDING_IDENT_ER_UGYLDIG);
 		}
 	}
 
 	private void validateTokenIdent(String ident, DataFetchingEnvironment environment,
 									GraphQLRequestContext graphQLRequestContext) {
 		JwtToken jwtToken = graphQLRequestContext.getTokenValidationContext().getFirstValidToken()
-				.orElseThrow(() -> GraphQLException.of(UNAUTHORIZED, environment, "Ingen gyldige tokens i Authorization headeren."));
+				.orElseThrow(() -> GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MANGLER_I_HEADER));
 		if (!jwtToken.getJwtTokenClaims().containsClaim(CLAIM_PID, ident) &&
 				!jwtToken.getJwtTokenClaims().containsClaim(CLAIM_SUB, ident)) {
-			throw GraphQLException.of(UNAUTHORIZED, environment, "Brukers ident i token matcher ikke ident i query. Ident må ligge i pid eller sub claim.");
+			throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MISMATCH);
 		}
 	}
 

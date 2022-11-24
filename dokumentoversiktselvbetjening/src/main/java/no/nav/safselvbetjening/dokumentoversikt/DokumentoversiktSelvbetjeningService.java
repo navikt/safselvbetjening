@@ -29,8 +29,8 @@ import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.J;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.M;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.MO;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_IKKE_FUNNET_I_PDL;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
-import static no.nav.safselvbetjening.tilgang.DokumentTilgangMessage.STATUS_OK;
 
 @Slf4j
 @Component
@@ -38,6 +38,8 @@ class DokumentoversiktSelvbetjeningService {
 	private static final List<JournalStatusCode> MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(MO, M, J, E, FL, FS);
 	private static final List<JournalStatusCode> FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(J, E, FL, FS);
 	private static final List<JournalpostTypeCode> ALLE_JOURNALPOSTTYPER = Arrays.asList(JournalpostTypeCode.values());
+	private static final String STATUS_OK = "ok";
+
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final IdentService identService;
 	private final SakService sakService;
@@ -62,7 +64,7 @@ class DokumentoversiktSelvbetjeningService {
 	Basedata queryBasedata(final String ident, final List<String> tema, final DataFetchingEnvironment environment) {
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(ident);
 		if (brukerIdenter.isEmpty()) {
-			throw GraphQLException.of(NOT_FOUND, environment, "Finner ingen identer på person.");
+			throw GraphQLException.of(NOT_FOUND, environment, FEILMELDING_BRUKER_IKKE_FUNNET_I_PDL);
 		}
 		final Saker saker = sakService.hentSaker(brukerIdenter, tema);
 		return new Basedata(brukerIdenter, saker);

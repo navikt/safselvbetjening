@@ -23,6 +23,15 @@ public enum ErrorCode {
     BAD_REQUEST(ValidationError, "bad_request"),
     SERVER_ERROR(DataFetchingException, "server_error");
 
+    public static final String FEILMELDING_BRUKER_KAN_IKKE_UTLEDES = "Tilgang til dokument avvist fordi bruker ikke kan utledes";
+    public static final String FEILMELDING_TOKEN_MANGLER_I_HEADER = "Ingen gyldige tokens i Authorization-header.";
+    public static final String FEILMELDING_TOKEN_MISMATCH = "Brukers ident i token matcher ikke ident i query. Ident må ligge i pid eller sub claim.";
+    public static final String FEILMELDING_BRUKER_IKKE_FUNNET_I_PDL = "Finner ingen identer på person i PDL.";
+    public static final String FEILMELDING_IDENT_ER_BLANK = "Ident i query er blank. Denne må være satt.";
+    public static final String FEILMELDING_IDENT_ER_UGYLDIG = "Ident i query er ugyldig. Det må være et gyldig fødselsnummer eller aktørid.";
+    public static final String FEILMELDING_KUNNE_IKKE_HENTE_INTERN_REQUESTCONTEXT = "Kunne ikke hente intern requestcontext.";
+    public static final String FEILMELDING_UKJENT_TEKNISK_FEIL = "Ukjent teknisk feil. Gi beskjed på Slack-kanal #team_dokumentløsninger hvis du ser denne feilmeldingen.";
+
     private final ErrorClassification type;
     private final String text;
 
