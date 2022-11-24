@@ -38,6 +38,8 @@ class DokumentoversiktSelvbetjeningService {
 	private static final List<JournalStatusCode> MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(MO, M, J, E, FL, FS);
 	private static final List<JournalStatusCode> FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(J, E, FL, FS);
 	private static final List<JournalpostTypeCode> ALLE_JOURNALPOSTTYPER = Arrays.asList(JournalpostTypeCode.values());
+	private static final String STATUS_OK = "ok";
+
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final IdentService identService;
 	private final SakService sakService;
@@ -134,7 +136,6 @@ class DokumentoversiktSelvbetjeningService {
 	}
 
 	private Journalpost setDokumentVariant(Journalpost journalpost, BrukerIdenter brukerIdenter) {
-		String STATUS_OK = "ok";
 		journalpost.getDokumenter().forEach(dokumentInfo -> dokumentInfo.getDokumentvarianter().forEach(
 				dokumentvariant -> {
 					List<String> codes = utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter);

@@ -23,6 +23,7 @@ public enum ErrorCode {
     BAD_REQUEST(ValidationError, "bad_request"),
     SERVER_ERROR(DataFetchingException, "server_error");
 
+    public static final String FEILMELDING_BRUKER_KAN_IKKE_UTLEDES = "Tilgang til dokument avvist fordi bruker ikke kan utledes";
     public static final String FEILMELDING_TOKEN_MANGLER_I_HEADER = "Ingen gyldige tokens i Authorization-header.";
     public static final String FEILMELDING_TOKEN_MISMATCH = "Brukers ident i token matcher ikke ident i query. Ident må ligge i pid eller sub claim.";
     public static final String FEILMELDING_BRUKER_IKKE_FUNNET_I_PDL = "Finner ingen identer på person i PDL.";

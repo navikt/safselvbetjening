@@ -28,6 +28,7 @@ import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.E;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FS;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode.U;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_INGEN_GYLDIG_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_PARTSINNSYN;
@@ -102,7 +103,7 @@ public class HentDokumentService {
 
 		final String bruker = findBrukerIdent(tilgangJournalpostResponseTo.getTilgangJournalpostDto());
 		if (isBlank(bruker)) {
-			throw new HentTilgangDokumentException(DENY_REASON_PARTSINNSYN, "Tilgang til dokument avvist fordi bruker ikke kan utledes");
+			throw new HentTilgangDokumentException(DENY_REASON_PARTSINNSYN, FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);
 		}
 
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(bruker);
