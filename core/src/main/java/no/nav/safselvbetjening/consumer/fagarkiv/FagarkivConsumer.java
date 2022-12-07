@@ -2,7 +2,6 @@ package no.nav.safselvbetjening.consumer.fagarkiv;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.safselvbetjening.NavHeaders;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
@@ -20,6 +19,8 @@ import org.springframework.web.client.RestTemplate;
 import java.time.Duration;
 
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
+import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
+import static org.springframework.http.HttpHeaders.ACCEPT_ENCODING;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
@@ -49,7 +50,7 @@ public class FagarkivConsumer {
 	@CircuitBreaker(name = FAGARKIV_INSTANCE)
 	public FinnJournalposterResponseTo finnJournalposter(final FinnJournalposterRequestTo request) {
 		try {
-			HttpEntity<FinnJournalposterRequestTo> requestEntity = new HttpEntity<>(request, createCorrelationIdHeader());
+			HttpEntity<FinnJournalposterRequestTo> requestEntity = new HttpEntity<>(request, baseHttpHeaders());
 			return restTemplate.exchange("/finnjournalposter",
 					POST,
 					requestEntity,
@@ -64,7 +65,7 @@ public class FagarkivConsumer {
 		try {
 			return restTemplate.exchange("/henttilgangjournalpost/{journalpostId}/{dokumentInfoId}/{variantFormat}",
 					GET,
-					new HttpEntity<>(createCorrelationIdHeader()),
+					new HttpEntity<>(httpHeadersWithEncoding()),
 					TilgangJournalpostResponseTo.class,
 					journalpostId, dokumentInfoId, variantFormat).getBody();
 		} catch (HttpClientErrorException.NotFound e) {
@@ -84,7 +85,7 @@ public class FagarkivConsumer {
 		try {
 			ResponseEntity<String> responseEntity = restTemplate.exchange("/hentdokument/{dokumentInfoId}/{variantFormat}",
 					GET,
-					new HttpEntity<>(createCorrelationIdHeader()), String.class, dokumentInfoId, variantFormat);
+					new HttpEntity<>(baseHttpHeaders()), String.class, dokumentInfoId, variantFormat);
 			return HentDokumentResponseTo.builder()
 					.dokument(responseEntity.getBody())
 					.mediaType(responseEntity.getHeaders().getContentType())
@@ -99,9 +100,15 @@ public class FagarkivConsumer {
 		}
 	}
 
-	private HttpHeaders createCorrelationIdHeader() {
+	private HttpHeaders baseHttpHeaders() {
 		HttpHeaders headers = new HttpHeaders();
-		headers.set(NavHeaders.NAV_CALLID, getCallId());
+		headers.set(NAV_CALLID, getCallId());
+		return headers;
+	}
+
+	private HttpHeaders httpHeadersWithEncoding() {
+		HttpHeaders headers = baseHttpHeaders();
+		headers.set(ACCEPT_ENCODING, "gzip");
 		return headers;
 	}
 }
