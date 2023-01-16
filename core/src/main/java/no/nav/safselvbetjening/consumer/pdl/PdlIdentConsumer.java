@@ -2,26 +2,21 @@ package no.nav.safselvbetjening.consumer.pdl;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
-import no.nav.safselvbetjening.azure.AzureProperties;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
+import no.nav.safselvbetjening.azure.AzureToken;
+import no.nav.safselvbetjening.azure.WebClientAzureAuthentication;
 import no.nav.safselvbetjening.consumer.PersonIkkeFunnetException;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
-import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_ID_PDL;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 /**
@@ -34,15 +29,15 @@ class PdlIdentConsumer implements IdentConsumer {
 
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final WebClient webClient;
-	private final ReactiveOAuth2AuthorizedClientManager oAuth2AuthorizedClientManager;
 
 	public PdlIdentConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
 							final WebClient webClient,
-							final ReactiveOAuth2AuthorizedClientManager oAuth2AuthorizedClientManager
+							final AzureToken azureToken
 	) {
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
-		this.webClient = webClient;
-		this.oAuth2AuthorizedClientManager = oAuth2AuthorizedClientManager;
+		this.webClient = webClient.mutate()
+				.filter(new WebClientAzureAuthentication(safSelvbetjeningProperties.getEndpoints().getPdl().getScope(), azureToken))
+				.build();
 	}
 
 	@Retry(name = PDL_INSTANCE)
@@ -52,7 +47,6 @@ class PdlIdentConsumer implements IdentConsumer {
 
 		PdlResponse pdlResponse = webClient.post()
 				.uri(safSelvbetjeningProperties.getEndpoints().getPdl().getUrl())
-				.attributes(getOAuth2AuthorizedClient())
 				.headers(this::createHeaders)
 				.bodyValue(mapHentIdenterQuery(ident))
 				.retrieve()
@@ -89,10 +83,5 @@ class PdlIdentConsumer implements IdentConsumer {
 	private void createHeaders(HttpHeaders headers) {
 		headers.setContentType(APPLICATION_JSON);
 		headers.set(NAV_CALLID, getCallId());
-	}
-
-	private Consumer<Map<String, Object>> getOAuth2AuthorizedClient() {
-		Mono<OAuth2AuthorizedClient> clientMono = oAuth2AuthorizedClientManager.authorize(AzureProperties.getOAuth2AuthorizeRequestForAzure(CLIENT_REGISTRATION_ID_PDL));
-		return ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(clientMono.block());
 	}
 }

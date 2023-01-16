@@ -2,7 +2,6 @@
   "APP_NAME": "safselvbetjening-q1",
   "KAFKA_POOL": "nav-dev",
   "SERVICEUSER_VAULT_PATH": "/serviceuser/data/dev/srvsafselvbetjening",
-  "AZURE_APP_TOKEN_URL": "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/oauth2/v2.0/token",
   "SAFSELVBETJENING_ENDPOINTS_PDL_URL": "https://pdl-api-q1.dev.intern.nav.no/graphql",
   "SAFSELVBETJENING_ENDPOINTS_PDL_SCOPE": "api://dev-fss.pdl.pdl-api-q1/.default",
   "SAFSELVBETJENING_ENDPOINTS_SAK": "https://sak-q1.dev.adeo.no/api/v1/saker",
