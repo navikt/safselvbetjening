@@ -8,20 +8,15 @@ import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
-
 @Configuration
 public class AzureOAuthEnabledWebClientConfig {
 
 	@Bean
 	WebClient webClient(WebClient.Builder webClientBuilder) {
-
-		var nettyHttpClient = HttpClient.create()
-				.responseTimeout(Duration.of(20, SECONDS));
-		var clientHttpConnector = new ReactorClientHttpConnector(nettyHttpClient);
-
+		HttpClient httpClient = HttpClient.create().responseTimeout(Duration.ofSeconds(60))
+				.proxyWithSystemProperties();
 		return webClientBuilder.clone()
-				.clientConnector(clientHttpConnector)
+				.clientConnector(new ReactorClientHttpConnector(httpClient))
 				.build();
 	}
 }
