@@ -6,7 +6,6 @@ import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.azure.AzureToken;
 import no.nav.safselvbetjening.azure.WebClientAzureAuthentication;
 import no.nav.safselvbetjening.consumer.PersonIkkeFunnetException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -15,9 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static no.nav.safselvbetjening.MDCUtils.getCallId;
-import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * PDL implementasjon av {@link IdentConsumer}
@@ -37,7 +35,7 @@ class PdlIdentConsumer implements IdentConsumer {
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 		this.webClient = webClient.mutate()
 				.filter(new WebClientAzureAuthentication(safSelvbetjeningProperties.getEndpoints().getPdl().getScope(), azureToken))
-				.defaultHeaders(this::createHeaders)
+				.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 				.build();
 	}
 
@@ -80,8 +78,4 @@ class PdlIdentConsumer implements IdentConsumer {
 		};
 	}
 
-	private void createHeaders(HttpHeaders headers) {
-		headers.setContentType(APPLICATION_JSON);
-		headers.set(NAV_CALLID, getCallId());
-	}
 }
