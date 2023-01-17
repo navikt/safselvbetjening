@@ -9,18 +9,19 @@ import no.nav.safselvbetjening.azure.WebClientAzureAuthentication;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.function.Consumer;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 
 @Slf4j
 @Component
@@ -39,6 +40,7 @@ public class PensjonSakRestConsumer {
 	) {
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 		this.webClient = webClient.mutate()
+				.defaultHeader(CONTENT_TYPE, APPLICATION_PROBLEM_JSON_VALUE)
 				.filter(new WebClientAzureAuthentication(safSelvbetjeningProperties.getEndpoints().getPensjon().getScope(), azureToken))
 				.build();
 
@@ -66,9 +68,9 @@ public class PensjonSakRestConsumer {
 	private Consumer<Throwable> handleErrorBrukerForSak() {
 		return error -> {
 			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-				throw new ConsumerFunctionalException(String.format("hentBrukerForSak feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), response.getMessage()), error);
+				throw new ConsumerFunctionalException(format("hentBrukerForSak feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), response.getMessage()), error);
 			} else {
-				throw new ConsumerTechnicalException(String.format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
+				throw new ConsumerTechnicalException(format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
 			}
 		};
 	}
@@ -84,16 +86,6 @@ public class PensjonSakRestConsumer {
 				.uri(safSelvbetjeningProperties.getEndpoints().getPensjon().getUrl() + "/pen/springapi/sak/sammendrag")
 				.header("fnr", personident)
 				.retrieve()
-				.onStatus(HttpStatus::is4xxClientError, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(body -> {
-					if (clientResponse.statusCode() == NOT_FOUND) {
-						return Mono.error(new ConsumerFunctionalException(
-								String.format("hentPensjonssaker feilet funksjonelt (person ikke funnet). Statuskode=%s. Feilmelding=%s", clientResponse.statusCode(), body)
-						));
-					}
-					return Mono.error(new ConsumerFunctionalException(
-							String.format("hentPensjonssaker feilet funksjonelt med statuskode=%s. Feilmelding=%s", clientResponse.statusCode(), body)
-					));
-				}))
 				.bodyToMono(new ParameterizedTypeReference<List<Pensjonsak>>() {
 				})
 				.doOnError(handleErrorPensjonssaker())
@@ -102,10 +94,16 @@ public class PensjonSakRestConsumer {
 
 	private Consumer<Throwable> handleErrorPensjonssaker() {
 		return error -> {
-			if (error instanceof ConsumerFunctionalException response) {
-				throw response;
+			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
+				if (NOT_FOUND.equals(((WebClientResponseException) error).getStatusCode())) {
+					throw new ConsumerFunctionalException(
+							format("hentPensjonssaker feilet funksjonelt (person ikke funnet). Statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error);
+				}
+				throw new ConsumerFunctionalException(
+						format("hentPensjonssaker feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error);
+
 			} else {
-				throw new ConsumerTechnicalException(String.format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
+				throw new ConsumerTechnicalException(format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
 			}
 		};
 	}

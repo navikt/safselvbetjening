@@ -13,8 +13,6 @@ import javax.validation.constraints.NotEmpty;
 public record AzureProperties(
 		@NotEmpty String appClientId,
 		@NotEmpty String appClientSecret,
-		@NotEmpty String appTenantId,
-		@NotEmpty String appWellKnownUrl,
 		@NotEmpty String openidConfigTokenEndpoint
 ) {
 }

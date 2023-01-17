@@ -16,6 +16,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import static java.lang.String.format;
 import static no.nav.safselvbetjening.cache.CacheConfig.AZURE_TOKEN_CACHE;
 
 @Slf4j
@@ -54,21 +55,21 @@ public class AzureToken {
 
 		try {
 			return objectMapper.readValue(responseJson, TokenResponse.class).accessToken();
-		} catch (JsonProcessingException | ClassCastException e) {
-			throw new AzureTokenException(String.format("Klarte ikke parse token fra Azure. Feilmelding=%s", e.getMessage()), e);
+		} catch (JsonProcessingException e) {
+			throw new AzureTokenException(format("Klarte ikke parse token fra Azure. Feilmelding=%s", e.getMessage()), e);
 		}
 	}
 
 	private void handleError(Throwable error) {
 		if (error instanceof WebClientResponseException response && ((WebClientResponseException) error).getStatusCode().is4xxClientError()) {
 			throw new AzureTokenException(
-					String.format("Klarte ikke hente token fra Azure. Feilet med statuskode=%s Feilmelding=%s",
+					format("Klarte ikke hente token fra Azure. Feilet med statuskode=%s Feilmelding=%s",
 							response.getRawStatusCode(),
 							response.getMessage()),
 					error);
 		} else {
 			throw new AzureTokenTechnicalException(
-					String.format("Kall mot Azure feilet med feilmelding=%s", error.getMessage()),
+					format("Kall mot Azure feilet med feilmelding=%s", error.getMessage()),
 					error);
 		}
 	}

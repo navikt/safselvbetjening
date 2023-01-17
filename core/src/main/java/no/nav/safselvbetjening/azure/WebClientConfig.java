@@ -9,7 +9,7 @@ import reactor.netty.http.client.HttpClient;
 import java.time.Duration;
 
 @Configuration
-public class AzureOAuthEnabledWebClientConfig {
+public class WebClientConfig {
 
 	@Bean
 	WebClient webClient(WebClient.Builder webClientBuilder) {

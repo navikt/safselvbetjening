@@ -37,6 +37,7 @@ class PdlIdentConsumer implements IdentConsumer {
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 		this.webClient = webClient.mutate()
 				.filter(new WebClientAzureAuthentication(safSelvbetjeningProperties.getEndpoints().getPdl().getScope(), azureToken))
+				.defaultHeaders(this::createHeaders)
 				.build();
 	}
 
@@ -47,7 +48,6 @@ class PdlIdentConsumer implements IdentConsumer {
 
 		PdlResponse pdlResponse = webClient.post()
 				.uri(safSelvbetjeningProperties.getEndpoints().getPdl().getUrl())
-				.headers(this::createHeaders)
 				.bodyValue(mapHentIdenterQuery(ident))
 				.retrieve()
 				.bodyToMono(PdlResponse.class)
