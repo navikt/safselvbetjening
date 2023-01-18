@@ -9,8 +9,6 @@ spec:
   kafka:
     pool: {{KAFKA_POOL}}
   env:
-    - name: AZURE_APP_TOKEN_URL
-      value: {{AZURE_APP_TOKEN_URL}}
     - name: SAFSELVBETJENING_ENDPOINTS_PDL_URL
       value: {{SAFSELVBETJENING_ENDPOINTS_PDL_URL}}
     - name: SAFSELVBETJENING_ENDPOINTS_PDL_SCOPE
