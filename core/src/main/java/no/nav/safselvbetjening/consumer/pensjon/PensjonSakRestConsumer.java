@@ -21,7 +21,7 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @Component
@@ -40,7 +40,7 @@ public class PensjonSakRestConsumer {
 	) {
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 		this.webClient = webClient.mutate()
-				.defaultHeader(CONTENT_TYPE, APPLICATION_PROBLEM_JSON_VALUE)
+				.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 				.filter(new WebClientAzureAuthentication(safSelvbetjeningProperties.getEndpoints().getPensjon().getScope(), azureToken))
 				.build();
 
