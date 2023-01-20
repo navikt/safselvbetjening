@@ -92,7 +92,7 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	public List<HoveddokumentLest> getAllCurrentRecordsOnTopicUt() {
-		return StreamSupport.stream(KafkaTestUtils.getRecords(consumer, Duration.ofSeconds(15)).records(UT_TOPIC).spliterator(), false)
+		return StreamSupport.stream(KafkaTestUtils.getRecords(consumer, Duration.ofSeconds(2)).records(UT_TOPIC).spliterator(), false)
 				.map(ConsumerRecord::value)
 				.collect(Collectors.toList());
 	}

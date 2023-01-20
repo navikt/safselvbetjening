@@ -29,7 +29,6 @@
 		<logstash-logback-encoder.version>7.2</logstash-logback-encoder.version>
 		<token-support.version>3.0.2</token-support.version>
 		<resilience4j.version>2.0.2</resilience4j.version>
-		<!--<bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>-->
 		<confluent.version>7.3.1</confluent.version>
 		<teamdokumenthandtering-avro-schemas.version>357738b9</teamdokumenthandtering-avro-schemas.version>
 
@@ -83,11 +82,6 @@
 				<artifactId>resilience4j-spring-boot2</artifactId>
 				<version>${resilience4j.version}</version>
 			</dependency>
-			<!--<dependency>
-				<groupId>org.bouncycastle</groupId>
-				<artifactId>bcprov-jdk15on</artifactId>
-				<version>${bcprov-jdk15on.version}</version>
-			</dependency>-->
 			<dependency>
 				<groupId>io.confluent</groupId>
 				<artifactId>kafka-avro-serializer</artifactId>
