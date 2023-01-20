@@ -3,9 +3,11 @@ package no.nav.safselvbetjening.consumer.sak;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.safselvbetjening.HttpUtils;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -18,9 +20,11 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.sql.Time;
 import java.time.Duration;
 import java.util.List;
 
+import static no.nav.safselvbetjening.HttpUtils.createrequestFactory;
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static org.springframework.http.HttpMethod.GET;
 
@@ -38,17 +42,15 @@ public class JoarksakConsumer {
 	private final String sakUrl;
 
 	public JoarksakConsumer(final RestTemplateBuilder restTemplateBuilder,
-							final SafSelvbetjeningProperties safSelvbetjeningProperties,
-							final ClientHttpRequestFactory clientHttpRequestFactory) {
+							final SafSelvbetjeningProperties safSelvbetjeningProperties) {
 		this.sakUrl = safSelvbetjeningProperties.getEndpoints().getSak();
 		this.restTemplate = restTemplateBuilder
-				.setReadTimeout(Duration.ofSeconds(20))
 				.setConnectTimeout(Duration.ofSeconds(5))
 				.basicAuthentication(
 						safSelvbetjeningProperties.getServiceuser().getUsername(),
 						safSelvbetjeningProperties.getServiceuser().getPassword()
 				)
-				.requestFactory(() -> clientHttpRequestFactory)
+				.requestFactory(() -> createrequestFactory(Timeout.ofSeconds(15)))
 				.build();
 	}
 

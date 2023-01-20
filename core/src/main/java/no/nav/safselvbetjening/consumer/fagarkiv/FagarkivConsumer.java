@@ -2,10 +2,13 @@ package no.nav.safselvbetjening.consumer.fagarkiv;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.safselvbetjening.HttpUtils;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
+import org.apache.hc.core5.util.Timeout;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 
+import static no.nav.safselvbetjening.HttpUtils.createrequestFactory;
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 import static org.springframework.http.HttpHeaders.ACCEPT_ENCODING;
@@ -33,17 +37,15 @@ public class FagarkivConsumer {
 	private final RestTemplate restTemplate;
 
 	public FagarkivConsumer(final RestTemplateBuilder restTemplateBuilder,
-							final SafSelvbetjeningProperties safSelvbetjeningProperties,
-							final ClientHttpRequestFactory clientHttpRequestFactory) {
+							final SafSelvbetjeningProperties safSelvbetjeningProperties) {
 		restTemplate = restTemplateBuilder
 				.rootUri(safSelvbetjeningProperties.getEndpoints().getFagarkiv())
 				.basicAuthentication(
 						safSelvbetjeningProperties.getServiceuser().getUsername(),
 						safSelvbetjeningProperties.getServiceuser().getPassword()
 				)
-				.setReadTimeout(Duration.ofSeconds(60))
 				.setConnectTimeout(Duration.ofSeconds(5))
-				.requestFactory(() -> clientHttpRequestFactory)
+				.requestFactory(() -> createrequestFactory(Timeout.ofSeconds(60)))
 				.build();
 	}
 

@@ -17,6 +17,7 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
+import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +92,7 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	public List<HoveddokumentLest> getAllCurrentRecordsOnTopicUt() {
-		return StreamSupport.stream(KafkaTestUtils.getRecords(consumer, 2000).records(UT_TOPIC).spliterator(), false)
+		return StreamSupport.stream(KafkaTestUtils.getRecords(consumer, Duration.ofSeconds(15)).records(UT_TOPIC).spliterator(), false)
 				.map(ConsumerRecord::value)
 				.collect(Collectors.toList());
 	}
