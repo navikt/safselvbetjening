@@ -1,7 +1,9 @@
 package no.nav.safselvbetjening.domain;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 public enum Tema {
 	AAP("Arbeidsavklaringspenger"),
@@ -13,7 +15,6 @@ public enum Tema {
 	DAG("Dagpenger"),
 	ENF("Enslig forsørger"),
 	ERS("Erstatning"),
-	FAR("Farskap"),
 	FEI("Feilutbetaling"),
 	FOR("Foreldre- og svangerskapspenger"),
 	FOS("Forsikring"),
@@ -27,10 +28,6 @@ public enum Tema {
 	IAR("Inkluderende arbeidsliv"),
 	IND("Tiltakspenger"),
 	KON("Kontantstøtte"),
-	/**
-	 * Skal ikke vises til brukere.
-	 */
-	KTR("Kontroll"),
 	MED("Medlemskap"),
 	MOB("Mobilitetsfremmende stønad"),
 	OMS("Omsorgspenger, pleiepenger og opplæringspenger"),
@@ -61,7 +58,17 @@ public enum Tema {
 	UKJ("Ukjent"),
 	VEN("Ventelønn"),
 	YRA("Yrkesrettet attføring"),
-	YRK("Yrkesskade");
+	YRK("Yrkesskade"),
+	FIP("Fiskerpensjon"),
+	KLL("Klage lønnsgaranti"),
+	EYB("Barnepensjon"),
+	EYO("Omstillingsstønad"),
+	// Listen under skal ikke vises til brukere
+	FAR("Farskap"),
+	KTR("Kontroll"),
+	KTA("Kontroll anmeldelse"),
+	ARS("Arbeidsrådgivning skjermet"),
+	ARP("Arbeidsrådgivning psykologtester");
 
 	private final String temanavn;
 
@@ -75,5 +82,13 @@ public enum Tema {
 
 	public static List<Tema> asList() {
 		return Arrays.asList(values());
+	}
+
+	public static EnumSet<Tema> brukerHarIkkeInnsyn() {
+		return EnumSet.of(FAR, KTR, KTA, ARS, ARP);
+	}
+
+	public static Set<String> brukerHarIkkeInnsynAsString() {
+		return brukerHarIkkeInnsyn().stream().map(Tema::name).collect(java.util.stream.Collectors.toSet());
 	}
 }

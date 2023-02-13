@@ -331,7 +331,7 @@ class JournalpostMapperTest {
 	}
 
 	@Test
-	void shouldMapNulLFilstorrelseToZero() {
+	void shouldMapNullFilstorrelseToZero() {
 		JournalpostDto journalpostDto = baseJournalpostDto()
 				.journalposttype(JournalpostTypeCode.N)
 				.dokumenter(Collections.singletonList(

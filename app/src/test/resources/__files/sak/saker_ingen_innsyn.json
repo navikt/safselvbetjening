@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "tema": "FAR",
+    "applikasjon": "AO01",
+    "aktoerId": "1012345678911",
+    "orgnr": null,
+    "fagsakNr": "10000001",
+    "opprettetAv": "srvtest",
+    "opprettetTidspunkt": "2021-04-16T14:52:07.432+02:00"
+  },
+  {
+    "id": 2,
+    "tema": "KTR",
+    "applikasjon": "AO01",
+    "aktoerId": "1012345678911",
+    "orgnr": null,
+    "fagsakNr": "10000002",
+    "opprettetAv": "srvtest",
+    "opprettetTidspunkt": "2021-04-16T14:52:07.432+02:00"
+  },
+  {
+    "id": 3,
+    "tema": "KTA",
+    "applikasjon": "AO01",
+    "aktoerId": "1012345678911",
+    "orgnr": null,
+    "fagsakNr": "10000003",
+    "opprettetAv": "srvtest",
+    "opprettetTidspunkt": "2021-04-16T14:52:07.432+02:00"
+  },
+  {
+    "id": 4,
+    "tema": "ARS",
+    "applikasjon": "AO01",
+    "aktoerId": "1012345678911",
+    "orgnr": null,
+    "fagsakNr": "10000004",
+    "opprettetAv": "srvtest",
+    "opprettetTidspunkt": "2021-04-16T14:52:07.432+02:00"
+  },
+  {
+    "id": 5,
+    "tema": "ARP",
+    "applikasjon": "AO01",
+    "aktoerId": "1012345678911",
+    "orgnr": null,
+    "fagsakNr": "10000005",
+    "opprettetAv": "srvtest",
+    "opprettetTidspunkt": "2021-04-16T14:52:07.432+02:00"
+  }
+]

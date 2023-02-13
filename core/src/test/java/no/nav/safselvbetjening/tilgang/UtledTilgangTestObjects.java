@@ -29,10 +29,13 @@ public class UtledTilgangTestObjects {
 	static final String ANNEN_PART = "23456789101";
 	static final String AKTOER_ID = "10000000000";
 	static final String ANNEN_AKTOER_ID = "12000000000";
-	public static final String TEMA_KONTROLL = "KTR";
 	public static final String TEMA_PENSJON = PEN.toString();
 	public static final String TEMA_DAGPENGER = DAG.name();
-	public static final String TEMA_FAR = "FAR";
+	public static final String TEMA_FARSKAP = "FAR";
+	public static final String TEMA_KONTROLL = "KTR";
+	public static final String TEMA_KONTROLL_ANMELDELSE = "KTA";
+	public static final String TEMA_ARBEIDSRAADGIVNING_SKJERMET = "ARS";
+	public static final String TEMA_ARBEIDSRAADGIVNING_PSYKOLOGTESTER = "ARP";
 	static final String ARKIVSAKSYSTEM_GOSYS = "FS22";
 	public static final String ARKIVSAKSYSTEM_PENSJON = "PEN";
 	static final LocalDateTime FOER_INNSYNSDATO = LocalDateTime.parse("2016-01-01T12:00");
