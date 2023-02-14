@@ -3,6 +3,7 @@ package no.nav.safselvbetjening.endpoints.graphql;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Fagsak;
 import no.nav.safselvbetjening.domain.Sakstema;
+import no.nav.safselvbetjening.domain.Tema;
 import no.nav.safselvbetjening.endpoints.AbstractItest;
 import no.nav.safselvbetjening.graphql.GraphQLRequest;
 import org.junit.jupiter.api.Test;
@@ -225,6 +226,25 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(data.getTema()).hasSize(2);
 		verify(1, getRequestedFor(urlMatching(".*/springapi/sak/sammendrag")));
 		verify(0, postRequestedFor(urlEqualTo("/fagarkiv")));
+	}
+
+	@Test
+	void shouldGetOnlyTemaThatUserCanSee() throws Exception {
+		happyStubs();
+		stubSak("saker_ingen_innsyn.json");
+		// testen over oppdateres hvis flere (eller færre) tema skal filtreres bort
+		assertThat(Tema.brukerHarIkkeInnsyn()).hasSize(5);
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_tema_only.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+
+		assertThat(data.getTema()).hasSize(1);
+		// fra pensjonssaker
+		assertThat(data.getTema().get(0).getKode()).isEqualTo("UFO");
 	}
 
 	@Test

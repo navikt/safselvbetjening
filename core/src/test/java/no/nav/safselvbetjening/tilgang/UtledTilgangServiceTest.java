@@ -37,9 +37,12 @@ import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ARKIVSAKSY
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ARKIVSAKSYSTEM_PENSJON;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.FOER_INNSYNSDATO;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.IDENT;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_ARBEIDSRAADGIVNING_PSYKOLOGTESTER;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_ARBEIDSRAADGIVNING_SKJERMET;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_DAGPENGER;
-import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_FAR;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_FARSKAP;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_KONTROLL;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_KONTROLL_ANMELDELSE;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_PENSJON;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseJournalfoertJournalpost;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseMottattJournalpost;
@@ -71,7 +74,7 @@ class UtledTilgangServiceTest {
 
 	@Test
 	void shouldReturnTrueWhenTilgangTilJournalpostWithInnsynIsVises() {
-		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_FAR, VISES_MANUELT_GODKJENT).build(), defaultBrukerIdenter());
+		boolean tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_FARSKAP, VISES_MANUELT_GODKJENT).build(), defaultBrukerIdenter());
 		assertThat(tilgang).isTrue();
 	}
 
@@ -287,10 +290,16 @@ class UtledTilgangServiceTest {
 		assertThat(actual).isTrue();
 	}
 
-	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
+	// 1e) Bruker får ikke se journalposter på følgende tema:
+	// * KTR (Kontroll)
+	// * FAR (Farskap)
+	// * KTA (Kontroll anmeldelse)
+	// * ARS (Arbeidsrådgivning skjermet)
+	// * ARP (Arbeidsrådgivning psykologstester)
+	// * med mindre k_innsyn = VISES_*
 	// Mottatt - ingen sakstilknytning
 	@ParameterizedTest
-	@ValueSource(strings = {TEMA_FAR, TEMA_KONTROLL})
+	@ValueSource(strings = {TEMA_FARSKAP, TEMA_KONTROLL, TEMA_KONTROLL_ANMELDELSE, TEMA_ARBEIDSRAADGIVNING_SKJERMET, TEMA_ARBEIDSRAADGIVNING_PSYKOLOGTESTER})
 	void shouldReturnFalseWhenMottattAndKontrollsakOrFarskapssak(String tema) {
 		Journalpost journalpost = baseMottattJournalpost()
 				.tilgang(Journalpost.TilgangJournalpost.builder()
@@ -299,14 +308,19 @@ class UtledTilgangServiceTest {
 						.build())
 				.build();
 		assertThat(utledTilgangService.isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost)).isFalse();
-
 	}
 
-	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
+	// 1e) Bruker får ikke se journalposter på følgende tema:
+	// * KTR (Kontroll)
+	// * FAR (Farskap)
+	// * KTA (Kontroll anmeldelse)
+	// * ARS (Arbeidsrådgivning skjermet)
+	// * ARP (Arbeidsrådgivning psykologstester)
+	// * med mindre k_innsyn = VISES_*
 	// Journalført - med sakstilknytning
 	@ParameterizedTest
-	@ValueSource(strings = {TEMA_FAR, TEMA_KONTROLL})
-	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithSak(String tema) {
+	@ValueSource(strings = {TEMA_FARSKAP, TEMA_KONTROLL, TEMA_KONTROLL_ANMELDELSE, TEMA_ARBEIDSRAADGIVNING_SKJERMET, TEMA_ARBEIDSRAADGIVNING_PSYKOLOGTESTER})
+	void shouldReturnFalseWhenJournalfoertAndSakTemaIkkeInnsynForBruker(String tema) {
 		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, SKJULES_BRUKERS_ØNSKE)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.datoOpprettet(LocalDateTime.now())
@@ -320,13 +334,18 @@ class UtledTilgangServiceTest {
 						.build())
 				.build();
 		assertThat(utledTilgangService.isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost)).isFalse();
-
 	}
 
-	//	1e - Bruker får ikke innsyn i kontroll- eller farskapssaker
+	// 1e) Bruker får ikke se journalposter på følgende tema:
+	// * KTR (Kontroll)
+	// * FAR (Farskap)
+	// * KTA (Kontroll anmeldelse)
+	// * ARS (Arbeidsrådgivning skjermet)
+	// * ARP (Arbeidsrådgivning psykologstester)
+	// * med mindre k_innsyn = VISES_*
 	// Journalført - uten sakstilknytning
 	@ParameterizedTest
-	@ValueSource(strings = {TEMA_FAR, TEMA_KONTROLL})
+	@ValueSource(strings = {TEMA_FARSKAP, TEMA_KONTROLL, TEMA_KONTROLL_ANMELDELSE, TEMA_ARBEIDSRAADGIVNING_SKJERMET, TEMA_ARBEIDSRAADGIVNING_PSYKOLOGTESTER})
 	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithoutSak(String tema) {
 		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.tilgang(Journalpost.TilgangJournalpost.builder()

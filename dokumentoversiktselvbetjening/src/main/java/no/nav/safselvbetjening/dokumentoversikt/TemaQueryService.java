@@ -8,8 +8,10 @@ import no.nav.safselvbetjening.service.Saker;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -20,12 +22,15 @@ import static java.lang.Boolean.TRUE;
 @Slf4j
 @Component
 class TemaQueryService {
+	private static final EnumSet<Tema> TEMA_IKKE_INNSYN_FOR_BRUKER = Tema.brukerHarIkkeInnsyn();
+
 	List<Sakstema> query(final Basedata basedata) {
 		log.info("dokumentoversiktSelvbetjening henter /tema.");
 		final Saker saker = basedata.getSaker();
 		List<Sakstema> sakstema = saker.getArkivsakerAsStream()
 				.filter(distinctByKey(Arkivsak::getTema))
 				.map(this::mapSakstema)
+				.filter(Objects::nonNull)
 				.sorted(Comparator.comparing(Sakstema::getKode))
 				.collect(Collectors.toList());
 		log.info("dokumentoversiktSelvbetjening hentet /tema. antall_tema={}.", sakstema.size());
@@ -34,6 +39,9 @@ class TemaQueryService {
 
 	private Sakstema mapSakstema(Arkivsak arkivsak) {
 		final Tema tema = determineTema(arkivsak);
+		if(TEMA_IKKE_INNSYN_FOR_BRUKER.contains(tema)) {
+			return null;
+		}
 		return Sakstema.builder()
 				.kode(tema.name())
 				.navn(tema.getTemanavn())

@@ -249,7 +249,35 @@ public enum FagomradeCode {
 	/**
 	 * Kompensasjon for selvstendig næringsdrivende/frilansere
 	 */
-	FRI;
+	FRI,
+	/**
+	 * Fiskerpensjon
+	 */
+	FIP,
+	/**
+	 * Klage lønnsgaranti
+	 */
+	KLL,
+	/**
+	 * Barnepensjon
+	 */
+	EYB,
+	/**
+	 * Omstillingsstønad
+	 */
+	EYO,
+	/**
+	 * Kontroll anmeldelse
+	 */
+	KTA,
+	/**
+	 * Arbeidsrådgivning skjermet
+	 */
+	ARS,
+	/**
+	 * Arbeidsrådgivning psykologtester
+	 */
+	ARP;
 
 	// Vennligst se https://jira.adeo.no/browse/MMA-3142
 	// Tema CON har data i joark men temaet skal ikke vises.
