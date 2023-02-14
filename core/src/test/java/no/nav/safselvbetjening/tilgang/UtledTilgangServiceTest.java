@@ -320,7 +320,7 @@ class UtledTilgangServiceTest {
 	// Journalført - med sakstilknytning
 	@ParameterizedTest
 	@ValueSource(strings = {TEMA_FARSKAP, TEMA_KONTROLL, TEMA_KONTROLL_ANMELDELSE, TEMA_ARBEIDSRAADGIVNING_SKJERMET, TEMA_ARBEIDSRAADGIVNING_PSYKOLOGTESTER})
-	void shouldReturnFalseWhenJournalfoertAndKontrollOrFarskapssakWithSak(String tema) {
+	void shouldReturnFalseWhenJournalfoertAndSakTemaIkkeInnsynForBruker(String tema) {
 		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, SKJULES_BRUKERS_ØNSKE)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.datoOpprettet(LocalDateTime.now())

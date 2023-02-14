@@ -1,9 +1,9 @@
 package no.nav.safselvbetjening.domain;
 
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public enum Tema {
 	AAP("Arbeidsavklaringspenger"),
@@ -80,15 +80,24 @@ public enum Tema {
 		return temanavn;
 	}
 
-	public static List<Tema> asList() {
-		return Arrays.asList(values());
-	}
-
+	/**
+	 * Tema som ikke skal vises til bruker
+	 *
+	 * @return Set med tema som ikke skal vises til bruker
+	 */
 	public static EnumSet<Tema> brukerHarIkkeInnsyn() {
 		return EnumSet.of(FAR, KTR, KTA, ARS, ARP);
 	}
 
 	public static Set<String> brukerHarIkkeInnsynAsString() {
-		return brukerHarIkkeInnsyn().stream().map(Tema::name).collect(java.util.stream.Collectors.toSet());
+		return brukerHarIkkeInnsyn().stream().map(Tema::name).collect(Collectors.toSet());
+	}
+
+	public static EnumSet<Tema> brukerHarInnsyn() {
+		return EnumSet.complementOf(brukerHarIkkeInnsyn());
+	}
+
+	public static List<String> brukerHarInnsynAsListString() {
+		return brukerHarInnsyn().stream().map(Tema::name).collect(Collectors.toList());
 	}
 }

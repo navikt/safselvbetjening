@@ -19,8 +19,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static no.nav.safselvbetjening.MDCUtils.MDC_CALL_ID;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CONSUMER_ID;
@@ -43,10 +41,7 @@ import static org.apache.commons.lang3.StringUtils.isNumeric;
 @Slf4j
 @Component
 public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Object> {
-	private static final List<String> ALLE_TEMA_UTEN_KONTROLL = Stream.of(Tema.values())
-			.filter(t -> t != Tema.KTR)
-			.map(Tema::name)
-			.collect(Collectors.toList());
+	private static final List<String> TEMA_BRUKER_HAR_INNSYN = Tema.brukerHarInnsynAsListString();
 
 	private final DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService;
 	private final TemaQueryService temaQueryService;
@@ -96,7 +91,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			log.error("dokumentoversiktSelvbetjening circuitbreaker={} er åpen.", e.getCausingCircuitBreakerName(), e);
 			return DataFetcherResult.newResult()
 					.error(SERVER_ERROR.construct(environment, "Circuitbreaker=" + e.getCausingCircuitBreakerName() + " er åpen." +
-							" Kall til denne tjenesten går ikke gjennom."))
+															   " Kall til denne tjenesten går ikke gjennom."))
 					.build();
 		} catch (Exception e) {
 			log.error("dokumentoversiktSelvbetjening ukjent teknisk feil. Undersøk grunnen og håndter feilen i koden slik at dette kan unngås.", e);
@@ -181,13 +176,13 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		JwtToken jwtToken = graphQLRequestContext.getTokenValidationContext().getFirstValidToken()
 				.orElseThrow(() -> GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MANGLER_I_HEADER));
 		if (!jwtToken.getJwtTokenClaims().containsClaim(CLAIM_PID, ident) &&
-				!jwtToken.getJwtTokenClaims().containsClaim(CLAIM_SUB, ident)) {
+			!jwtToken.getJwtTokenClaims().containsClaim(CLAIM_SUB, ident)) {
 			throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MISMATCH);
 		}
 	}
 
 	private List<String> temaArgument(DataFetchingEnvironment environment) {
 		final List<String> tema = environment.getArgumentOrDefault("tema", new ArrayList<>());
-		return tema.isEmpty() ? ALLE_TEMA_UTEN_KONTROLL : tema;
+		return tema.isEmpty() ? TEMA_BRUKER_HAR_INNSYN : tema;
 	}
 }
