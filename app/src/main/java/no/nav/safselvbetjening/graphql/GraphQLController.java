@@ -40,6 +40,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 @Protected
 public class GraphQLController {
+
 	private final GraphQLSchema graphQLSchema;
 	private final TokenValidationContextHolder tokenValidationContextHolder;
 	private final Cache<String, PreparsedDocumentEntry> cache;
@@ -73,9 +74,9 @@ public class GraphQLController {
 						})
 						.build()
 						.execute(ExecutionInput.newExecutionInput()
-								.query(request.getQuery())
-								.operationName(request.getOperationName())
-								.variables(request.getVariables() == null ? Collections.emptyMap() : request.getVariables())
+								.query(request.query())
+								.operationName(request.operationName())
+								.variables(request.variables() == null ? Collections.emptyMap() : request.variables())
 								.graphQLContext((c) -> c.put(KEY, createGraphQLContext(webRequest)))
 								.build());
 		return executionResult.toSpecification();

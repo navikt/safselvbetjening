@@ -41,6 +41,7 @@ import static org.apache.commons.lang3.StringUtils.isNumeric;
 @Slf4j
 @Component
 public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Object> {
+
 	private static final List<String> TEMA_BRUKER_HAR_INNSYN = Tema.brukerHarInnsynAsListString();
 
 	private final DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService;

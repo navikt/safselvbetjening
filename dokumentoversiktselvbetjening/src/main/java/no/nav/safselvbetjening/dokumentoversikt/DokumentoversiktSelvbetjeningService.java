@@ -35,6 +35,7 @@ import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 @Slf4j
 @Component
 class DokumentoversiktSelvbetjeningService {
+
 	private static final List<JournalStatusCode> MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(MO, M, J, E, FL, FS);
 	private static final List<JournalStatusCode> FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(J, E, FL, FS);
 	private static final List<JournalpostTypeCode> ALLE_JOURNALPOSTTYPER = Arrays.asList(JournalpostTypeCode.values());

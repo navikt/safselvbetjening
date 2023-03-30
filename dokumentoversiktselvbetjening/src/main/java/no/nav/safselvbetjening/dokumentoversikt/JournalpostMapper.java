@@ -2,7 +2,6 @@ package no.nav.safselvbetjening.dokumentoversikt;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.InnsynCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
@@ -34,6 +33,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.toTema;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.ARKIV;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.SLADDET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
@@ -47,8 +47,10 @@ import static no.nav.safselvbetjening.domain.Innsyn.valueOf;
 import static no.nav.safselvbetjening.domain.Kanal.INGEN_DISTRIBUSJON;
 import static no.nav.safselvbetjening.domain.Kanal.LOKAL_UTSKRIFT;
 import static no.nav.safselvbetjening.domain.Kanal.SENTRAL_UTSKRIFT;
+import static no.nav.safselvbetjening.domain.Kanal.UKJENT;
 import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
 import static no.nav.safselvbetjening.domain.Sakstype.fromApplikasjon;
+import static no.nav.safselvbetjening.service.Saker.FAGSYSTEM_PENSJON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -57,6 +59,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Slf4j
 @Component
 public class JournalpostMapper {
+
 	private static final EnumSet<VariantFormatCode> GYLDIGE_VARIANTER = EnumSet.of(ARKIV, SLADDET);
 	private static final String FILTYPE_PDFA = "PDFA";
 	private static final String FILTYPE_PDF = "PDF";
@@ -94,7 +97,7 @@ public class JournalpostMapper {
 		final String journalpostTema = getJournalpostTema(journalpostDto);
 		if (journalpostDto.isTilknyttetSak()) {
 			SaksrelasjonDto saksrelasjon = journalpostDto.getSaksrelasjon();
-			if (FagsystemCode.PEN == saksrelasjon.getFagsystem()) {
+			if (PEN == saksrelasjon.getFagsystem()) {
 				Map<String, String> arkivsakIdTemaMap = saker.getArkivsakIdTemaMap();
 				return arkivsakIdTemaMap.getOrDefault(saksrelasjon.getSakId(), journalpostTema);
 			} else {
@@ -118,10 +121,10 @@ public class JournalpostMapper {
 	private Sak mapSak(JournalpostDto journalpostDto) {
 		if (journalpostDto.isTilknyttetSak()) {
 			SaksrelasjonDto saksrelasjon = journalpostDto.getSaksrelasjon();
-			if (FagsystemCode.PEN == saksrelasjon.getFagsystem()) {
+			if (PEN == saksrelasjon.getFagsystem()) {
 				return Sak.builder()
 						.fagsakId(saksrelasjon.getSakId())
-						.fagsaksystem(Saker.FAGSYSTEM_PENSJON)
+						.fagsaksystem(FAGSYSTEM_PENSJON)
 						.sakstype(FAGSAK)
 						.build();
 			} else {
@@ -175,7 +178,7 @@ public class JournalpostMapper {
 
 		return Journalpost.TilgangSak.builder()
 				.aktoerId(saksrelasjonDto.getAktoerId())
-				.foedselsnummer(FagsystemCode.PEN == saksrelasjonDto.getFagsystem() ? brukerIdenter.getFoedselsnummer().get(0) : null)
+				.foedselsnummer(PEN == saksrelasjonDto.getFagsystem() ? brukerIdenter.getFoedselsnummer().get(0) : null)
 				.fagsystem(saksrelasjonDto.getFagsystem() == null ? null : saksrelasjonDto.getFagsystem().toString())
 				.feilregistrert(saksrelasjonDto.getFeilregistrert() != null && saksrelasjonDto.getFeilregistrert())
 				.tema(saksrelasjonDto.getTema())
@@ -197,7 +200,6 @@ public class JournalpostMapper {
 		return switch (skjermingTypeCode) {
 			case POL -> SkjermingType.POL;
 			case FEIL -> SkjermingType.FEIL;
-			default -> null;
 		};
 	}
 
@@ -261,7 +263,7 @@ public class JournalpostMapper {
 		switch (journalpostDto.getJournalposttype()) {
 			case I:
 				if (journalpostDto.getMottakskanal() == null) {
-					return Kanal.UKJENT;
+					return UKJENT;
 				}
 				return journalpostDto.getMottakskanal().getSafKanal();
 			case U:

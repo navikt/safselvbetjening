@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.consumer.pdl;
 
 import no.nav.safselvbetjening.consumer.PersonIkkeFunnetException;
+import no.nav.safselvbetjening.consumer.pdl.PdlResponse.PdlIdent;
 
 import java.util.List;
 
@@ -15,5 +16,5 @@ public interface IdentConsumer {
      * @return NAV identer. Både folkeregisteridenter og aktørid.
      * @throws PersonIkkeFunnetException Finner ikke person
      */
-    List<PdlResponse.PdlIdent> hentIdenter(final String ident) throws PersonIkkeFunnetException;
+    List<PdlIdent> hentIdenter(final String ident) throws PersonIkkeFunnetException;
 }

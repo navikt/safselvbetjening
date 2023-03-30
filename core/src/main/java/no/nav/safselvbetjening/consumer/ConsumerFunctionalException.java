@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.consumer;
 
 public class ConsumerFunctionalException extends RuntimeException {
+
     public ConsumerFunctionalException(String message) {
         super(message);
     }

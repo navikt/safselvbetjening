@@ -10,10 +10,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BrukerIdenter {
+
     @Getter
     private String aktivAktoerId;
+
     @Getter
     private String aktivFolkeregisterident;
+
     private final List<String> aktoerIds = new ArrayList<>();
     private final List<String> foedselsnummer = new ArrayList<>();
 

@@ -22,6 +22,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  */
 @Component
 class PdlIdentConsumer implements IdentConsumer {
+
 	private static final String PDL_INSTANCE = "pdl";
 	private static final String PERSON_IKKE_FUNNET_CODE = "not_found";
 

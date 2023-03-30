@@ -21,6 +21,7 @@ import static no.nav.safselvbetjening.MDCUtils.getCallId;
 @Component
 @EnableTransactionManagement
 public class KafkaEventProducer {
+
 	private static final String KAFKA_NOT_AUTHENTICATED = "Not authenticated to publish to topic: ";
 	private static final String KAFKA_FAILED_TO_SEND = "Failed to send message to kafka. Topic: ";
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
