@@ -32,14 +32,14 @@ public class FagarkivConsumer {
 
 	public FagarkivConsumer(final RestTemplateBuilder restTemplateBuilder,
 							final SafSelvbetjeningProperties safSelvbetjeningProperties,
-							final ClientHttpRequestFactory requestFactoryFagarkiv) {
+							final ClientHttpRequestFactory requestFactory) {
 		restTemplate = restTemplateBuilder
 				.rootUri(safSelvbetjeningProperties.getEndpoints().getFagarkiv())
 				.basicAuthentication(
 						safSelvbetjeningProperties.getServiceuser().getUsername(),
 						safSelvbetjeningProperties.getServiceuser().getPassword()
 				)
-				.requestFactory(() -> requestFactoryFagarkiv)
+				.requestFactory(() -> requestFactory)
 				.build();
 	}
 

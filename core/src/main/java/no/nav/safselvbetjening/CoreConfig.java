@@ -30,49 +30,22 @@ import static org.apache.hc.core5.util.Timeout.ofSeconds;
 public class CoreConfig {
 
 	@Bean
-	ClientHttpRequestFactory requestFactoryJoarkSak(HttpClient httpClientJoarkSak) {
-		var requestFactory = new HttpComponentsClientHttpRequestFactory(httpClientJoarkSak);
+	ClientHttpRequestFactory requestFactory(HttpClient httpClient) {
+		var requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
 		requestFactory.setConnectTimeout(5_000);
 
 		return requestFactory;
 	}
 
 	@Bean
-	HttpClient httpClientJoarkSak(HttpClientConnectionManager httpClientConnectionManagerJoarkSak) {
+	HttpClient httpClient(HttpClientConnectionManager httpClientConnectionManager) {
 		return HttpClients.custom()
-				.setConnectionManager(httpClientConnectionManagerJoarkSak)
+				.setConnectionManager(httpClientConnectionManager)
 				.build();
 	}
 
 	@Bean
-	HttpClientConnectionManager httpClientConnectionManagerJoarkSak() {
-		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-
-		var readTimeout = SocketConfig.custom().setSoTimeout(ofSeconds(20)).build();
-		connectionManager.setDefaultSocketConfig(readTimeout);
-		connectionManager.setMaxTotal(400);
-		connectionManager.setDefaultMaxPerRoute(100);
-
-		return connectionManager;
-	}
-
-	@Bean
-	ClientHttpRequestFactory requestFactoryFagarkiv(HttpClient httpClientFagarkiv) {
-		var requestFactory = new HttpComponentsClientHttpRequestFactory(httpClientFagarkiv);
-		requestFactory.setConnectTimeout(5_000);
-
-		return requestFactory;
-	}
-
-	@Bean
-	HttpClient httpClientFagarkiv(HttpClientConnectionManager httpClientConnectionManagerFagarkiv) {
-		return HttpClients.custom()
-				.setConnectionManager(httpClientConnectionManagerFagarkiv)
-				.build();
-	}
-
-	@Bean
-	HttpClientConnectionManager httpClientConnectionManagerFagarkiv() {
+	HttpClientConnectionManager httpClientConnectionManager() {
 		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
 
 		var readTimeout = SocketConfig.custom().setSoTimeout(ofSeconds(60)).build();

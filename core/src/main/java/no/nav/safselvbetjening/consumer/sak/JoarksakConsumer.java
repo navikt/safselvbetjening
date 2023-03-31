@@ -39,14 +39,14 @@ public class JoarksakConsumer {
 
 	public JoarksakConsumer(final RestTemplateBuilder restTemplateBuilder,
 							final SafSelvbetjeningProperties safSelvbetjeningProperties,
-							final ClientHttpRequestFactory requestFactoryJoarkSak) {
+							final ClientHttpRequestFactory requestFactory) {
 		this.sakUrl = safSelvbetjeningProperties.getEndpoints().getSak();
 		this.restTemplate = restTemplateBuilder
 				.basicAuthentication(
 						safSelvbetjeningProperties.getServiceuser().getUsername(),
 						safSelvbetjeningProperties.getServiceuser().getPassword()
 				)
-				.requestFactory(() -> requestFactoryJoarkSak)
+				.requestFactory(() -> requestFactory)
 				.build();
 	}
 
