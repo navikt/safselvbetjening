@@ -16,8 +16,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
-
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 import static org.springframework.http.HttpHeaders.ACCEPT_ENCODING;
@@ -34,16 +32,14 @@ public class FagarkivConsumer {
 
 	public FagarkivConsumer(final RestTemplateBuilder restTemplateBuilder,
 							final SafSelvbetjeningProperties safSelvbetjeningProperties,
-							final ClientHttpRequestFactory clientHttpRequestFactory) {
+							final ClientHttpRequestFactory requestFactory) {
 		restTemplate = restTemplateBuilder
 				.rootUri(safSelvbetjeningProperties.getEndpoints().getFagarkiv())
 				.basicAuthentication(
 						safSelvbetjeningProperties.getServiceuser().getUsername(),
 						safSelvbetjeningProperties.getServiceuser().getPassword()
 				)
-				.setReadTimeout(Duration.ofSeconds(60))
-				.setConnectTimeout(Duration.ofSeconds(5))
-				.requestFactory(() -> clientHttpRequestFactory)
+				.requestFactory(() -> requestFactory)
 				.build();
 	}
 

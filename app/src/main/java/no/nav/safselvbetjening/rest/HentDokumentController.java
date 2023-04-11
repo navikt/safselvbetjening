@@ -41,6 +41,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Slf4j
 @Protected
 public class HentDokumentController {
+
 	private final HentDokumentService hentDokumentService;
 	private final TokenValidationContextHolder tokenValidationContextHolder;
 
@@ -62,7 +63,9 @@ public class HentDokumentController {
 			final TokenValidationContext tokenValidationContext = tokenValidationContextHolder.getTokenValidationContext();
 			MDC.put(MDC_CALL_ID, isNotBlank(navCallid) ? navCallid : randomUUID().toString());
 			MDC.put(MDC_CONSUMER_ID, getConsumerIdFromToken(tokenValidationContext));
+
 			log.info("hentdokument har mottatt kall. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
+
 			HentdokumentRequest request = HentdokumentRequest.builder()
 					.journalpostId(journalpostId)
 					.dokumentInfoId(dokumentInfoId)

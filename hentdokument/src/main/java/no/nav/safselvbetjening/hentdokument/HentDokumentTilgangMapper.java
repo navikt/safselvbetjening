@@ -1,6 +1,5 @@
 package no.nav.safselvbetjening.hentdokument;
 
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangBrukerDto;
@@ -18,7 +17,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
 import static no.nav.safselvbetjening.domain.Innsyn.valueOf;
+import static no.nav.safselvbetjening.domain.Kanal.INGEN_DISTRIBUSJON;
+import static no.nav.safselvbetjening.domain.Kanal.LOKAL_UTSKRIFT;
+import static no.nav.safselvbetjening.domain.Kanal.SENTRAL_UTSKRIFT;
+import static no.nav.safselvbetjening.domain.Kanal.UKJENT;
 
 @Component
 public class HentDokumentTilgangMapper {
@@ -94,7 +98,7 @@ public class HentDokumentTilgangMapper {
 
 		return Journalpost.TilgangSak.builder()
 				.aktoerId(tilgangSakDto.getAktoerId())
-				.foedselsnummer(FagsystemCode.PEN.name().equals(tilgangSakDto.getFagsystem()) ? brukerIdenter.getFoedselsnummer().get(0) : null)
+				.foedselsnummer(PEN.name().equals(tilgangSakDto.getFagsystem()) ? brukerIdenter.getFoedselsnummer().get(0) : null)
 				.fagsystem(tilgangSakDto.getFagsystem())
 				.feilregistrert(tilgangSakDto.getFeilregistrert() != null && tilgangSakDto.getFeilregistrert())
 				.tema(tilgangSakDto.getTema())
@@ -109,7 +113,6 @@ public class HentDokumentTilgangMapper {
 		return switch (skjermingTypeCode) {
 			case POL -> SkjermingType.POL;
 			case FEIL -> SkjermingType.FEIL;
-			default -> null;
 		};
 	}
 
@@ -121,7 +124,7 @@ public class HentDokumentTilgangMapper {
 		switch (tilgangJournalpostDto.getJournalpostType()) {
 			case I:
 				if (tilgangJournalpostDto.getMottakskanal() == null) {
-					return Kanal.UKJENT;
+					return UKJENT;
 				}
 				return tilgangJournalpostDto.getMottakskanal().getSafKanal();
 			case U:
@@ -132,7 +135,7 @@ public class HentDokumentTilgangMapper {
 				}
 				return tilgangJournalpostDto.getMottakskanal().getSafKanal();
 			case N:
-				return Kanal.INGEN_DISTRIBUSJON;
+				return INGEN_DISTRIBUSJON;
 			default:
 				return null;
 		}
@@ -140,8 +143,8 @@ public class HentDokumentTilgangMapper {
 
 	private Kanal mapManglendeUtsendingskanal(TilgangJournalpostDto tilgangJournalpostDto) {
 		return switch (tilgangJournalpostDto.getJournalStatus()) {
-			case FL -> Kanal.LOKAL_UTSKRIFT;
-			case FS, E -> Kanal.SENTRAL_UTSKRIFT;
+			case FL -> LOKAL_UTSKRIFT;
+			case FS, E -> SENTRAL_UTSKRIFT;
 			default -> null;
 		};
 	}

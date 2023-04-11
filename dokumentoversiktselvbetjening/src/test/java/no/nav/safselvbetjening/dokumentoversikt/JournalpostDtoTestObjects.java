@@ -27,14 +27,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.Integer.parseInt;
-import static java.time.LocalTime.now;
 import static java.util.Collections.singletonList;
 
 public class JournalpostDtoTestObjects {

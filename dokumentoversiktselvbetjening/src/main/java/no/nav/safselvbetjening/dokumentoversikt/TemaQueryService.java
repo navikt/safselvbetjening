@@ -18,6 +18,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
+import static no.nav.safselvbetjening.domain.Tema.UKJ;
 
 @Slf4j
 @Component
@@ -39,7 +40,7 @@ class TemaQueryService {
 
 	private Sakstema mapSakstema(Arkivsak arkivsak) {
 		final Tema tema = determineTema(arkivsak);
-		if(TEMA_IKKE_INNSYN_FOR_BRUKER.contains(tema)) {
+		if (TEMA_IKKE_INNSYN_FOR_BRUKER.contains(tema)) {
 			return null;
 		}
 		return Sakstema.builder()
@@ -53,7 +54,7 @@ class TemaQueryService {
 			return Tema.valueOf(arkivsak.getTema());
 		} catch (IllegalArgumentException e) {
 			log.error("Mapping av tema={} feilet. Dette må rettes.", arkivsak.getTema());
-			return Tema.UKJ;
+			return UKJ;
 		}
 	}
 

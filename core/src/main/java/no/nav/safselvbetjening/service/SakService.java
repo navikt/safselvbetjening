@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 @Slf4j
 @Component
 public class SakService {
+
 	private static final List<String> TEMA_PENSJON = Arrays.asList("UFO", "PEN");
 	private final PensjonSakRestConsumer pensjonSakRestConsumer;
 	private final JoarksakConsumer joarksakConsumer;

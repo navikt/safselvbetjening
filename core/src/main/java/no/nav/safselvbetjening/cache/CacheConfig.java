@@ -18,6 +18,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 @EnableCaching
 @Profile({"nais", "local"})
 public class CacheConfig {
+
 	public static final String GRAPHQL_QUERY_CACHE = "graphql_query_cache";
 	public static final String AZURE_TOKEN_CACHE = "azure_token";
 

@@ -18,7 +18,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.time.Duration;
 import java.util.List;
 
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
@@ -31,6 +30,7 @@ import static org.springframework.http.HttpMethod.GET;
 @Slf4j
 @Component
 public class JoarksakConsumer {
+
 	private static final String ARKIVSAK_INSTANCE = "arkivsak";
 	private static final String HEADER_SAK_CORRELATION_ID = "X-Correlation-ID";
 
@@ -39,16 +39,14 @@ public class JoarksakConsumer {
 
 	public JoarksakConsumer(final RestTemplateBuilder restTemplateBuilder,
 							final SafSelvbetjeningProperties safSelvbetjeningProperties,
-							final ClientHttpRequestFactory clientHttpRequestFactory) {
+							final ClientHttpRequestFactory requestFactory) {
 		this.sakUrl = safSelvbetjeningProperties.getEndpoints().getSak();
 		this.restTemplate = restTemplateBuilder
-				.setReadTimeout(Duration.ofSeconds(20))
-				.setConnectTimeout(Duration.ofSeconds(5))
 				.basicAuthentication(
 						safSelvbetjeningProperties.getServiceuser().getUsername(),
 						safSelvbetjeningProperties.getServiceuser().getPassword()
 				)
-				.requestFactory(() -> clientHttpRequestFactory)
+				.requestFactory(() -> requestFactory)
 				.build();
 	}
 

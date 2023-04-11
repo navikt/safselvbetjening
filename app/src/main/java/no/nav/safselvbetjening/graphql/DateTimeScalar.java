@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 final class DateTimeScalar {
+
 	static final GraphQLScalarType DATE_TIME = GraphQLScalarType.newScalar()
 			.name("DateTime")
 			.description("Identifikasjon av dato og tidspunkt etter ISO-8601 standarden.")

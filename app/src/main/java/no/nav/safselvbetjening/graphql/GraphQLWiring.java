@@ -11,6 +11,7 @@ import static no.nav.safselvbetjening.graphql.DateTimeScalar.DATE_TIME;
 @Component
 @Slf4j
 public class GraphQLWiring {
+
 	private final DokumentoversiktSelvbetjeningDataFetcher dokumentoversiktSelvbetjeningDataFetcher;
 
 	public GraphQLWiring(DokumentoversiktSelvbetjeningDataFetcher dokumentoversiktSelvbetjeningDataFetcher) {

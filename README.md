@@ -13,10 +13,10 @@ For mer informasjon: [safselvbetjening systemdokumentasjon](https://confluence.a
 
 #### Endepunkt
 
-| cluster    | fss-til-fss     | gcp-til-fss                       | sbs-til-fss        |
-| :--------- | :-------------- | :-------------------------------- | :----------------- |
-| `dev-fss`  | `https://safselvbetjening.dev.intern.nav.no`  |`https://safselvbetjening.dev-fss-pub.nais.io`| `https://api-gw-q1.adeo.no/safselvbetjening` |
-| `prod-fss` | `https://safselvbetjening.intern.nav.no` |`https://safselvbetjening.prod-fss-pub.nais.io`|  `https://api-gw.adeo.no/safselvbetjening` |
+| cluster    | fss-til-fss                                  | gcp-til-fss                                     | sbs-til-fss                                  |
+|:-----------|:---------------------------------------------|:------------------------------------------------|:---------------------------------------------|
+| `dev-fss`  | `https://safselvbetjening.dev.intern.nav.no` | `https://safselvbetjening.dev-fss-pub.nais.io`  | `https://api-gw-q1.adeo.no/safselvbetjening` |
+| `prod-fss` | `https://safselvbetjening.intern.nav.no`     | `https://safselvbetjening.prod-fss-pub.nais.io` | `https://api-gw.adeo.no/safselvbetjening`    |
 
 Kontakt teamet for å bli lagt til som api-gw konsument.
 
@@ -30,10 +30,10 @@ For tilgang, ta kontakt med teamet eller oppdater `ACCESS_POLICY_INBOUND_RULES` 
 
 #### GraphQL dokumentoversiktSelvbetjening
 
-| Header        | Type     | Beskrivelse                                |
-| :--------------- | :------- | :----------------------------------------- |
-| `Authorization`  | `string` | **Påkrevd**. Autorisasjon til tjenesten. `Bearer <token>` |
-| `Nav-Callid`  | `string` | **Valgfri**. Sporing for på tvers av verdikjeder. Helst en GUID eller annen unik ID. |
+| Header          | Type     | Beskrivelse                                                                          |
+|:----------------|:---------|:-------------------------------------------------------------------------------------|
+| `Authorization` | `string` | **Påkrevd**. Autorisasjon til tjenesten. `Bearer <token>`                            |
+| `Nav-Callid`    | `string` | **Valgfri**. Sporing for på tvers av verdikjeder. Helst en GUID eller annen unik ID. |
 ```http
   POST /graphql
 ```
@@ -87,12 +87,12 @@ Feilmeldinger propageres i `errors` i respons.
 
 Anbefales å logge `errors[0..n].message`. Samt klassifisering i `errors[0..n].extensions.code`.
 
-| `extensions.code`  | Beskrivelse                                |
-| :----------------- | :----------------------------------------- |
-| `bad_request`      | Feil i input til queries. |
-| `unauthorized`     | Ingen tilgang til tjenesten. Ugyldig token. Token som ikke tilhører ident i query. |
-| `not_found`        | Bruker finnes ikke i PDL. Ingen saker på bruker. |
-| `server_error`     | Intern teknisk feil som ikke er håndtert. |
+| `extensions.code` | Beskrivelse                                                                        |
+|:------------------|:-----------------------------------------------------------------------------------|
+| `bad_request`     | Feil i input til queries.                                                          |
+| `unauthorized`    | Ingen tilgang til tjenesten. Ugyldig token. Token som ikke tilhører ident i query. |
+| `not_found`       | Bruker finnes ikke i PDL. Ingen saker på bruker.                                   |
+| `server_error`    | Intern teknisk feil som ikke er håndtert.                                          |
 
 Eksempel:
 
@@ -122,10 +122,10 @@ Eksempel:
 
 #### Hent dokument
 
-| Header        | Type     | Beskrivelse                                |
-| :--------------- | :------- | :----------------------------------------- |
-| `Authorization`  | `string` | **Påkrevd**. Autorisasjon til tjenesten. `Bearer <token>` |
-| `Nav-Callid`  | `string` | **Valgfri**. Sporing for på tvers av verdikjeder. Helst en GUID eller annen unik ID. |
+| Header          | Type     | Beskrivelse                                                                          |
+|:----------------|:---------|:-------------------------------------------------------------------------------------|
+| `Authorization` | `string` | **Påkrevd**. Autorisasjon til tjenesten. `Bearer <token>`                            |
+| `Nav-Callid`    | `string` | **Valgfri**. Sporing for på tvers av verdikjeder. Helst en GUID eller annen unik ID. |
 ```http
   GET /rest/hentdokument/${journalpostId}/${dokumentInfoId}/${variantFormat}
 ```
@@ -134,20 +134,20 @@ Eksempel:
   GET /rest_hentdokument/${journalpostId}/${dokumentInfoId}/${variantFormat}
 ```
 
-| Parameter        | Type     | Beskrivelse                                |
-| :--------------- | :------- | :----------------------------------------- |
-| `journalpostId`  | `string` | **Påkrevd**. JournalpostId til dokumentet. |
-| `dokumentInfoId` | `string` | **Påkrevd**. DokumentInfoId til dokumentet. |
+| Parameter        | Type     | Beskrivelse                                           |
+|:-----------------|:---------|:------------------------------------------------------|
+| `journalpostId`  | `string` | **Påkrevd**. JournalpostId til dokumentet.            |
+| `dokumentInfoId` | `string` | **Påkrevd**. DokumentInfoId til dokumentet.           |
 | `variantFormat`  | `string` | **Påkrevd**. VariantFormat. Gyldige verdier: `ARKIV`. |
 
 ##### Suksess
 
 Returnerer `200 OK`
 
-| Header                 | Eksempel | Beskrivelse                                |
-| :--------------------- | :------- | :----------------------------------------- |
-| `Content-Disposition`  | `inline; filename=40000000_ARKIV.pdf` | Avhengig av hvordan konsument ønsker vise filen. Filnavn hvis den lastes ned. |
-| `Content-Type`         | `application/pdf` | Mimetype for filen. Konsument velger hvordan den vises. |
+| Header                | Eksempel                              | Beskrivelse                                                                   |
+|:----------------------|:--------------------------------------|:------------------------------------------------------------------------------|
+| `Content-Disposition` | `inline; filename=40000000_ARKIV.pdf` | Avhengig av hvordan konsument ønsker vise filen. Filnavn hvis den lastes ned. |
+| `Content-Type`        | `application/pdf`                     | Mimetype for filen. Konsument velger hvordan den vises.                       |
 
 Returnerer en base64 encodet representasjon av dokumentet i payload.
 
