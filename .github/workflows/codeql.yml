@@ -5,6 +5,6 @@ on:
     - cron: '00 10 * * 1,2,3,4,5'
 
 jobs:
-  build:
+  run-codeql:
     uses: navikt/dok-workflows/.github/workflows/codeql.yml@main
     secrets: inherit
