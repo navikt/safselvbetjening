@@ -1,0 +1,10 @@
+name: "CodeQL"
+
+on:
+  schedule:
+    - cron: '00 10 * * 1,2,3,4,5'
+
+jobs:
+  build:
+    uses: navikt/dok-workflows/.github/workflows/codeql.yml@main
+    secrets: inherit
