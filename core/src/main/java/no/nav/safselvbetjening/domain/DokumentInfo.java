@@ -19,6 +19,7 @@ public class DokumentInfo {
 	@ToString.Exclude
 	String tittel;
 	String brevkode;
+	Boolean sensitivtPselv;
 	TilgangDokument tilgangDokument;
 
 	@Builder.Default

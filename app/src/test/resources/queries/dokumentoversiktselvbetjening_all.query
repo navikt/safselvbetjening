@@ -70,6 +70,7 @@
         dokumentInfoId
         tittel
         brevkode
+        sensitivtPselv
         dokumentvarianter {
           variantformat
           filuuid

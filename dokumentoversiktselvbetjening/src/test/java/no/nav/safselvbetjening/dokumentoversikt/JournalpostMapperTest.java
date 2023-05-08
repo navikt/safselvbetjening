@@ -147,6 +147,7 @@ class JournalpostMapperTest {
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().get(0);
 		assertThat(dokumentInfo.getDokumentInfoId()).isEqualTo(DOKUMENT_INFO_ID.toString());
 		assertThat(dokumentInfo.getBrevkode()).isEqualTo(BREVKODE);
+		assertThat(dokumentInfo.getSensitivtPselv()).isTrue();
 		assertThat(dokumentInfo.getTittel()).isEqualTo(TITTEL);
 		Dokumentvariant arkivVariant = dokumentInfo.getDokumentvarianter().get(0);
 		assertThat(arkivVariant.getFiluuid()).isEqualTo(FILUUID_1);
