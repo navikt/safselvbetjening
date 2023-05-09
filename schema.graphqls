@@ -93,7 +93,6 @@ type Journalpost {
     # Liste over dokumentinfo tilknyttet journalposten.
     # * Dokumentene returneres i følgende sorteringsrekkefølge: Hoveddokumentet først, deretter vedleggene i tilfeldig rekkefølge.
     dokumenter: [DokumentInfo]
-
 }
 
 # Sakstilknytningen til journalposten.
@@ -143,6 +142,10 @@ type DokumentInfo {
     # * For inngående skjema er brevkoden normalt en NAV-skjemaID f.eks. *"NAV 14-05.09"*. Enkelte vedlegg har en vedleggskode som sier noe om innholdet.
     # * For utgående dokumenter sier brevkoden noe om hvilken dokumentmal som er benyttet og hvordan dokumentet skal distribueres.
     brevkode: String
+
+    # Skjuler dokumentet for brukeren i Pselv (pensjon selvbetjening) ved påloggingsnivå 3 (MinId).
+    # Feltet skal kun brukes av pensjonsområdet.
+    sensitivtPselv: Boolean @deprecated(reason: "Feltet skal kun brukes av pensjonsområdet.")
 
     # Liste over tilgjengelige varianter av dokumentet.
     dokumentvarianter: [Dokumentvariant]!
