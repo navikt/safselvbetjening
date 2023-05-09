@@ -143,6 +143,10 @@ type DokumentInfo {
     # * For utgående dokumenter sier brevkoden noe om hvilken dokumentmal som er benyttet og hvordan dokumentet skal distribueres.
     brevkode: String
 
+    # Skjuler dokumentet for brukeren i Pselv (pensjon selvbetjening) ved påloggingsnivå 3 (MinId).
+    # Feltet skal kun brukes av pensjonsområdet.
+    sensitivtPselv: Boolean @deprecated(reason: "Feltet skal kun brukes av pensjonsområdet.")
+
     # Liste over tilgjengelige varianter av dokumentet.
     dokumentvarianter: [Dokumentvariant]!
 }

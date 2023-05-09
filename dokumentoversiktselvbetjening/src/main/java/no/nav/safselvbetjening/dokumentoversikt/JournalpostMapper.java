@@ -210,6 +210,7 @@ public class JournalpostMapper {
 				.dokumentvarianter(mapDokumentVarianter(dokument))
 				.tittel(dokument.getTittel())
 				.brevkode(dokument.getBrevkode())
+				.sensitivtPselv(dokument.getSensitivt())
 				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
 						.innskrenketPartsinnsyn(dokument.getInnskrPartsinnsyn() != null && dokument.getInnskrPartsinnsyn())
 						.innskrenketTredjepart(dokument.getInnskrTredjepart() != null && dokument.getInnskrTredjepart())

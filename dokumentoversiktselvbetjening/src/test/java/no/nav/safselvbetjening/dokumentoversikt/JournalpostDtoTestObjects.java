@@ -90,6 +90,7 @@ public class JournalpostDtoTestObjects {
 	static final String FILTYPE = "PDF";
 	public static final String PENSJON_SAKID = "pensjon-123";
 	public static final String PENSJON_TEMA = FagomradeCode.UFO.name();
+	private static final Boolean SENSITIVT = true;
 
 	static JournalpostDto buildJournalpostDtoUtgaaendeType(JournalStatusCode journalStatusCode) {
 		return baseJournalpostDto()
@@ -183,6 +184,7 @@ public class JournalpostDtoTestObjects {
 				.origJournalpostId(JOURNALPOST_ID)
 				.skjerming(SKJERMING_TYPE_CODE_POL)
 				.kategori(KATEGORI)
+				.sensitivt(SENSITIVT)
 				.logiske(logiskeVedlegg());
 	}
 

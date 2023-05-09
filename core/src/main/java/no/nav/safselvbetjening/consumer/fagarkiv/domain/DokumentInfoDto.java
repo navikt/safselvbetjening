@@ -27,4 +27,5 @@ public class DokumentInfoDto {
 	private Boolean organInternt;
 	private Boolean innskrPartsinnsyn;
 	private Boolean innskrTredjepart;
+	private Boolean sensitivt;
 }
