@@ -30,7 +30,7 @@
 		<token-support.version>3.1.0</token-support.version>
 		<resilience4j.version>2.0.2</resilience4j.version>
 		<bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
-		<kafka-avro-serializer.version>7.3.2</kafka-avro-serializer.version>
+		<kafka-avro-serializer.version>7.4.0</kafka-avro-serializer.version>
 		<teamdokumenthandtering-avro-schemas.version>357738b9</teamdokumenthandtering-avro-schemas.version>
 
 		<!-- test -->
