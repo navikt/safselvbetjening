@@ -24,6 +24,11 @@
       "cluster": "dev-gcp"
     },
     {
+      "app": "dokumenter",
+      "namespace": "aap",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "mine-saker-api",
       "namespace": "min-side",
       "cluster": "dev-gcp"
