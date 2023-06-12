@@ -1,21 +1,22 @@
 {
   "tilgangJournalpostDto": {
-    "journalpostId": "123",
-    "journalStatus": "M",
-    "journalpostType": "I",
-    "fagomrade": "PEN",
-    "datoOpprettet": "2019-12-06T00:00:00",
+    "journalpostId": "12345",
+    "journalStatus": "FL",
+    "journalpostType": "U",
+    "fagomrade": "AAP",
+    "datoOpprettet": "2019-11-22T15:08:21.506",
     "journalfoertDato": "2019-11-22T15:08:21.504",
     "mottakskanal": null,
-    "avsenderMottakerId": "12345678911",
     "skjerming": null,
+    "innsyn": "SKJULES_ORGAN_INTERNT",
+    "avsenderMottakerId": "12345678911",
     "bruker": {
       "brukerId": "12345678911",
       "brukerType": "PERSON"
     },
     "sak": {
-      "sakId": null,
-      "fagsystem": null,
+      "sakId": "13000000",
+      "fagsystem": "FS22",
       "feilregistrert": false,
       "aktoerId": "1012345678911",
       "tema": "AAP",
@@ -24,12 +25,11 @@
       "applikasjon": "AO01",
       "opprettetAv": null,
       "opprettetTidspunkt": "2018-06-05T11:19:55.419+02:00"
-
     },
     "dokument": {
       "dokumentinfoId": "123",
-      "dokumentstatus": "MOTTATT",
-      "brevkode": null,
+      "dokumentstatus": "FERDIGSTILT",
+      "brevkode": "GEN_NOT_003",
       "kategori": "FORVALTNINGSNOTAT",
       "kassert": false,
       "skjerming": null,

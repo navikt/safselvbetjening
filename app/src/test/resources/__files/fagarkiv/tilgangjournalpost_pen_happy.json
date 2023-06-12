@@ -30,9 +30,6 @@
       "dokumentstatus": "FERDIGSTILT",
       "brevkode": "GEN_NOT_003",
       "kategori": "FORVALTNINGSNOTAT",
-      "organinternt": false,
-      "innskrenketPartsinnsyn": false,
-      "innskrenketTredjepart": false,
       "kassert": false,
       "skjerming": null,
       "variant": {

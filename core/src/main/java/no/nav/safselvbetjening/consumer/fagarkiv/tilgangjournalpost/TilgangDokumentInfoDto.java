@@ -15,9 +15,6 @@ public class TilgangDokumentInfoDto {
 	private String dokumentstatus;
 	private String brevkode;
 	private String kategori;
-	private Boolean organinternt;
-	private Boolean innskrenketPartsinnsyn;
-	private Boolean innskrenketTredjepart;
 	private Boolean kassert;
 	private SkjermingTypeCode skjerming;
 	private TilgangVariantDto variant;

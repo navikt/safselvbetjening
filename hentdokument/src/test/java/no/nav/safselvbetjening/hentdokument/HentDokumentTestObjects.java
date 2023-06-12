@@ -64,9 +64,6 @@ public class HentDokumentTestObjects {
 				.builder()
 				.kassert(false)
 				.kategori(FORVALTNINGSNOTAT)
-				.organinternt(null)
-				.innskrenketPartsinnsyn(true)
-				.innskrenketTredjepart(true)
 				.variant(TilgangVariantDto.builder()
 						.skjerming(SkjermingTypeCode.FEIL)
 						.build());
