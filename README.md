@@ -167,14 +167,12 @@ Returnerer:
 | ingen_partsinnsyn         | Bruker må være part for å se journalposter                                                                                                              |
 | opprettet_for_innsynsdato | Bruker får ikke se journalposter som er opprettet før 04.06.2016                                                                                        |
 | skannet_dokument          | Bruker får ikke se skannede dokumenter                                                                                                                  |
-| innskrenket_partsinnsyn   | Dokumenter markert som innskrenketPartsinnsyn skal ikke vises                                                                                           |
 | gdpr                      | Dokumenter som er begrenset ihht. gdpr                                                                                                                  |
 | kassert_dokument          | Kasserte dokumenter skal ikke vises                                                                                                                     |
 | ugyldig_journalstatus     | Bruker får kun se midlertidige og ferdigstilte journalposter                                                                                            |
 | feilregistrert            | Bruker får ikke se feilregistrerte journalposter                                                                                                        |
 | temaer_unntatt_innsyn     | Bruker får ikke innsyn i temaer unntatt innsyn (kontrollsaker og farskapssaker)                                                                         |
 | forvaltningsnotat         | Bruker får ikke innsyn i notater med mindre det er et forvaltningsnotat                                                                                 |
-| organinternt              | Bruker får ikke innsyn i journalposter der ett eller flere dokumenter er markert som organinternt                                                       |
 | annen_part                | Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises                                                                                |
 | bruker_matcher_ikke_token | Bruker på dokumentet matcher ikke bruker i token                                                                                                        |
 | skjult_innsyn             | Innsynsreglene styrer utvalget av journalposter og dokumenter som en innlogget bruker får innsyn i på nav.no. Bruker får ikke se skjulte journalposter. |

@@ -44,11 +44,8 @@ public class HentDokumentTilgangMapper {
 		}
 		return DokumentInfo.builder()
 				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-						.innskrenketPartsinnsyn(tilgangDokumentInfoDto.getInnskrenketPartsinnsyn() != null && tilgangDokumentInfoDto.getInnskrenketPartsinnsyn())
-						.innskrenketTredjepart(tilgangDokumentInfoDto.getInnskrenketTredjepart() != null && tilgangDokumentInfoDto.getInnskrenketTredjepart())
 						.kassert(tilgangDokumentInfoDto.getKassert() != null && tilgangDokumentInfoDto.getKassert())
 						.kategori(tilgangDokumentInfoDto.getKategori())
-						.organinternt(tilgangDokumentInfoDto.getOrganinternt() != null && tilgangDokumentInfoDto.getOrganinternt())
 						.build())
 				.dokumentvarianter(Collections.singletonList(mapDokumentVarianter(tilgangDokumentInfoDto.getVariant())))
 				.build();

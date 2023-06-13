@@ -38,6 +38,7 @@ import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKANNET_DOKUMENT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKJULT_INNSYN;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -207,6 +208,21 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
+	void shouldHentDokumentTilgangAvvistInnsynSkjules() {
+		stubPdl();
+		stubAzure();
+
+		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+				.willReturn(aResponse().withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("fagarkiv/tilgangjournalpost_innsyn_skjules.json")));
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_SKJULT_INNSYN));
+	}
+
+	@Test
 	void hentDokumentTilgangAvvist() {
 		stubPdl();
 		stubAzure();
@@ -217,6 +233,7 @@ class HentDokumentIT extends AbstractItest {
 						.withBodyFile("fagarkiv/tilgangjournalpost_gdpr.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_GDPR));
 	}
 

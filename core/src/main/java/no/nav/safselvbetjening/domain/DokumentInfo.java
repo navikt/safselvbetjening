@@ -29,9 +29,6 @@ public class DokumentInfo {
 	@Builder
 	public static class TilgangDokument {
 		private final String kategori;
-		private final boolean organinternt;
-		private final boolean innskrenketPartsinnsyn;
-		private final boolean innskrenketTredjepart;
 		private final boolean kassert;
 	}
 }

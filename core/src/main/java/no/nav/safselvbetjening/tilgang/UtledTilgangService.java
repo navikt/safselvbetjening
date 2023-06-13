@@ -45,10 +45,8 @@ import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_ANNE
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_FEILREGISTRERT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_INNSKRENKET_PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_INNSYNSDATO;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_KASSERT;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_ORGANINTERNT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKANNET_DOKUMENT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKJULT_INNSYN;
@@ -58,10 +56,8 @@ import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_ANNE
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_FEILREGISTRERT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_GDPR;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_INNSKRENKET_PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_INNSYNSDATO;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_KASSERT;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_ORGANINTERNT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_SKANNET;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_SKJULT;
@@ -104,7 +100,6 @@ public class UtledTilgangService {
 				   isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost) && // 1e
 				   isJournalpostNotGDPRRestricted(journalpost) && // 1f
 				   isJournalpostForvaltningsnotat(journalpost) && // 1g
-				   isJournalpostNotOrganInternt(journalpost) && // 1h
 				   !isJournalpostInnsynSkjult(journalpost.getTilgang()); // 1i
 		} catch (Exception e) {
 			log.error("Feil oppstått i utledTilgangJournalpost for journalpost med journalpostId={}.", journalpost.getJournalpostId(), e);
@@ -123,9 +118,6 @@ public class UtledTilgangService {
 		}
 		if (isSkannetDokumentAndInnsynIsNotVises(journalpost)) {
 			feilmeldinger.add(DENY_REASON_SKANNET_DOKUMENT);
-		}
-		if (isDokumentInnskrenketPartsinnsyn(dokumentInfo)) {
-			feilmeldinger.add(DENY_REASON_INNSKRENKET_PARTSINNSYN);
 		}
 		if (isDokumentGDPRRestricted(dokumentvariant)) {
 			feilmeldinger.add(DENY_REASON_GDPR);
@@ -160,9 +152,6 @@ public class UtledTilgangService {
 		if (!isJournalpostForvaltningsnotat(journalpost)) {
 			throw new HentTilgangDokumentException(DENY_REASON_FORVALTNINGSNOTAT, lagFeilmeldingForJournalpost(FEILMELDING_FORVALTNINGSNOTAT));
 		}
-		if (!isJournalpostNotOrganInternt(journalpost)) {
-			throw new HentTilgangDokumentException(DENY_REASON_ORGANINTERNT, lagFeilmeldingForJournalpost(FEILMELDING_ORGANINTERNT));
-		}
 		if (isJournalpostInnsynSkjult(journalpost.getTilgang())) {
 			throw new HentTilgangDokumentException(DENY_REASON_SKJULT_INNSYN, lagFeilmeldingForJournalpost(FEILMELDING_SKJULT));
 		}
@@ -173,9 +162,6 @@ public class UtledTilgangService {
 		}
 		if (isSkannetDokumentAndInnsynIsNotVises(journalpost)) {
 			throw new HentTilgangDokumentException(DENY_REASON_SKANNET_DOKUMENT, lagFeilmeldingForDokument(FEILMELDING_SKANNET));
-		}
-		if (isDokumentInnskrenketPartsinnsyn(journalpost.getDokumenter().get(0))) {
-			throw new HentTilgangDokumentException(DENY_REASON_INNSKRENKET_PARTSINNSYN, lagFeilmeldingForDokument(FEILMELDING_INNSKRENKET_PARTSINNSYN));
 		}
 		if (isDokumentGDPRRestricted(journalpost.getDokumenter().get(0).getDokumentvarianter().get(0))) {
 			throw new HentTilgangDokumentException(DENY_REASON_GDPR, lagFeilmeldingForDokument(FEILMELDING_GDPR));
@@ -296,20 +282,6 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 1h) Journalposter med ett eller flere dokumenter markert som organinternt skal ikke vises
-	 */
-	public boolean isJournalpostNotOrganInternt(Journalpost journalpost) {
-		if (!journalpost.getDokumenter().isEmpty()) {
-			for (DokumentInfo dokumentInfo : journalpost.getDokumenter()) {
-				if (dokumentInfo.getTilgangDokument() != null && dokumentInfo.getTilgangDokument().isOrganinternt()) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	/**
 	 * 1i) Bruker kan ikke få se journalposter der innsyn begynner med SKJULES_*
 	 */
 	public boolean isJournalpostInnsynSkjult(Journalpost.TilgangJournalpost tilgang) {
@@ -350,17 +322,6 @@ public class UtledTilgangService {
 				return !isJournalpostInnsynVises(tilgangJournalpost);
 			}
 			return MOTTAKS_KANAL_SKAN.contains(mottakskanal);
-		}
-		return false;
-	}
-
-	/**
-	 * 2d) Dokumenter markert som innskrenketPartsinnsyn skal ikke vises
-	 */
-	boolean isDokumentInnskrenketPartsinnsyn(DokumentInfo dokumentInfo) {
-		DokumentInfo.TilgangDokument tilgangDokument = dokumentInfo.getTilgangDokument();
-		if (tilgangDokument != null) {
-			return (tilgangDokument.isInnskrenketPartsinnsyn() || tilgangDokument.isInnskrenketTredjepart());
 		}
 		return false;
 	}

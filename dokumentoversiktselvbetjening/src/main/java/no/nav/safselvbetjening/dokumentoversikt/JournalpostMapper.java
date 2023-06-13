@@ -212,11 +212,8 @@ public class JournalpostMapper {
 				.brevkode(dokument.getBrevkode())
 				.sensitivtPselv(dokument.getSensitivt())
 				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-						.innskrenketPartsinnsyn(dokument.getInnskrPartsinnsyn() != null && dokument.getInnskrPartsinnsyn())
-						.innskrenketTredjepart(dokument.getInnskrTredjepart() != null && dokument.getInnskrTredjepart())
 						.kassert(dokument.getKassert() != null && dokument.getKassert())
 						.kategori(dokument.getKategori() == null ? null : dokument.getKategori().toString())
-						.organinternt(dokument.getOrganInternt() != null && dokument.getOrganInternt())
 						.build())
 				.build()).collect(Collectors.toList());
 	}

@@ -384,24 +384,6 @@ class UtledTilgangServiceTest {
 		assertThat(actual).isTrue();
 	}
 
-	//	1h - Bruker får ikke innsyn journalposter der et eller flere dokumenter markert som organinternt
-	@Test
-	void shouldReturnFalseWhenAtleastOneDokumentIsOrganintern() {
-		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
-				.dokumenter(List.of(DokumentInfo.builder()
-						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-								.organinternt(false)
-								.build())
-						.build(), DokumentInfo.builder()
-						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-								.organinternt(true)
-								.build())
-						.build()))
-				.build();
-		boolean actual = utledTilgangService.isJournalpostNotOrganInternt(journalpost);
-		assertThat(actual).isFalse();
-	}
-
 	//	1i) Bruker kan ikke få se journalposter som innsyn begynner med SKJULES_*
 	@ParameterizedTest
 	@ValueSource(strings = {"SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_ORGAN_INTERNT", "SKJULES_FEILSENDT", "SKJULES_BRUKERS_ØNSKE"})
@@ -473,17 +455,6 @@ class UtledTilgangServiceTest {
 		assertThat(penSkannetDokument).isFalse();
 	}
 
-	//	2d - Dokumenter markert som innskrenketPartsinnsyn skal ikke vises
-	@Test
-	void shouldReturnTrueWhenDokumentIsInnskrenketpartsinnsyn() {
-		boolean actual = utledTilgangService.isDokumentInnskrenketPartsinnsyn(DokumentInfo.builder()
-				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-						.innskrenketPartsinnsyn(true)
-						.build())
-				.build());
-		assertThat(actual).isTrue();
-	}
-
 	//	2e - Dokumenter som er begrenset ihht. gdpr
 	@Test
 	void shouldReturnTrueWhenDokumentIsPolSkjermet() {
@@ -534,11 +505,9 @@ class UtledTilgangServiceTest {
 		return baseJournalfoertJournalpost(TEMA_DAGPENGER, valueOf(innsyn))
 				.dokumenter(List.of(DokumentInfo.builder()
 						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-								.organinternt(false)
 								.build())
 						.build(), DokumentInfo.builder()
 						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-								.organinternt(true)
 								.build())
 						.build()))
 				.build();

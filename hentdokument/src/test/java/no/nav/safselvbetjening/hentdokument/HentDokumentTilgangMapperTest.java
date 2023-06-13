@@ -76,9 +76,6 @@ class HentDokumentTilgangMapperTest {
 
 		DokumentInfo.TilgangDokument tilgangDokument = dokumentInfo.getTilgangDokument();
 		assertEquals(FORVALTNINGSNOTAT, tilgangDokument.getKategori());
-		assertTrue(tilgangDokument.isInnskrenketPartsinnsyn());
-		assertTrue(tilgangDokument.isInnskrenketTredjepart());
-		assertFalse(tilgangDokument.isOrganinternt());
 		assertFalse(tilgangDokument.isKassert());
 	}
 
@@ -113,9 +110,6 @@ class HentDokumentTilgangMapperTest {
 
 		DokumentInfo.TilgangDokument tilgangDokument = dokumentInfo.getTilgangDokument();
 		assertEquals(FORVALTNINGSNOTAT, tilgangDokument.getKategori());
-		assertTrue(tilgangDokument.isInnskrenketPartsinnsyn());
-		assertTrue(tilgangDokument.isInnskrenketTredjepart());
-		assertFalse(tilgangDokument.isOrganinternt());
 		assertFalse(tilgangDokument.isKassert());
 	}
 
