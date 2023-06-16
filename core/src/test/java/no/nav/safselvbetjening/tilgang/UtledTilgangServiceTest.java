@@ -19,7 +19,7 @@ import java.util.List;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.domain.Innsyn.BRUK_STANDARDREGLER;
-import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_BRUKERS_ØNSKE;
+import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_BRUKERS_ONSKE;
 import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_FEILSENDT;
 import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_INNSKRENKET_PARTSINNSYN;
 import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_ORGAN_INTERNT;
@@ -257,11 +257,11 @@ class UtledTilgangServiceTest {
 	// Opprettet før innsynsdato
 	@Test
 	void shouldReturnTrueWhenOpprettetBeforeInnsynsdatoAndNotStartedWithVISES() {
-		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, SKJULES_BRUKERS_ØNSKE)
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, SKJULES_BRUKERS_ONSKE)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.journalfoertDato(LocalDateTime.of(2017, 5, 6, 0, 0))
 						.datoOpprettet(LocalDateTime.of(2015, 5, 6, 0, 0))
-						.innsyn(SKJULES_BRUKERS_ØNSKE)
+						.innsyn(SKJULES_BRUKERS_ONSKE)
 						.build())
 				.build();
 		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
@@ -321,7 +321,7 @@ class UtledTilgangServiceTest {
 	@ParameterizedTest
 	@ValueSource(strings = {TEMA_FARSKAP, TEMA_KONTROLL, TEMA_KONTROLL_ANMELDELSE, TEMA_ARBEIDSRAADGIVNING_SKJERMET, TEMA_ARBEIDSRAADGIVNING_PSYKOLOGTESTER})
 	void shouldReturnFalseWhenJournalfoertAndSakTemaIkkeInnsynForBruker(String tema) {
-		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, SKJULES_BRUKERS_ØNSKE)
+		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, SKJULES_BRUKERS_ONSKE)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
 						.datoOpprettet(LocalDateTime.now())
 						.tema(tema)
@@ -386,7 +386,7 @@ class UtledTilgangServiceTest {
 
 	//	1i) Bruker kan ikke få se journalposter som innsyn begynner med SKJULES_*
 	@ParameterizedTest
-	@ValueSource(strings = {"SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_ORGAN_INTERNT", "SKJULES_FEILSENDT", "SKJULES_BRUKERS_ØNSKE"})
+	@ValueSource(strings = {"SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_ORGAN_INTERNT", "SKJULES_FEILSENDT", "SKJULES_BRUKERS_ONSKE"})
 	void shouldReturnTrueWhenJournalpostInnsynSkjult(String innsyn) {
 		Journalpost journalpost = getBaseJournalfoertJournalpostWithInnsyn(innsyn);
 		boolean actual = utledTilgangService.isJournalpostInnsynSkjult(journalpost.getTilgang());
@@ -426,7 +426,7 @@ class UtledTilgangServiceTest {
 	//	2b - Bruker får ikke se skannede dokumenter
 	@Test
 	void shouldReturnTrueWhenSkannetDokument() {
-		boolean imSkannetDokument = isSkannetDokument(SKAN_IM, SKJULES_BRUKERS_ØNSKE);
+		boolean imSkannetDokument = isSkannetDokument(SKAN_IM, SKJULES_BRUKERS_ONSKE);
 		boolean netsSkannetDokument = isSkannetDokument(SKAN_NETS, SKJULES_INNSKRENKET_PARTSINNSYN);
 		boolean penSkannetDokument = isSkannetDokument(SKAN_PEN, SKJULES_ORGAN_INTERNT);
 
