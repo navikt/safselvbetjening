@@ -314,10 +314,6 @@ enum Kanal {
     # * Brukes for utgående journalposter.
     DPV
 
-    # Brevet er sendt via digital post til virksomhet som sensitiv post.
-    # * Brukes for utgående journalposter.
-    DPVS
-
     # Forsendelsen har ingen kjent kanal.
     UKJENT
 }
