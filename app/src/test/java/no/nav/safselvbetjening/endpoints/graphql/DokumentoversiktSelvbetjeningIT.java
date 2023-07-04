@@ -40,6 +40,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertTemaQuery(dokumentoversikt);
 		assertFagsakQuery(dokumentoversikt);
@@ -55,6 +56,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertTemaQuery(dokumentoversikt);
 		assertFagsakQuery(dokumentoversikt);
@@ -70,6 +72,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertTemaQuery(dokumentoversikt);
 	}
@@ -83,6 +86,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertFagsakQuery(dokumentoversikt);
 	}
@@ -96,6 +100,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertJournalposterQuery(dokumentoversikt);
 	}
@@ -109,6 +114,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertJournalposterQuery(dokumentoversikt);
 	}
@@ -122,6 +128,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertThat(dokumentoversikt.getJournalposter()).hasSize(0);
 	}
@@ -165,6 +172,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertThat(data.getTema()).hasSize(1);
 		Sakstema foreldrepenger = data.getTema().get(0);
@@ -182,6 +190,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertThat(data.getTema()).hasSize(1);
 		Sakstema foreldrepenger = data.getTema().get(0);
@@ -200,6 +209,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertThat(data.getTema()).hasSize(2);
 
@@ -220,6 +230,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 
 
@@ -240,6 +251,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 
 		assertThat(data.getTema()).hasSize(1);
@@ -256,6 +268,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertThat(data.getTema()).hasSize(0);
 	}
@@ -272,7 +285,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdent() throws Exception {
+	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndNoFullmakt() throws Exception {
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
@@ -302,7 +315,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	private void happyStubs() {
 		stubAzure();
-		stubTokenx();
+		stubTokendings();
 		stubPdl();
 		stubSak();
 		stubPensjonssaker();
@@ -312,7 +325,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	private void happyStubWithInnsyn(String fileName) {
 		stubAzure();
-		stubTokenx();
+		stubTokendings();
 		stubPdl();
 		stubSak();
 		stubPensjonssaker();

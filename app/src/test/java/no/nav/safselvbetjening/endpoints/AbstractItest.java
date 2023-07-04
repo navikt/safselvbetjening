@@ -118,8 +118,8 @@ public abstract class AbstractItest {
 						.withBodyFile("azure/token_response.json")));
 	}
 
-	protected void stubTokenx() {
-		stubFor(post("/tokenx")
+	protected void stubTokendings() {
+		stubFor(post("/tokendings")
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -187,7 +187,7 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubPdlFullmakt(final String fil) {
-		stubFor(post("/pdlfullmakt")
+		stubFor(get("/pdlfullmakt")
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
