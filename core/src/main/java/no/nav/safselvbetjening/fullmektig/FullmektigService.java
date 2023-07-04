@@ -20,9 +20,15 @@ public class FullmektigService {
 
 	public Optional<Fullmakt> fullmektig(String fullmektigSubjectToken, String fullmaktsgiver) {
 		List<FullmaktDetails> fullmakter = fullmektigConsumer.fullmektig(fullmektigSubjectToken);
+		if(fullmakter.isEmpty()) {
+			return Optional.empty();
+		}
 		String aktiveTemaForFullmakt = fullmakter.stream().filter(f -> erFullmaktGyldig(fullmaktsgiver, f))
 				.map(FullmaktDetails::omraade)
 				.collect(Collectors.joining(";"));
+		if(aktiveTemaForFullmakt.isBlank()) {
+			return Optional.empty();
+		}
 		Set<String> tema = new HashSet<>(Arrays.stream(aktiveTemaForFullmakt.split(";")).toList());
 		if(tema.isEmpty()) {
 			return Optional.empty();

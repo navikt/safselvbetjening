@@ -34,7 +34,7 @@ import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_IDENT_ER_BLA
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_IDENT_ER_UGYLDIG;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_KUNNE_IKKE_HENTE_INTERN_REQUESTCONTEXT;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_TOKEN_MANGLER_I_HEADER;
-import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_TOKEN_MISMATCH;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_TOKEN_MISMATCH_INGEN_FULLMAKT;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_UKJENT_TEKNISK_FEIL;
 import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
 import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
@@ -190,7 +190,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 				MDC.put(MDC_FULLMAKT_TEMA, fullmakt.get().tema().toString());
 				return fullmakt;
 			} else {
-				throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MISMATCH);
+				throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MISMATCH_INGEN_FULLMAKT);
 			}
 		}
 		return Optional.empty();
