@@ -245,6 +245,8 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(data.getTema()).hasSize(1);
 		// fra pensjonssaker
 		assertThat(data.getTema().get(0).getKode()).isEqualTo("UFO");
+		assertThat(data.getFagsak().get(0).getTema()).isEqualTo("UFO");
+		assertThat(data.getJournalposter().get(0).getTema()).isEqualTo("UFO");
 	}
 
 	@Test
@@ -262,7 +264,37 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	@Test
 	void shouldGetDokumentoversiktWhenTokenNotMatchingQueryIdentAndFullmaktExistsForTema() throws Exception {
-		//TODO
+		happyStubs();
+		stubPdlFullmakt("pdl_fullmakt_for.json");
+
+		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+
+		assertThat(data.getTema()).hasSize(1);
+		// fullmakt FOR
+		assertThat(data.getTema().get(0).getKode()).isEqualTo("FOR");
+		assertThat(data.getFagsak().get(0).getTema()).isEqualTo("FOR");
+		assertThat(data.getJournalposter().get(0).getTema()).isEqualTo("FOR");
+	}
+
+	@Test
+	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndWrongFullmakt() throws Exception {
+		stubTokenx();
+		stubPdlFullmakt("pdl_fullmakt_feil_bruker.json");
+
+		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
+
+		assertThat(requireNonNull(response.getBody()).getErrors())
+				.extracting(e -> e.getExtensions().getCode())
+				.contains(UNAUTHORIZED.getText());
 	}
 
 	@Test
