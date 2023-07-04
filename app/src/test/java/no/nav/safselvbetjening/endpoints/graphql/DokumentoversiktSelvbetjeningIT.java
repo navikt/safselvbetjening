@@ -274,6 +274,11 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	@Test
+	void shouldGetDokumentoversiktWhenTokenNotMatchingQueryIdentAndFullmaktExistsForTema() throws Exception {
+		//TODO
+	}
+
+	@Test
 	void shouldReturnNotFoundWhenIngenBrukerIdenter() throws Exception {
 		happyStubs();
 		stubPdl("pdl_not_found.json");
@@ -315,7 +320,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	private void happyStubs() {
 		stubAzure();
-		stubTokendings();
+		stubTokenx();
 		stubPdl();
 		stubSak();
 		stubPensjonssaker();
@@ -325,7 +330,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	private void happyStubWithInnsyn(String fileName) {
 		stubAzure();
-		stubTokendings();
+		stubTokenx();
 		stubPdl();
 		stubSak();
 		stubPensjonssaker();

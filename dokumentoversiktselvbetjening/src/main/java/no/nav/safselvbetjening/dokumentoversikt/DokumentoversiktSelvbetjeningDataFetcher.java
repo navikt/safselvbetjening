@@ -193,7 +193,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 				throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MISMATCH);
 			}
 		}
-		throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MISMATCH);
+		return Optional.empty();
 	}
 
 	private List<String> temaArgumentEllerFullmakt(DataFetchingEnvironment environment, Optional<Fullmakt> fullmakt) {
