@@ -11,6 +11,8 @@ import no.nav.safselvbetjening.domain.Fagsak;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
+import no.nav.safselvbetjening.fullmektig.Fullmakt;
+import no.nav.safselvbetjening.fullmektig.FullmektigService;
 import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.graphql.GraphQLRequestContext;
 import no.nav.security.token.support.core.jwt.JwtToken;
@@ -19,9 +21,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static no.nav.safselvbetjening.MDCUtils.MDC_CALL_ID;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CONSUMER_ID;
+import static no.nav.safselvbetjening.MDCUtils.MDC_FULLMAKT_TEMA;
 import static no.nav.safselvbetjening.MDCUtils.getConsumerIdFromToken;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
@@ -50,19 +54,22 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	private final FagsakQueryService fagsakQueryService;
 	private final FagsakJournalposterQueryService fagsakJournalposterQueryService;
 	private final JournalposterQueryService journalposterQueryService;
+	private final FullmektigService fullmektigService;
 
 	public DokumentoversiktSelvbetjeningDataFetcher(DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService,
 													TemaQueryService temaQueryService,
 													TemaJournalposterQueryService temaJournalposterQueryService,
 													FagsakQueryService fagsakQueryService,
 													FagsakJournalposterQueryService fagsakJournalposterQueryService,
-													JournalposterQueryService journalposterQueryService) {
+													JournalposterQueryService journalposterQueryService,
+													FullmektigService fullmektigService) {
 		this.dokumentoversiktSelvbetjeningService = dokumentoversiktSelvbetjeningService;
 		this.temaQueryService = temaQueryService;
 		this.temaJournalposterQueryService = temaJournalposterQueryService;
 		this.fagsakQueryService = fagsakQueryService;
 		this.fagsakJournalposterQueryService = fagsakJournalposterQueryService;
 		this.journalposterQueryService = journalposterQueryService;
+		this.fullmektigService = fullmektigService;
 	}
 
 	@Override
@@ -74,8 +81,8 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			MDC.put(MDC_CONSUMER_ID, getConsumerIdFromToken(graphQLRequestContext.getTokenValidationContext()));
 			final String ident = environment.getArgument("ident");
 			validateIdent(ident, environment);
-			validateTokenIdent(ident, environment, graphQLRequestContext);
-			final List<String> tema = temaArgument(environment);
+			Optional<Fullmakt> fullmakt = validateIdentCheckFullmakt(ident, environment, graphQLRequestContext);
+			final List<String> tema = temaArgumentEllerFullmakt(environment, fullmakt);
 
 			DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
 			if (selectionSet.containsAnyOf("tema", "fagsak", "journalposter")) {
@@ -172,17 +179,27 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		}
 	}
 
-	private void validateTokenIdent(String ident, DataFetchingEnvironment environment,
-									GraphQLRequestContext graphQLRequestContext) {
+	private Optional<Fullmakt> validateIdentCheckFullmakt(String ident, DataFetchingEnvironment environment,
+												GraphQLRequestContext graphQLRequestContext) {
 		JwtToken jwtToken = graphQLRequestContext.getTokenValidationContext().getFirstValidToken()
 				.orElseThrow(() -> GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MANGLER_I_HEADER));
 		if (!jwtToken.getJwtTokenClaims().containsClaim(CLAIM_PID, ident) &&
 			!jwtToken.getJwtTokenClaims().containsClaim(CLAIM_SUB, ident)) {
-			throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MISMATCH);
+			Optional<Fullmakt> fullmakt = fullmektigService.fullmektig(jwtToken.getTokenAsString(), ident);
+			if (fullmakt.isPresent()) {
+				MDC.put(MDC_FULLMAKT_TEMA, fullmakt.get().tema().toString());
+				return fullmakt;
+			} else {
+				throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MISMATCH);
+			}
 		}
+		throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MISMATCH);
 	}
 
-	private List<String> temaArgument(DataFetchingEnvironment environment) {
+	private List<String> temaArgumentEllerFullmakt(DataFetchingEnvironment environment, Optional<Fullmakt> fullmakt) {
+		if(fullmakt.isPresent()) {
+			return fullmakt.get().tema();
+		}
 		final List<String> tema = environment.getArgumentOrDefault("tema", new ArrayList<>());
 		return tema.isEmpty() ? TEMA_BRUKER_HAR_INNSYN : tema;
 	}

@@ -12,6 +12,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public final class MDCUtils {
 	public static final String MDC_CALL_ID = "callId";
 	public static final String MDC_CONSUMER_ID = "consumerId";
+	public static final String MDC_FULLMAKT_TEMA = "fullmaktTema";
 	private static final String UKJENT_CONSUMERID = "ukjent";
 
 	public static String getCallId() {

@@ -52,6 +52,9 @@ public class SafSelvbetjeningProperties {
          */
         @NotNull
         private AzureEndpoint pensjon;
+
+        @NotNull
+        private TokenXEndpoint pdlfullmakt;
     }
 
     @Data
@@ -64,6 +67,21 @@ public class SafSelvbetjeningProperties {
         private String url;
         /**
          * Scope til azure client credential flow
+         */
+        @NotEmpty
+        private String scope;
+    }
+
+    @Data
+    @Validated
+    public static class TokenXEndpoint {
+        /**
+         * Url til tjeneste som har tokenx autorisasjon
+         */
+        @NotEmpty
+        private String url;
+        /**
+         * Scope til tokenx exchange flow
          */
         @NotEmpty
         private String scope;
