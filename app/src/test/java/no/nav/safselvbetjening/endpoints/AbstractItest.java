@@ -187,7 +187,7 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubPdlFullmakt(final String fil) {
-		stubFor(get("/pdlfullmakt")
+		stubFor(get("/pdlfullmakt/api/fullmektig")
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
