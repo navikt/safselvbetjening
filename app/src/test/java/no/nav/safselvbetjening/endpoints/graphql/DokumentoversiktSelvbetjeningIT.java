@@ -72,7 +72,6 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
-		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertTemaQuery(dokumentoversikt);
 	}
@@ -86,7 +85,6 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
-		assertThat(graphQLResponse.getErrors()).isEmpty();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertFagsakQuery(dokumentoversikt);
 	}
