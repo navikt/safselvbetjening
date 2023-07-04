@@ -2,13 +2,9 @@ package no.nav.safselvbetjening.fullmektig;
 
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class FullmektigService {
@@ -19,27 +15,11 @@ public class FullmektigService {
 	}
 
 	public Optional<Fullmakt> fullmektig(String fullmektigSubjectToken, String fullmaktsgiver) {
-		List<FullmaktDetails> fullmakter = fullmektigConsumer.fullmektig(fullmektigSubjectToken);
-		if(fullmakter.isEmpty()) {
-			return Optional.empty();
-		}
-		String aktiveTemaForFullmakt = fullmakter.stream().filter(f -> erFullmaktGyldig(fullmaktsgiver, f))
-				.map(FullmaktDetails::omraade)
-				.collect(Collectors.joining(";"));
-		if(aktiveTemaForFullmakt.isBlank()) {
-			return Optional.empty();
-		}
-		Set<String> tema = new HashSet<>(Arrays.stream(aktiveTemaForFullmakt.split(";")).toList());
-		if(tema.isEmpty()) {
-			return Optional.empty();
-		} else {
-			return Optional.of(new Fullmakt(tema.stream().toList()));
-		}
-	}
+		List<FullmektigTemaResponse> fullmektigTema = fullmektigConsumer.fullmektigTema(fullmektigSubjectToken);
 
-	private static boolean erFullmaktGyldig(String fullmaktsgiver, FullmaktDetails f) {
-		LocalDate idag = LocalDate.now();
-		return f.fullmaktsgiver().equals(fullmaktsgiver)
-			   && (!idag.isBefore(f.gyldigFraOgMed()) && idag.isBefore(f.gyldigTilOgMed()));
+		if (fullmektigTema.isEmpty()) {
+			return Optional.empty();
+		}
+		return fullmektigTema.stream().filter(ft -> ft.fullmaktsgiver().equals(fullmaktsgiver)).map(ft -> new Fullmakt(new ArrayList<>(ft.tema()))).findAny();
 	}
 }

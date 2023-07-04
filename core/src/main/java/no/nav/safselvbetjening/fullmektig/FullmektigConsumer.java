@@ -3,11 +3,15 @@ package no.nav.safselvbetjening.fullmektig;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
-import no.nav.safselvbetjening.azure.AzureTokenException;
+import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
+import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.tokendings.TokendingsConsumer;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -15,6 +19,7 @@ import static java.lang.String.format;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Slf4j
 @Component
 public class FullmektigConsumer {
 	private final SafSelvbetjeningProperties.TokenXEndpoint pdlfullmakt;
@@ -32,20 +37,27 @@ public class FullmektigConsumer {
 		this.objectMapper = objectMapper;
 	}
 
-	public List<FullmaktDetails> fullmektig(String fullmektigSubjectToken) {
+	public List<FullmektigTemaResponse> fullmektigTema(String fullmektigSubjectToken) {
 		String exchange = tokendingsConsumer.exchange(fullmektigSubjectToken, pdlfullmakt.getScope());
 		String responseJson = webClient.get()
-				.uri("/api/fullmektig")
+				.uri("/api/fullmektig/tema")
 				.headers(h -> h.setBearerAuth(exchange))
 				.retrieve()
+				.onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
+					log.warn("Kall til /api/fullmektig/tema feilet funksjonelt. status={}", clientResponse.statusCode());
+					return Mono.empty();
+				})
+				.onStatus(HttpStatusCode::is5xxServerError, clientResponse ->
+						clientResponse.bodyToMono(String.class)
+								.map(s -> new ConsumerTechnicalException("Teknisk feil i /api/fullmektig/tema. body=" + s)))
 				.bodyToMono(String.class)
+				.defaultIfEmpty("[]")
 				.block();
-
 		try {
 			return objectMapper.readValue(responseJson, new TypeReference<>() {
 			});
 		} catch (JsonProcessingException e) {
-			throw new AzureTokenException(format("Klarte ikke parse token fra Azure. Feilmelding=%s", e.getMessage()), e);
+			throw new ConsumerFunctionalException(format("Klarte ikke parse svar fra /api/fullmektig/tema. Feilmelding=%s", e.getMessage()), e);
 		}
 	}
 }

@@ -81,7 +81,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			MDC.put(MDC_CONSUMER_ID, getConsumerIdFromToken(graphQLRequestContext.getTokenValidationContext()));
 			final String ident = environment.getArgument("ident");
 			validateIdent(ident, environment);
-			Optional<Fullmakt> fullmakt = validateIdentCheckFullmakt(ident, environment, graphQLRequestContext);
+			Optional<Fullmakt> fullmakt = validateInnloggetBrukerCheckFullmakt(ident, environment, graphQLRequestContext);
 			final List<String> tema = temaArgumentEllerFullmakt(environment, fullmakt);
 
 			DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
@@ -179,8 +179,8 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		}
 	}
 
-	private Optional<Fullmakt> validateIdentCheckFullmakt(String ident, DataFetchingEnvironment environment,
-												GraphQLRequestContext graphQLRequestContext) {
+	private Optional<Fullmakt> validateInnloggetBrukerCheckFullmakt(String ident, DataFetchingEnvironment environment,
+																	GraphQLRequestContext graphQLRequestContext) {
 		JwtToken jwtToken = graphQLRequestContext.getTokenValidationContext().getFirstValidToken()
 				.orElseThrow(() -> GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MANGLER_I_HEADER));
 		if (!jwtToken.getJwtTokenClaims().containsClaim(CLAIM_PID, ident) &&
