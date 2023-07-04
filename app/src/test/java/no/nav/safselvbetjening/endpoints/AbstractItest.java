@@ -118,6 +118,14 @@ public abstract class AbstractItest {
 						.withBodyFile("azure/token_response.json")));
 	}
 
+	protected void stubTokenx() {
+		stubFor(post("/tokenx")
+				.willReturn(aResponse()
+						.withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("azure/token_response.json")));
+	}
+
 	protected void stubPdl() {
 		stubPdl("pdl_happy.json");
 	}
@@ -172,5 +180,17 @@ public abstract class AbstractItest {
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/" + fil)));
+	}
+
+	protected void stubPdlFullmakt() {
+		stubPdlFullmakt("pdl_fullmakt_ingen.json");
+	}
+
+	protected void stubPdlFullmakt(final String fil) {
+		stubFor(post("/pdlfullmakt")
+				.willReturn(aResponse()
+						.withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("pdlfullmakt/" + fil)));
 	}
 }

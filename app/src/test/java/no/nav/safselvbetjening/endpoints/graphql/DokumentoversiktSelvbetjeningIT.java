@@ -302,18 +302,22 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	private void happyStubs() {
 		stubAzure();
+		stubTokenx();
 		stubPdl();
 		stubSak();
 		stubPensjonssaker();
 		stubFagarkiv();
+		stubPdlFullmakt();
 	}
 
 	private void happyStubWithInnsyn(String fileName) {
 		stubAzure();
+		stubTokenx();
 		stubPdl();
 		stubSak();
 		stubPensjonssaker();
 		stubFagarkiv(fileName);
+		stubPdlFullmakt();
 	}
 
 	private ResponseEntity<GraphQLResponse> callDokumentoversikt(final String queryfile) throws IOException, URISyntaxException {
