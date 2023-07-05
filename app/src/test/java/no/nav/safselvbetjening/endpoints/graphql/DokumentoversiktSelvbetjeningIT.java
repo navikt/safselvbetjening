@@ -7,6 +7,7 @@ import no.nav.safselvbetjening.domain.Tema;
 import no.nav.safselvbetjening.endpoints.AbstractItest;
 import no.nav.safselvbetjening.graphql.GraphQLRequest;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 
@@ -285,6 +286,34 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndWrongFullmakt() throws Exception {
 		stubTokenx();
 		stubPdlFullmakt("pdl_fullmakt_feil_bruker.json");
+
+		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
+
+		assertThat(requireNonNull(response.getBody()).getErrors())
+				.extracting(e -> e.getExtensions().getCode())
+				.contains(UNAUTHORIZED.getText());
+	}
+
+	@Test
+	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturns4xx() throws Exception {
+		stubTokenx();
+		stubPdlFullmakt(HttpStatus.FORBIDDEN);
+
+		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
+
+		assertThat(requireNonNull(response.getBody()).getErrors())
+				.extracting(e -> e.getExtensions().getCode())
+				.contains(UNAUTHORIZED.getText());
+	}
+
+	@Test
+	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturns5xx() throws Exception {
+		stubTokenx();
+		stubPdlFullmakt(HttpStatus.INTERNAL_SERVER_ERROR);
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
