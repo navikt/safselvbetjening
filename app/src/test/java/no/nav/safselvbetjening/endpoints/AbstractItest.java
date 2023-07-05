@@ -199,6 +199,6 @@ public abstract class AbstractItest {
 		stubFor(get("/pdlfullmakt/api/fullmektig/tema")
 				.willReturn(aResponse()
 						.withStatus(httpStatus.value())
-						.withBodyFile("error " + httpStatus)));
+						.withBody("error " + httpStatus)));
 	}
 }
