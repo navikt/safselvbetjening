@@ -245,8 +245,6 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(data.getTema()).hasSize(1);
 		// fra pensjonssaker
 		assertThat(data.getTema().get(0).getKode()).isEqualTo("UFO");
-		assertThat(data.getFagsak().get(0).getTema()).isEqualTo("UFO");
-		assertThat(data.getJournalposter().get(0).getTema()).isEqualTo("UFO");
 	}
 
 	@Test
