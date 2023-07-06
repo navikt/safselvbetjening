@@ -7,9 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.tokendings.TokendingsConsumer;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -42,17 +42,11 @@ public class FullmektigConsumer {
 				.uri("/api/fullmektig/tema")
 				.headers(h -> h.setBearerAuth(exchange))
 				.retrieve()
-				.onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
-					log.warn("Kall til /api/fullmektig/tema feilet funksjonelt. status={}, body={}",
-							clientResponse.statusCode(), clientResponse.bodyToMono(String.class));
-					return Mono.empty();
-				})
-				.onStatus(HttpStatusCode::is5xxServerError, clientResponse -> {
-					log.error("Kall til /api/fullmektig/tema feilet teknisk. status={}",
-							clientResponse.statusCode(), clientResponse.bodyToMono(String.class));
-					return Mono.empty();
-				})
 				.bodyToMono(String.class)
+				.onErrorResume(WebClientResponseException.class, throwable -> {
+					log.error("Kall feilet mot /api/fullmektig/tema, status={}, body={}", throwable.getStatusCode(), throwable.getResponseBodyAsString());
+					return Mono.empty();
+				})
 				.defaultIfEmpty("[]")
 				.block();
 		try {
