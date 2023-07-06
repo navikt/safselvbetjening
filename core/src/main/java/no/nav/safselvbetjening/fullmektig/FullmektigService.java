@@ -20,6 +20,6 @@ public class FullmektigService {
 		if (fullmektigTema.isEmpty()) {
 			return Optional.empty();
 		}
-		return fullmektigTema.stream().filter(ft -> ft.fullmaktsgiver().equals(fullmaktsgiver)).map(ft -> new Fullmakt(new ArrayList<>(ft.tema()))).findAny();
+		return fullmektigTema.stream().filter(ft -> fullmaktsgiver.equals(ft.fullmaktsgiver())).map(ft -> new Fullmakt(new ArrayList<>(ft.tema()))).findAny();
 	}
 }

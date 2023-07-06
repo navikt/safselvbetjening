@@ -325,6 +325,34 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	@Test
+	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturnsInvalidJson() throws Exception {
+		stubTokenx();
+		stubPdlFullmakt("pdl_fullmakt_invalid_json.json");
+
+		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
+
+		assertThat(requireNonNull(response.getBody()).getErrors())
+				.extracting(e -> e.getExtensions().getCode())
+				.contains(UNAUTHORIZED.getText());
+	}
+
+	@Test
+	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturnsInvalidJsonNoArray() throws Exception {
+		stubTokenx();
+		stubPdlFullmakt("pdl_fullmakt_invalid_json_no_array.json");
+
+		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
+
+		assertThat(requireNonNull(response.getBody()).getErrors())
+				.extracting(e -> e.getExtensions().getCode())
+				.contains(UNAUTHORIZED.getText());
+	}
+
+	@Test
 	void shouldReturnNotFoundWhenIngenBrukerIdenter() throws Exception {
 		happyStubs();
 		stubPdl("pdl_not_found.json");
