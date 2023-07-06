@@ -28,7 +28,7 @@ public class FullmektigService {
 
 		Optional<Fullmakt> fullmakt = utledFullmakt(subjectJwt, fullmektigIdent, fullmaktsgiverIdent);
 		if(fullmakt.isPresent()) {
-			secureLog.warn("fullmakt/fullmektig Bruker fullmakt mellom innlogget bruker fullmektigIdent={}, argument fullmaktsgiverIdent={}, tema={}", fullmektigIdent, fullmaktsgiverIdent, fullmakt.get().tema());
+			secureLog.info("fullmakt/fullmektig Bruker fullmakt mellom innlogget bruker fullmektigIdent={}, argument fullmaktsgiverIdent={}, tema={}", fullmektigIdent, fullmaktsgiverIdent, fullmakt.get().tema());
 		} else {
 			secureLog.warn("fullmakt/fullmektig Det finnes fullmakt mellom innlogget bruker uten gyldige tema fullmektigIdent={}, argument fullmaktsgiverIdent={}", fullmektigIdent, fullmaktsgiverIdent);
 		}
