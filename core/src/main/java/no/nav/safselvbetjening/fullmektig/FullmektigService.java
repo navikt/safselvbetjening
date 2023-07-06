@@ -1,25 +1,62 @@
 package no.nav.safselvbetjening.fullmektig;
 
+import no.nav.security.token.support.core.jwt.JwtToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
+import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 @Component
 public class FullmektigService {
+	private static final Logger secureLog = LoggerFactory.getLogger("secureLog");
 	private final FullmektigConsumer fullmektigConsumer;
 
 	public FullmektigService(FullmektigConsumer fullmektigConsumer) {
 		this.fullmektigConsumer = fullmektigConsumer;
 	}
 
-	public Optional<Fullmakt> fullmektig(String fullmektigSubjectToken, String fullmaktsgiver) {
-		List<FullmektigTemaResponse> fullmektigTema = fullmektigConsumer.fullmektigTema(fullmektigSubjectToken);
+	public Optional<Fullmakt> fullmektig(JwtToken subjectJwt, String fullmaktsgiverIdent) {
+		String fullmektigIdent = extractFullmektigIdent(subjectJwt);
+		secureLog.info("fullmakt/fullmektig Slår opp fullmakter mellom innlogget bruker fullmektigIdent={}, argument fullmaktsgiverIdent={}", fullmektigIdent, fullmaktsgiverIdent);
+
+		Optional<Fullmakt> fullmakt = utledFullmakt(subjectJwt, fullmektigIdent, fullmaktsgiverIdent);
+		if(fullmakt.isPresent()) {
+			secureLog.warn("fullmakt/fullmektig Bruker fullmakt mellom innlogget bruker fullmektigIdent={}, argument fullmaktsgiverIdent={}, tema={}", fullmektigIdent, fullmaktsgiverIdent, fullmakt.get().tema());
+		} else {
+			secureLog.warn("fullmakt/fullmektig Det finnes fullmakt mellom innlogget bruker uten gyldige tema fullmektigIdent={}, argument fullmaktsgiverIdent={}", fullmektigIdent, fullmaktsgiverIdent);
+		}
+		return fullmakt;
+	}
+
+	private Optional<Fullmakt> utledFullmakt(JwtToken subjectJwt, String fullmektigIdent, String fullmaktsgiverIdent) {
+		List<FullmektigTemaResponse> fullmektigTema = fullmektigConsumer.fullmektigTema(subjectJwt.getTokenAsString());
 
 		if (fullmektigTema.isEmpty()) {
+			secureLog.warn("fullmakt/fullmektig Ingen fullmakter mellom innlogget bruker fullmektigIdent={}, argument fullmaktsgiverIdent={}", fullmektigIdent, fullmaktsgiverIdent);
 			return Optional.empty();
 		}
-		return fullmektigTema.stream().filter(ft -> fullmaktsgiver.equals(ft.fullmaktsgiver())).map(ft -> new Fullmakt(new ArrayList<>(ft.tema()))).findAny();
+		return fullmektigTema.stream()
+				.filter(ft -> fullmaktsgiverIdent.equals(ft.fullmaktsgiver()))
+				.filter(ft -> !ft.tema().isEmpty())
+				.map(ft -> new Fullmakt(new ArrayList<>(ft.tema()))).findAny();
+	}
+
+	String extractFullmektigIdent(JwtToken jwtToken) {
+		String pidClaim = jwtToken.getJwtTokenClaims().getStringClaim(CLAIM_PID);
+		if (isNotBlank(pidClaim)) {
+			return pidClaim;
+		}
+		String subClaim = jwtToken.getJwtTokenClaims().getStringClaim(CLAIM_SUB);
+		if (isNotBlank(subClaim)) {
+			return subClaim;
+		}
+		throw new IllegalArgumentException("Tillater ikke oppslag av fullmektig uten pid/sub claim i token til innlogget bruker");
 	}
 }

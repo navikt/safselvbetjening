@@ -70,6 +70,8 @@ spec:
       enabled: true
   tokenx:
     enabled: true
+  secureLogs:
+    enabled: true
 {{#if ACCESS_POLICY_INBOUND_RULES}}
   accessPolicy:
     inbound:

@@ -377,6 +377,19 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	@Test
+	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndIngenFullmaktOmraader() throws Exception {
+		stubTokenx();
+		stubPdlFullmakt("pdl_fullmakt_ingen_omraader.json");
+		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
+
+		assertThat(requireNonNull(response.getBody()).getErrors())
+				.extracting(e -> e.getExtensions().getCode())
+				.contains(UNAUTHORIZED.getText());
+	}
+
+	@Test
 	void shouldReturnBadRequestWhenQueryIdentInvalid() throws Exception {
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_invalid_ident.query");
 

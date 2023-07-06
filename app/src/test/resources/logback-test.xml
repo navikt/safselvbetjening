@@ -16,4 +16,8 @@
 		<appender-ref ref="CONSOLE"/>
 	</logger>
 
+	<logger name="secureLog" level="INFO" additivity="false">
+		<appender-ref ref="CONSOLE"/>
+	</logger>
+
 </configuration>
