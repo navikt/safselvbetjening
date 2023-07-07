@@ -16,6 +16,8 @@ import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import no.nav.security.token.support.core.jwt.JwtToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
@@ -40,6 +42,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Slf4j
 @Component
 public class HentDokumentService {
+	private static final Logger secureLog = LoggerFactory.getLogger("secureLog");
+	private static final EnumSet<JournalStatusCode> KAFKA_FERDIGSTILT = EnumSet.of(FS, E);
+
 	private final FagarkivConsumer fagarkivConsumer;
 	private final IdentService identService;
 	private final UtledTilgangService utledTilgangService;
@@ -49,7 +54,6 @@ public class HentDokumentService {
 	private final KafkaEventProducer kafkaProducer;
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 
-	private static final EnumSet<JournalStatusCode> KAFKA_FERDIGSTILT = EnumSet.of(FS, E);
 
 	public HentDokumentService(
 			FagarkivConsumer fagarkivConsumer,
@@ -158,7 +162,20 @@ public class HentDokumentService {
 		String pid = jwtToken.getJwtTokenClaims().getStringClaim(CLAIM_PID);
 		String sub = jwtToken.getJwtTokenClaims().getStringClaim(CLAIM_SUB);
 		if (!identer.contains(pid) && !identer.contains(sub)) {
+			secureLog.warn("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}) Innlogget bruker med ident={} matcher ikke bruker på journalpost. brukerIdenter={}",
+					hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(),
+					pidOrSub(pid, sub), identer);
 			throw new HentTilgangDokumentException(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 		}
+	}
+
+	private String pidOrSub(String pid, String sub) {
+		if(isNotBlank(pid)) {
+			return pid;
+		}
+		if(isNotBlank(sub)) {
+			return sub;
+		}
+		return null;
 	}
 }

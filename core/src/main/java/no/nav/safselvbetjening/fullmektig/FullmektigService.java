@@ -24,13 +24,13 @@ public class FullmektigService {
 
 	public Optional<Fullmakt> fullmektig(JwtToken subjectJwt, String fullmaktsgiverIdent) {
 		String fullmektigIdent = extractFullmektigIdent(subjectJwt);
-		secureLog.info("fullmakt/fullmektig Slår opp fullmakter mellom innlogget bruker fullmektigIdent={}, argument fullmaktsgiverIdent={}", fullmektigIdent, fullmaktsgiverIdent);
 
+		secureLog.info("innloggetbruker(ident={}), fullmaktsgiver(ident={}) Ser etter fullmakter mellom innlogget bruker og fullmaktsgiver", fullmektigIdent, fullmaktsgiverIdent);
 		Optional<Fullmakt> fullmakt = utledFullmakt(subjectJwt, fullmektigIdent, fullmaktsgiverIdent);
 		if(fullmakt.isPresent()) {
-			secureLog.info("fullmakt/fullmektig Bruker fullmakt mellom innlogget bruker fullmektigIdent={}, argument fullmaktsgiverIdent={}, tema={}", fullmektigIdent, fullmaktsgiverIdent, fullmakt.get().tema());
+			secureLog.info("fullmektig(ident={}), fullmaktsgiver(ident={}) Bruker fullmakt mellom fullmektig og fullmaktsgiver. Returnerer dokumenter på tema={}", fullmektigIdent, fullmaktsgiverIdent, fullmakt.get().tema());
 		} else {
-			secureLog.warn("fullmakt/fullmektig Det finnes fullmakt mellom innlogget bruker uten gyldige tema fullmektigIdent={}, argument fullmaktsgiverIdent={}", fullmektigIdent, fullmaktsgiverIdent);
+			secureLog.warn("fullmektig(ident={}), fullmaktsgiver(ident={}) Det finnes fullmakt mellom innlogget bruker uten gyldige tema", fullmektigIdent, fullmaktsgiverIdent);
 		}
 		return fullmakt;
 	}
@@ -39,7 +39,7 @@ public class FullmektigService {
 		List<FullmektigTemaResponse> fullmektigTema = fullmektigConsumer.fullmektigTema(subjectJwt.getTokenAsString());
 
 		if (fullmektigTema.isEmpty()) {
-			secureLog.warn("fullmakt/fullmektig Ingen fullmakter mellom innlogget bruker fullmektigIdent={}, argument fullmaktsgiverIdent={}", fullmektigIdent, fullmaktsgiverIdent);
+			secureLog.warn("innloggetbruker(ident={}), fullmaktsgiver(ident={}) Ingen fullmakter mellom innlogget bruker og fullmaktsgiver", fullmektigIdent, fullmaktsgiverIdent);
 			return Optional.empty();
 		}
 		return fullmektigTema.stream()

@@ -79,14 +79,14 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 					.orElseThrow(() -> GraphQLException.of(SERVER_ERROR, environment, FEILMELDING_KUNNE_IKKE_HENTE_INTERN_REQUESTCONTEXT));
 			MDC.put(MDC_CALL_ID, graphQLRequestContext.getNavCallId());
 			MDC.put(MDC_CONSUMER_ID, getConsumerIdFromToken(graphQLRequestContext.getTokenValidationContext()));
-			final String ident = environment.getArgument("ident");
-			validateIdent(ident, environment);
-			Optional<Fullmakt> fullmakt = validateInnloggetBrukerCheckFullmakt(ident, environment, graphQLRequestContext);
+			final String identArgument = environment.getArgument("ident");
+			validateIdentArgument(identArgument, environment);
+			Optional<Fullmakt> fullmakt = validateInnloggetBrukerCheckFullmakt(identArgument, environment, graphQLRequestContext);
 			final List<String> tema = temaArgumentEllerFullmakt(environment, fullmakt);
 
 			DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
 			if (selectionSet.containsAnyOf("tema", "fagsak", "journalposter")) {
-				Dokumentoversikt dokumentoversikt = fetchDokumentoversikt(ident, tema, environment);
+				Dokumentoversikt dokumentoversikt = fetchDokumentoversikt(identArgument, tema, environment);
 				return DataFetcherResult.newResult()
 						.data(dokumentoversikt)
 						.build();
@@ -169,7 +169,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		}
 	}
 
-	private void validateIdent(String ident, DataFetchingEnvironment environment) {
+	private void validateIdentArgument(String ident, DataFetchingEnvironment environment) {
 		if (isBlank(ident)) {
 			throw GraphQLException.of(BAD_REQUEST, environment, FEILMELDING_IDENT_ER_BLANK);
 		}
@@ -179,13 +179,13 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		}
 	}
 
-	private Optional<Fullmakt> validateInnloggetBrukerCheckFullmakt(String ident, DataFetchingEnvironment environment,
+	private Optional<Fullmakt> validateInnloggetBrukerCheckFullmakt(String identArgument, DataFetchingEnvironment environment,
 																	GraphQLRequestContext graphQLRequestContext) {
 		JwtToken subjectJwt = graphQLRequestContext.getTokenValidationContext().getFirstValidToken()
 				.orElseThrow(() -> GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MANGLER_I_HEADER));
-		if (!subjectJwt.getJwtTokenClaims().containsClaim(CLAIM_PID, ident) &&
-			!subjectJwt.getJwtTokenClaims().containsClaim(CLAIM_SUB, ident)) {
-			Optional<Fullmakt> fullmakt = fullmektigService.fullmektig(subjectJwt, ident);
+		if (!subjectJwt.getJwtTokenClaims().containsClaim(CLAIM_PID, identArgument) &&
+			!subjectJwt.getJwtTokenClaims().containsClaim(CLAIM_SUB, identArgument)) {
+			Optional<Fullmakt> fullmakt = fullmektigService.fullmektig(subjectJwt, identArgument);
 			if (fullmakt.isPresent()) {
 				MDC.put(MDC_FULLMAKT_TEMA, fullmakt.get().tema().toString());
 				return fullmakt;
