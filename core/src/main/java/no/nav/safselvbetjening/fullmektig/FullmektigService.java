@@ -27,7 +27,7 @@ public class FullmektigService {
 
 		secureLog.info("innloggetbruker(ident={}), fullmaktsgiver(ident={}) Ser etter fullmakter mellom innlogget bruker og fullmaktsgiver", fullmektigIdent, fullmaktsgiverIdent);
 		Optional<Fullmakt> fullmakt = utledFullmakt(subjectJwt, fullmaktsgiverIdent);
-		if(fullmakt.isPresent()) {
+		if (fullmakt.isPresent()) {
 			secureLog.info("fullmektig(ident={}), fullmaktsgiver(ident={}) Bruker fullmakt mellom fullmektig og fullmaktsgiver. Returnerer ressurser med tema={}", fullmektigIdent, fullmaktsgiverIdent, fullmakt.get().tema());
 		} else {
 			secureLog.warn("innloggetbruker(ident={}), fullmaktsgiver(ident={}) Ingen fullmakter mellom innlogget bruker og fullmaktsgiver", fullmektigIdent, fullmaktsgiverIdent);

@@ -197,7 +197,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	}
 
 	private List<String> temaArgumentEllerFullmakt(DataFetchingEnvironment environment, Optional<Fullmakt> fullmakt) {
-		if(fullmakt.isPresent()) {
+		if (fullmakt.isPresent()) {
 			return fullmakt.get().tema();
 		}
 		final List<String> tema = environment.getArgumentOrDefault("tema", new ArrayList<>());
