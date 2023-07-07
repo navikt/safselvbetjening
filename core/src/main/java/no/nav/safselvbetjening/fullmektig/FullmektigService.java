@@ -26,20 +26,19 @@ public class FullmektigService {
 		String fullmektigIdent = extractFullmektigIdent(subjectJwt);
 
 		secureLog.info("innloggetbruker(ident={}), fullmaktsgiver(ident={}) Ser etter fullmakter mellom innlogget bruker og fullmaktsgiver", fullmektigIdent, fullmaktsgiverIdent);
-		Optional<Fullmakt> fullmakt = utledFullmakt(subjectJwt, fullmektigIdent, fullmaktsgiverIdent);
+		Optional<Fullmakt> fullmakt = utledFullmakt(subjectJwt, fullmaktsgiverIdent);
 		if(fullmakt.isPresent()) {
-			secureLog.info("fullmektig(ident={}), fullmaktsgiver(ident={}) Bruker fullmakt mellom fullmektig og fullmaktsgiver. Returnerer dokumenter på tema={}", fullmektigIdent, fullmaktsgiverIdent, fullmakt.get().tema());
+			secureLog.info("fullmektig(ident={}), fullmaktsgiver(ident={}) Bruker fullmakt mellom fullmektig og fullmaktsgiver. Returnerer ressurser med tema={}", fullmektigIdent, fullmaktsgiverIdent, fullmakt.get().tema());
 		} else {
-			secureLog.warn("fullmektig(ident={}), fullmaktsgiver(ident={}) Det finnes fullmakt mellom innlogget bruker uten gyldige tema", fullmektigIdent, fullmaktsgiverIdent);
+			secureLog.warn("innloggetbruker(ident={}), fullmaktsgiver(ident={}) Ingen fullmakter mellom innlogget bruker og fullmaktsgiver", fullmektigIdent, fullmaktsgiverIdent);
 		}
 		return fullmakt;
 	}
 
-	private Optional<Fullmakt> utledFullmakt(JwtToken subjectJwt, String fullmektigIdent, String fullmaktsgiverIdent) {
+	private Optional<Fullmakt> utledFullmakt(JwtToken subjectJwt, String fullmaktsgiverIdent) {
 		List<FullmektigTemaResponse> fullmektigTema = fullmektigConsumer.fullmektigTema(subjectJwt.getTokenAsString());
 
 		if (fullmektigTema.isEmpty()) {
-			secureLog.warn("innloggetbruker(ident={}), fullmaktsgiver(ident={}) Ingen fullmakter mellom innlogget bruker og fullmaktsgiver", fullmektigIdent, fullmaktsgiverIdent);
 			return Optional.empty();
 		}
 		return fullmektigTema.stream()
