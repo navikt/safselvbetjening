@@ -25,7 +25,7 @@ public enum ErrorCode {
 
     public static final String FEILMELDING_BRUKER_KAN_IKKE_UTLEDES = "Tilgang til dokument avvist fordi bruker ikke kan utledes";
     public static final String FEILMELDING_TOKEN_MANGLER_I_HEADER = "Ingen gyldige tokens i Authorization-header.";
-    public static final String FEILMELDING_TOKEN_MISMATCH = "Brukers ident i token matcher ikke ident i query. Ident må ligge i pid eller sub claim.";
+    public static final String FEILMELDING_TOKEN_MISMATCH_INGEN_FULLMAKT = "Innlogget brukers ident i token matcher ikke ident i query. Innlogget bruker har heller ingen fullmakt overfor ident i query.";
     public static final String FEILMELDING_BRUKER_IKKE_FUNNET_I_PDL = "Finner ingen identer på person i PDL.";
     public static final String FEILMELDING_IDENT_ER_BLANK = "Ident i query er blank. Denne må være satt.";
     public static final String FEILMELDING_IDENT_ER_UGYLDIG = "Ident i query er ugyldig. Det må være et gyldig fødselsnummer eller aktørid.";

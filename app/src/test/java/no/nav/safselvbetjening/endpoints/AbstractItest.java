@@ -10,6 +10,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import wiremock.org.apache.commons.io.IOUtils;
 
@@ -118,6 +119,14 @@ public abstract class AbstractItest {
 						.withBodyFile("azure/token_response.json")));
 	}
 
+	protected void stubTokenx() {
+		stubFor(post("/tokenx")
+				.willReturn(aResponse()
+						.withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("azure/token_response.json")));
+	}
+
 	protected void stubPdl() {
 		stubPdl("pdl_happy.json");
 	}
@@ -172,5 +181,24 @@ public abstract class AbstractItest {
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("fagarkiv/" + fil)));
+	}
+
+	protected void stubPdlFullmakt() {
+		stubPdlFullmakt("pdl_fullmakt_ingen.json");
+	}
+
+	protected void stubPdlFullmakt(final String fil) {
+		stubFor(get("/pdlfullmakt/api/fullmektig/tema")
+				.willReturn(aResponse()
+						.withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("pdlfullmakt/" + fil)));
+	}
+
+	protected void stubPdlFullmakt(HttpStatus httpStatus) {
+		stubFor(get("/pdlfullmakt/api/fullmektig/tema")
+				.willReturn(aResponse()
+						.withStatus(httpStatus.value())
+						.withBody("error " + httpStatus)));
 	}
 }

@@ -1,0 +1,16 @@
+[
+  {
+    "fullmaktsgiver": "12345678911",
+    "tema": [
+      "FOR"
+    ],
+    "fullmaktsgiverNavn": "Bjarne Betjent"
+  },
+  {
+    "fullmaktsgiver": "23232323232",
+    "tema": [
+      "BAR"
+    ],
+    "fullmaktsgiverNavn": "Max Mekker"
+  }
+]
