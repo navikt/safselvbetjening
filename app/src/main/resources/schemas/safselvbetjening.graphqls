@@ -547,6 +547,18 @@ enum Tema {
 
     # Yrkesskade / Menerstatning
     YRK
+
+    # Fiskerpensjon
+    FIP
+
+    # Klage lønnsgaranti
+    KLL
+
+    # Barnepensjon
+    EYB
+
+    # Omstillingsstønad
+    EYO
 }
 
 # Sier hvorvidt saken inngår i et fagsystem (FAGSAK) eller ikke (GENERELL_SAK).
