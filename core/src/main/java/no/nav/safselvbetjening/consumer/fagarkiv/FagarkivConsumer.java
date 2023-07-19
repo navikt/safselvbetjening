@@ -3,10 +3,13 @@ package no.nav.safselvbetjening.consumer.fagarkiv;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
+import no.nav.safselvbetjening.azure.AzureTokenClient;
+import no.nav.safselvbetjening.azure.WebClientAzureAuthentication;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +18,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import java.util.function.Consumer;
 
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 import static org.springframework.http.HttpHeaders.ACCEPT_ENCODING;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
 @Component
@@ -29,10 +37,18 @@ public class FagarkivConsumer {
 	private static final String FAGARKIVTILGANGJOURNALPOST_INSTANCE = "fagarkivtilgangjournalpost";
 	private static final String FAGARKIVHENTDOKUMENT_INSTANCE = "fagarkivhentdokument";
 	private final RestTemplate restTemplate;
+	private final WebClient webClient;
 
 	public FagarkivConsumer(final RestTemplateBuilder restTemplateBuilder,
 							final SafSelvbetjeningProperties safSelvbetjeningProperties,
-							final ClientHttpRequestFactory requestFactory) {
+							final ClientHttpRequestFactory requestFactory,
+							final WebClient webClient,
+							final AzureTokenClient azureTokenClient) {
+		SafSelvbetjeningProperties.AzureEndpoint dokarkiv = safSelvbetjeningProperties.getEndpoints().getDokarkiv();
+		this.webClient = webClient.mutate()
+				.baseUrl(dokarkiv.getUrl())
+				.filter(new WebClientAzureAuthentication(dokarkiv.getScope(), azureTokenClient))
+				.build();
 		restTemplate = restTemplateBuilder
 				.rootUri(safSelvbetjeningProperties.getEndpoints().getFagarkiv())
 				.basicAuthentication(
@@ -66,34 +82,43 @@ public class FagarkivConsumer {
 					journalpostId, dokumentInfoId, variantFormat).getBody();
 		} catch (HttpClientErrorException.NotFound e) {
 			throw new JournalpostIkkeFunnetException("Fant ikke journalpost for tilgangskontroll med journalpostId=" +
-					journalpostId + ", dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
+													 journalpostId + ", dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
 		} catch (HttpClientErrorException e) {
 			throw new ConsumerFunctionalException("Funksjonell feil mot tilgangJournalpost for journalpost med journalpostId=" +
-					journalpostId + "dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
+												  journalpostId + "dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
 		} catch (HttpServerErrorException e) {
 			throw new ConsumerTechnicalException("Teknisk feil mot tilgangJournalpost for journalpost med journalpostId=" +
-					journalpostId + "dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
+												 journalpostId + "dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
 		}
 	}
 
 	@CircuitBreaker(name = FAGARKIVHENTDOKUMENT_INSTANCE)
 	public HentDokumentResponseTo hentDokument(final String dokumentInfoId, final String variantFormat) {
-		try {
-			ResponseEntity<String> responseEntity = restTemplate.exchange("/hentdokument/{dokumentInfoId}/{variantFormat}",
-					GET,
-					new HttpEntity<>(baseHttpHeaders()), String.class, dokumentInfoId, variantFormat);
-			return HentDokumentResponseTo.builder()
-					.dokument(responseEntity.getBody())
-					.mediaType(responseEntity.getHeaders().getContentType())
-					.build();
-		} catch (HttpClientErrorException.NotFound e) {
-			throw new DokumentIkkeFunnetException("Fant ikke dokument med dokumentInfoId=" + dokumentInfoId +
-					", variantFormat=" + variantFormat, e);
-		} catch (HttpClientErrorException e) {
-			throw new ConsumerFunctionalException("Funksjonell feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
-		} catch (HttpServerErrorException e) {
-			throw new ConsumerTechnicalException("Teknisk feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
-		}
+		return webClient.get()
+				.uri(uriBuilder -> uriBuilder.path("/hentdokument/{dokumentInfoId}/{variantFormat}")
+						.build(dokumentInfoId, variantFormat))
+				.retrieve()
+				.bodyToMono(new ParameterizedTypeReference<ResponseEntity<byte[]>>() {
+				})
+				.map(responseEntity -> HentDokumentResponseTo.builder()
+						.dokument(responseEntity.getBody())
+						.mediaType(responseEntity.getHeaders().getContentType())
+						.build())
+				.doOnError(handleErrorHentDokument(dokumentInfoId, variantFormat))
+				.block();
+	}
+
+	private Consumer<Throwable> handleErrorHentDokument(String dokumentInfoId, String variantFormat) {
+		return error -> {
+			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
+				if (NOT_FOUND.equals(((WebClientResponseException) error).getStatusCode())) {
+					throw new DokumentIkkeFunnetException("Fant ikke dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
+				}
+				throw new ConsumerFunctionalException("Funksjonell feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
+			} else {
+				throw new ConsumerTechnicalException("Teknisk feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
+			}
+		};
 	}
 
 	private HttpHeaders baseHttpHeaders() {

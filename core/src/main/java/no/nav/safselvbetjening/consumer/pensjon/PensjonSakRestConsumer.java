@@ -4,7 +4,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
-import no.nav.safselvbetjening.azure.AzureToken;
+import no.nav.safselvbetjening.azure.AzureTokenClient;
 import no.nav.safselvbetjening.azure.WebClientAzureAuthentication;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
@@ -36,12 +36,12 @@ public class PensjonSakRestConsumer {
 	public PensjonSakRestConsumer(
 			final SafSelvbetjeningProperties safSelvbetjeningProperties,
 			final WebClient webClient,
-			final AzureToken azureToken
+			final AzureTokenClient azureTokenClient
 	) {
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 		this.webClient = webClient.mutate()
 				.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-				.filter(new WebClientAzureAuthentication(safSelvbetjeningProperties.getEndpoints().getPensjon().getScope(), azureToken))
+				.filter(new WebClientAzureAuthentication(safSelvbetjeningProperties.getEndpoints().getPensjon().getScope(), azureTokenClient))
 				.build();
 
 	}

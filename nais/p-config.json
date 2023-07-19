@@ -6,6 +6,8 @@
   "SAFSELVBETJENING_ENDPOINTS_PDL_SCOPE": "api://prod-fss.pdl.pdl-api/.default",
   "SAFSELVBETJENING_ENDPOINTS_SAK": "https://sak.nais.adeo.no/api/v1/saker",
   "SAFSELVBETJENING_ENDPOINTS_FAGARKIV": "https://dokarkiv.nais.adeo.no/hentjournalsakinfo",
+  "SAFSELVBETJENING_ENDPOINTS_DOKARKIV_URL": "https://dokarkiv.intern.nav.no/rest/internal/safintern",
+  "SAFSELVBETJENING_ENDPOINTS_DOKARKIV_SCOPE": "api://prod-fss.teamdokumenthandtering.dokarkiv/.default",
   "SAFSELVBETJENING_ENDPOINTS_PENSJON_URL": "https://pensjon-pen.nais.adeo.no",
   "SAFSELVBETJENING_ENDPOINTS_PENSJON_SCOPE": "api://prod-fss.pensjondeployer.pensjon-pen/.default",
   "SAFSELVBETJENING_ENDPOINTS_PDLFULLMAKT_URL": "https://pdl-fullmakt.intern.nav.no",

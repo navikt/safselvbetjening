@@ -83,7 +83,8 @@ public class HentDokumentController {
 			String message = format("Tilgang til dokument avvist. journalpostId=%s, dokumentInfoId=%s, variantFormat=%s. reason=%s", journalpostId, dokumentInfoId, variantFormat, e.getMessage());
 			log.error(message);
 			throw e;
-		} catch (JournalpostIkkeFunnetException | DokumentIkkeFunnetException | PdlFunctionalException | PensjonsakIkkeFunnetException e) {
+		} catch (JournalpostIkkeFunnetException | DokumentIkkeFunnetException | PdlFunctionalException |
+				 PensjonsakIkkeFunnetException e) {
 			log.warn(e.getMessage());
 			throw new ResponseStatusException(NOT_FOUND, e.getMessage());
 		} catch (HentdokumentRequestException e) {

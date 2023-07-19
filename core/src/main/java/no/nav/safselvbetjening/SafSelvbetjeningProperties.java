@@ -48,6 +48,12 @@ public class SafSelvbetjeningProperties {
         private String fagarkiv;
 
         /**
+         * URL til safintern oppslagstjenesten i dokarkiv.
+         */
+        @NotNull
+        private AzureEndpoint dokarkiv;
+
+        /**
          * URL til PEN (pensjon).
          */
         @NotNull

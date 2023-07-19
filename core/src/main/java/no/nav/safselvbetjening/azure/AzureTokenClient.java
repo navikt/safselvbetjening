@@ -21,13 +21,13 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 
 @Slf4j
 @Component
-public class AzureToken {
+public class AzureTokenClient {
 
 	private final WebClient webClient;
 	private final AzureProperties azureProperties;
 	private final ObjectMapper objectMapper;
 
-	public AzureToken(WebClient webClient, AzureProperties azureProperties, ObjectMapper objectMapper) {
+	public AzureTokenClient(WebClient webClient, AzureProperties azureProperties, ObjectMapper objectMapper) {
 
 		this.azureProperties = azureProperties;
 		this.objectMapper = objectMapper;

@@ -3,7 +3,7 @@ package no.nav.safselvbetjening.consumer.pdl;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
-import no.nav.safselvbetjening.azure.AzureToken;
+import no.nav.safselvbetjening.azure.AzureTokenClient;
 import no.nav.safselvbetjening.azure.WebClientAzureAuthentication;
 import no.nav.safselvbetjening.consumer.PersonIkkeFunnetException;
 import org.springframework.stereotype.Component;
@@ -31,11 +31,11 @@ class PdlIdentConsumer implements IdentConsumer {
 
 	public PdlIdentConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
 							final WebClient webClient,
-							final AzureToken azureToken
+							final AzureTokenClient azureTokenClient
 	) {
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 		this.webClient = webClient.mutate()
-				.filter(new WebClientAzureAuthentication(safSelvbetjeningProperties.getEndpoints().getPdl().getScope(), azureToken))
+				.filter(new WebClientAzureAuthentication(safSelvbetjeningProperties.getEndpoints().getPdl().getScope(), azureTokenClient))
 				.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 				.build();
 	}

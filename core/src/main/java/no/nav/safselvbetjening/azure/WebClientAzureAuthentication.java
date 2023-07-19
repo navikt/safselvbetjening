@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 
-public record WebClientAzureAuthentication(String scope, AzureToken azureToken) implements ExchangeFilterFunction {
+public record WebClientAzureAuthentication(String scope, AzureTokenClient azureToken) implements ExchangeFilterFunction {
 
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
