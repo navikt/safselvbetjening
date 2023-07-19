@@ -9,10 +9,8 @@ import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -29,6 +27,7 @@ import static org.springframework.http.HttpHeaders.ACCEPT_ENCODING;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.MediaType.APPLICATION_PDF;
 
 @Slf4j
 @Component
@@ -97,13 +96,18 @@ public class FagarkivConsumer {
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder.path("/hentdokument/{dokumentInfoId}/{variantFormat}")
 						.build(dokumentInfoId, variantFormat))
-				.retrieve()
-				.bodyToMono(new ParameterizedTypeReference<ResponseEntity<byte[]>>() {
+				.accept(APPLICATION_PDF)
+				.exchangeToMono(clientResponse -> {
+					if (clientResponse.statusCode().is2xxSuccessful()) {
+						return clientResponse.bodyToMono(byte[].class)
+								.map(responseBytes -> HentDokumentResponseTo.builder()
+										.dokument(responseBytes)
+										.mediaType(clientResponse.headers().asHttpHeaders().getContentType())
+										.build());
+					} else {
+						return clientResponse.createError();
+					}
 				})
-				.map(responseEntity -> HentDokumentResponseTo.builder()
-						.dokument(responseEntity.getBody())
-						.mediaType(responseEntity.getHeaders().getContentType())
-						.build())
 				.doOnError(handleErrorHentDokument(dokumentInfoId, variantFormat))
 				.block();
 	}
