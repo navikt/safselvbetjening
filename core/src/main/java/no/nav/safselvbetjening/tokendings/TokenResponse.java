@@ -1,4 +1,4 @@
-package no.nav.safselvbetjening.azure;
+package no.nav.safselvbetjening.tokendings;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

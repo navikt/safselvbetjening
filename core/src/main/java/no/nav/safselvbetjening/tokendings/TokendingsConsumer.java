@@ -7,9 +7,6 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import no.nav.safselvbetjening.azure.AzureTokenException;
-import no.nav.safselvbetjening.azure.AzureTokenTechnicalException;
-import no.nav.safselvbetjening.azure.TokenResponse;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -63,19 +60,19 @@ public class TokendingsConsumer {
 		try {
 			return objectMapper.readValue(responseJson, TokenResponse.class).accessToken();
 		} catch (JsonProcessingException e) {
-			throw new AzureTokenException(format("Klarte ikke parse token fra Azure. Feilmelding=%s", e.getMessage()), e);
+			throw new TokenException(format("Klarte ikke parse token fra Azure. Feilmelding=%s", e.getMessage()), e);
 		}
 	}
 
 	private void handleError(Throwable error) {
 		if (error instanceof WebClientResponseException response && ((WebClientResponseException) error).getStatusCode().is4xxClientError()) {
-			throw new AzureTokenException(
+			throw new TokenException(
 					format("Klarte ikke hente token fra Tokendings. Feilet med statuskode=%s Feilmelding=%s",
 							response.getStatusCode().value(),
 							response.getMessage()),
 					error);
 		} else {
-			throw new AzureTokenTechnicalException(
+			throw new TokenTechnicalException(
 					format("Kall mot Tokendings feilet med feilmelding=%s", error.getMessage()),
 					error);
 		}
