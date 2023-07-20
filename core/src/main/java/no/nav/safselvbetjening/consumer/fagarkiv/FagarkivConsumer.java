@@ -7,6 +7,7 @@ import no.nav.safselvbetjening.consumer.CallIdExchangeFilterFunction;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
+import org.springframework.boot.autoconfigure.codec.CodecProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -47,6 +49,7 @@ public class FagarkivConsumer {
 
 	public FagarkivConsumer(final RestTemplateBuilder restTemplateBuilder,
 							final SafSelvbetjeningProperties safSelvbetjeningProperties,
+							final CodecProperties codecProperties,
 							final ClientHttpRequestFactory requestFactory,
 							final WebClient webClient,
 							final ReactiveOAuth2AuthorizedClientManager oAuth2AuthorizedClientManager) {
@@ -55,6 +58,12 @@ public class FagarkivConsumer {
 		this.webClient = webClient.mutate()
 				.baseUrl(dokarkiv.getUrl())
 				.filter(new CallIdExchangeFilterFunction(NAV_CALLID))
+				.exchangeStrategies(ExchangeStrategies.builder()
+						.codecs(clientCodecConfigurer ->
+								clientCodecConfigurer.defaultCodecs()
+										.maxInMemorySize((int) codecProperties.getMaxInMemorySize().toBytes())
+						)
+						.build())
 				.build();
 		restTemplate = restTemplateBuilder
 				.rootUri(safSelvbetjeningProperties.getEndpoints().getFagarkiv())
