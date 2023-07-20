@@ -7,6 +7,6 @@ import org.springframework.http.MediaType;
 @Data
 @Builder
 public class HentDokumentResponseTo {
-	private final String dokument;
+	private final byte[] dokument;
 	private final MediaType mediaType;
 }

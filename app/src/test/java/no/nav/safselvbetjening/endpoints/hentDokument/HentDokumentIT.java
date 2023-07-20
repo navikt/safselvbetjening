@@ -18,7 +18,6 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
 import java.time.Duration;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -352,10 +351,10 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	private void stubHentDokumentDokarkiv() {
-		stubFor(get("/fagarkiv/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+		stubFor(get("/dokarkiv/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
 				.willReturn(aResponse().withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_PDF_VALUE)
-						.withBody(Base64.getEncoder().encode(TEST_FILE_BYTES))));
+						.withBody(TEST_FILE_BYTES)));
 	}
 
 	private void stubHentTilgangJournalpostDokarkiv() {

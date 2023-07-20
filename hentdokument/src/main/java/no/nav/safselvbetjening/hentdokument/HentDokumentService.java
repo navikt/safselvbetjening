@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Base64;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -86,12 +85,12 @@ public class HentDokumentService {
 
 		//Journalpost må ha type 'U' (utgaaende) og JournalStatus enten 'FS' (ferdigstilt) eller 'E' (ekspedert) for at vi skal sende kafkamelding
 		if (U.equals(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalpostType()) &&
-				KAFKA_FERDIGSTILT.contains(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus())){
+			KAFKA_FERDIGSTILT.contains(tilgangJournalpostResponseTo.getTilgangJournalpostDto().getJournalStatus())) {
 			this.doSendKafkaMelding(hentdokumentRequest);
 		}
 
 		return HentDokument.builder()
-				.dokument(Base64.getDecoder().decode(hentDokumentResponseTo.getDokument()))
+				.dokument(hentDokumentResponseTo.getDokument())
 				.mediaType(hentDokumentResponseTo.getMediaType())
 				.extension(MimetypeFileextensionMapper.toFileextension(hentDokumentResponseTo.getMediaType()))
 				.build();
@@ -170,10 +169,10 @@ public class HentDokumentService {
 	}
 
 	private String pidOrSub(String pid, String sub) {
-		if(isNotBlank(pid)) {
+		if (isNotBlank(pid)) {
 			return pid;
 		}
-		if(isNotBlank(sub)) {
+		if (isNotBlank(sub)) {
 			return sub;
 		}
 		return null;
