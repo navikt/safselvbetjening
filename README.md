@@ -154,6 +154,14 @@ Eksempel:
 | `dokumentInfoId` | `string` | **Påkrevd**. DokumentInfoId til dokumentet.           |
 | `variantFormat`  | `string` | **Påkrevd**. VariantFormat. Gyldige verdier: `ARKIV`. |
 
+##### Spesielt om digital fullmakt
+
+`hentdokument` REST kallet støtter [digital fullmakt](https://www.nav.no/fullmakt) fra `pdl-fullmakt` løsningen. Henting av dokumenter støtter dette uten endringer hos klient. 
+* `Authorization` settes til innlogget brukers idporten Bearer token.
+
+Safselvbetjening vil slå opp i `pdl-fullmakt`og slå opp fullmaktene til innlogget bruker.
+Hvis det finnes en gyldig fullmakt for innlogget bruker overfor bruker som eier dokumentet og tema i fullmakten dekker tema i dokumentet så vil dokumentet bli hentet.
+
 ##### Suksess
 
 Returnerer `200 OK`
@@ -173,7 +181,7 @@ Returnerer en base64 encodet representasjon av dokumentet i payload.
 
 Returnerer:
 * `400 Bad Request` - Dokumentet eller metadata tilhørende dokumentet finnes ikke. Bruker finnes ikke.
-* `401 Unauthorized` - Dokumentet tilhører ikke bruker i token. Ingen tilgang til dokumentet basert på [regler](https://confluence.adeo.no/pages/viewpage.action?pageId=377182021).
+* `401 Unauthorized` - Dokumentet tilhører ikke bruker i token og/eller ingen fullmakt finnes. Ingen tilgang til dokumentet basert på [regler](https://confluence.adeo.no/pages/viewpage.action?pageId=377182021).
 * `404 Not Found` - Dokumentet eller metadata tilhørende dokumentet finnes ikke. Bruker finnes ikke.
 
 | Nav-Reason-Code           | Beskrivelse                                                                                                                                             |
