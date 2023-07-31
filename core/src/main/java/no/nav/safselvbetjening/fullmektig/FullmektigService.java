@@ -22,11 +22,11 @@ public class FullmektigService {
 		this.fullmektigConsumer = fullmektigConsumer;
 	}
 
-	public Optional<Fullmakt> fullmektig(JwtToken subjectJwt, String fullmaktsgiverIdent) {
+	public Optional<Fullmakt> finnFullmakt(JwtToken subjectJwt, String fullmaktsgiverIdent) {
 		String fullmektigIdent = extractFullmektigIdent(subjectJwt);
 
 		secureLog.info("innloggetbruker(ident={}), fullmaktsgiver(ident={}) Ser etter fullmakter mellom innlogget bruker og fullmaktsgiver", fullmektigIdent, fullmaktsgiverIdent);
-		Optional<Fullmakt> fullmakt = utledFullmakt(subjectJwt, fullmaktsgiverIdent);
+		Optional<Fullmakt> fullmakt = utledFullmakt(subjectJwt, fullmektigIdent, fullmaktsgiverIdent);
 		if (fullmakt.isPresent()) {
 			secureLog.info("fullmektig(ident={}), fullmaktsgiver(ident={}) Bruker fullmakt mellom fullmektig og fullmaktsgiver. Returnerer ressurser med tema={}", fullmektigIdent, fullmaktsgiverIdent, fullmakt.get().tema());
 		} else {
@@ -35,7 +35,7 @@ public class FullmektigService {
 		return fullmakt;
 	}
 
-	private Optional<Fullmakt> utledFullmakt(JwtToken subjectJwt, String fullmaktsgiverIdent) {
+	private Optional<Fullmakt> utledFullmakt(JwtToken subjectJwt, String fullmektigIdent, String fullmaktsgiverIdent) {
 		List<FullmektigTemaResponse> fullmektigTema = fullmektigConsumer.fullmektigTema(subjectJwt.getTokenAsString());
 
 		if (fullmektigTema.isEmpty()) {
@@ -44,7 +44,7 @@ public class FullmektigService {
 		return fullmektigTema.stream()
 				.filter(ft -> fullmaktsgiverIdent.equals(ft.fullmaktsgiver()))
 				.filter(ft -> !ft.tema().isEmpty())
-				.map(ft -> new Fullmakt(new ArrayList<>(ft.tema()))).findAny();
+				.map(ft -> new Fullmakt(fullmektigIdent, ft.fullmaktsgiver(), new ArrayList<>(ft.tema()))).findAny();
 	}
 
 	String extractFullmektigIdent(JwtToken jwtToken) {

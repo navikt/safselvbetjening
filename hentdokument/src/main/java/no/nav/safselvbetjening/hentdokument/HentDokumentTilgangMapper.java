@@ -62,6 +62,7 @@ public class HentDokumentTilgangMapper {
 
 	private Journalpost.TilgangJournalpost mapJournalpostTilgang(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter) {
 		return Journalpost.TilgangJournalpost.builder()
+				.journalstatus(tilgangJournalpostDto.getJournalStatus() == null ? null : tilgangJournalpostDto.getJournalStatus().name())
 				.datoOpprettet(tilgangJournalpostDto.getDatoOpprettet())
 				.mottakskanal(mapTilgangMottakskanal(tilgangJournalpostDto.getMottakskanal()))
 				.tema(tilgangJournalpostDto.getFagomrade() == null ? null : tilgangJournalpostDto.getFagomrade().name())

@@ -89,9 +89,9 @@ class DokumentoversiktSelvbetjeningService {
 	 * Henter og filtrerer journalposter etter tilgangsreglene i https://confluence.adeo.no/display/BOA/safselvbetjening+-+Regler+for+innsyn
 	 */
 	private Journalpostdata mapOgFiltrerJournalposter(List<String> tema,
-														BrukerIdenter brukerIdenter,
-														Saker saker,
-														List<JournalpostDto> tilgangJournalposter) {
+													  BrukerIdenter brukerIdenter,
+													  Saker saker,
+													  List<JournalpostDto> tilgangJournalposter) {
 		List<Journalpost> filtrerteJournalposter = tilgangJournalposter
 				.stream()
 				.map(journalpostDto -> journalpostMapper.map(journalpostDto, saker, brukerIdenter))

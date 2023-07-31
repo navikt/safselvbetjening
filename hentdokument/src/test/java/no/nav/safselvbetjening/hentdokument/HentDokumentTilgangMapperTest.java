@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.PEN;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FL;
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.M;
 import static no.nav.safselvbetjening.domain.Innsyn.BRUK_STANDARDREGLER;
 import static no.nav.safselvbetjening.domain.Journalposttype.I;
 import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;
@@ -56,6 +57,7 @@ class HentDokumentTilgangMapperTest {
 		assertEquals(NAV_NO, journalpost.getKanal());
 
 		Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
+		assertThat(tilgang.getJournalstatus()).isEqualTo(M.name());
 		assertEquals(DATO_OPPRETTET, tilgang.getDatoOpprettet());
 		assertEquals(DATO_JOURNALFOERT, tilgang.getJournalfoertDato());
 		assertEquals(PEN.toString(), tilgang.getTema());
@@ -92,6 +94,7 @@ class HentDokumentTilgangMapperTest {
 		assertEquals(NAV_NO, journalpost.getKanal());
 
 		Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
+		assertThat(tilgang.getJournalstatus()).isEqualTo(M.name());
 		assertEquals(DATO_OPPRETTET, tilgang.getDatoOpprettet());
 		assertEquals(DATO_JOURNALFOERT, tilgang.getJournalfoertDato());
 		assertEquals(PEN.toString(), tilgang.getTema());

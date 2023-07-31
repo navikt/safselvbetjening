@@ -190,6 +190,7 @@ Returnerer:
 | annen_part                | Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises                                                                                |
 | bruker_matcher_ikke_token | Bruker på dokumentet matcher ikke bruker i token                                                                                                        |
 | skjult_innsyn             | Innsynsreglene styrer utvalget av journalposter og dokumenter som en innlogget bruker får innsyn i på nav.no. Bruker får ikke se skjulte journalposter. |
+| fullmakt_dekker_ikke_tema | Innlogget bruker har fullmakt for bruker men tema i fullmakten dekker ikke tema på dokumentet.                                                          |
 
 
 ## Utvikling

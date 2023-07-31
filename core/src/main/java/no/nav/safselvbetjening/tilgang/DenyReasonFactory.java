@@ -15,6 +15,7 @@ public class DenyReasonFactory {
 	public static final String DENY_REASON_KASSERT = "kassert_dokument";
 	public static final String DENY_REASON_INGEN_GYLDIG_TOKEN = "ingen_gyldig_token";
 	public static final String DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN = "bruker_matcher_ikke_token";
+	public static final String DENY_REASON_FULLMAKT_DEKKER_IKKE_TEMA = "fullmakt_dekker_ikke_tema";
 
 	// Feilmeldinger
 	public static final String KONTAKT_OSS = " Kontakt oss på #team_dokumentløsninger hvis du har spørsmål om dette.";
@@ -33,7 +34,8 @@ public class DenyReasonFactory {
 	public static final String FEILMELDING_SKANNET = "fordi dokumentet er skannet.";
 	public static final String FEILMELDING_KASSERT = "fordi dokumentet er kassert.";
 	public static final String FEILMELDING_INGEN_GYLDIG_TOKEN = "Ingen gyldige tokens i Authorization-headeren.";
-	public static final String FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN = "Bruker på journalpost tilhører ikke bruker i token. Ident må ligge i pid eller sub claim.";
+	public static final String FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN = "Bruker på journalpost tilhører ikke bruker i token. Innlogget bruker har heller ingen fullmakt overfor journalpost tilhørende bruker.";
+	public static final String FEILMELDING_FULLMAKT_DEKKER_IKKE_TEMA = "Innlogget bruker har fullmakt overfor bruker. Fullmakten dekker ikke tema på journalposten.";
 
 	public static String lagFeilmeldingForJournalpost(String grunn) {
 		return TILGANG_TIL_JOURNALPOST_AVVIST + grunn + KONTAKT_OSS;

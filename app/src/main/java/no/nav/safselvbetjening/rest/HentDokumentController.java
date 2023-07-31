@@ -73,7 +73,7 @@ public class HentDokumentController {
 					.tokenValidationContext(tokenValidationContext)
 					.build();
 			HentDokument response = hentDokumentService.hentDokument(request);
-			log.info("hentDokument hentet dokument. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
+			log.info("hentdokument hentet dokument. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
 
 			return ResponseEntity.ok()
 					.contentType(response.getMediaType())
