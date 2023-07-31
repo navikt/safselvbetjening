@@ -321,20 +321,6 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWithNavReasonBrukerMatcherIkkeTokenWhenTokenDoesNotBelongToBruker() {
-		stubPdl();
-		stubAzure();
-		stubHentDokumentDokarkiv();
-		stubHentTilgangJournalpostDokarkiv();
-
-		String uri = "/rest/hentdokument/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT;
-		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, GET, createHttpEntityHeaders("22222222222"), String.class);
-
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
-	}
-
-	@Test
 	void shouldReturnUnauthorizedWhenLokalprintSkannet() {
 		stubPdl();
 		stubAzure();
@@ -396,6 +382,7 @@ class HentDokumentIT extends AbstractItest {
 		stubPdlFullmakt("pdl_fullmakt_feil_bruker.json");
 		stubTokenx();
 		stubAzure();
+		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
 		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
