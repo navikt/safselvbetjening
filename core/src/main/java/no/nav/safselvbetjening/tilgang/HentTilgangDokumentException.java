@@ -18,7 +18,7 @@ public class HentTilgangDokumentException extends ResponseStatusException {
 	}
 
 	@Override
-	public HttpHeaders getResponseHeaders() {
+	public HttpHeaders getHeaders() {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add(NAV_REASON_CODE, reasonCode);
 		return httpHeaders;
