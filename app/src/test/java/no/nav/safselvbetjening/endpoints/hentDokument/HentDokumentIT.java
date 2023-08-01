@@ -107,6 +107,7 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
 		assertOkArkivResponse(responseEntity);
 	}
 
@@ -118,6 +119,7 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokumentSubToken();
+
 		assertOkArkivResponse(responseEntity);
 	}
 
@@ -126,12 +128,10 @@ class HentDokumentIT extends AbstractItest {
 		stubPdl();
 		stubAzure();
 		stubHentDokumentDokarkiv();
-		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(OK.value())
-						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("fagarkiv/tilgangjournalpost_midlertidig_happy.json")));
+		stubHentTilgangJournalpostDokarkiv("tilgangjournalpost_midlertidig_happy.json");
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
 		assertOkArkivResponse(responseEntity);
 	}
 
@@ -140,12 +140,10 @@ class HentDokumentIT extends AbstractItest {
 		stubPdl();
 		stubAzure();
 		stubHentDokumentDokarkiv();
-		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(OK.value())
-						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("fagarkiv/tilgangjournalpost_innsynvises.json")));
+		stubHentTilgangJournalpostDokarkiv("tilgangjournalpost_innsynvises.json");
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
 		assertOkArkivResponse(responseEntity);
 	}
 
@@ -158,6 +156,7 @@ class HentDokumentIT extends AbstractItest {
 				.willReturn(aResponse().withStatus(NOT_FOUND.value())));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
 		assertEquals(NOT_FOUND, responseEntity.getStatusCode());
 	}
 
@@ -179,6 +178,7 @@ class HentDokumentIT extends AbstractItest {
 				.willReturn(aResponse().withStatus(NOT_FOUND.value())));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
 		assertEquals(NOT_FOUND, responseEntity.getStatusCode());
 	}
 
@@ -191,6 +191,7 @@ class HentDokumentIT extends AbstractItest {
 				.willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR.value())));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
 		assertEquals(INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
 	}
 
@@ -205,6 +206,7 @@ class HentDokumentIT extends AbstractItest {
 						.withBodyFile("pdl/pdl_not_found.json")));
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
 		assertEquals(NOT_FOUND, responseEntity.getStatusCode());
 	}
 
@@ -212,13 +214,10 @@ class HentDokumentIT extends AbstractItest {
 	void shouldHentDokumentTilgangAvvistInnsynSkjules() {
 		stubPdl();
 		stubAzure();
-
-		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(OK.value())
-						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("fagarkiv/tilgangjournalpost_innsyn_skjules.json")));
+		stubHentTilgangJournalpostDokarkiv("tilgangjournalpost_innsyn_skjules.json");
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
 		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_SKJULT_INNSYN));
 	}
@@ -227,13 +226,10 @@ class HentDokumentIT extends AbstractItest {
 	void hentDokumentTilgangAvvist() {
 		stubPdl();
 		stubAzure();
-
-		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(OK.value())
-						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("fagarkiv/tilgangjournalpost_gdpr.json")));
+		stubHentTilgangJournalpostDokarkiv("tilgangjournalpost_gdpr.json");
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
 		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_GDPR));
 	}
@@ -244,11 +240,7 @@ class HentDokumentIT extends AbstractItest {
 		stubAzure();
 		stubHentDokumentDokarkiv();
 		stubPensjonHentBrukerForSak("hentbrukerforsak_happy.json");
-
-		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(OK.value())
-						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("fagarkiv/tilgangjournalpost_pen_happy.json")));
+		stubHentTilgangJournalpostDokarkiv("tilgangjournalpost_pen_happy.json");
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
@@ -263,11 +255,7 @@ class HentDokumentIT extends AbstractItest {
 		stubAzure();
 		stubHentDokumentDokarkiv();
 		stubPensjonHentBrukerForSak("hentbrukerforsak_happy.json");
-
-		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(OK.value())
-						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("fagarkiv/tilgangjournalpost_utgaaende_pen_happy.json")));
+		stubHentTilgangJournalpostDokarkiv("tilgangjournalpost_utgaaende_pen_happy.json");
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
@@ -296,7 +284,6 @@ class HentDokumentIT extends AbstractItest {
 
 		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
 		assertOkArkivResponse(responseEntity);
-
 		await().timeout(ofSeconds(5))
 				.failFast("Kafka topicen skal ikke ha size=1 for denne testen", () -> getAllCurrentRecordsOnTopicUt().size() >= 1)
 				.until(() -> getAllCurrentRecordsOnTopicUt().size() == 0);
@@ -308,11 +295,7 @@ class HentDokumentIT extends AbstractItest {
 		stubAzure();
 		stubHentDokumentDokarkiv();
 		stubPensjonHentBrukerForSak("hentbrukerforsak_empty.json");
-
-		stubFor(get("/fagarkiv/henttilgangjournalpost/" + JOURNALPOST_ID + "/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
-				.willReturn(aResponse().withStatus(OK.value())
-						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("fagarkiv/tilgangjournalpost_pen_happy.json")));
+		stubHentTilgangJournalpostDokarkiv("tilgangjournalpost_pen_happy.json");
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
@@ -343,8 +326,8 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
-		assertOkArkivResponse(responseEntity);
 
+		assertOkArkivResponse(responseEntity);
 		await().timeout(ofSeconds(5))
 				.failFast("Kafka topicen skal ikke ha size=1 for denne testen", () -> getAllCurrentRecordsOnTopicUt().size() >= 1)
 				.until(() -> getAllCurrentRecordsOnTopicUt().size() == 0);
@@ -359,6 +342,7 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+
 		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FULLMAKT_DEKKER_IKKE_TEMA));
 	}
@@ -372,6 +356,7 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+
 		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
@@ -385,6 +370,7 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+
 		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
@@ -398,6 +384,7 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+
 		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
@@ -411,6 +398,7 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+
 		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
@@ -424,6 +412,7 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+
 		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
@@ -437,6 +426,7 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+
 		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
@@ -450,6 +440,7 @@ class HentDokumentIT extends AbstractItest {
 		stubHentTilgangJournalpostDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+
 		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}

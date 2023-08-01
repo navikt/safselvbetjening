@@ -88,7 +88,7 @@ public class HentDokumentService {
 				hentdokumentRequest.getVariantFormat()
 		);
 
-		if(tilgangskontroll.genererHoveddokumentLestHendelse()) {
+		if (tilgangskontroll.genererHoveddokumentLestHendelse()) {
 			sendHoveddokumentLestHendelse(hentdokumentRequest);
 		}
 
@@ -153,7 +153,6 @@ public class HentDokumentService {
 				log.error("Kunne ikke sende events til kafka topic={}, feilmelding={}", safSelvbetjeningProperties.getTopics().getDokdistdittnav(), e.getMessage(), e);
 			}
 		}
-
 	}
 
 	private String findBrukerIdent(TilgangJournalpostDto tilgangJournalpostDto) {

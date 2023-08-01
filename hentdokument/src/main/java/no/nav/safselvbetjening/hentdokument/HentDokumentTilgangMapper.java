@@ -25,7 +25,7 @@ import static no.nav.safselvbetjening.domain.Kanal.SENTRAL_UTSKRIFT;
 import static no.nav.safselvbetjening.domain.Kanal.UKJENT;
 
 @Component
-public class HentDokumentTilgangMapper {
+class HentDokumentTilgangMapper {
 
 	public Journalpost map(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter) {
 		return Journalpost.builder()
@@ -120,22 +120,26 @@ public class HentDokumentTilgangMapper {
 		}
 
 		switch (tilgangJournalpostDto.getJournalpostType()) {
-			case I:
+			case I -> {
 				if (tilgangJournalpostDto.getMottakskanal() == null) {
 					return UKJENT;
 				}
 				return tilgangJournalpostDto.getMottakskanal().getSafKanal();
-			case U:
+			}
+			case U -> {
 				// utsendingskanal returneres ikke fra grensesnitt. Dette er en workaround for lokal utskrift
 				// Dvs brevet er printet ut av saksbehandler lokalt og skannet inn hos skanning leverandør.
 				if (tilgangJournalpostDto.getMottakskanal() == null) {
 					return mapManglendeUtsendingskanal(tilgangJournalpostDto);
 				}
 				return tilgangJournalpostDto.getMottakskanal().getSafKanal();
-			case N:
+			}
+			case N -> {
 				return INGEN_DISTRIBUSJON;
-			default:
+			}
+			default -> {
 				return null;
+			}
 		}
 	}
 
