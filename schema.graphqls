@@ -392,7 +392,7 @@ enum Tema {
     # Aa-registeret
     AAR
 
-    # Ajourhold - Grunnopplysninger
+    # Ajourhold – grunnopplysninger
     AGR
 
     # Barnetrygd
@@ -407,13 +407,13 @@ enum Tema {
     # Dagpenger
     DAG
 
-    # Enslig forsørger
+    # Enslig mor eller far
     ENF
 
     # Erstatning
     ERS
 
-    # Farskap
+    # Foreldreskap
     FAR
 
     # Feilutbetaling
@@ -464,7 +464,7 @@ enum Tema {
     # Omsorgspenger, pleiepenger og opplæringspenger
     OMS
 
-    # Oppfølging - Arbeidsgiver
+    # Oppfølging – arbeidsgiver
     OPA
 
     # Oppfølging
@@ -476,10 +476,10 @@ enum Tema {
     # Permittering og masseoppsigelser
     PER
 
-    # Rehabilitering
+    # Rehabiliteringspenger
     REH
 
-    # Rekruttering og stilling
+    # Rekruttering
     REK
 
     # Retting av personopplysninger
@@ -491,10 +491,10 @@ enum Tema {
     # Sanksjon - Arbeidsgiver
     SAA
 
-    # Saksomkostninger
+    # Sakskostnader
     SAK
 
-    # Sanksjon - Person
+    # Sanksjon – person
     SAP
 
     # Serviceklager
@@ -527,7 +527,7 @@ enum Tema {
     # Tilleggsstønad
     TSO
 
-    # Tilleggsstønad arbeidssøkere
+    # Tilleggsstønad – arbeidssøkere
     TSR
 
     # Unntak fra medlemskap
@@ -545,13 +545,13 @@ enum Tema {
     # Yrkesrettet attføring
     YRA
 
-    # Yrkesskade / Menerstatning
+    # Yrkesskade og menerstatning
     YRK
 
     # Fiskerpensjon
     FIP
 
-    # Klage lønnsgaranti
+    # Klage – lønnsgaranti
     KLL
 
     # Barnepensjon
