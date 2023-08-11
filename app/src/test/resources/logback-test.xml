@@ -20,4 +20,7 @@
 		<appender-ref ref="CONSOLE"/>
 	</logger>
 
+	<logger name="auditLog" level="INFO" additivity="false">
+		<appender-ref ref="CONSOLE"/>
+	</logger>
 </configuration>

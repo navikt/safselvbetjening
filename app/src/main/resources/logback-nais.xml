@@ -1,42 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included>
-    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
-                <maxDepthPerThrowable>30</maxDepthPerThrowable>
-                <exclude>java\.util\.concurrent\..*</exclude>
-                <exclude>org\.apache\.tomcat\..*</exclude>
-                <exclude>org\.apache\.coyote\..*</exclude>
-                <exclude>org\.apache\.catalina\..*</exclude>
-                <exclude>org\.springframework\.web\..*</exclude>
-                <exclude>sun\.net\.www\..*</exclude>
-            </throwableConverter>
-        </encoder>
-    </appender>
+	<appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
+			<throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+				<maxDepthPerThrowable>30</maxDepthPerThrowable>
+				<exclude>java\.util\.concurrent\..*</exclude>
+				<exclude>org\.apache\.tomcat\..*</exclude>
+				<exclude>org\.apache\.coyote\..*</exclude>
+				<exclude>org\.apache\.catalina\..*</exclude>
+				<exclude>org\.springframework\.web\..*</exclude>
+				<exclude>sun\.net\.www\..*</exclude>
+			</throwableConverter>
+		</encoder>
+	</appender>
 
-    <appender name="secureLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/secure-logs/secure.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>/secure-logs/secure.log.%i</fileNamePattern>
-            <minIndex>1</minIndex>
-            <maxIndex>1</maxIndex>
-        </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>50MB</maxFileSize>
-        </triggeringPolicy>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-    </appender>
+	<appender name="secureLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>/secure-logs/secure.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>/secure-logs/secure.log.%i</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>1</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>50MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+	</appender>
 
-    <root level="WARN">
-        <appender-ref ref="stdout_json"/>
-    </root>
+	<!--
+ 	Timestamp blir generert av appenderen.
+ 	Eksempel: 2019-06-07T07:21:20+02:00 <pod_navn> hentdokument_auditlogg: [callId] - message
+ 	-->
+	<appender name="auditLog" class="com.papertrailapp.logback.Syslog4jAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%m%n</pattern>
+		</layout>
 
-    <logger name="no.nav.safselvbetjening" level="INFO" additivity="false">
-        <appender-ref ref="stdout_json"/>
-    </logger>
-    <logger name="secureLog" level="INFO" additivity="false">
-        <appender-ref ref="secureLog"/>
-    </logger>
+		<syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
+			<host>audit.nais</host>
+			<port>6514</port>
+			<ident>safselvbetjening_audit</ident>
+			<maxMessageLength>128000</maxMessageLength>
+		</syslogConfig>
+	</appender>
+
+	<logger level="INFO" name="auditLog" additivity="false">
+		<appender-ref ref="auditLog"/>
+	</logger>
+
+	<root level="WARN">
+		<appender-ref ref="stdout_json"/>
+	</root>
+
+	<logger name="no.nav.safselvbetjening" level="INFO" additivity="false">
+		<appender-ref ref="stdout_json"/>
+	</logger>
+	<logger name="secureLog" level="INFO" additivity="false">
+		<appender-ref ref="secureLog"/>
+	</logger>
 </included>
