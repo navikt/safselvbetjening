@@ -17,10 +17,10 @@ public class Headers {
 	 */
 	@Override
 	public String toString() {
-		return format("CEF:0|safselvbetjening|%s|1.0|%s|%s|Low|", getDeviceProduct(), getDeviceEventClassID(), getName());
+		return format("CEF:0|safselvbetjening|%s|1.0|%s|%s|INFO|", getDeviceProduct(), getDeviceEventClassID(), getName());
 	}
 
 	public static Headers hentdokumentFullmaktHeaders() {
-		return new Headers("hentdokument", "audit:access", "brukers dokument hentet av fullmektig");
+		return new Headers("AuditLog", "audit:access", "brukers dokument hentet av fullmektig");
 	}
 }

@@ -14,7 +14,7 @@ public class HentDokumentExtension extends Extension {
 
 	@Override
 	protected String getDeviceCustomStringsCef() {
-		return format("cs1=%s cs1Label=journalpostId cs2=%s cs2Label=dokumentInfoId cs3=%s cs3Label=variantFormat",
+		return format("flexString1=%s flexString1Label=journalpostId flexString2=%s flexString2Label=dokumentInfoId cs3=%s cs3Label=variantFormat",
 				hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat());
 	}
 }

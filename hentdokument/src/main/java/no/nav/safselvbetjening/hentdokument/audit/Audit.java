@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
 
+import static java.lang.String.join;
+
 public final class Audit {
 	private static final Logger auditLog = LoggerFactory.getLogger("auditLog");
 	private final Clock clock;
@@ -27,7 +29,7 @@ public final class Audit {
 				.extension(HentDokumentExtension.builder()
 						.clock(clock)
 						.sourceUserId(fullmakt.fullmektig())
-						.sourceUserPrivileges("fullmektig" + fullmakt.tema().toString())
+						.sourceUserPrivileges("fullmektig[" + join(",", fullmakt.tema()) + "]")
 						.deviceAction("hentdokument_fullmektig")
 						.destinationUserId(fullmakt.fullmaktsgiver())
 						.hentdokumentRequest(hentdokumentRequest)

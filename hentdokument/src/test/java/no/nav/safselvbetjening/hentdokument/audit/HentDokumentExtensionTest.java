@@ -17,6 +17,6 @@ class HentDokumentExtensionTest {
 						.build())
 				.build();
 		assertThat(extension.getDeviceCustomStringsCef())
-				.isEqualTo("cs1=1000 cs1Label=journalpostId cs2=1001 cs2Label=dokumentInfoId cs3=ARKIV cs3Label=variantFormat");
+				.isEqualTo("flexString1=1000 flexString1Label=journalpostId flexString2=1001 flexString2Label=dokumentInfoId cs3=ARKIV cs3Label=variantFormat");
 	}
 }
