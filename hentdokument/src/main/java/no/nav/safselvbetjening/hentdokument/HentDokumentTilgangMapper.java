@@ -119,28 +119,23 @@ class HentDokumentTilgangMapper {
 			return null;
 		}
 
-		switch (tilgangJournalpostDto.getJournalpostType()) {
+		return switch (tilgangJournalpostDto.getJournalpostType()) {
 			case I -> {
 				if (tilgangJournalpostDto.getMottakskanal() == null) {
-					return UKJENT;
+					yield UKJENT;
 				}
-				return tilgangJournalpostDto.getMottakskanal().getSafKanal();
+				yield tilgangJournalpostDto.getMottakskanal().getSafKanal();
 			}
 			case U -> {
 				// utsendingskanal returneres ikke fra grensesnitt. Dette er en workaround for lokal utskrift
 				// Dvs brevet er printet ut av saksbehandler lokalt og skannet inn hos skanning leverandør.
 				if (tilgangJournalpostDto.getMottakskanal() == null) {
-					return mapManglendeUtsendingskanal(tilgangJournalpostDto);
+					yield mapManglendeUtsendingskanal(tilgangJournalpostDto);
 				}
-				return tilgangJournalpostDto.getMottakskanal().getSafKanal();
+				yield tilgangJournalpostDto.getMottakskanal().getSafKanal();
 			}
-			case N -> {
-				return INGEN_DISTRIBUSJON;
-			}
-			default -> {
-				return null;
-			}
-		}
+			case N -> INGEN_DISTRIBUSJON;
+		};
 	}
 
 	private Kanal mapManglendeUtsendingskanal(TilgangJournalpostDto tilgangJournalpostDto) {

@@ -45,7 +45,7 @@ Public graphql spec (tilgjengelig fra internett) på `gh-pages` branchen: `https
 ##### Spesielt om digital fullmakt
 
 `dokumentoversiktSelvbetjening` query støtter [digital fullmakt](https://www.nav.no/fullmakt) fra `pdl-fullmakt` løsningen. Hvis dere ønsker å slå opp dokumentoversikten til en fullmaktsgiver der fullmektig er logget inn på nav.no:
-* `Authorization` settes til innlogget brukers idporten Bearer token.
+* `Authorization` settes til innlogget brukers ID-porten-Bearertoken.
 * `ident` argumentet i query settes til fullmaktsgiver.
 
 Safselvbetjening vil slå opp i `pdl-fullmakt`og slå opp fullmaktene til innlogget bruker.
@@ -156,7 +156,7 @@ Eksempel:
 
 ##### Spesielt om digital fullmakt
 
-`hentdokument` REST kallet støtter [digital fullmakt](https://www.nav.no/fullmakt) fra `pdl-fullmakt` løsningen. Henting av dokumenter støtter dette uten endringer hos klient. 
+REST-tjenesten `hentdokument` støtter [digital fullmakt](https://www.nav.no/fullmakt) fra `pdl-fullmakt`-løsningen. Henting av dokumenter støtter dette uten endringer hos klient.
 * `Authorization` settes til innlogget brukers idporten Bearer token.
 
 Safselvbetjening vil slå opp i `pdl-fullmakt`og slå opp fullmaktene til innlogget bruker.
@@ -198,7 +198,7 @@ Returnerer:
 | annen_part                | Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises                                                                                |
 | bruker_matcher_ikke_token | Bruker på dokumentet matcher ikke bruker i token                                                                                                        |
 | skjult_innsyn             | Innsynsreglene styrer utvalget av journalposter og dokumenter som en innlogget bruker får innsyn i på nav.no. Bruker får ikke se skjulte journalposter. |
-| fullmakt_dekker_ikke_tema | Innlogget bruker har fullmakt for bruker men tema i fullmakten dekker ikke tema på dokumentet.                                                          |
+| fullmakt_gjelder_ikke_tema| Innlogget bruker har fullmakt for bruker, men tema i fullmakten gjelder ikke tema på dokumentet.                                                        |
 
 
 ## Utvikling

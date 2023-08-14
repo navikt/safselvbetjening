@@ -31,7 +31,7 @@
 
 	<!--
  	Timestamp blir generert av appenderen.
- 	Eksempel: 2019-06-07T07:21:20+02:00 <pod_navn> hentdokument_auditlogg: [callId] - message
+ 	Eksempel: 2019-06-07T07:21:20+02:00 <pod_navn> safselvbetjening_audit: message
  	-->
 	<appender name="auditLog" class="com.papertrailapp.logback.Syslog4jAppender">
 		<layout class="ch.qos.logback.classic.PatternLayout">
