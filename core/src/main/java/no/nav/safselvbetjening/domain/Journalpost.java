@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 
 @Value
 @Builder
@@ -44,6 +46,21 @@ public class Journalpost {
 		private final TilgangSak tilgangSak;
 		private final TilgangBruker tilgangBruker;
 		private final Innsyn innsyn;
+
+		/**
+		 * Tema på sakstilknytning er prioritert over tema på journalpost
+		 */
+		public String getGjeldendeTema() {
+			if(tilgangSak == null) {
+				return tema;
+			} else {
+				if(isBlank(tilgangSak.getTema())) {
+					return tema;
+				} else {
+					return tilgangSak.getTema();
+				}
+			}
+		}
 	}
 
 	@Data

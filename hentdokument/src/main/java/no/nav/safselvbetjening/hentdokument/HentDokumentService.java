@@ -135,14 +135,14 @@ public class HentDokumentService {
 	private static void validerFullmakt(HentdokumentRequest hentdokumentRequest, Optional<Fullmakt> fullmaktOpt, Journalpost journalpost) {
 		if (fullmaktOpt.isPresent()) {
 			Fullmakt fullmakt = fullmaktOpt.get();
-			String journalpostTema = journalpost.getTilgang().getTema();
-			if (fullmakt.gjelderForTema(journalpostTema)) {
+			String gjeldendeTema = journalpost.getTilgang().getGjeldendeTema();
+			if (fullmakt.gjelderForTema(gjeldendeTema)) {
 				secureLog.info("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}, tema={}) Innlogget bruker med ident={} bruker fullmakt med tema={} for dokument tilhørende bruker={}",
-						hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), journalpostTema,
+						hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), gjeldendeTema,
 						fullmakt.fullmektig(), fullmakt.tema(), fullmakt.fullmaktsgiver());
 			} else {
 				secureLog.warn("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}, tema={}) Innlogget bruker med ident={} har fullmakt som ikke dekker tema for dokument tilhørende bruker={}. Tilgang er avvist",
-						hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), journalpostTema,
+						hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), gjeldendeTema,
 						fullmakt.fullmektig(), fullmakt.fullmaktsgiver());
 				throw new HentTilgangDokumentException(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
 			}
