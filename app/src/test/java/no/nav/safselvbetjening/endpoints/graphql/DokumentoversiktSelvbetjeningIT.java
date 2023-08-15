@@ -267,7 +267,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubPdlFullmakt("pdl_fullmakt_for.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(OK);
@@ -288,7 +288,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubPdlFullmakt("pdl_fullmakt_feil_bruker.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -302,7 +302,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubPdlFullmakt(HttpStatus.FORBIDDEN);
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -316,7 +316,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubPdlFullmakt(HttpStatus.INTERNAL_SERVER_ERROR);
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -330,7 +330,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubPdlFullmakt("pdl_fullmakt_invalid_json.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -344,7 +344,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubPdlFullmakt("pdl_fullmakt_invalid_json_no_array.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -368,7 +368,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubTokenx();
 		stubPdlFullmakt();
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -381,7 +381,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubTokenx();
 		stubPdlFullmakt("pdl_fullmakt_ingen_omraader.json");
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders("22222222222"), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())

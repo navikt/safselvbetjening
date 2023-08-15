@@ -20,6 +20,11 @@ public final class MDCUtils {
 		return isBlank(callId) ? UUID.randomUUID().toString() : callId;
 	}
 
+	public static String getConsumerId() {
+		final String consumerId = MDC.get(MDC_CONSUMER_ID);
+		return isBlank(consumerId) ? UKJENT_CONSUMERID : consumerId;
+	}
+
 	public static String getConsumerIdFromToken(TokenValidationContext tokenValidationContext) {
 		Optional<JwtToken> firstValidToken = tokenValidationContext.getFirstValidToken();
 		if (firstValidToken.isPresent()) {

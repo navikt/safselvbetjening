@@ -41,6 +41,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @AutoConfigureWireMock(port = 0)
 public abstract class AbstractItest {
 
+	protected static final String FULLMEKTIG_ID = "22222222222";
+
 	@Autowired
 	private MockOAuth2Server server;
 	@Autowired

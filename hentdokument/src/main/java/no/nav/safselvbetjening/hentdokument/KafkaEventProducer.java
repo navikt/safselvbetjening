@@ -2,6 +2,7 @@ package no.nav.safselvbetjening.hentdokument;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
+import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TopicAuthorizationException;
 import org.springframework.kafka.KafkaException;
@@ -20,7 +21,7 @@ import static no.nav.safselvbetjening.MDCUtils.getCallId;
 @Slf4j
 @Component
 @EnableTransactionManagement
-public class KafkaEventProducer {
+class KafkaEventProducer {
 
 	private static final String KAFKA_NOT_AUTHENTICATED = "Not authenticated to publish to topic: ";
 	private static final String KAFKA_FAILED_TO_SEND = "Failed to send message to kafka. Topic: ";
@@ -35,7 +36,7 @@ public class KafkaEventProducer {
 	}
 
 	@Retryable(backoff = @Backoff(delay = 500))
-	void publish(Object event) {
+	void publish(HoveddokumentLest event) {
 
 		ProducerRecord<String, Object> producerRecord = new ProducerRecord<>(
 				safSelvbetjeningProperties.getTopics().getDokdistdittnav(),
@@ -47,15 +48,12 @@ public class KafkaEventProducer {
 
 		try {
 			SendResult<String, Object> sendResult = kafkaTemplate.send(producerRecord).get();
-			log.info("Lest av bruker hendelse skrevet til topic. Timestamp={}, partition={}, offset={}, topic={}",
-					sendResult.getRecordMetadata().timestamp(),
-					sendResult.getRecordMetadata().partition(),
-					sendResult.getRecordMetadata().offset(),
-					sendResult.getRecordMetadata().topic()
+			log.info("hentdokument HoveddokumentLest(journalpostId={}, dokumentInfoId={}) av bruker hendelse skrevet til topic. hendelseMetadata={}",
+					event.getJournalpostId(), event.getDokumentInfoId(),
+					sendResult.getRecordMetadata()
 			);
 		} catch (ExecutionException executionException) {
-			if (executionException.getCause() instanceof KafkaProducerException) {
-				KafkaProducerException kafkaProducerException = (KafkaProducerException) executionException.getCause();
+			if (executionException.getCause() instanceof KafkaProducerException kafkaProducerException) {
 				if (kafkaProducerException.getCause() instanceof TopicAuthorizationException) {
 					throw new KafkaTechnicalException(KAFKA_NOT_AUTHENTICATED + safSelvbetjeningProperties.getTopics().getDokdistdittnav(), kafkaProducerException.getCause());
 				}

@@ -33,6 +33,7 @@ public class Journalpost {
 	@Data
 	@Builder
 	public static class TilgangJournalpost {
+		private final String journalstatus;
 		private final LocalDateTime datoOpprettet;
 		private final LocalDateTime journalfoertDato;
 		private final String tema;
