@@ -5,7 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.server.ResponseStatusException;
 
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 public class HentTilgangDokumentException extends ResponseStatusException {
 
@@ -13,7 +13,7 @@ public class HentTilgangDokumentException extends ResponseStatusException {
 	private final String reasonCode;
 
 	public HentTilgangDokumentException(String reasonCode, String message) {
-		super(UNAUTHORIZED, message);
+		super(FORBIDDEN, message);
 		this.reasonCode = reasonCode;
 	}
 

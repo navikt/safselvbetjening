@@ -181,7 +181,7 @@ Returnerer en base64 encodet representasjon av dokumentet i payload.
 
 Returnerer:
 * `400 Bad Request` - Dokumentet eller metadata tilhørende dokumentet finnes ikke. Bruker finnes ikke.
-* `401 Unauthorized` - Dokumentet tilhører ikke bruker i token og/eller ingen fullmakt finnes. Ingen tilgang til dokumentet basert på [regler](https://confluence.adeo.no/pages/viewpage.action?pageId=377182021).
+* `403 Forbidden` - Dokumentet tilhører ikke bruker i token og/eller ingen fullmakt finnes. Ingen tilgang til dokumentet basert på [regler](https://confluence.adeo.no/pages/viewpage.action?pageId=377182021).
 * `404 Not Found` - Dokumentet eller metadata tilhørende dokumentet finnes ikke. Bruker finnes ikke.
 
 | Nav-Reason-Code           | Beskrivelse                                                                                                                                             |
