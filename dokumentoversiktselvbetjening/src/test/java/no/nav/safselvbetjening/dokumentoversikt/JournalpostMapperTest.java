@@ -229,6 +229,7 @@ class JournalpostMapperTest {
 		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoInngaaendeType(), createSaker(), createBrukerIdenter());
 		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 		assertThat(tilgangJournalpost.getTema()).isEqualTo(FagomradeCode.FOR.name());
+		assertThat(tilgangJournalpost.getGjeldendeTema()).isEqualTo(FagomradeCode.FOR.name());
 		assertThat(tilgangJournalpost.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(tilgangJournalpost.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET_LDT);
 		assertThat(tilgangJournalpost.getJournalfoertDato()).isEqualTo(JOURNAL_DATO_LDT);
@@ -256,6 +257,7 @@ class JournalpostMapperTest {
 	void shouldMapTilgangsfeltWhenMottatt() {
 		Journalpost journalpost = journalpostMapper.map(buildJournalpostDtoMottatt(), createSaker(), createBrukerIdenter());
 		Journalpost.TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
+		assertThat(tilgangJournalpost.getGjeldendeTema()).isEqualTo(TEMA.name());
 		assertThat(tilgangJournalpost.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET_LDT);
 		assertThat(tilgangJournalpost.getJournalfoertDato()).isNull();
 		assertThat(tilgangJournalpost.getMottakskanal()).isEqualTo(Kanal.SKAN_IM);
@@ -345,5 +347,20 @@ class JournalpostMapperTest {
 				.build();
 		Journalpost journalpost = journalpostMapper.map(journalpostDto, createSaker(), createBrukerIdenter());
 		assertThat(journalpost.getDokumenter().get(0).getDokumentvarianter().get(0).getFilstorrelse()).isEqualTo(0);
+	}
+
+	@Test
+	void shouldMapTilgangGjeldendeTemaWhenSakTemaForskjelligFromJournalpostTema() {
+		JournalpostDto journalpostDto = buildJournalpostDtoInngaaendeType();
+		journalpostDto.setSaksrelasjon(SaksrelasjonDto.builder()
+				.sakId(ARKIVSAK_ID)
+				.fagsystem(FagsystemCode.FS22)
+				.feilregistrert(false)
+				.tema(Tema.DAG.name())
+				.applikasjon(APPLIKASJON_GENERELL_SAK)
+				.fagsakNr(null)
+				.build());
+		Journalpost journalpost = journalpostMapper.map(journalpostDto, createSaker(), createBrukerIdenter());
+		assertThat(journalpost.getTilgang().getGjeldendeTema()).isEqualTo(Tema.DAG.name());
 	}
 }

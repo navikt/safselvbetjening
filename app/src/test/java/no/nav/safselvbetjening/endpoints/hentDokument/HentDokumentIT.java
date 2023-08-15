@@ -317,7 +317,7 @@ class HentDokumentIT extends AbstractItest {
 
 	// Fullmakt relatert
 	@Test
-	void shouldHentDokumentWhenTokenNotMatchingQueryIdentAndFullmaktExistsForTema() {
+	void shouldHentDokumentWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktExistsForTema() {
 		stubPdlFullmakt("pdl_fullmakt_aap.json");
 		stubPdl();
 		stubTokenx();
@@ -334,7 +334,7 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktIkkeGittForTema() {
+	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktIkkeGittForTema() {
 		stubPdl();
 		stubPdlFullmakt("pdl_fullmakt_for.json");
 		stubTokenx();
@@ -348,7 +348,7 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndNoFullmakt() {
+	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndNoFullmakt() {
 		stubPdl();
 		stubPdlFullmakt();
 		stubTokenx();
@@ -362,7 +362,7 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndWrongFullmakt() {
+	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndWrongFullmakt() {
 		stubPdl();
 		stubPdlFullmakt("pdl_fullmakt_feil_bruker.json");
 		stubTokenx();
@@ -376,7 +376,7 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturns4xx() {
+	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturns4xx() {
 		stubPdl();
 		stubPdlFullmakt(FORBIDDEN);
 		stubTokenx();
@@ -390,7 +390,7 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturns5xx() {
+	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturns5xx() {
 		stubPdl();
 		stubPdlFullmakt(INTERNAL_SERVER_ERROR);
 		stubTokenx();
@@ -404,7 +404,7 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturnsInvalidJson() {
+	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturnsInvalidJson() {
 		stubPdl();
 		stubPdlFullmakt("pdl_fullmakt_invalid_json.json");
 		stubTokenx();
@@ -418,7 +418,7 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturnsInvalidJsonNoArray() {
+	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturnsInvalidJsonNoArray() {
 		stubPdl();
 		stubPdlFullmakt("pdl_fullmakt_invalid_json_no_array.json");
 		stubTokenx();
@@ -432,7 +432,7 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndIngenFullmaktOmraader() {
+	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndIngenFullmaktOmraader() {
 		stubPdl();
 		stubPdlFullmakt("pdl_fullmakt_ingen_omraader.json");
 		stubTokenx();
@@ -443,6 +443,20 @@ class HentDokumentIT extends AbstractItest {
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
+	}
+
+	@Test
+	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndSakTemaNoFullmakt() {
+		stubPdl();
+		stubPdlFullmakt("pdl_fullmakt_aap.json");
+		stubTokenx();
+		stubAzure();
+		stubHentTilgangJournalpostDokarkiv("tilgangjournalpost_ferdigstilt_sak_tema_forskjellig.json");
+
+		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA));
 	}
 
 	private void stubHentDokumentDokarkiv() {
