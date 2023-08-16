@@ -49,7 +49,6 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
@@ -218,7 +217,7 @@ class HentDokumentIT extends AbstractItest {
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_SKJULT_INNSYN));
 	}
 
@@ -230,7 +229,7 @@ class HentDokumentIT extends AbstractItest {
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_GDPR));
 	}
 
@@ -304,14 +303,14 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenLokalprintSkannet() {
+	void shouldReturnForbiddenWhenLokalprintSkannet() {
 		stubPdl();
 		stubAzure();
 		stubHentTilgangJournalpostDokarkiv("tilgangjournalpost_lokalprint_skannet.json");
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_SKANNET_DOKUMENT));
 	}
 
@@ -334,7 +333,7 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktIkkeGittForTema() {
+	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktIkkeGittForTema() {
 		stubPdl();
 		stubPdlFullmakt("pdl_fullmakt_for.json");
 		stubTokenx();
@@ -343,12 +342,12 @@ class HentDokumentIT extends AbstractItest {
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA));
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndNoFullmakt() {
+	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndNoFullmakt() {
 		stubPdl();
 		stubPdlFullmakt();
 		stubTokenx();
@@ -357,12 +356,12 @@ class HentDokumentIT extends AbstractItest {
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndWrongFullmakt() {
+	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndWrongFullmakt() {
 		stubPdl();
 		stubPdlFullmakt("pdl_fullmakt_feil_bruker.json");
 		stubTokenx();
@@ -371,12 +370,12 @@ class HentDokumentIT extends AbstractItest {
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturns4xx() {
+	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturns4xx() {
 		stubPdl();
 		stubPdlFullmakt(FORBIDDEN);
 		stubTokenx();
@@ -385,12 +384,12 @@ class HentDokumentIT extends AbstractItest {
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturns5xx() {
+	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturns5xx() {
 		stubPdl();
 		stubPdlFullmakt(INTERNAL_SERVER_ERROR);
 		stubTokenx();
@@ -399,12 +398,12 @@ class HentDokumentIT extends AbstractItest {
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturnsInvalidJson() {
+	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturnsInvalidJson() {
 		stubPdl();
 		stubPdlFullmakt("pdl_fullmakt_invalid_json.json");
 		stubTokenx();
@@ -413,12 +412,12 @@ class HentDokumentIT extends AbstractItest {
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturnsInvalidJsonNoArray() {
+	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturnsInvalidJsonNoArray() {
 		stubPdl();
 		stubPdlFullmakt("pdl_fullmakt_invalid_json_no_array.json");
 		stubTokenx();
@@ -427,12 +426,12 @@ class HentDokumentIT extends AbstractItest {
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndIngenFullmaktOmraader() {
+	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndIngenFullmaktOmraader() {
 		stubPdl();
 		stubPdlFullmakt("pdl_fullmakt_ingen_omraader.json");
 		stubTokenx();
@@ -441,12 +440,12 @@ class HentDokumentIT extends AbstractItest {
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
 	}
 
 	@Test
-	void shouldReturnUnauthorizedWhenTokenNotMatchingJournalpostOwnerIdentAndSakTemaNoFullmakt() {
+	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndSakTemaNoFullmakt() {
 		stubPdl();
 		stubPdlFullmakt("pdl_fullmakt_aap.json");
 		stubTokenx();
@@ -455,7 +454,7 @@ class HentDokumentIT extends AbstractItest {
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
 
-		assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA));
 	}
 
