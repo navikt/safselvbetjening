@@ -389,7 +389,7 @@ class UtledTilgangServiceTest {
 	@ValueSource(strings = {"SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_ORGAN_INTERNT", "SKJULES_FEILSENDT", "SKJULES_BRUKERS_ONSKE"})
 	void shouldReturnTrueWhenJournalpostInnsynSkjult(String innsyn) {
 		Journalpost journalpost = getBaseJournalfoertJournalpostWithInnsyn(innsyn);
-		boolean actual = utledTilgangService.isJournalpostInnsynSkjult(journalpost.getTilgang());
+		boolean actual = utledTilgangService.isJournalpostInnsynSkjules(journalpost.getTilgang());
 		assertThat(actual).isTrue();
 	}
 
@@ -399,7 +399,7 @@ class UtledTilgangServiceTest {
 	void shouldReturnFalseWhenJournalpostInnsynErIKkeSkjult(String innsyn) {
 
 		Journalpost journalpost = getBaseJournalfoertJournalpostWithInnsyn(innsyn);
-		boolean actual = utledTilgangService.isJournalpostInnsynSkjult(journalpost.getTilgang());
+		boolean actual = utledTilgangService.isJournalpostInnsynSkjules(journalpost.getTilgang());
 		assertThat(actual).isFalse();
 	}
 
@@ -423,14 +423,16 @@ class UtledTilgangServiceTest {
 		assertThat(actual).isFalse();
 	}
 
-	//	2b - Bruker får ikke se skannede dokumenter
+	//	2b - Bruker får ikke se skannede dokumenter, med mindre K_INNSYN = VISES_*
 	@Test
 	void shouldReturnTrueWhenSkannetDokument() {
 		boolean imSkannetDokument = isSkannetDokument(SKAN_IM, SKJULES_BRUKERS_ONSKE);
+		boolean imSkannetDokumentInnsynNull = isSkannetDokument(SKAN_IM, null);
 		boolean netsSkannetDokument = isSkannetDokument(SKAN_NETS, SKJULES_INNSKRENKET_PARTSINNSYN);
 		boolean penSkannetDokument = isSkannetDokument(SKAN_PEN, SKJULES_ORGAN_INTERNT);
 
 		assertThat(imSkannetDokument).isTrue();
+		assertThat(imSkannetDokumentInnsynNull).isTrue();
 		assertThat(netsSkannetDokument).isTrue();
 		assertThat(penSkannetDokument).isTrue();
 	}

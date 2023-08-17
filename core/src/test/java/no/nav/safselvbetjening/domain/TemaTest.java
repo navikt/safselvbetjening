@@ -8,22 +8,22 @@ class TemaTest {
 
 	@Test
 	void shouldVerifyBrukerHarInnsyn() {
-		assertThat(Tema.brukerHarInnsyn()).hasSize(57);
+		assertThat(Tema.tillattInnsynNavNo()).hasSize(57);
 	}
 
 	@Test
 	void shouldVerifyBrukerHarInnsynAsListString() {
-		assertThat(Tema.brukerHarInnsynAsListString()).hasSize(57);
-		assertThat(Tema.brukerHarInnsynAsListString()).doesNotContain(Tema.brukerHarIkkeInnsynAsString().toArray(String[]::new));
+		assertThat(Tema.tillattInnsynNavNoString()).hasSize(57);
+		assertThat(Tema.tillattInnsynNavNoString()).doesNotContain(Tema.unntattInnsynNavNoString().toArray(String[]::new));
 	}
 
 	@Test
 	void shouldVerifyBrukerHarIkkeInnsyn() {
-		assertThat(Tema.brukerHarIkkeInnsyn()).hasSize(5);
+		assertThat(Tema.unntattInnsynNavNo()).hasSize(5);
 	}
 
 	@Test
 	void shouldVerifyBrukerHarIkkeInnsynAsString() {
-		assertThat(Tema.brukerHarIkkeInnsynAsString()).hasSize(5);
+		assertThat(Tema.unntattInnsynNavNoString()).hasSize(5);
 	}
 }

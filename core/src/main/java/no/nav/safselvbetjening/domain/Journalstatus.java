@@ -1,7 +1,6 @@
 package no.nav.safselvbetjening.domain;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.EnumSet;
 
 public enum Journalstatus {
 	MOTTATT,
@@ -17,7 +16,8 @@ public enum Journalstatus {
 	OPPLASTING_DOKUMENT,
 	UKJENT;
 
-	public static List<Journalstatus> asList() {
-		return Arrays.asList(values());
+	public static EnumSet<Journalstatus> ferdigstilt() {
+		return EnumSet.of(FERDIGSTILT, JOURNALFOERT, EKSPEDERT);
 	}
+
 }

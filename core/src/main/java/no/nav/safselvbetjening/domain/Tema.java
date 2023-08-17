@@ -83,21 +83,21 @@ public enum Tema {
 	/**
 	 * Tema som ikke skal vises til bruker
 	 *
-	 * @return Set med tema som ikke skal vises til bruker
+	 * @return EnumSet med tema som ikke skal vises til bruker
 	 */
-	public static EnumSet<Tema> brukerHarIkkeInnsyn() {
+	public static EnumSet<Tema> unntattInnsynNavNo() {
 		return EnumSet.of(FAR, KTR, KTA, ARS, ARP);
 	}
 
-	public static Set<String> brukerHarIkkeInnsynAsString() {
-		return brukerHarIkkeInnsyn().stream().map(Tema::name).collect(Collectors.toSet());
+	public static Set<String> unntattInnsynNavNoString() {
+		return unntattInnsynNavNo().stream().map(Tema::name).collect(Collectors.toSet());
 	}
 
-	public static EnumSet<Tema> brukerHarInnsyn() {
-		return EnumSet.complementOf(brukerHarIkkeInnsyn());
+	public static EnumSet<Tema> tillattInnsynNavNo() {
+		return EnumSet.complementOf(unntattInnsynNavNo());
 	}
 
-	public static List<String> brukerHarInnsynAsListString() {
-		return brukerHarInnsyn().stream().map(Tema::name).collect(Collectors.toList());
+	public static List<String> tillattInnsynNavNoString() {
+		return tillattInnsynNavNo().stream().map(Tema::name).collect(Collectors.toList());
 	}
 }

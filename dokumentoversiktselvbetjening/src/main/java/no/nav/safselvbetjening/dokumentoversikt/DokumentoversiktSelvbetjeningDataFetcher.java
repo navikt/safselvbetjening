@@ -46,8 +46,6 @@ import static org.apache.commons.lang3.StringUtils.isNumeric;
 @Component
 public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Object> {
 
-	private static final List<String> TEMA_BRUKER_HAR_INNSYN = Tema.brukerHarInnsynAsListString();
-
 	private final DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService;
 	private final TemaQueryService temaQueryService;
 	private final TemaJournalposterQueryService temaJournalposterQueryService;
@@ -201,6 +199,6 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			return fullmakt.get().tema();
 		}
 		final List<String> tema = environment.getArgumentOrDefault("tema", new ArrayList<>());
-		return tema.isEmpty() ? TEMA_BRUKER_HAR_INNSYN : tema;
+		return tema.isEmpty() ? Tema.tillattInnsynNavNoString() : tema;
 	}
 }
