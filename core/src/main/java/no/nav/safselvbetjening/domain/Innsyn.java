@@ -1,5 +1,7 @@
 package no.nav.safselvbetjening.domain;
 
+import java.util.EnumSet;
+
 public enum Innsyn {
 	BRUK_STANDARDREGLER,
 	VISES_MASKINELT_GODKJENT,
@@ -8,5 +10,13 @@ public enum Innsyn {
 	SKJULES_FEILSENDT,
 	SKJULES_BRUKERS_ONSKE,
 	SKJULES_ORGAN_INTERNT,
-	SKJULES_INNSKRENKET_PARTSINNSYN
+	SKJULES_INNSKRENKET_PARTSINNSYN;
+
+	public static EnumSet<Innsyn> vises() {
+		return EnumSet.of(VISES_MASKINELT_GODKJENT, VISES_MANUELT_GODKJENT, VISES_FORVALTNINGSNOTAT);
+	}
+
+	public static EnumSet<Innsyn> skjules() {
+		return EnumSet.of(SKJULES_BRUKERS_ONSKE, SKJULES_INNSKRENKET_PARTSINNSYN, SKJULES_FEILSENDT, SKJULES_ORGAN_INTERNT);
+	}
 }

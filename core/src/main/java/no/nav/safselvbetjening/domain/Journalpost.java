@@ -51,14 +51,34 @@ public class Journalpost {
 		 * Tema på sakstilknytning er prioritert over tema på journalpost
 		 */
 		public String getGjeldendeTema() {
-			if(tilgangSak == null) {
+			if (tilgangSak == null) {
 				return tema;
 			} else {
-				if(isBlank(tilgangSak.getTema())) {
+				if (isBlank(tilgangSak.getTema())) {
 					return tema;
 				} else {
 					return tilgangSak.getTema();
 				}
+			}
+		}
+
+		public boolean isGjeldendeTemaUnntattInnsyn() {
+			return Tema.unntattInnsynNavNoString().contains(getGjeldendeTema());
+		}
+
+		public boolean innsynSkjules() {
+			if (innsyn == null) {
+				return false;
+			} else {
+				return Innsyn.skjules().contains(innsyn);
+			}
+		}
+
+		public boolean innsynVises() {
+			if (innsyn == null) {
+				return false;
+			} else {
+				return Innsyn.vises().contains(innsyn);
 			}
 		}
 	}

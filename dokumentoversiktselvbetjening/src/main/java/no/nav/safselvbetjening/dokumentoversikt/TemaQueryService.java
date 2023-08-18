@@ -8,7 +8,6 @@ import no.nav.safselvbetjening.service.Saker;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,7 +22,6 @@ import static no.nav.safselvbetjening.domain.Tema.UKJ;
 @Slf4j
 @Component
 class TemaQueryService {
-	private static final EnumSet<Tema> TEMA_IKKE_INNSYN_FOR_BRUKER = Tema.brukerHarIkkeInnsyn();
 
 	List<Sakstema> query(final Basedata basedata) {
 		log.info("dokumentoversiktSelvbetjening henter /tema.");
@@ -40,7 +38,7 @@ class TemaQueryService {
 
 	private Sakstema mapSakstema(Arkivsak arkivsak) {
 		final Tema tema = determineTema(arkivsak);
-		if (TEMA_IKKE_INNSYN_FOR_BRUKER.contains(tema)) {
+		if (Tema.unntattInnsynNavNo().contains(tema)) {
 			return null;
 		}
 		return Sakstema.builder()

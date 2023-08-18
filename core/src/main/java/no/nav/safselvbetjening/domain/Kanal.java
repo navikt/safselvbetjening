@@ -1,5 +1,7 @@
 package no.nav.safselvbetjening.domain;
 
+import java.util.EnumSet;
+
 public enum Kanal {
 	ALTINN("Altinn"),
 	EESSI("EESSI"),
@@ -29,5 +31,9 @@ public enum Kanal {
 
 	public String getKanalnavn() {
 		return kanalnavn;
+	}
+
+	public static EnumSet<Kanal> skanning() {
+		return EnumSet.of(SKAN_IM, SKAN_NETS, SKAN_PEN);
 	}
 }
