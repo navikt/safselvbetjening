@@ -71,6 +71,11 @@
       "app": "klage-dittnav-api",
       "namespace": "klage",
       "cluster": "dev-gcp"
+    },
+    {
+      "app": "fpinfo-historikk",
+      "namespace": "teamforeldrepenger",
+      "cluster": "dev-fss"
     }
   ]
 }
