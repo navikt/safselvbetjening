@@ -1,4 +1,4 @@
-package no.nav.safselvbetjening.hentdokument.audit.cef;
+package no.nav.safselvbetjening.audit.cef;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

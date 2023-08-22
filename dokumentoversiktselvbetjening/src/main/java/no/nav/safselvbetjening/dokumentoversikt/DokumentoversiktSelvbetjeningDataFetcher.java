@@ -6,6 +6,7 @@ import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.safselvbetjening.dokumentoversikt.audit.DokumentoversiktAudit;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Fagsak;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CALL_ID;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CONSUMER_ID;
 import static no.nav.safselvbetjening.MDCUtils.MDC_FULLMAKT_TEMA;
@@ -53,6 +55,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	private final FagsakJournalposterQueryService fagsakJournalposterQueryService;
 	private final JournalposterQueryService journalposterQueryService;
 	private final FullmektigService fullmektigService;
+	private final DokumentoversiktAudit audit;
 
 	public DokumentoversiktSelvbetjeningDataFetcher(DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService,
 													TemaQueryService temaQueryService,
@@ -68,6 +71,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		this.fagsakJournalposterQueryService = fagsakJournalposterQueryService;
 		this.journalposterQueryService = journalposterQueryService;
 		this.fullmektigService = fullmektigService;
+		this.audit = new DokumentoversiktAudit(SYSTEM_CLOCK);
 	}
 
 	@Override
@@ -85,6 +89,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
 			if (selectionSet.containsAnyOf("tema", "fagsak", "journalposter")) {
 				Dokumentoversikt dokumentoversikt = fetchDokumentoversikt(identArgument, tema, environment);
+				recordFullmaktAuditLog(fullmakt);
 				return DataFetcherResult.newResult()
 						.data(dokumentoversikt)
 						.build();
@@ -200,5 +205,9 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		}
 		final List<String> tema = environment.getArgumentOrDefault("tema", new ArrayList<>());
 		return tema.isEmpty() ? Tema.tillattInnsynNavNoString() : tema;
+	}
+
+	private void recordFullmaktAuditLog(Optional<Fullmakt> fullmaktOpt) {
+		fullmaktOpt.ifPresent(audit::logSomFullmektig);
 	}
 }

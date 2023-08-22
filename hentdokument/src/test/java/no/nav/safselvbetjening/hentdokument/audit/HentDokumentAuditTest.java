@@ -1,9 +1,9 @@
 package no.nav.safselvbetjening.hentdokument.audit;
 
 import no.nav.safselvbetjening.MDCUtils;
+import no.nav.safselvbetjening.audit.cef.CommonEventFormat;
 import no.nav.safselvbetjening.fullmektig.Fullmakt;
 import no.nav.safselvbetjening.hentdokument.HentdokumentRequest;
-import no.nav.safselvbetjening.hentdokument.audit.cef.CommonEventFormat;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 
@@ -14,14 +14,14 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class AuditTest {
+class HentDokumentAuditTest {
 	private static final String JOURNALPOST_ID = "1000";
 	private static final String DOKUMENT_INFO_ID = "1001";
 	private static final String VARIANT_FORMAT = "ARKIV";
 	private final String FULLMEKTIG = "22222222222";
 	private final String FULLMAKTSGIVER = "11111111111";
 
-	private final Audit audit = new Audit(Clock.fixed(Instant.parse("2023-08-11T12:01:01.001Z"), ZoneId.of("Europe/Oslo")));
+	private final HentDokumentAudit audit = new HentDokumentAudit(Clock.fixed(Instant.parse("2023-08-11T12:01:01.001Z"), ZoneId.of("Europe/Oslo")));
 
 	@Test
 	void shouldMapHentDokumentAuditLog() {

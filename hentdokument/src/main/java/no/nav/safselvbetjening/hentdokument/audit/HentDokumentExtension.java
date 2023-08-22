@@ -2,8 +2,8 @@ package no.nav.safselvbetjening.hentdokument.audit;
 
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.safselvbetjening.audit.cef.Extension;
 import no.nav.safselvbetjening.hentdokument.HentdokumentRequest;
-import no.nav.safselvbetjening.hentdokument.audit.cef.Extension;
 
 import static java.lang.String.format;
 

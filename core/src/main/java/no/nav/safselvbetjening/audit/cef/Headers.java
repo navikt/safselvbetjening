@@ -1,4 +1,4 @@
-package no.nav.safselvbetjening.hentdokument.audit.cef;
+package no.nav.safselvbetjening.audit.cef;
 
 import lombok.Builder;
 import lombok.Value;
@@ -22,5 +22,9 @@ public class Headers {
 
 	public static Headers hentdokumentFullmaktHeaders() {
 		return new Headers("AuditLog", "audit:access", "brukers dokument hentet av fullmektig");
+	}
+
+	public static Headers dokumentoversiktFullmaktHeaders() {
+		return new Headers("AuditLog", "audit:access", "brukers dokumentoversikt hentet av fullmektig");
 	}
 }

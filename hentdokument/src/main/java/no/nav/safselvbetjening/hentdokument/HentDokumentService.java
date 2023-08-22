@@ -12,7 +12,7 @@ import no.nav.safselvbetjening.consumer.pensjon.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.fullmektig.Fullmakt;
 import no.nav.safselvbetjening.fullmektig.FullmektigService;
-import no.nav.safselvbetjening.hentdokument.audit.Audit;
+import no.nav.safselvbetjening.hentdokument.audit.HentDokumentAudit;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
@@ -24,11 +24,10 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
-import java.time.Clock;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
+import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
 import static no.nav.safselvbetjening.MDCUtils.MDC_FULLMAKT_TEMA;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
@@ -58,7 +57,7 @@ public class HentDokumentService {
 	private final HentDokumentValidator hentDokumentValidator;
 	private final KafkaEventProducer kafkaProducer;
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
-	private final Audit audit;
+	private final HentDokumentAudit audit;
 
 	public HentDokumentService(
 			FagarkivConsumer fagarkivConsumer,
@@ -80,7 +79,7 @@ public class HentDokumentService {
 		this.hentDokumentValidator = hentDokumentValidator;
 		this.kafkaProducer = kafkaProducer;
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
-		this.audit = new Audit(Clock.system(ZoneId.of("Europe/Oslo")));
+		this.audit = new HentDokumentAudit(SYSTEM_CLOCK);
 	}
 
 	public HentDokument hentDokument(final HentdokumentRequest hentdokumentRequest) {
@@ -150,7 +149,7 @@ public class HentDokumentService {
 	}
 
 	private void recordFullmaktAuditLog(Optional<Fullmakt> fullmaktOpt, HentdokumentRequest hentdokumentRequest) {
-		fullmaktOpt.ifPresent(fullmakt -> audit.logHentDokumentSomFullmektig(fullmakt, hentdokumentRequest));
+		fullmaktOpt.ifPresent(fullmakt -> audit.logSomFullmektig(fullmakt, hentdokumentRequest));
 	}
 
 	private void sendHoveddokumentLestHendelse(final HentdokumentRequest hentdokumentRequest) {
