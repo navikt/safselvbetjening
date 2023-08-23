@@ -8,6 +8,7 @@ import java.time.Clock;
 
 public interface Audit {
 	Logger auditLog = LoggerFactory.getLogger("auditLog");
+	Logger secureLog = LoggerFactory.getLogger("secureLog"); //FIXME
 
 	Clock clock();
 
@@ -16,5 +17,6 @@ public interface Audit {
 			return;
 		}
 		auditLog.info(cef.toString());
+		secureLog.info(cef.toString());
 	}
 }

@@ -29,7 +29,7 @@ class DokumentoversiktAuditTest {
 		CommonEventFormat commonEventFormat = audit.mapDokumentoversikt(fullmakt);
 		assertThat(commonEventFormat.toString())
 				.isEqualTo("CEF:0|safselvbetjening|AuditLog|1.0|audit:access|brukers dokumentoversikt hentet av fullmektig|INFO|" +
-						   "end=1691755261001 sproc=itest:teamdokumenthandtering:audit spid=1234-5678-9101 suid=22222222222 spriv=fullmektig[BAR,FOR] " +
+						   "end=1691755261001 sproc=itest:teamdokumenthandtering:audit devicePayloadId=1234-5678-9101 suid=22222222222 spriv=fullmektig[BAR,FOR] " +
 						   "duid=11111111111 act=dokumentoversikt_fullmektig");
 	}
 }

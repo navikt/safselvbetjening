@@ -38,7 +38,7 @@ class HentDokumentAuditTest {
 		CommonEventFormat commonEventFormat = audit.mapHentDokument(fullmakt, hentdokumentRequest);
 		assertThat(commonEventFormat.toString())
 				.isEqualTo("CEF:0|safselvbetjening|AuditLog|1.0|audit:access|brukers dokument hentet av fullmektig|INFO|" +
-						   "end=1691755261001 sproc=itest:teamdokumenthandtering:audit spid=1234-5678-9101 suid=22222222222 spriv=fullmektig[BAR,FOR] " +
+						   "end=1691755261001 sproc=itest:teamdokumenthandtering:audit devicePayloadId=1234-5678-9101 suid=22222222222 spriv=fullmektig[BAR,FOR] " +
 						   "duid=11111111111 act=hentdokument_fullmektig flexString1=1000 flexString1Label=journalpostId flexString2=1001 flexString2Label=dokumentInfoId cs3=ARKIV cs3Label=variantFormat");
 	}
 }
