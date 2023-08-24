@@ -72,6 +72,11 @@
       "app": "fpinfo-historikk",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-fss"
+    },
+    {
+      "app": "foreldrepengesoknad-api",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-gcp"
     }
   ]
 }
