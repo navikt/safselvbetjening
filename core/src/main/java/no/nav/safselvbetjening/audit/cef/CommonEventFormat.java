@@ -1,4 +1,4 @@
-package no.nav.safselvbetjening.hentdokument.audit.cef;
+package no.nav.safselvbetjening.audit.cef;
 
 import lombok.Builder;
 import lombok.Value;
@@ -15,6 +15,6 @@ public class CommonEventFormat {
 	@Override
 	public String toString() {
 		// CEF:Version|Device Vendor|Device Product|Device Version|Device Event Class ID|Name|Severity|[Extension]
-		return headers.toString() + extension.toString();
+		return headers.toString() + extension.toString().trim();
 	}
 }

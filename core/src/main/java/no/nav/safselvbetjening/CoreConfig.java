@@ -18,6 +18,8 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.retry.annotation.EnableRetry;
 
 import java.net.URI;
+import java.time.Clock;
+import java.time.ZoneId;
 
 import static io.micrometer.core.instrument.config.MeterFilterReply.ACCEPT;
 import static io.micrometer.core.instrument.config.MeterFilterReply.DENY;
@@ -28,6 +30,8 @@ import static org.apache.hc.core5.util.Timeout.ofSeconds;
 @EnableAutoConfiguration(exclude = UserDetailsServiceAutoConfiguration.class)
 @Configuration
 public class CoreConfig {
+
+	public static final Clock SYSTEM_CLOCK = Clock.system(ZoneId.of("Europe/Oslo"));
 
 	@Bean
 	ClientHttpRequestFactory requestFactory(HttpClient httpClient) {

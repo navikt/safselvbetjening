@@ -1,4 +1,4 @@
-package no.nav.safselvbetjening.hentdokument.audit.cef;
+package no.nav.safselvbetjening.audit.cef;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public abstract class Extension {
 
 	@Override
 	public String toString() {
-		return format("end=%s sproc=%s spid=%s suid=%s spriv=%s duid=%s act=%s ", Instant.now(clock).toEpochMilli(), getConsumerId(), getCallId(), getSourceUserId(), getSourceUserPrivileges(),
+		return format("end=%s sproc=%s devicePayloadId=%s suid=%s spriv=%s duid=%s act=%s ", Instant.now(clock).toEpochMilli(), getConsumerId(), getCallId(), getSourceUserId(), getSourceUserPrivileges(),
 				getDestinationUserId(), getDeviceAction()) + getDeviceCustomStringsCef();
 	}
 }
