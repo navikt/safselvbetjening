@@ -200,7 +200,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		return Optional.empty();
 	}
 
-	private static List<String> temaArgumentEllerFullmakt(DataFetchingEnvironment environment, Optional<Fullmakt> fullmakt) {
+	static List<String> temaArgumentEllerFullmakt(DataFetchingEnvironment environment, Optional<Fullmakt> fullmakt) {
 		final List<String> temaArgument = temaArgumentEllerDefault(environment);
 		if (fullmakt.isPresent()) {
 			List<String> fullmaktTema = fullmakt.get().tema();
