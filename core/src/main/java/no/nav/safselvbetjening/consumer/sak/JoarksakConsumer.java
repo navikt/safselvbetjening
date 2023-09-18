@@ -18,6 +18,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
@@ -53,6 +54,9 @@ public class JoarksakConsumer {
 	@Retry(name = ARKIVSAK_INSTANCE)
 	@CircuitBreaker(name = ARKIVSAK_INSTANCE)
 	public List<Joarksak> hentSaker(final List<String> aktoerId, final List<String> tema) {
+		if(tema.isEmpty()) {
+			return new ArrayList<>();
+		}
 		final UriComponentsBuilder uri = UriComponentsBuilder.fromHttpUrl(sakUrl)
 				.queryParam("aktoerId", aktoerId)
 				.queryParam("tema", tema);
