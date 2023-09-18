@@ -283,6 +283,28 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	@Test
+	void shouldGetDokumentoversiktWhenTokenNotMatchingQueryIdentAndFullmaktExistsForTemaOnlyTemaInArguments() throws Exception {
+		happyStubs();
+		stubFagarkiv("finnjournalposter_happy_for_aap.json");
+		stubSak("saker_happy_for_aap.json");
+		stubPdlFullmakt("pdl_fullmakt_for_aap.json");
+
+		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_for.query"), null, null);
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
+		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+
+		assertThat(data.getTema()).hasSize(1);
+		// fullmakt FOR,AAP men kun tema FOR i filter
+		assertThat(data.getTema().get(0).getKode()).isEqualTo("FOR");
+		assertThat(data.getTema().get(0).getJournalposter()).hasSize(1);
+	}
+
+	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndWrongFullmakt() throws Exception {
 		stubTokenx();
 		stubPdlFullmakt("pdl_fullmakt_feil_bruker.json");
