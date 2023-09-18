@@ -1,0 +1,22 @@
+[
+  {
+    "id": 135738496,
+    "tema": "FOR",
+    "applikasjon": "AO01",
+    "aktoerId": "1012345678911",
+    "orgnr": null,
+    "fagsakNr": "10000000",
+    "opprettetAv": "srvtest",
+    "opprettetTidspunkt": "2021-04-16T14:52:07.432+02:00"
+  },
+  {
+    "id": 135737721,
+    "tema": "AAP",
+    "applikasjon": "AO01",
+    "aktoerId": "1012345678911",
+    "orgnr": null,
+    "fagsakNr": "10000001",
+    "opprettetAv": "srvtest",
+    "opprettetTidspunkt": "2021-04-16T14:52:07.432+02:00"
+  }
+]

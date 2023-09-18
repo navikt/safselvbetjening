@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CALL_ID;
@@ -199,12 +200,20 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		return Optional.empty();
 	}
 
-	private List<String> temaArgumentEllerFullmakt(DataFetchingEnvironment environment, Optional<Fullmakt> fullmakt) {
+	private static List<String> temaArgumentEllerFullmakt(DataFetchingEnvironment environment, Optional<Fullmakt> fullmakt) {
+		final List<String> temaArgument = temaArgumentEllerDefault(environment);
 		if (fullmakt.isPresent()) {
-			return fullmakt.get().tema();
+			List<String> fullmaktTema = fullmakt.get().tema();
+			return temaArgument.stream()
+					.filter(fullmaktTema::contains)
+					.collect(Collectors.toList());
 		}
-		final List<String> tema = environment.getArgumentOrDefault("tema", new ArrayList<>());
-		return tema.isEmpty() ? Tema.tillattInnsynNavNoString() : tema;
+		return temaArgument;
+	}
+
+	private static List<String> temaArgumentEllerDefault(DataFetchingEnvironment environment) {
+		final List<String> temaArgument = environment.getArgumentOrDefault("tema", new ArrayList<>());
+		return temaArgument.isEmpty() ? Tema.tillattInnsynNavNoString() : temaArgument;
 	}
 
 	private void recordFullmaktAuditLog(Optional<Fullmakt> fullmaktOpt) {
