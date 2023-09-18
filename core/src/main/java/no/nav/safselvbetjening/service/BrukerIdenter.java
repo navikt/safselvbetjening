@@ -57,4 +57,14 @@ public class BrukerIdenter {
 	public boolean isEmpty() {
 		return aktoerIds.isEmpty() && foedselsnummer.isEmpty();
 	}
+
+	/**
+	 * Ikke risikere å skrive ut identer ved kall til toString()
+	 *
+	 * @return Oversikt over hva dette objektet inneholder men ikke hvilke aktørId/fnr
+	 */
+	@Override
+	public String toString() {
+		return "BrukerIdenter{antallAktoerIds=" + aktoerIds.size() + ", antallFoedselsnummer=" + foedselsnummer.size() + "}";
+	}
 }

@@ -54,7 +54,6 @@ public class HentDokumentService {
 	private final UtledTilgangService utledTilgangService;
 	private final PensjonSakRestConsumer pensjonSakRestConsumer;
 	private final HentDokumentTilgangMapper hentDokumentTilgangMapper;
-	private final HentDokumentValidator hentDokumentValidator;
 	private final KafkaEventProducer kafkaProducer;
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final HentDokumentAudit audit;
@@ -66,7 +65,6 @@ public class HentDokumentService {
 			UtledTilgangService utledTilgangService,
 			PensjonSakRestConsumer pensjonSakRestConsumer,
 			HentDokumentTilgangMapper hentDokumentTilgangMapper,
-			HentDokumentValidator hentDokumentValidator,
 			KafkaEventProducer kafkaProducer,
 			SafSelvbetjeningProperties safSelvbetjeningProperties
 	) {
@@ -76,14 +74,12 @@ public class HentDokumentService {
 		this.utledTilgangService = utledTilgangService;
 		this.pensjonSakRestConsumer = pensjonSakRestConsumer;
 		this.hentDokumentTilgangMapper = hentDokumentTilgangMapper;
-		this.hentDokumentValidator = hentDokumentValidator;
 		this.kafkaProducer = kafkaProducer;
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 		this.audit = new HentDokumentAudit(SYSTEM_CLOCK);
 	}
 
 	public HentDokument hentDokument(final HentdokumentRequest hentdokumentRequest) {
-		hentDokumentValidator.validate(hentdokumentRequest);
 		Tilgangskontroll tilgangskontroll = doTilgangskontroll(hentdokumentRequest);
 
 		final HentDokumentResponseTo hentDokumentResponseTo = fagarkivConsumer.hentDokument(
