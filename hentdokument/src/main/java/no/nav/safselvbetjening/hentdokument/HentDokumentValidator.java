@@ -11,12 +11,12 @@ import static no.nav.safselvbetjening.domain.Variantformat.SLADDET;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
 
 @Component
-class HentDokumentValidator {
+public class HentDokumentValidator {
 
 	private static final Set<String> ALLOWED_VARIANTFORMAT = new HashSet<>(asList(ARKIV.name(), SLADDET.name()));
 	private static final String VARIANTFORMAT_ERRORMSG = String.join(",", ALLOWED_VARIANTFORMAT);
 
-	void validate(HentdokumentRequest hentdokumentRequest) {
+	public void validate(HentdokumentRequest hentdokumentRequest) {
 		validateJournalpostId(hentdokumentRequest.getJournalpostId());
 		validateDokumentInfoId(hentdokumentRequest.getDokumentInfoId());
 		validateVariantFormat(hentdokumentRequest.getVariantFormat());

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Map;
@@ -49,12 +50,13 @@ public class GraphQLController {
 	public GraphQLController(GraphQLWiring graphQLWiring,
 							 TokenValidationContextHolder tokenValidationContextHolder,
 							 CacheManager cacheManager,
-							 CacheMetricsRegistrar cacheMetricsRegistrar) {
+							 CacheMetricsRegistrar cacheMetricsRegistrar) throws IOException {
 		this.tokenValidationContextHolder = tokenValidationContextHolder;
 		SchemaParser schemaParser = new SchemaParser();
-		InputStreamReader schema = new InputStreamReader(requireNonNull(getClass().getClassLoader().getResourceAsStream("schemas/safselvbetjening.graphqls")));
-
-		TypeDefinitionRegistry typeRegistry = schemaParser.parse(schema);
+		TypeDefinitionRegistry typeRegistry;
+		try (InputStreamReader schema = new InputStreamReader(requireNonNull(getClass().getClassLoader().getResourceAsStream("schemas/safselvbetjening.graphqls")))) {
+			typeRegistry = schemaParser.parse(schema);
+		}
 		SchemaGenerator schemaGenerator = new SchemaGenerator();
 		this.graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, graphQLWiring.createRuntimeWiring());
 		org.springframework.cache.Cache cache = cacheManager.getCache(GRAPHQL_QUERY_CACHE);

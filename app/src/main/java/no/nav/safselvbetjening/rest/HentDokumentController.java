@@ -7,6 +7,7 @@ import no.nav.safselvbetjening.consumer.pdl.PdlFunctionalException;
 import no.nav.safselvbetjening.consumer.pensjon.PensjonsakIkkeFunnetException;
 import no.nav.safselvbetjening.hentdokument.HentDokument;
 import no.nav.safselvbetjening.hentdokument.HentDokumentService;
+import no.nav.safselvbetjening.hentdokument.HentDokumentValidator;
 import no.nav.safselvbetjening.hentdokument.HentdokumentRequest;
 import no.nav.safselvbetjening.hentdokument.HentdokumentRequestException;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
@@ -42,13 +43,16 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Protected
 public class HentDokumentController {
 
+	private final HentDokumentValidator hentDokumentValidator;
 	private final HentDokumentService hentDokumentService;
 	private final TokenValidationContextHolder tokenValidationContextHolder;
 
 	public HentDokumentController(
+			HentDokumentValidator hentDokumentValidator,
 			HentDokumentService hentDokumentService,
 			TokenValidationContextHolder tokenValidationContextHolder
 	) {
+		this.hentDokumentValidator = hentDokumentValidator;
 		this.hentDokumentService = hentDokumentService;
 		this.tokenValidationContextHolder = tokenValidationContextHolder;
 	}
@@ -64,14 +68,15 @@ public class HentDokumentController {
 			MDC.put(MDC_CALL_ID, isNotBlank(navCallid) ? navCallid : randomUUID().toString());
 			MDC.put(MDC_CONSUMER_ID, getConsumerIdFromToken(tokenValidationContext));
 
-			log.info("hentdokument har mottatt kall. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
-
 			HentdokumentRequest request = HentdokumentRequest.builder()
 					.journalpostId(journalpostId)
 					.dokumentInfoId(dokumentInfoId)
 					.variantFormat(variantFormat)
 					.tokenValidationContext(tokenValidationContext)
 					.build();
+			hentDokumentValidator.validate(request);
+
+			log.info("hentdokument har mottatt kall. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
 			HentDokument response = hentDokumentService.hentDokument(request);
 			log.info("hentdokument hentet dokument. journalpostId={}, dokumentInfoId={}, variantFormat={}", journalpostId, dokumentInfoId, variantFormat);
 

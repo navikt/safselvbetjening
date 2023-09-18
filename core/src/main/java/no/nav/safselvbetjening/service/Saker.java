@@ -53,4 +53,12 @@ public class Saker {
 		return pensjonsaker.stream()
 				.map(Arkivsak::getArkivsakId).toList();
 	}
+
+	@Override
+	public String toString() {
+		return "Saker{" +
+			   "joarksaker=" + joarksaker +
+			   ", pensjonsaker=" + pensjonsaker +
+			   '}';
+	}
 }
