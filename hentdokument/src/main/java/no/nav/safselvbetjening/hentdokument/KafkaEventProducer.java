@@ -7,7 +7,6 @@ import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TopicAuthorizationException;
-import org.springframework.kafka.KafkaException;
 import org.springframework.kafka.core.KafkaProducerException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -38,7 +37,7 @@ class KafkaEventProducer {
 
 	@Retry(name = KAFKA_INSTANCE)
 	@CircuitBreaker(name = KAFKA_INSTANCE)
-	void publish(HoveddokumentLest event) {
+	public void publish(HoveddokumentLest event) {
 
 		ProducerRecord<String, Object> producerRecord = new ProducerRecord<>(
 				safSelvbetjeningProperties.getTopics().getDokdistdittnav(),
@@ -61,7 +60,7 @@ class KafkaEventProducer {
 				}
 			}
 			throw new KafkaTechnicalException(KAFKA_FAILED_TO_SEND + safSelvbetjeningProperties.getTopics().getDokdistdittnav(), executionException);
-		} catch (InterruptedException | KafkaException e) {
+		} catch (Exception e) {
 			throw new KafkaTechnicalException(KAFKA_FAILED_TO_SEND + safSelvbetjeningProperties.getTopics().getDokdistdittnav(), e);
 		}
 	}
