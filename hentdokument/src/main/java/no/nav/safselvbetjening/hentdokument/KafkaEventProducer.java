@@ -1,5 +1,7 @@
 package no.nav.safselvbetjening.hentdokument;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
@@ -9,8 +11,6 @@ import org.springframework.kafka.KafkaException;
 import org.springframework.kafka.core.KafkaProducerException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -25,6 +25,7 @@ class KafkaEventProducer {
 
 	private static final String KAFKA_NOT_AUTHENTICATED = "Not authenticated to publish to topic: ";
 	private static final String KAFKA_FAILED_TO_SEND = "Failed to send message to kafka. Topic: ";
+	private static final String KAFKA_INSTANCE = "kafka";
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 
 	private final KafkaTemplate<String, Object> kafkaTemplate;
@@ -35,7 +36,8 @@ class KafkaEventProducer {
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 	}
 
-	@Retryable(backoff = @Backoff(delay = 500))
+	@Retry(name = KAFKA_INSTANCE)
+	@CircuitBreaker(name = KAFKA_INSTANCE)
 	void publish(HoveddokumentLest event) {
 
 		ProducerRecord<String, Object> producerRecord = new ProducerRecord<>(
