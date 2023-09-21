@@ -78,6 +78,11 @@
       "cluster": "dev-fss"
     },
     {
+      "app": "fpoversikt",
+      "namespace": "teamforeldrepenger",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "foreldrepengesoknad-api",
       "namespace": "teamforeldrepenger",
       "cluster": "dev-gcp"
