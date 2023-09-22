@@ -29,6 +29,7 @@ public class HentDokumentTestObjects {
 	static final String ARKIVSAKSYSTEM_GOSYS = "FS22";
 	static final String ARKIVSAKSYSTEM_PENSJON = "PEN";
 	static final String TEMA = "FAR";
+	static final String TEMA_PENSJON_UFO = "UFO";
 	static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
 	static final LocalDateTime DATO_OPPRETTET = LocalDate.of(2018, Month.FEBRUARY, 23).atStartOfDay();
 	static final LocalDateTime DATO_JOURNALFOERT = LocalDate.of(2020, Month.JANUARY, 18).atStartOfDay();

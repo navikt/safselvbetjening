@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
 
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -22,4 +24,8 @@ public class TilgangSakDto {
 	private String applikasjon;
 	private String opprettetAv;
 	private ZonedDateTime opprettetTidspunkt;
+
+	public boolean isTilknyttetPensjonsak() {
+		return PEN.name().equals(fagsystem);
+	}
 }

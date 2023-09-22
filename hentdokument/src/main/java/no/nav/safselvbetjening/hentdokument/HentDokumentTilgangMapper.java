@@ -7,6 +7,7 @@ import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangDokum
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangSakDto;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangVariantDto;
+import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -16,6 +17,7 @@ import no.nav.safselvbetjening.service.BrukerIdenter;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
 import static no.nav.safselvbetjening.domain.Innsyn.valueOf;
@@ -27,13 +29,13 @@ import static no.nav.safselvbetjening.domain.Kanal.UKJENT;
 @Component
 class HentDokumentTilgangMapper {
 
-	public Journalpost map(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter) {
+	public Journalpost map(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
 		return Journalpost.builder()
 				.journalpostId(tilgangJournalpostDto.getJournalpostId())
 				.journalposttype(tilgangJournalpostDto.getJournalpostType() == null ? null : tilgangJournalpostDto.getJournalpostType().toSafJournalposttype())
 				.journalstatus(tilgangJournalpostDto.getJournalStatus() == null ? null : tilgangJournalpostDto.getJournalStatus().toSafJournalstatus())
 				.kanal(mapKanal(tilgangJournalpostDto))
-				.tilgang(mapJournalpostTilgang(tilgangJournalpostDto, brukerIdenter))
+				.tilgang(mapJournalpostTilgang(tilgangJournalpostDto, brukerIdenter, pensjonsakOpt))
 				.dokumenter(Collections.singletonList(mapDokumenter(tilgangJournalpostDto.getDokument())))
 				.build();
 	}
@@ -60,19 +62,23 @@ class HentDokumentTilgangMapper {
 				.build();
 	}
 
-	private Journalpost.TilgangJournalpost mapJournalpostTilgang(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter) {
+	private Journalpost.TilgangJournalpost mapJournalpostTilgang(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
 		return Journalpost.TilgangJournalpost.builder()
 				.journalstatus(tilgangJournalpostDto.getJournalStatus() == null ? null : tilgangJournalpostDto.getJournalStatus().name())
 				.datoOpprettet(tilgangJournalpostDto.getDatoOpprettet())
 				.mottakskanal(mapTilgangMottakskanal(tilgangJournalpostDto.getMottakskanal()))
-				.tema(tilgangJournalpostDto.getFagomrade() == null ? null : tilgangJournalpostDto.getFagomrade().name())
+				.tema(mapTema(tilgangJournalpostDto))
 				.avsenderMottakerId(tilgangJournalpostDto.getAvsenderMottakerId())
 				.journalfoertDato(tilgangJournalpostDto.getJournalfoertDato())
 				.skjerming(mapSkjermingType(tilgangJournalpostDto.getSkjerming()))
 				.tilgangBruker(mapTilgangBruker(tilgangJournalpostDto.getBruker()))
-				.tilgangSak(mapTilgangSak(tilgangJournalpostDto.getSak(), brukerIdenter))
+				.tilgangSak(mapTilgangSak(tilgangJournalpostDto.getSak(), brukerIdenter, pensjonsakOpt))
 				.innsyn(tilgangJournalpostDto.getInnsyn() == null ? null : valueOf(tilgangJournalpostDto.getInnsyn().name()))
 				.build();
+	}
+
+	private static String mapTema(TilgangJournalpostDto tilgangJournalpostDto) {
+		return tilgangJournalpostDto.getFagomrade() == null ? null : tilgangJournalpostDto.getFagomrade().name();
 	}
 
 	private Kanal mapTilgangMottakskanal(MottaksKanalCode mottakskanal) {
@@ -89,7 +95,7 @@ class HentDokumentTilgangMapper {
 		return Journalpost.TilgangBruker.builder().brukerId(tilgangBrukerDto.getBrukerId()).build();
 	}
 
-	private Journalpost.TilgangSak mapTilgangSak(TilgangSakDto tilgangSakDto, BrukerIdenter brukerIdenter) {
+	private Journalpost.TilgangSak mapTilgangSak(TilgangSakDto tilgangSakDto, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
 		if (tilgangSakDto == null) {
 			return null;
 		}
@@ -99,7 +105,7 @@ class HentDokumentTilgangMapper {
 				.foedselsnummer(PEN.name().equals(tilgangSakDto.getFagsystem()) ? brukerIdenter.getFoedselsnummer().get(0) : null)
 				.fagsystem(tilgangSakDto.getFagsystem())
 				.feilregistrert(tilgangSakDto.getFeilregistrert() != null && tilgangSakDto.getFeilregistrert())
-				.tema(tilgangSakDto.getTema())
+				.tema(pensjonsakOpt.isPresent() ? pensjonsakOpt.get().arkivtema() : tilgangSakDto.getTema())
 				.build();
 	}
 
