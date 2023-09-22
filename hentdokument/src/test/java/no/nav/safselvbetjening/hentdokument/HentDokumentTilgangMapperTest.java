@@ -122,6 +122,16 @@ class HentDokumentTilgangMapperTest {
 	}
 
 	@Test
+	void shouldMapTilgangJournalpostDtoWhenPensjonSakTemaNull() {
+		TilgangJournalpostDto build = createTilgangJournalpostDto().build();
+		build.getSak().setFagsystem(ARKIVSAKSYSTEM_PENSJON);
+		Pensjonsak pensjonsak = new Pensjonsak("123", null);
+		Journalpost journalpost = mapper.map(build, createBrukerIdenter(), Optional.of(pensjonsak));
+
+		assertEquals(PEN.name(), journalpost.getTilgang().getTilgangSak().getTema());
+	}
+
+	@Test
 	void shouldMapJournalpostWithoutSakAndBrukerMinimalInput() {
 		TilgangJournalpostDto tilgangJournalpostDto = createBaseTilgangJournalpost().build();
 		Journalpost journalpost = mapper.map(tilgangJournalpostDto, createBrukerIdenter(), Optional.empty());
