@@ -14,6 +14,8 @@ import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
 
 import java.time.LocalDateTime;
 
+import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -32,4 +34,11 @@ public class TilgangJournalpostDto {
 	private SkjermingTypeCode skjerming;
 	private TilgangDokumentInfoDto dokument;
 	private InnsynCode innsyn;
+
+	public boolean isTilknyttetPensjonsak() {
+		if(sak == null) {
+			return false;
+		}
+		return PEN.name().equals(sak.getFagsystem());
+	}
 }

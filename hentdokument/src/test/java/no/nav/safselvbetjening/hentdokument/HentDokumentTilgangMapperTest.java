@@ -3,11 +3,14 @@ package no.nav.safselvbetjening.hentdokument;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
+import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.SkjermingType;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.PEN;
 import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FL;
@@ -29,6 +32,7 @@ import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.FORVA
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.IDENT;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.JOURNALPOST_ID;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.TEMA;
+import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.TEMA_PENSJON_UFO;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.createBaseTilgangJournalpost;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.createBrukerIdenter;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.createTilgangJournalpostDto;
@@ -48,7 +52,7 @@ class HentDokumentTilgangMapperTest {
 
 	@Test
 	void shouldMapTilgangJournalpostDto() {
-		Journalpost journalpost = mapper.map(createTilgangJournalpostDto().build(), createBrukerIdenter());
+		Journalpost journalpost = mapper.map(createTilgangJournalpostDto().build(), createBrukerIdenter(), Optional.empty());
 
 		assertEquals(JOURNALPOST_ID, journalpost.getJournalpostId());
 		assertEquals(AVSENDER_MOTTAKER_ID, journalpost.getTilgang().getAvsenderMottakerId());
@@ -85,7 +89,8 @@ class HentDokumentTilgangMapperTest {
 	void shouldMapTilgangJournalpostDtoWhenPensjonSak() {
 		TilgangJournalpostDto build = createTilgangJournalpostDto().build();
 		build.getSak().setFagsystem(ARKIVSAKSYSTEM_PENSJON);
-		Journalpost journalpost = mapper.map(build, createBrukerIdenter());
+		Pensjonsak pensjonsak = new Pensjonsak("123", TEMA_PENSJON_UFO);
+		Journalpost journalpost = mapper.map(build, createBrukerIdenter(), Optional.of(pensjonsak));
 
 		assertEquals(JOURNALPOST_ID, journalpost.getJournalpostId());
 		assertEquals(AVSENDER_MOTTAKER_ID, journalpost.getTilgang().getAvsenderMottakerId());
@@ -97,7 +102,7 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getJournalstatus()).isEqualTo(M.name());
 		assertEquals(DATO_OPPRETTET, tilgang.getDatoOpprettet());
 		assertEquals(DATO_JOURNALFOERT, tilgang.getJournalfoertDato());
-		assertEquals(PEN.toString(), tilgang.getTema());
+		assertEquals(PEN.name(), tilgang.getTema());
 		assertEquals(SkjermingType.POL, tilgang.getSkjerming());
 		assertEquals(IDENT, tilgang.getTilgangBruker().getBrukerId());
 
@@ -105,7 +110,7 @@ class HentDokumentTilgangMapperTest {
 		assertEquals(AKTOER_ID, tilgangSak.getAktoerId());
 		assertThat(tilgangSak.getFoedselsnummer()).isEqualTo(IDENT);
 		assertEquals(ARKIVSAKSYSTEM_PENSJON, tilgangSak.getFagsystem());
-		assertEquals(TEMA, tilgangSak.getTema());
+		assertEquals(TEMA_PENSJON_UFO, tilgangSak.getTema());
 		assertTrue(tilgangSak.isFeilregistrert());
 
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().get(0);
@@ -119,7 +124,7 @@ class HentDokumentTilgangMapperTest {
 	@Test
 	void shouldMapJournalpostWithoutSakAndBrukerMinimalInput() {
 		TilgangJournalpostDto tilgangJournalpostDto = createBaseTilgangJournalpost().build();
-		Journalpost journalpost = mapper.map(tilgangJournalpostDto, createBrukerIdenter());
+		Journalpost journalpost = mapper.map(tilgangJournalpostDto, createBrukerIdenter(), Optional.empty());
 
 		assertNull(journalpost.getTilgang().getTilgangSak());
 		assertNull(journalpost.getTilgang().getTilgangBruker());
@@ -129,7 +134,7 @@ class HentDokumentTilgangMapperTest {
 	void shouldMapJournalposttypeIWithoutMottakskanal() {
 		Journalpost journalpost = mapper.map(TilgangJournalpostDto.builder()
 				.journalpostType(JournalpostTypeCode.I)
-				.build(), createBrukerIdenter());
+				.build(), createBrukerIdenter(), Optional.empty());
 
 		assertEquals(Kanal.UKJENT, journalpost.getKanal());
 	}
@@ -139,7 +144,7 @@ class HentDokumentTilgangMapperTest {
 		Journalpost journalpost = mapper.map(TilgangJournalpostDto.builder()
 				.journalpostType(JournalpostTypeCode.U)
 				.journalStatus(FL)
-				.build(), createBrukerIdenter());
+				.build(), createBrukerIdenter(), Optional.empty());
 
 		assertEquals(LOKAL_UTSKRIFT, journalpost.getKanal());
 	}
@@ -149,7 +154,7 @@ class HentDokumentTilgangMapperTest {
 		Journalpost journalpost = mapper.map(TilgangJournalpostDto.builder()
 				.journalpostType(JournalpostTypeCode.U)
 				.mottakskanal(MottaksKanalCode.SKAN_IM)
-				.build(), createBrukerIdenter());
+				.build(), createBrukerIdenter(), Optional.empty());
 
 		assertEquals(SKAN_IM, journalpost.getKanal());
 	}
@@ -159,7 +164,7 @@ class HentDokumentTilgangMapperTest {
 		Journalpost journalpost = mapper.map(TilgangJournalpostDto.builder()
 				.journalpostType(JournalpostTypeCode.N)
 				.mottakskanal(MottaksKanalCode.SKAN_IM)
-				.build(), createBrukerIdenter());
+				.build(), createBrukerIdenter(), Optional.empty());
 
 		assertEquals(INGEN_DISTRIBUSJON, journalpost.getKanal());
 	}
@@ -169,7 +174,7 @@ class HentDokumentTilgangMapperTest {
 		Journalpost journalpost = mapper.map(TilgangJournalpostDto.builder()
 				.journalpostType(JournalpostTypeCode.U)
 				.mottakskanal(MottaksKanalCode.SKAN_IM)
-				.build(), createBrukerIdenter());
+				.build(), createBrukerIdenter(), Optional.empty());
 
 		assertEquals(SKAN_IM, journalpost.getTilgang().getMottakskanal());
 	}

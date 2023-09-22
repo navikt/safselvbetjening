@@ -333,6 +333,22 @@ class HentDokumentIT extends AbstractItest {
 	}
 
 	@Test
+	void shouldHentDokumentWhenTokenNotMatchingPensjonJournalpostOwnerIdentAndFullmaktExistsForTemaMatchingPesysSak() {
+		stubPdlFullmakt("pdl_fullmakt_ufo.json");
+		stubPdl();
+		stubTokenx();
+		stubAzure();
+		stubHentDokumentDokarkiv();
+		stubPensjonHentBrukerForSak("hentbrukerforsak_happy.json");
+		stubPensjonssaker("hentpensjonssaker_happy.json");
+		stubHentTilgangJournalpostDokarkiv("tilgangjournalpost_pen_psak_happy.json");
+
+		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+
+		assertOkArkivResponse(responseEntity);
+	}
+
+	@Test
 	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktIkkeGittForTema() {
 		stubPdl();
 		stubPdlFullmakt("pdl_fullmakt_for.json");
