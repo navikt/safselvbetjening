@@ -43,7 +43,6 @@ public enum Tema {
 	SAK("Sakskostnader"),
 	SAP("Sanksjon – person"),
 	SER("Serviceklager"),
-	SIK("Sikkerhetstiltak"),
 	STO("Regnskap/utbetaling"),
 	SUP("Supplerende stønad"),
 	SYK("Sykepenger"),

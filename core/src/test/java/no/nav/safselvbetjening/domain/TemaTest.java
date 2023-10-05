@@ -8,12 +8,12 @@ class TemaTest {
 
 	@Test
 	void shouldVerifyBrukerHarInnsyn() {
-		assertThat(Tema.tillattInnsynNavNo()).hasSize(57);
+		assertThat(Tema.tillattInnsynNavNo()).hasSize(56);
 	}
 
 	@Test
 	void shouldVerifyBrukerHarInnsynAsListString() {
-		assertThat(Tema.tillattInnsynNavNoString()).hasSize(57);
+		assertThat(Tema.tillattInnsynNavNoString()).hasSize(56);
 		assertThat(Tema.tillattInnsynNavNoString()).doesNotContain(Tema.unntattInnsynNavNoString().toArray(String[]::new));
 	}
 

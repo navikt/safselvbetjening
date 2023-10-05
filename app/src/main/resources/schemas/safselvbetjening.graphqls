@@ -500,9 +500,6 @@ enum Tema {
     # Serviceklager
     SER
 
-    # Sikkerhetstiltak
-    SIK
-
     # Regnskap/utbetaling
     STO
 
