@@ -413,13 +413,13 @@ enum Tema {
     # Erstatning
     ERS
 
-    # Farskap
+    # Foreldreskap
     FAR
 
     # Feilutbetaling
     FEI
 
-    # Foreldreskap
+    # Foreldre- og svangerskapspenger
     FOR
 
     # Forsikring
