@@ -413,13 +413,13 @@ enum Tema {
     # Erstatning
     ERS
 
-    # Foreldreskap
+    # Farskap
     FAR
 
     # Feilutbetaling
     FEI
 
-    # Foreldre- og svangerskapspenger
+    # Foreldreskap
     FOR
 
     # Forsikring
@@ -499,9 +499,6 @@ enum Tema {
 
     # Serviceklager
     SER
-
-    # Sikkerhetstiltak
-    SIK
 
     # Regnskap/utbetaling
     STO
