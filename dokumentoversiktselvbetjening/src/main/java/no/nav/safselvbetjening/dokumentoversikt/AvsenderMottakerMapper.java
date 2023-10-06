@@ -1,7 +1,7 @@
 package no.nav.safselvbetjening.dokumentoversikt;
 
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.AvsenderMottakerIdTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.AvsenderMottakerIdTypeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.AvsenderMottakerIdType;
 import org.springframework.stereotype.Component;

@@ -2,10 +2,10 @@ package no.nav.safselvbetjening.hentdokument;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
-import no.nav.safselvbetjening.consumer.fagarkiv.FagarkivConsumer;
-import no.nav.safselvbetjening.consumer.fagarkiv.HentDokumentResponseTo;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
+import no.nav.safselvbetjening.consumer.dokarkiv.DokarkivConsumer;
+import no.nav.safselvbetjening.consumer.dokarkiv.HentDokumentResponseTo;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangJournalpostDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
 import no.nav.safselvbetjening.consumer.pdl.PdlFunctionalException;
 import no.nav.safselvbetjening.consumer.pensjon.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
@@ -31,8 +31,8 @@ import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
 import static no.nav.safselvbetjening.MDCUtils.MDC_FULLMAKT_TEMA;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.getJournalstatusFerdigstilt;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.getJournalstatusMidlertidig;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.getJournalstatusFerdigstilt;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.getJournalstatusMidlertidig;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
@@ -49,7 +49,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class HentDokumentService {
 	private static final Logger secureLog = LoggerFactory.getLogger("secureLog");
 
-	private final FagarkivConsumer fagarkivConsumer;
+	private final DokarkivConsumer dokarkivConsumer;
 	private final IdentService identService;
 	private final FullmektigService fullmektigService;
 	private final UtledTilgangService utledTilgangService;
@@ -60,7 +60,7 @@ public class HentDokumentService {
 	private final HentDokumentAudit audit;
 
 	public HentDokumentService(
-			FagarkivConsumer fagarkivConsumer,
+			DokarkivConsumer dokarkivConsumer,
 			IdentService identService,
 			FullmektigService fullmektigService,
 			UtledTilgangService utledTilgangService,
@@ -69,7 +69,7 @@ public class HentDokumentService {
 			KafkaEventProducer kafkaProducer,
 			SafSelvbetjeningProperties safSelvbetjeningProperties
 	) {
-		this.fagarkivConsumer = fagarkivConsumer;
+		this.dokarkivConsumer = dokarkivConsumer;
 		this.identService = identService;
 		this.fullmektigService = fullmektigService;
 		this.utledTilgangService = utledTilgangService;
@@ -83,7 +83,7 @@ public class HentDokumentService {
 	public HentDokument hentDokument(final HentdokumentRequest hentdokumentRequest) {
 		Tilgangskontroll tilgangskontroll = doTilgangskontroll(hentdokumentRequest);
 
-		final HentDokumentResponseTo hentDokumentResponseTo = fagarkivConsumer.hentDokument(
+		final HentDokumentResponseTo hentDokumentResponseTo = dokarkivConsumer.hentDokument(
 				hentdokumentRequest.getDokumentInfoId(),
 				hentdokumentRequest.getVariantFormat()
 		);
@@ -101,7 +101,7 @@ public class HentDokumentService {
 
 	private Tilgangskontroll doTilgangskontroll(final HentdokumentRequest hentdokumentRequest) {
 		final TilgangJournalpostResponseTo tilgangJournalpostResponseTo =
-				fagarkivConsumer.tilgangJournalpost(
+				dokarkivConsumer.tilgangJournalpost(
 						hentdokumentRequest.getJournalpostId(),
 						hentdokumentRequest.getDokumentInfoId(),
 						hentdokumentRequest.getVariantFormat()

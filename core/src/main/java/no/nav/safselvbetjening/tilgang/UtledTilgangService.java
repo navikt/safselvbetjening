@@ -16,9 +16,9 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.FS22;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.FagsystemCode.FS22;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.FagsystemCode.PEN;
 import static no.nav.safselvbetjening.domain.Innsyn.BRUK_STANDARDREGLER;
 import static no.nav.safselvbetjening.domain.Journalposttype.N;
 import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;

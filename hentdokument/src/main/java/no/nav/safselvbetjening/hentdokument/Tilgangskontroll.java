@@ -6,8 +6,8 @@ import no.nav.safselvbetjening.fullmektig.Fullmakt;
 import java.util.Optional;
 import java.util.Set;
 
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.E;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FS;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.E;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.FS;
 import static no.nav.safselvbetjening.domain.Journalposttype.U;
 
 record Tilgangskontroll(Journalposttype journalpostType, String tilgangJournalstatus,

@@ -1,12 +1,12 @@
 package no.nav.safselvbetjening.hentdokument;
 
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangBrukerDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangDokumentInfoDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangSakDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangVariantDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.SkjermingTypeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangBrukerDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangDokumentInfoDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangJournalpostDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangSakDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangVariantDto;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.Optional;
 
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.FagsystemCode.PEN;
 import static no.nav.safselvbetjening.domain.Innsyn.valueOf;
 import static no.nav.safselvbetjening.domain.Kanal.INGEN_DISTRIBUSJON;
 import static no.nav.safselvbetjening.domain.Kanal.LOKAL_UTSKRIFT;

@@ -17,7 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
 import static no.nav.safselvbetjening.domain.Innsyn.BRUK_STANDARDREGLER;
 import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_BRUKERS_ONSKE;
 import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_FEILSENDT;

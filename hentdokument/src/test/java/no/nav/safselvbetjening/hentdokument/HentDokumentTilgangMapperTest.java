@@ -1,8 +1,8 @@
 package no.nav.safselvbetjening.hentdokument;
 
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangJournalpostDto;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode.PEN;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FL;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.M;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.FagomradeCode.PEN;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.FL;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.M;
 import static no.nav.safselvbetjening.domain.Innsyn.BRUK_STANDARDREGLER;
 import static no.nav.safselvbetjening.domain.Journalposttype.I;
 import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;

@@ -1,16 +1,16 @@
 package no.nav.safselvbetjening.hentdokument;
 
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.InnsynCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangBrukerDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangDokumentInfoDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangSakDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangVariantDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.FagomradeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.InnsynCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.SkjermingTypeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangBrukerDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangDokumentInfoDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangJournalpostDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangSakDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangVariantDto;
 import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 

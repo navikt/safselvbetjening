@@ -1,15 +1,15 @@
 package no.nav.safselvbetjening.dokumentoversikt;
 
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.DokumentInfoDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.SaksrelasjonDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.DokumentInfoDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.FagomradeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.FagsystemCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.SaksrelasjonDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode;
 import no.nav.safselvbetjening.consumer.sak.Joarksak;
 import no.nav.safselvbetjening.domain.Datotype;
 import no.nav.safselvbetjening.domain.DokumentInfo;

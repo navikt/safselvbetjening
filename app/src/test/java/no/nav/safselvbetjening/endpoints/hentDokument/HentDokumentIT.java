@@ -1,7 +1,7 @@
 package no.nav.safselvbetjening.endpoints.hentDokument;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode;
 import no.nav.safselvbetjening.endpoints.AbstractItest;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -33,7 +33,7 @@ import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.VariantFormatCode.ARKIV;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode.ARKIV;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
