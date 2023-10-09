@@ -4,9 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.dokarkiv.DokarkivConsumer;
 import no.nav.safselvbetjening.consumer.dokarkiv.HentDokumentResponseTo;
-import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangJournalpostDto;
-import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
-import no.nav.safselvbetjening.consumer.pdl.PdlFunctionalException;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
 import no.nav.safselvbetjening.consumer.pensjon.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -26,13 +24,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
 import static no.nav.safselvbetjening.MDCUtils.MDC_FULLMAKT_TEMA;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
-import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.getJournalstatusFerdigstilt;
-import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.getJournalstatusMidlertidig;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
@@ -41,13 +38,14 @@ import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_PART
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_INGEN_GYLDIG_TOKEN;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
 @Component
 public class HentDokumentService {
 	private static final Logger secureLog = LoggerFactory.getLogger("secureLog");
+	public static final Set<String> HENTDOKUMENT_TILGANG_FIELDS = Set.of("journalpostId", "fagomraade", "status", "type", "skjerming", "bruker", "saksrelasjon", "mottakskanal", "avsenderMottaker", "relevanteDatoer", "innsyn",
+			"dokumenter.dokumentInfoId", "dokumenter.kassert", "dokumenter.skjerming", "dokumenter.fildetaljer");
 
 	private final DokarkivConsumer dokarkivConsumer;
 	private final IdentService identService;
@@ -100,27 +98,16 @@ public class HentDokumentService {
 	}
 
 	private Tilgangskontroll doTilgangskontroll(final HentdokumentRequest hentdokumentRequest) {
-		final TilgangJournalpostResponseTo tilgangJournalpostResponseTo =
-				dokarkivConsumer.tilgangJournalpost(
-						hentdokumentRequest.getJournalpostId(),
-						hentdokumentRequest.getDokumentInfoId(),
-						hentdokumentRequest.getVariantFormat()
-				);
-		TilgangJournalpostDto tilgangJournalpostDto = tilgangJournalpostResponseTo.getTilgangJournalpostDto();
+		ArkivJournalpost arkivJournalpost = dokarkivConsumer.journalpost(hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), HENTDOKUMENT_TILGANG_FIELDS);
 
-		final String bruker = findBrukerIdent(tilgangJournalpostDto);
-		if (isBlank(bruker)) {
+		final BrukerIdenter brukerIdenter = identService.hentIdenter(arkivJournalpost);
+		if (brukerIdenter.isEmpty()) {
 			throw new HentTilgangDokumentException(DENY_REASON_PARTSINNSYN, FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);
 		}
 
-		final BrukerIdenter brukerIdenter = identService.hentIdenter(bruker);
-		if (brukerIdenter.isEmpty()) {
-			throw new PdlFunctionalException("Finner ingen identer på person i pdl.");
-		}
-
 		Optional<Fullmakt> fullmaktOpt = validerInnloggetBrukerOgFinnFullmakt(brukerIdenter, hentdokumentRequest);
-		Optional<Pensjonsak> pensjonsakOpt = hentPensjonssak(bruker, tilgangJournalpostDto, fullmaktOpt);
-		Journalpost journalpost = hentDokumentTilgangMapper.map(tilgangJournalpostDto, brukerIdenter, pensjonsakOpt);
+		Optional<Pensjonsak> pensjonsakOpt = hentPensjonssak(brukerIdenter.getAktivFolkeregisterident(), arkivJournalpost, fullmaktOpt);
+		Journalpost journalpost = hentDokumentTilgangMapper.map(arkivJournalpost, hentdokumentRequest.getVariantFormat(), brukerIdenter, pensjonsakOpt);
 		validerFullmakt(hentdokumentRequest, fullmaktOpt, journalpost);
 
 		utledTilgangService.utledTilgangHentDokument(journalpost, brukerIdenter);
@@ -161,23 +148,6 @@ public class HentDokumentService {
 		}
 	}
 
-	private String findBrukerIdent(TilgangJournalpostDto tilgangJournalpostDto) {
-		if (getJournalstatusMidlertidig().contains(tilgangJournalpostDto.getJournalStatus())) {
-			if (tilgangJournalpostDto.getBruker() == null) {
-				return null;
-			} else {
-				return tilgangJournalpostDto.getBruker().getBrukerId();
-			}
-		} else if (getJournalstatusFerdigstilt().contains(tilgangJournalpostDto.getJournalStatus())) {
-			if (tilgangJournalpostDto.isTilknyttetPensjonsak()) {
-				return pensjonSakRestConsumer.hentBrukerForSak(tilgangJournalpostDto.getSak().getSakId()).fnr();
-			} else {
-				return tilgangJournalpostDto.getSak().getAktoerId();
-			}
-		}
-		return null;
-	}
-
 	private Optional<Fullmakt> validerInnloggetBrukerOgFinnFullmakt(
 			BrukerIdenter brukerIdenter,
 			HentdokumentRequest hentdokumentRequest
@@ -202,11 +172,11 @@ public class HentDokumentService {
 		return Optional.empty();
 	}
 
-	private Optional<Pensjonsak> hentPensjonssak(String bruker, TilgangJournalpostDto tilgangJournalpostDto, Optional<Fullmakt> fullmaktOpt) {
-		if(fullmaktOpt.isPresent()) {
-			if(tilgangJournalpostDto.isTilknyttetPensjonsak()) {
+	private Optional<Pensjonsak> hentPensjonssak(String bruker, ArkivJournalpost arkivJournalpost, Optional<Fullmakt> fullmaktOpt) {
+		if (fullmaktOpt.isPresent()) {
+			if (arkivJournalpost.isTilknyttetSak() && arkivJournalpost.saksrelasjon().isPensjonsak()) {
 				return pensjonSakRestConsumer.hentPensjonssaker(bruker)
-						.stream().filter(p -> p.sakId().equals(tilgangJournalpostDto.getSak().getSakId()))
+						.stream().filter(p -> p.sakId().equals(arkivJournalpost.saksrelasjon().sakId().toString()))
 						.findFirst();
 			}
 			return Optional.empty();

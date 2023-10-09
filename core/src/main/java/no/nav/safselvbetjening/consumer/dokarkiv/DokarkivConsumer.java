@@ -6,6 +6,7 @@ import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.CallIdExchangeFilterFunction;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
 import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
 import org.springframework.boot.autoconfigure.codec.CodecProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -24,8 +25,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
+import static java.lang.String.format;
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_DOKARKIV;
@@ -34,6 +37,7 @@ import static org.springframework.http.HttpHeaders.ACCEPT_ENCODING;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
 
@@ -107,6 +111,47 @@ public class DokarkivConsumer {
 			throw new ConsumerTechnicalException("Teknisk feil mot tilgangJournalpost for journalpost med journalpostId=" +
 												 journalpostId + "dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
 		}
+	}
+
+	@CircuitBreaker(name = DOKARKIV_METADATA)
+	public ArkivJournalpost journalpost(String journalpostId, String dokumentInfoId, Set<String> fields) {
+		return webClient.get()
+				.uri(uriBuilder -> {
+					uriBuilder.pathSegment("journalpost", "journalpostId", "{journalpostId}", "dokumentInfoId", "{dokumentInfoId}");
+					if (!fields.isEmpty()) {
+						uriBuilder.queryParam("fields", String.join(",", fields));
+					}
+					return uriBuilder
+							.build(journalpostId, dokumentInfoId);
+				})
+				.attributes(getOAuth2AuthorizedClient())
+				.accept(APPLICATION_JSON)
+				.exchangeToMono(clientResponse -> {
+					if (clientResponse.statusCode().is2xxSuccessful()) {
+						return clientResponse.bodyToMono(ArkivJournalpost.class);
+					} else {
+						return clientResponse.createError();
+					}
+				}).doOnError(handleErrorJournalpost(journalpostId, dokumentInfoId))
+				.block();
+	}
+
+	private Consumer<Throwable> handleErrorJournalpost(String journalpostId, String dokumentInfoId) {
+		return error -> {
+			if (error instanceof WebClientResponseException.NotFound notFound) {
+				throw new JournalpostIkkeFunnetException(format("Journalpost med journalpostId=%s, dokumentInfoId=%s ikke funnet i Joark.",
+						journalpostId, dokumentInfoId), notFound);
+			}
+			if (error instanceof WebClientResponseException webException) {
+				if (webException.getStatusCode().is4xxClientError()) {
+					throw new ConsumerFunctionalException(format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
+							webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()));
+				} else {
+					throw new ConsumerTechnicalException(String.format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
+							webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()), webException);
+				}
+			}
+		};
 	}
 
 	@CircuitBreaker(name = DOKARKIV_HENTDOKUMENT)

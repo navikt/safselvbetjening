@@ -34,6 +34,7 @@ import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode.ARKIV;
+import static no.nav.safselvbetjening.hentdokument.HentDokumentService.HENTDOKUMENT_TILGANG_FIELDS;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
@@ -53,6 +54,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 
+/**
+ * Tester tilgangsregler implementert fra https://confluence.adeo.no/display/BOA/safselvbetjening+-+Regler+for+innsyn
+ */
 @EmbeddedKafka(
 		topics = {"test-ut-topic"},
 		bootstrapServersProperty = "spring.kafka.bootstrap-servers",
@@ -96,6 +100,21 @@ class HentDokumentIT extends AbstractItest {
 		return StreamSupport.stream(KafkaTestUtils.getRecords(consumer, ofSeconds(2)).records(UT_TOPIC).spliterator(), false)
 				.map(ConsumerRecord::value)
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Skal hente dokument gitt at alle den passerer alle tilgangsregler
+	 */
+	@Test
+	void shouldHentDokumentWhenHappy() {
+		stubPdl();
+		stubAzure();
+		stubDokarkivJournalpost();
+		stubHentDokumentDokarkiv();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertOkArkivResponse(responseEntity);
 	}
 
 	@Test
@@ -498,6 +517,18 @@ class HentDokumentIT extends AbstractItest {
 				.willReturn(aResponse().withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_PDF_VALUE)
 						.withBody(TEST_FILE_BYTES)));
+	}
+
+	private static void stubDokarkivJournalpost() {
+		stubDokarkivJournalpost("hentdokument-happy.json");
+	}
+
+	private static void stubDokarkivJournalpost(String fil) {
+		stubFor(get("/dokarkiv/journalpost/journalpostId/" + JOURNALPOST_ID + "/dokumentInfoId/" + DOKUMENT_ID + "?fields=" + String.join(",", HENTDOKUMENT_TILGANG_FIELDS))
+				.willReturn(aResponse()
+						.withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("dokarkiv/journalpost/" + fil)));
 	}
 
 	private void stubHentTilgangJournalpostDokarkiv() {
