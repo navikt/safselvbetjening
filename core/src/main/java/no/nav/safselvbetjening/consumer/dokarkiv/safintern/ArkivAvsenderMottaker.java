@@ -1,4 +1,4 @@
 package no.nav.safselvbetjening.consumer.dokarkiv.safintern;
 
-public record ArkivAvsenderMottaker(String avsenderMottakerId, String type, String land) {
+public record ArkivAvsenderMottaker(String id, String type) {
 }

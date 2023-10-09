@@ -1,16 +1,14 @@
 {
   "journalpostId": 400000000,
   "type": "I",
-  "fagomraade": "HJE",
+  "fagomraade": "PEN",
   "status": "J",
   "saksrelasjon": {
-    "fagsystem": "FS22",
-    "sak": {
-      "aktoerId": "2000000000000",
-      "tema": "HJE"
-    },
-    "sakId": 140000000
+    "fagsystem": "PEN",
+    "sak": {},
+    "sakId": 2000000
   },
+  "skjerming": null,
   "relevanteDatoer": {
     "journalfoert": "2023-09-12T13:42:13.647+00:00",
     "opprettet": "2023-08-16T11:15:00.292+00:00"

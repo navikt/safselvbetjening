@@ -56,8 +56,8 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getMottakskanal()).isEqualTo(NAV_NO);
 		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
-		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET);
-		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT);
+		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
+		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT.toLocalDateTime());
 
 		Journalpost.TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
 		assertThat(tilgangBruker.getBrukerId()).isEqualTo(IDENT);
@@ -91,8 +91,8 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getMottakskanal()).isEqualTo(NAV_NO);
 		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
-		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET);
-		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT);
+		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
+		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT.toLocalDateTime());
 
 		Journalpost.TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
 		assertThat(tilgangBruker.getBrukerId()).isEqualTo(IDENT);

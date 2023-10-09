@@ -88,8 +88,8 @@ public class HentDokumentTilgangMapper {
 				.mottakskanal(mapTilgangMottakskanal(arkivJournalpost.mottakskanal()))
 				.tema(arkivJournalpost.fagomraade())
 				.avsenderMottakerId(mapAvsenderMottakerId(arkivJournalpost.avsenderMottaker()))
-				.datoOpprettet(arkivJournalpost.relevanteDatoer() == null ? null : arkivJournalpost.relevanteDatoer().opprettet())
-				.journalfoertDato(arkivJournalpost.relevanteDatoer() == null ? null : arkivJournalpost.relevanteDatoer().journalfoert())
+				.datoOpprettet(arkivJournalpost.relevanteDatoer() == null ? null : arkivJournalpost.relevanteDatoer().opprettet().toLocalDateTime())
+				.journalfoertDato(arkivJournalpost.relevanteDatoer() == null ? null : arkivJournalpost.relevanteDatoer().journalfoert().toLocalDateTime())
 				.skjerming(mapSkjermingType(arkivJournalpost.skjerming()))
 				.tilgangBruker(mapTilgangBruker(arkivJournalpost.bruker()))
 				.tilgangSak(mapTilgangSak(arkivJournalpost, brukerIdenter, pensjonsakOpt))
@@ -109,7 +109,7 @@ public class HentDokumentTilgangMapper {
 		if (avsenderMottaker == null) {
 			return null;
 		}
-		return avsenderMottaker.avsenderMottakerId();
+		return avsenderMottaker.id();
 	}
 
 	private Kanal mapTilgangMottakskanal(String mottakskanal) {

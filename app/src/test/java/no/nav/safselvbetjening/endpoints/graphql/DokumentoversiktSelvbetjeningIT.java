@@ -450,7 +450,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private void happyStubs() {
 		stubAzure();
 		stubTokenx();
-		stubPdl();
+		stubPdlGenerell();
 		stubSak();
 		stubPensjonssaker();
 		stubFagarkiv();
@@ -460,7 +460,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private void happyStubWithInnsyn(String fileName) {
 		stubAzure();
 		stubTokenx();
-		stubPdl();
+		stubPdlGenerell();
 		stubSak();
 		stubPensjonssaker();
 		stubFagarkiv(fileName);

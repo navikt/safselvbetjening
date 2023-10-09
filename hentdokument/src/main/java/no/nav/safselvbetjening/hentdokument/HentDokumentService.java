@@ -99,7 +99,7 @@ public class HentDokumentService {
 
 	private Tilgangskontroll doTilgangskontroll(final HentdokumentRequest hentdokumentRequest) {
 		ArkivJournalpost arkivJournalpost = dokarkivConsumer.journalpost(hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), HENTDOKUMENT_TILGANG_FIELDS);
-
+		// FIXME sanity check journalpostId, dokumentInfoId
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(arkivJournalpost);
 		if (brukerIdenter.isEmpty()) {
 			throw new HentTilgangDokumentException(DENY_REASON_PARTSINNSYN, FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);

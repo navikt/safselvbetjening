@@ -1,6 +1,8 @@
 package no.nav.safselvbetjening.consumer.dokarkiv.safintern;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
-public record ArkivRelevanteDatoer(LocalDateTime opprettet, LocalDateTime journalfoert) {
+public record ArkivRelevanteDatoer(
+		OffsetDateTime opprettet,
+		OffsetDateTime journalfoert) {
 }

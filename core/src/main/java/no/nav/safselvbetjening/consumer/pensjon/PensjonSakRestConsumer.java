@@ -67,7 +67,8 @@ public class PensjonSakRestConsumer {
 				.block();
 
 		if (result == null || result.fnr() == null || result.fnr().isEmpty()) {
-			throw new PensjonsakIkkeFunnetException("hentBrukerForSak returnerte tomt fødselsnummer for sakId={}. Dette betyr at saken ikke finnes eller at ingen personer er tilknyttet denne saken" + sakId);
+			throw new PensjonsakIkkeFunnetException("hentBrukerForSak returnerte tomt fødselsnummer for sakId=" + sakId + ". " +
+													"Dette betyr at saken ikke finnes eller at ingen personer er tilknyttet denne saken i pesys");
 		} else {
 			return result;
 		}

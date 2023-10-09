@@ -129,8 +129,8 @@ public abstract class AbstractItest {
 						.withBodyFile("azure/token_response.json")));
 	}
 
-	protected void stubPdl() {
-		stubPdl("pdl_happy.json");
+	protected void stubPdlGenerell() {
+		stubPdl("pdl-generell.json");
 	}
 
 	protected void stubPdl(final String fil) {
@@ -186,7 +186,7 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubPdlFullmakt() {
-		stubPdlFullmakt("pdl_fullmakt_ingen.json");
+		stubPdlFullmakt("pdl-fullmakt-empty.json");
 	}
 
 	protected void stubPdlFullmakt(final String fil) {

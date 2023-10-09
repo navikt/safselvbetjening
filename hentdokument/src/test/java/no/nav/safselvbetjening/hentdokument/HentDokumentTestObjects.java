@@ -19,8 +19,9 @@ import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,13 +36,13 @@ public class HentDokumentTestObjects {
 	static final String TEMA = "FAR";
 	static final String TEMA_PENSJON_UFO = "UFO";
 	static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
-	static final LocalDateTime DATO_OPPRETTET = LocalDate.of(2018, Month.FEBRUARY, 23).atStartOfDay();
-	static final LocalDateTime DATO_JOURNALFOERT = LocalDate.of(2020, Month.JANUARY, 18).atStartOfDay();
+	static final OffsetDateTime DATO_OPPRETTET = LocalDate.of(2018, Month.FEBRUARY, 23).atStartOfDay().atOffset(ZoneOffset.of("+00:00"));
+	static final OffsetDateTime DATO_JOURNALFOERT = LocalDate.of(2020, Month.JANUARY, 18).atStartOfDay().atOffset(ZoneOffset.of("+00:00"));
 
 	public static ArkivJournalpost.ArkivJournalpostBuilder baseArkivJournalpost() {
 		return ArkivJournalpost.builder()
 				.journalpostId(Long.valueOf(JOURNALPOST_ID))
-				.avsenderMottaker(new ArkivAvsenderMottaker(AVSENDER_MOTTAKER_ID, null, null))
+				.avsenderMottaker(new ArkivAvsenderMottaker(AVSENDER_MOTTAKER_ID, null))
 				.type(JournalpostTypeCode.I.name())
 				.status(JournalStatusCode.M.name())
 				.mottakskanal(MottaksKanalCode.NAV_NO.name())
