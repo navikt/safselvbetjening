@@ -1,9 +1,9 @@
 package no.nav.safselvbetjening.endpoints.hentDokument;
 
+import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
-import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN;
@@ -12,14 +12,13 @@ import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_BRUK
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.awaitility.Awaitility.await;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 /**
  * Tester fullmakt-relaterte tilgangsregler implementasjon definert i https://confluence.adeo.no/display/BOA/safselvbetjening+-+Regler+for+innsyn
  */
-public class HentDokumentTilgangFullmaktIT extends HentDokumentTilgangIT {
+public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 
 	@Test
 	void shouldHentDokumentWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktExistsForTema() {
@@ -33,10 +32,8 @@ public class HentDokumentTilgangFullmaktIT extends HentDokumentTilgangIT {
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
 
 		assertOkArkivResponse(responseEntity);
-		await().timeout(ofSeconds(5))
-				.failFast("Kafka topicen skal ikke ha size=1 for denne testen",
-						() -> !getAllCurrentRecordsOnTopicUt().isEmpty())
-				.until(() -> getAllCurrentRecordsOnTopicUt().isEmpty());
+		HoveddokumentLest hoveddokumentLest = readFromHoveddokumentLestTopic();
+		assertThat(hoveddokumentLest).isNull();
 	}
 
 	@Test

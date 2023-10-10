@@ -4,15 +4,10 @@ import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
-import java.util.List;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static java.time.Duration.ofSeconds;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -39,7 +34,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 	}
 
 	@Test
-	void shouldHentDokumentWhenSubToken() {
+	void shouldHentDokumentWhenBrukerIdentInSubToken() {
 		stubPdlGenerell();
 		stubAzure();
 		stubDokarkivJournalpost();
@@ -98,6 +93,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 
 	@Test
 	void hentDokumentPenHappyPath() {
+//		setupKafkaConsumer();
 		stubAzure();
 		stubPdlGenerell();
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
@@ -108,10 +104,8 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 
 		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
 		assertOkArkivResponse(responseEntity);
-		await().timeout(ofSeconds(5))
-				.failFast("Kafka topicen skal ikke ha size=1 for denne testen",
-						() -> !getAllCurrentRecordsOnTopicUt().isEmpty())
-				.until(() -> getAllCurrentRecordsOnTopicUt().isEmpty());
+		HoveddokumentLest hoveddokumentLest = readFromHoveddokumentLestTopic();
+		assertThat(hoveddokumentLest).isNull();
 	}
 
 	@Test
@@ -126,15 +120,9 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 
 		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
 		assertOkArkivResponse(responseEntity);
-
-		//Consumer topic og verifiser 1 melding
-		await().atMost(10, SECONDS).untilAsserted(() -> {
-			List<HoveddokumentLest> records = this.getAllCurrentRecordsOnTopicUt();
-			assertEquals(1, records.size());
-			HoveddokumentLest hoveddokumentLest = records.get(0);
-			assertEquals(JOURNALPOST_ID, hoveddokumentLest.getJournalpostId());
-			assertEquals(DOKUMENT_ID, hoveddokumentLest.getDokumentInfoId());
-		});
+		HoveddokumentLest hoveddokumentLest = readFromHoveddokumentLestTopic();
+		assertThat(hoveddokumentLest.getJournalpostId()).isEqualTo(JOURNALPOST_ID);
+		assertThat(hoveddokumentLest.getDokumentInfoId()).isEqualTo(DOKUMENT_ID);
 	}
 
 	@Test

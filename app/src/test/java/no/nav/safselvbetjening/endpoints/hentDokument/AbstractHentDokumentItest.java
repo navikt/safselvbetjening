@@ -5,9 +5,7 @@ import no.nav.safselvbetjening.endpoints.AbstractItest;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -15,17 +13,14 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG;
 import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG;
-import static java.time.Duration.ofMillis;
+import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode.ARKIV;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentService.HENTDOKUMENT_TILGANG_FIELDS;
@@ -46,14 +41,11 @@ import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 		partitions = 1
 )
 public abstract class AbstractHentDokumentItest extends AbstractItest {
-	@Value("${safselvbetjening.topics.dokdistdittnav}")
-	protected static String UT_TOPIC = "test-ut-topic";
+	protected static String PRIVAT_DOKDISTDITTNAV_LESTAVMOTTAKER_TOPIC = "privat-dokdistdittnav-lestavmottaker";
 
 	@Autowired
 	@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 	protected EmbeddedKafkaBroker kafkaEmbedded;
-
-	protected static Consumer<String, HoveddokumentLest> consumer;
 
 	protected static final String JOURNALPOST_ID = "400000000";
 	protected static final String DOKUMENT_ID = "410000000";
@@ -61,13 +53,7 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 	protected static final String BRUKER_ID = "12345678911";
 	protected static final byte[] TEST_FILE_BYTES = "TestThis".getBytes();
 
-	@BeforeEach
-	public void setUpClass() {
-		// KafkaConsumer for å kunne konsumere meldinger som InngaaendeHendelsePublisher dytter til 'test-ut-topic'
-		this.setUpConsumerForTopicUt();
-	}
-
-	protected void setUpConsumerForTopicUt() {
+	protected Consumer<String, HoveddokumentLest> setupKafkaConsumer() {
 		Map<String, Object> consumerProps = KafkaTestUtils.consumerProps("itest-group", "true", kafkaEmbedded);
 		consumerProps.put(KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
 		consumerProps.put(VALUE_DESERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroDeserializer");
@@ -75,14 +61,19 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 		consumerProps.put(SPECIFIC_AVRO_READER_CONFIG, "true");
 		consumerProps.put(GROUP_INSTANCE_ID_CONFIG, "itest-group-instance");
 
-		consumer = new DefaultKafkaConsumerFactory<String, HoveddokumentLest>(consumerProps).createConsumer();
-		consumer.subscribe(singletonList(UT_TOPIC));
+		var consumer = new DefaultKafkaConsumerFactory<String, HoveddokumentLest>(consumerProps).createConsumer();
+		consumer.subscribe(singletonList(PRIVAT_DOKDISTDITTNAV_LESTAVMOTTAKER_TOPIC));
+		return consumer;
 	}
 
-	protected List<HoveddokumentLest> getAllCurrentRecordsOnTopicUt() {
-		return StreamSupport.stream(KafkaTestUtils.getRecords(consumer, ofMillis(500)).records(UT_TOPIC).spliterator(), false)
-				.map(ConsumerRecord::value)
-				.collect(Collectors.toList());
+	protected HoveddokumentLest readFromHoveddokumentLestTopic() {
+		try (var consumer = setupKafkaConsumer()) {
+			ConsumerRecord<String, HoveddokumentLest> singleRecord = KafkaTestUtils.getSingleRecord(consumer, PRIVAT_DOKDISTDITTNAV_LESTAVMOTTAKER_TOPIC, ofSeconds(2));
+			assertThat(singleRecord).withFailMessage("Record fra topic er null").isNotNull();
+			return singleRecord.value();
+		} catch (IllegalStateException e) {
+			return null;
+		}
 	}
 
 	protected static void stubHentDokumentDokarkiv() {
