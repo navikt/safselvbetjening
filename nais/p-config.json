@@ -64,6 +64,11 @@
       "cluster": "prod-gcp"
     },
     {
+      "app": "pensjon-pselv-borger",
+      "namespace": "pensjondeployer",
+      "cluster": "prod-gcp"
+    },
+    {
       "app": "klage-dittnav-api",
       "namespace": "klage",
       "cluster": "prod-gcp"
