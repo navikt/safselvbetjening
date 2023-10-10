@@ -68,13 +68,18 @@
       "cluster": "dev-gcp"
     },
     {
+      "app": "pensjon-pselv-borger-q0",
+      "namespace": "pensjon-q0",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "pensjon-pselv-q1",
       "namespace": "teampensjon",
       "cluster": "dev-gcp"
     },
     {
-      "app": "pensjon-pselv-q4",
-      "namespace": "teampensjon",
+      "app": "pensjon-pselv-borger-q1",
+      "namespace": "pensjon-q1",
       "cluster": "dev-gcp"
     },
     {
