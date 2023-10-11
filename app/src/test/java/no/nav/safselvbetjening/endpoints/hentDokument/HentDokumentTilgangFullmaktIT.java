@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.endpoints.hentDokument;
 
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
@@ -20,10 +21,19 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
  */
 public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 
-	@Test
-	void shouldHentDokumentWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktExistsForTema() {
-		stubAzure();
+	@Override
+	@BeforeEach
+	void setUp() {
+		super.setUp();
 		stubTokenx();
+	}
+
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten matcher tema dokumentet gjelder så skal dokument hentes
+	 */
+	@Test
+	void skalHenteDokumentHvisPaaloggetBrukerErFullmektigMedGyldigFullmakt() {
 		stubPdlFullmakt("pdl-fullmakt-tema-hje.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -36,10 +46,13 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		assertThat(hoveddokumentLest).isNull();
 	}
 
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis dokumentet er knyttet til pensjon sak så skal man hente bruker og sak fra pensjon. I saken fra pensjon vil riktig tema stå PEN (Alderspensjon) eller UFO (Uføretrygd)
+	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten matcher tema dokumentet gjelder så skal dokument hentes
+	 */
 	@Test
-	void shouldHentDokumentWhenTokenNotMatchingPensjonJournalpostOwnerIdentAndFullmaktExistsForTemaMatchingPesysSak() {
-		stubTokenx();
-		stubAzure();
+	void skalHenteDokumentHvisDokumentTilknyttetPensjonSakHarTemaMedGyldigFullmakt() {
 		stubPdlFullmakt("pdl-fullmakt-tema-ufo.json");
 		stubDokarkivJournalpost("1c-hentdokument-pensjon-ok.json");
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
@@ -52,10 +65,15 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		assertOkArkivResponse(responseEntity);
 	}
 
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis dokumentet er knyttet til pensjon sak så skal man hente bruker og sak fra pensjon. I saken fra pensjon vil riktig tema stå PEN (Alderspensjon) eller UFO (Uføretrygd)
+	 * <p>
+	 * Noen ganger så er tema på journalposten (PEN) forskjellig fra tema på pensjon saken (UFO). Da er det tema på pensjon saken som fullmakten skal dekke
+	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten matcher tema dokumentet gjelder så skal dokument hentes
+	 */
 	@Test
-	void shouldReturnForbiddenWhenTokenNotMatchingPensjonJournalpostOwnerIdentAndFullmaktExistsForTemaNotMatchPesysSak() {
-		stubTokenx();
-		stubAzure();
+	void skalGiForbiddenFeilHvisFullmaktDekkerJournalpostTemaOgIkkePensjonssakTema() {
 		stubPdlFullmakt("pdl-fullmakt-tema-pen.json");
 		stubDokarkivJournalpost("1c-hentdokument-pensjon-ok.json");
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
@@ -72,10 +90,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
 	}
 
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten ikke matcher tema dokumentet gjelder så det returneres Forbidden feil
+	 */
 	@Test
-	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktIkkeGittForTema() {
-		stubAzure();
-		stubTokenx();
+	void skalGiForbiddenFeilHvisFullmaktIkkeDekkerTemaDokumentetGjelder() {
 		stubPdlFullmakt("pdl-fullmakt-tema-pen.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -87,10 +107,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
 	}
 
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis pdl-fullmakt ikke returnerer fullmakt så skal det returneres Forbidden feil
+	 */
 	@Test
-	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndNoFullmakt() {
-		stubTokenx();
-		stubAzure();
+	void skalGiForbiddenFeilHvisFullmaktIkkeFinnes() {
 		stubPdlFullmakt();
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -102,10 +124,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
 
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis pdl-fullmakt returnerer fullmakt for en annen bruker C, selv om tema er dekkende, så skal det returneres Forbidden feil
+	 */
 	@Test
-	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndWrongFullmakt() {
-		stubTokenx();
-		stubAzure();
+	void skalGiForbiddenFeilHvisFullmaktGjelderEnAnnenBrukerEnnDetDokumentetGjelder() {
 		stubPdlGenerell();
 		stubPdlFullmakt("pdl-fullmakt-feil-bruker.json");
 		stubDokarkivJournalpost();
@@ -117,10 +141,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
 
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis pdl-fullmakt returnerer en 4xx feil så skal det returneres en Forbidden feil
+	 */
 	@Test
-	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturns4xx() {
-		stubTokenx();
-		stubAzure();
+	void skalGiForbiddenFeilHvisPdlFullmaktReturnerer4xxFeil() {
 		stubPdlFullmakt(FORBIDDEN);
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -132,10 +158,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
 
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis pdl-fullmakt returnerer en 5xx feil så skal det returneres en Forbidden feil
+	 */
 	@Test
-	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturns5xx() {
-		stubTokenx();
-		stubAzure();
+	void skalGiForbiddenFeilHvisPdlFullmaktReturnerer5xxFeil() {
 		stubPdlFullmakt(INTERNAL_SERVER_ERROR);
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -147,10 +175,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
 
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis pdl-fullmakt returnerer en ugyldig JSON så skal det returneres en Forbidden feil
+	 */
 	@Test
-	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturnsInvalidJson() {
-		stubTokenx();
-		stubAzure();
+	void skalGiForbiddenFeilHvisPdlFullmaktReturnererUgyldigJson() {
 		stubPdlFullmakt("pdl-fullmakt-invalid.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -162,10 +192,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
 
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis pdl-fullmakt returnerer en JSON uten array så skal det returneres en Forbidden feil
+	 */
 	@Test
-	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndFullmaktReturnsInvalidJsonNoArray() {
-		stubTokenx();
-		stubAzure();
+	void skalGiForbiddenFeilHvisPdlFullmaktReturnererJsonUtenArray() {
 		stubPdlFullmakt("pdl-fullmakt-invalid-no-array.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -177,10 +209,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
 
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis pdl-fullmakt returnerer en fullmakt uten tema så skal det returneres en Forbidden feil
+	 */
 	@Test
-	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndIngenFullmaktTema() {
-		stubTokenx();
-		stubAzure();
+	void skalGiForbiddenFeilHvisPdlFullmaktReturnererJsonUtenTema() {
 		stubPdlFullmakt("pdl-fullmakt-ingen-tema.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -192,10 +226,13 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
 
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis pdl-fullmakt returnerer en fullmakt som dekker kun journalpostens tema og ikke sakens tema så skal det returneres en Forbidden feil
+	 * Grunnen til dette er at tema på journalpost metadata og sak metadata ikke er synkronisert. Så disse temaene kan være forskjellig.
+	 */
 	@Test
-	void shouldReturnForbiddenWhenTokenNotMatchingJournalpostOwnerIdentAndSakTemaNoFullmakt() {
-		stubTokenx();
-		stubAzure();
+	void skalGiForbiddenFeilHvisFullmaktDekkerJournalpostTemaOgIkkeSakTema() {
 		stubPdlFullmakt("pdl-fullmakt-tema-hje.json");
 		stubDokarkivJournalpost("ukj-hentdokument-journalpost-sak-forskjellig-tema-forbidden.json");
 		stubPdlGenerell();

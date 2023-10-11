@@ -19,12 +19,19 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 /**
  * Tester tilgangsregler implementasjon definert i https://confluence.adeo.no/display/BOA/safselvbetjening+-+Regler+for+innsyn
+ * <p>
+ * Tilgangsreglene sjekkes til en av de feiler fra topp til bunn
  */
 public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 
+	/**
+	 * Tilgangregel: 1a
+	 * Journalpost har bruker tilknytning i et eget bruker element (fnr) og i saksrelasjonen (aktørid)
+	 * Basert på en av disse identene slår man opp dokument i PDL
+	 * Hvis bruker ikke finnes i PDL så skal det returneres Forbidden feil
+	 */
 	@Test
-	void hentDokumentPdlNotFound() {
-		stubAzure();
+	void skalGiForbiddenFeilHvisBrukerDokumentetGjelderIkkeKanUtledes() {
 		stubDokarkivJournalpost();
 		stubPdl("pdl-bruker-finnes-ikke.json");
 
@@ -35,9 +42,14 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);
 	}
 
+	/**
+	 * Tilgangsregel: 1c
+	 * Midlertidige journalposter har status M eller MO. Det betyr at de nylig er mottatt av NAV (typisk fra skanning)
+	 * Det kan være søknader bruker har under behandling og de har ingen sakstilknytning eller er ferdig journalført
+	 * Hvis dokumentet er knyttet til en midlertidig journalpost og alle andre tilgangsregler er OK så skal dokumentet returneres
+	 */
 	@Test
-	void hentMidlertidigDokumentHappyPath() {
-		stubAzure();
+	void skalHenteDokumentHvisJournalpostErMidlertidig() {
 		stubDokarkivJournalpost("1c-hentdokument-midlertidig-ok.json");
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
@@ -47,9 +59,13 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		assertOkArkivResponse(responseEntity);
 	}
 
+	/**
+	 * Tilgangsregel: 1c
+	 * Fagpost kan skjerme dokumenter på forespørsel, det settes da et flagg på Journalpost
+	 * Hvis journalpost er skjermet så skal det returneres Forbidden feil
+	 */
 	@Test
-	void hentDokumentTilgangAvvist() {
-		stubAzure();
+	void skalGiForbiddenHvisJournalpostErSkjermet() {
 		stubDokarkivJournalpost("1f-hentdokument-journalpost-skjerming-forbidden.json");
 		stubPdlGenerell();
 
@@ -60,9 +76,13 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_GDPR);
 	}
 
+	/**
+	 * Tilgangsregel: 1b
+	 * Selvbetjening viser ikke dokumenter før en hardkodet dato, konfigurert som safselvbetjening.tidligst-innsyn-dato
+	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 */
 	@Test
-	void hentDokumentWhenInnsynIsVises() {
-		stubAzure();
+	void skalHenteDokumentHvisInnsynVisesSelvOmEldreEnnInnsynsdato() {
 		stubDokarkivJournalpost("1b-hentdokument-innsyn-vises-ok.json");
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
@@ -72,10 +92,13 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		assertOkArkivResponse(responseEntity);
 	}
 
+	/**
+	 * Tilgangsregel: 1h
+	 * Hvis innsyn flagget er satt til en skjules verdi så skal det returneres en Forbidden feil
+	 */
 	@Test
-	void shouldHentDokumentTilgangAvvistInnsynSkjules() {
-		stubAzure();
-		stubDokarkivJournalpost("1h-hentdokument-skjules-forbidden.json");
+	void skalGiForbidddenFeilHvisInnsynSkjules() {
+		stubDokarkivJournalpost("1h-hentdokument-innsyn-skjules-forbidden.json");
 		stubPdlGenerell();
 
 		ResponseEntity<String> responseEntity = callHentDokument();
@@ -85,9 +108,14 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_SKJULT);
 	}
 
+	/**
+	 * Tilgangsregel: 2b
+	 * Saksbehandlere sender dokumenter fra NAV til skanning.
+	 * Disse har da journalposttype utgående, journalstatus lokalprint og en skannet mottakskanal
+	 * Hvis dokumentet er skannet så skal det returneres en Forbidden feil
+	 */
 	@Test
-	void shouldReturnForbiddenWhenLokalprintSkannet() {
-		stubAzure();
+	void skalGiForbiddenHvisUtgaaendeJournalpostSkannet() {
 		stubDokarkivJournalpost("2b-hentdokument-lokal-skannet-forbidden.json");
 		stubPdlGenerell();
 

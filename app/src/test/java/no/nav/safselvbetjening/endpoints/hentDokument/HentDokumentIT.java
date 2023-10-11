@@ -19,12 +19,11 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  */
 class HentDokumentIT extends AbstractHentDokumentItest {
 	/**
-	 * Skal hente dokument gitt at alle den passerer alle tilgangsregler
+	 * Skal hente dokument gitt at alle den passerer alle tilgangsregler og ident ligger i pid claim i tokenet
 	 */
 	@Test
-	void shouldHentDokumentWhenHappy() {
+	void skalHenteDokument() {
 		stubPdlGenerell();
-		stubAzure();
 		stubDokarkivJournalpost();
 		stubHentDokumentDokarkiv();
 
@@ -33,10 +32,12 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		assertOkArkivResponse(responseEntity);
 	}
 
+	/**
+	 * Skal hente dokument gitt at alle den passerer alle tilgangsregler og ident ligger i pid claim i tokenet
+	 */
 	@Test
-	void shouldHentDokumentWhenBrukerIdentInSubToken() {
+	void skalHenteDokumentHvisSubClaim() {
 		stubPdlGenerell();
-		stubAzure();
 		stubDokarkivJournalpost();
 		stubHentDokumentDokarkiv();
 
@@ -45,10 +46,24 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		assertOkArkivResponse(responseEntity);
 	}
 
+	/**
+	 * Hvis journalpostId i hentdokument path er ikke-numerisk så skal det returneres en Bad Request feil
+	 */
 	@Test
-	void hentDokumentNotFound() {
+	void skalGiBadRequestFeilHvisJournapostIdIkkeNumerisk() {
+		String uri = createHentDokumentUri("123456a", DOKUMENT_ID, VARIANTFORMAT.name());
+		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, GET, createHttpEntityHeaders(BRUKER_ID), String.class);
+
+		assertEquals(BAD_REQUEST, responseEntity.getStatusCode());
+		assertThat(responseEntity.getBody()).contains("journalpostId er ikke et tall. journalpostId=123456a");
+	}
+
+	/**
+	 * Hvis dokarkiv hentdokument tjenesten returnerer 404 så skal det returneres Not Found feil
+	 */
+	@Test
+	void skalGiNotFoundFeilHvisDokumentIkkeFinnes() {
 		stubPdlGenerell();
-		stubAzure();
 		stubDokarkivJournalpost();
 		stubHentDokumentDokarkiv(NOT_FOUND);
 
@@ -58,20 +73,11 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains("Fant ikke dokument med dokumentInfoId=410000000, variantFormat=ARKIV");
 	}
 
+	/**
+	 * Hvis dokarkiv journalpost metadata tjenesten returnerer 404 så skal det returneres Not Found feil
+	 */
 	@Test
-	void shouldReturnBadRequestWhenJournalpostIdNotNumeric() {
-		stubAzure();
-
-		String uri = createHentDokumentUri("123456a", DOKUMENT_ID, VARIANTFORMAT.name());
-		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, GET, createHttpEntityHeaders(BRUKER_ID), String.class);
-
-		assertEquals(BAD_REQUEST, responseEntity.getStatusCode());
-		assertThat(responseEntity.getBody()).contains("journalpostId er ikke et tall. journalpostId=123456a");
-	}
-
-	@Test
-	void hentTilgangJournalpostNotFound() {
-		stubAzure();
+	void skalGiNotFoundFeilHvisJournalpostIkkeFinnes() {
 		stubDokarkivJournalpost(NOT_FOUND);
 
 		ResponseEntity<String> responseEntity = callHentDokument();
@@ -80,9 +86,11 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains("Journalpost med journalpostId=400000000, dokumentInfoId=410000000 ikke funnet i Joark");
 	}
 
+	/**
+	 * Hvis dokarkiv journalpost metadata tjenesten returnerer 5xx så skal det returneres Internal Server Error feil
+	 */
 	@Test
-	void hentDokumentDokarkivTechnicalFail() {
-		stubAzure();
+	void skalGiInternalServerErrorFeilHvisTekniskFeilFraDokarkiv() {
 		stubDokarkivJournalpost(INTERNAL_SERVER_ERROR);
 
 		ResponseEntity<String> responseEntity = callHentDokument();
@@ -91,10 +99,12 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains("hentJournalpost feilet teknisk. status=500 INTERNAL_SERVER_ERROR, journalpostId=400000000, dokumentInfoId=410000000");
 	}
 
+	/**
+	 * Hvis dokumentet sin journalpost er knyttet til en pensjon sak (fagsystem=PEN) så skal bruker utledes fra pensjon sakId.
+	 * Dokumentet returneres hvis bruker på pensjon saken matcher bruker som henter dokumentet
+	 */
 	@Test
-	void hentDokumentPenHappyPath() {
-//		setupKafkaConsumer();
-		stubAzure();
+	void skalHenteDokumentHvisDokumentTilknyttetPensjonSak() {
 		stubPdlGenerell();
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
 		stubDokarkivJournalpost("1c-hentdokument-pensjon-ok.json");
@@ -108,9 +118,12 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		assertThat(hoveddokumentLest).isNull();
 	}
 
+	/**
+	 * Hvis dokumentet sin journalpost er knyttet til en pensjon sak (fagsystem=PEN) så skal bruker utledes fra pensjon sakId.
+	 * Utgående dokument skal generere en HoveddokumentLest kafka hendelse til dokdistdittnav hvis det er et utgående dokument.
+	 */
 	@Test
-	void hentDokumentUtgaaendePenKafkaHappyPath() {
-		stubAzure();
+	void skalHenteDokumentOgGenerereHoveddokumentLestHendelseHvisDokumentTilknyttetPensjonSak() {
 		stubPdlGenerell();
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
 		stubDokarkivJournalpost("1c-hentdokument-pensjon-utgaaende-ok.json");
@@ -125,9 +138,12 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		assertThat(hoveddokumentLest.getDokumentInfoId()).isEqualTo(DOKUMENT_ID);
 	}
 
+	/**
+	 * Hvis dokumentet sin journalpost er knyttet til en pensjon sak (fagsystem=PEN) så skal bruker utledes fra pensjon sakId.
+	 * Hvis man ikke finner bruker for pensjon sakId i pensjon så returneres en Not Found feil.
+	 */
 	@Test
-	void hentDokumentPenNotFound() {
-		stubAzure();
+	void skalGiNotFoundFeilHvisBrukerForSakIdIkkeFinnesIPensjon() {
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-empty.json");
 		stubDokarkivJournalpost("1c-hentdokument-pensjon-utgaaende-ok.json");
 		stubPdlGenerell();

@@ -5,6 +5,7 @@ import no.nav.safselvbetjening.endpoints.AbstractItest;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,16 +43,20 @@ import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 )
 public abstract class AbstractHentDokumentItest extends AbstractItest {
 	protected static String PRIVAT_DOKDISTDITTNAV_LESTAVMOTTAKER_TOPIC = "privat-dokdistdittnav-lestavmottaker";
-
-	@Autowired
-	@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-	protected EmbeddedKafkaBroker kafkaEmbedded;
-
 	protected static final String JOURNALPOST_ID = "400000000";
 	protected static final String DOKUMENT_ID = "410000000";
 	protected static final VariantFormatCode VARIANTFORMAT = ARKIV;
 	protected static final String BRUKER_ID = "12345678911";
 	protected static final byte[] TEST_FILE_BYTES = "TestThis".getBytes();
+
+	@Autowired
+	@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+	protected EmbeddedKafkaBroker kafkaEmbedded;
+
+	@BeforeEach
+	void setUp() {
+		stubAzure();
+	}
 
 	protected Consumer<String, HoveddokumentLest> setupKafkaConsumer() {
 		Map<String, Object> consumerProps = KafkaTestUtils.consumerProps("itest-group", "true", kafkaEmbedded);
