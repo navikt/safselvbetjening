@@ -44,8 +44,10 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Component
 public class HentDokumentService {
 	private static final Logger secureLog = LoggerFactory.getLogger("secureLog");
-	public static final Set<String> HENTDOKUMENT_TILGANG_FIELDS = Set.of("journalpostId", "fagomraade", "status", "type", "skjerming", "bruker", "saksrelasjon", "mottakskanal", "avsenderMottaker", "relevanteDatoer", "innsyn",
-			"dokumenter.dokumentInfoId", "dokumenter.kassert", "dokumenter.skjerming", "dokumenter.fildetaljer");
+	public static final Set<String> HENTDOKUMENT_TILGANG_FIELDS = Set.of(
+			"journalpostId", "fagomraade", "status", "type", "skjerming", "mottakskanal", "innsyn",
+			"bruker", "avsenderMottaker", "relevanteDatoer", "saksrelasjon",
+			"dokumenter.dokumentInfoId", "dokumenter.kassert", "dokumenter.kategori", "dokumenter.skjerming", "dokumenter.fildetaljer");
 
 	private final DokarkivConsumer dokarkivConsumer;
 	private final IdentService identService;
