@@ -9,14 +9,18 @@ import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_I
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_ANNEN_PART;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_FEILREGISTRERT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_KASSERT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKANNET_DOKUMENT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKJULT_INNSYN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_TEMAER_UNNTATT_INNSYN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_ANNEN_PART;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_FEILREGISTRERT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_GDPR;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_KASSERT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_SKANNET;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_SKJULT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_TEMAER_UNNTATT_INNSYN;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -96,6 +100,40 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 	}
 
 	/**
+	 * Tilgangsregel: 1e
+	 * Hvis dokumentet har tema unntatt innsyn på journalpost og den er midlertidig så skal det returneres Forbidden
+	 * @see no.nav.safselvbetjening.domain.Tema
+	 */
+	@Test
+	void skalGiForbiddenHvisDokumentetHarTemaSomIkkeSkalGiInnsynPaaJournalpost() {
+		stubDokarkivJournalpost("1e-hentdokument-midlertidig-tema-far-forbidden.json");
+		stubPdlGenerell();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_TEMAER_UNNTATT_INNSYN));
+		assertThat(responseEntity.getBody()).contains(FEILMELDING_TEMAER_UNNTATT_INNSYN);
+	}
+
+	/**
+	 * Tilgangsregel: 1e
+	 * Hvis dokumentet har tema unntatt innsyn på saksrelasjon og journalposten sitt tema er feil så skal det returneres Forbidden
+	 * @see no.nav.safselvbetjening.domain.Tema
+	 */
+	@Test
+	void skalGiForbiddenHvisDokumentetHarTemaSomIkkeSkalGiInnsynPaaSaksrelasjonOgJournalpostTemaErFeil() {
+		stubDokarkivJournalpost("1e-hentdokument-saksrelasjon-tema-far-forbidden.json");
+		stubPdlGenerell();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_TEMAER_UNNTATT_INNSYN));
+		assertThat(responseEntity.getBody()).contains(FEILMELDING_TEMAER_UNNTATT_INNSYN);
+	}
+
+	/**
 	 * Tilgangsregel: 1f
 	 * Fagpost kan skjerme dokumenter på forespørsel, det settes da et flagg på Journalpost
 	 * Hvis journalpost er skjermet så skal det returneres Forbidden feil
@@ -129,6 +167,22 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 	}
 
 	/**
+	 * Tilgangsregel: 2a
+	 * Hvis dokumentet ikke har innlogget bruker som avsender så skal det returneres en Forbidden feil
+	 */
+	@Test
+	void skalGiForbiddenHvisBrukerIkkeErAvsender() {
+		stubDokarkivJournalpost("2a-hentdokument-bruker-ikke-avsender-forbidden.json");
+		stubPdlGenerell();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_ANNEN_PART));
+		assertThat(responseEntity.getBody()).contains(FEILMELDING_ANNEN_PART);
+	}
+
+	/**
 	 * Tilgangsregel: 2b
 	 * Saksbehandlere sender dokumenter fra NAV til skanning.
 	 * Disse har da journalposttype utgående, journalstatus lokalprint og en skannet mottakskanal
@@ -147,19 +201,20 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 	}
 
 	/**
-	 * Tilgangsregel: 2b
-	 * Hvis dokumentet ikke har innlogget bruker som avsender så skal det returneres en Forbidden feil
+	 * Tilgangsregel: 2f
+	 * Fagpost kan logisk slette dokumenter.
+	 * Hvis dokumentet er kassert så skal det returneres en Forbidden feil
 	 */
 	@Test
-	void skalGiForbiddenHvisBrukerIkkeErAvsender() {
-		stubDokarkivJournalpost("2a-hentdokument-bruker-ikke-avsender-forbidden.json");
+	void skalGiForbiddenHvisDokumentErKassert() {
+		stubDokarkivJournalpost("2f-hentdokument-dokument-kassert-forbidden.json");
 		stubPdlGenerell();
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_ANNEN_PART));
-		assertThat(responseEntity.getBody()).contains(FEILMELDING_ANNEN_PART);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_KASSERT));
+		assertThat(responseEntity.getBody()).contains(FEILMELDING_KASSERT);
 	}
 
 }

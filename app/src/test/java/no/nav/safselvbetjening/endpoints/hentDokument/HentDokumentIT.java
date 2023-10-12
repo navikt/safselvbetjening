@@ -18,7 +18,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  */
 class HentDokumentIT extends AbstractHentDokumentItest {
 	/**
-	 * Skal hente dokument gitt at alle den passerer alle tilgangsregler og ident ligger i pid claim i tokenet
+	 * Skal hente dokument gitt at den passerer alle tilgangsregler og ident ligger i pid claim i tokenet
 	 */
 	@Test
 	void skalHenteDokument() {
@@ -32,7 +32,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 	}
 
 	/**
-	 * Skal hente dokument gitt at alle den passerer alle tilgangsregler og ident ligger i pid claim i tokenet
+	 * Skal hente dokument gitt at den passerer alle tilgangsregler og ident ligger i sub claim i tokenet
 	 */
 	@Test
 	void skalHenteDokumentHvisSubClaim() {
@@ -136,7 +136,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 	 * Utgående dokument skal generere en HoveddokumentLest kafka hendelse til dokdistdittnav hvis det er et utgående dokument.
 	 */
 	@Test
-	void skalHenteDokumentOgGenerereHoveddokumentLestHendelseHvisDokumentTilknyttetPensjonSak() {
+	void skalHenteDokumentOgGenerereHoveddokumentLestHendelseHvisUtgaaendeDokumentTilknyttetPensjonSak() {
 		stubPdlGenerell();
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
 		stubDokarkivJournalpost("1c-hentdokument-pensjon-utgaaende-ok.json");

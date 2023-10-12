@@ -5,7 +5,10 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record ArkivJournalpost(Long journalpostId, String type, String fagomraade, String status,
+public record ArkivJournalpost(Long journalpostId,
+							   String type,
+							   String fagomraade,
+							   String status,
 							   String mottakskanal,
 							   String innsyn,
 							   String skjerming,

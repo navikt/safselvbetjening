@@ -63,6 +63,8 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
 
 		assertOkArkivResponse(responseEntity);
+		HoveddokumentLest hoveddokumentLest = readFromHoveddokumentLestTopic();
+		assertThat(hoveddokumentLest).isNull();
 	}
 
 	/**
@@ -70,7 +72,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 * Hvis dokumentet er knyttet til pensjon sak så skal man hente bruker og sak fra pensjon. I saken fra pensjon vil riktig tema stå PEN (Alderspensjon) eller UFO (Uføretrygd)
 	 * <p>
 	 * Noen ganger så er tema på journalposten (PEN) forskjellig fra tema på pensjon saken (UFO). Da er det tema på pensjon saken som fullmakten skal dekke
-	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten matcher tema dokumentet gjelder så skal dokument hentes
+	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten ikke dekker tema på pensjon saken så skal det returneres Forbidden feil
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktDekkerJournalpostTemaOgIkkePensjonssakTema() {
@@ -92,11 +94,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 
 	/**
 	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
-	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten ikke matcher tema dokumentet gjelder så det returneres Forbidden feil
+	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten ikke matcher tema dokumentet gjelder, så skal en Forbidden feil returneres
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktIkkeDekkerTemaDokumentetGjelder() {
 		stubPdlFullmakt("pdl-fullmakt-tema-pen.json");
+		// tema HJE fra dokarkiv
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
@@ -113,7 +116,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktIkkeFinnes() {
-		stubPdlFullmakt();
+		stubPdlFullmakt("pdl-fullmakt-empty.json");;
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
