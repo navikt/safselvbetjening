@@ -8,6 +8,7 @@ import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivBruker;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivDokumentinfo;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivFildetaljer;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivRelevanteDatoer;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSak;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSaksrelasjon;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
@@ -22,6 +23,7 @@ import no.nav.safselvbetjening.domain.SkjermingType;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -89,12 +91,23 @@ public class HentDokumentTilgangMapper {
 				.tema(arkivJournalpost.fagomraade())
 				.avsenderMottakerId(mapAvsenderMottakerId(arkivJournalpost.avsenderMottaker()))
 				.datoOpprettet(arkivJournalpost.relevanteDatoer() == null ? null : arkivJournalpost.relevanteDatoer().opprettet().toLocalDateTime())
-				.journalfoertDato(arkivJournalpost.relevanteDatoer() == null ? null : arkivJournalpost.relevanteDatoer().journalfoert().toLocalDateTime())
+				.journalfoertDato(mapJournalfoert(arkivJournalpost))
 				.skjerming(mapSkjermingType(arkivJournalpost.skjerming()))
 				.tilgangBruker(mapTilgangBruker(arkivJournalpost.bruker()))
 				.tilgangSak(mapTilgangSak(arkivJournalpost, brukerIdenter, pensjonsakOpt))
 				.innsyn(mapInnsyn(arkivJournalpost))
 				.build();
+	}
+
+	private static LocalDateTime mapJournalfoert(ArkivJournalpost arkivJournalpost) {
+		ArkivRelevanteDatoer arkivRelevanteDatoer = arkivJournalpost.relevanteDatoer();
+		if (arkivRelevanteDatoer == null) {
+			return null;
+		}
+		if (arkivRelevanteDatoer.journalfoert() == null) {
+			return null;
+		}
+		return arkivRelevanteDatoer.journalfoert().toLocalDateTime();
 	}
 
 	private static Innsyn mapInnsyn(ArkivJournalpost arkivJournalpost) {

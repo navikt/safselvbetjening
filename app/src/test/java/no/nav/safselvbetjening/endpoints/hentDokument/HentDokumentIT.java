@@ -8,7 +8,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -54,7 +53,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		String uri = createHentDokumentUri("123456a", DOKUMENT_ID, VARIANTFORMAT.name());
 		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, GET, createHttpEntityHeaders(BRUKER_ID), String.class);
 
-		assertEquals(BAD_REQUEST, responseEntity.getStatusCode());
+		assertThat(responseEntity.getStatusCode()).isEqualTo(BAD_REQUEST);
 		assertThat(responseEntity.getBody()).contains("journalpostId er ikke et tall. journalpostId=123456a");
 	}
 
@@ -69,7 +68,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
-		assertEquals(NOT_FOUND, responseEntity.getStatusCode());
+		assertThat(responseEntity.getStatusCode()).isEqualTo(NOT_FOUND);
 		assertThat(responseEntity.getBody()).contains("Fant ikke dokument med dokumentInfoId=410000000, variantFormat=ARKIV");
 	}
 
@@ -82,7 +81,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
-		assertEquals(NOT_FOUND, responseEntity.getStatusCode());
+		assertThat(responseEntity.getStatusCode()).isEqualTo(NOT_FOUND);
 		assertThat(responseEntity.getBody()).contains("Journalpost med journalpostId=400000000, dokumentInfoId=410000000 ikke funnet i Joark");
 	}
 
@@ -95,7 +94,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
-		assertEquals(INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
+		assertThat(responseEntity.getStatusCode()).isEqualTo(INTERNAL_SERVER_ERROR);
 		assertThat(responseEntity.getBody()).contains("hentJournalpost feilet teknisk. status=500 INTERNAL_SERVER_ERROR, journalpostId=400000000, dokumentInfoId=410000000");
 	}
 
@@ -152,7 +151,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
-		assertEquals(NOT_FOUND, responseEntity.getStatusCode());
+		assertThat(responseEntity.getStatusCode()).isEqualTo(NOT_FOUND);
 		assertThat(responseEntity.getBody()).contains("hentBrukerForSak returnerte tomt fødselsnummer for sakId=2000000");
 	}
 }
