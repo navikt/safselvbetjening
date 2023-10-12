@@ -7,7 +7,6 @@ import no.nav.safselvbetjening.consumer.CallIdExchangeFilterFunction;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
-import no.nav.safselvbetjening.consumer.dokarkiv.tilgangjournalpost.TilgangJournalpostResponseTo;
 import org.springframework.boot.autoconfigure.codec.CodecProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
@@ -16,7 +15,6 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -33,8 +31,6 @@ import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_DOKARKIV;
 import static no.nav.safselvbetjening.azure.AzureProperties.getOAuth2AuthorizeRequestForAzure;
-import static org.springframework.http.HttpHeaders.ACCEPT_ENCODING;
-import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -90,26 +86,6 @@ public class DokarkivConsumer {
 					FinnJournalposterResponseTo.class).getBody();
 		} catch (HttpServerErrorException e) {
 			throw new ConsumerTechnicalException("Teknisk feil ved å finne journalpost for " + request, e);
-		}
-	}
-
-	@CircuitBreaker(name = DOKARKIV_METADATA)
-	public TilgangJournalpostResponseTo tilgangJournalpost(final String journalpostId, final String dokumentInfoId, final String variantFormat) {
-		try {
-			return restTemplate.exchange("/henttilgangjournalpost/{journalpostId}/{dokumentInfoId}/{variantFormat}",
-					GET,
-					new HttpEntity<>(httpHeadersWithEncoding()),
-					TilgangJournalpostResponseTo.class,
-					journalpostId, dokumentInfoId, variantFormat).getBody();
-		} catch (HttpClientErrorException.NotFound e) {
-			throw new JournalpostIkkeFunnetException("Fant ikke journalpost for tilgangskontroll med journalpostId=" +
-													 journalpostId + ", dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
-		} catch (HttpClientErrorException e) {
-			throw new ConsumerFunctionalException("Funksjonell feil mot tilgangJournalpost for journalpost med journalpostId=" +
-												  journalpostId + "dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
-		} catch (HttpServerErrorException e) {
-			throw new ConsumerTechnicalException("Teknisk feil mot tilgangJournalpost for journalpost med journalpostId=" +
-												 journalpostId + "dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, e);
 		}
 	}
 
@@ -188,12 +164,6 @@ public class DokarkivConsumer {
 	private HttpHeaders baseHttpHeaders() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set(NAV_CALLID, getCallId());
-		return headers;
-	}
-
-	private HttpHeaders httpHeadersWithEncoding() {
-		HttpHeaders headers = baseHttpHeaders();
-		headers.set(ACCEPT_ENCODING, "gzip");
 		return headers;
 	}
 
