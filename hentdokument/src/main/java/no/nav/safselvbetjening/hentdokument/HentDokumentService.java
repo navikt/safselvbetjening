@@ -101,7 +101,7 @@ public class HentDokumentService {
 
 	private Tilgangskontroll doTilgangskontroll(final HentdokumentRequest hentdokumentRequest) {
 		ArkivJournalpost arkivJournalpost = dokarkivConsumer.journalpost(hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), HENTDOKUMENT_TILGANG_FIELDS);
-		// FIXME sanity check journalpostId, dokumentInfoId
+		validateCorrectJournalpost(hentdokumentRequest, arkivJournalpost);
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(arkivJournalpost);
 		if (brukerIdenter.isEmpty()) {
 			throw new HentTilgangDokumentException(DENY_REASON_PARTSINNSYN, FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);
@@ -116,6 +116,14 @@ public class HentDokumentService {
 		recordFullmaktAuditLog(fullmaktOpt, hentdokumentRequest);
 
 		return new Tilgangskontroll(journalpost.getJournalposttype(), journalpost.getTilgang().getJournalstatus(), fullmaktOpt);
+	}
+
+	private void validateCorrectJournalpost(HentdokumentRequest hentdokumentRequest, ArkivJournalpost arkivJournalpost) {
+		Long arkivJournalpostId = arkivJournalpost.journalpostId();
+		if (!hentdokumentRequest.getJournalpostId().equals(arkivJournalpostId.toString())) {
+			throw new IllegalStateException("Journalpost som er returnert fra dokarkiv matcher ikke journalpost fra fagarkivet. " +
+											"request.journalpostId=" + hentdokumentRequest.getJournalpostId() + ", arkivJournalpost.journalpostId=" + arkivJournalpostId);
+		}
 	}
 
 	private static void validerFullmakt(HentdokumentRequest hentdokumentRequest, Optional<Fullmakt> fullmaktOpt, Journalpost journalpost) {

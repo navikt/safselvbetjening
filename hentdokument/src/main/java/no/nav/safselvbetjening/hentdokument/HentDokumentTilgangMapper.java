@@ -26,7 +26,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class HentDokumentTilgangMapper {
@@ -69,8 +68,7 @@ public class HentDokumentTilgangMapper {
 								.kategori(arkivDokumentinfo.kategori())
 								.build())
 						.dokumentvarianter(mapDokumentVarianter(arkivDokumentinfo.fildetaljer(), variantFormat))
-						.build())
-				.collect(Collectors.toList());
+						.build()).toList();
 	}
 
 
@@ -81,7 +79,7 @@ public class HentDokumentTilgangMapper {
 						.tilgangVariant(Dokumentvariant.TilgangVariant.builder()
 								.skjerming(mapSkjermingType(fd.skjerming()))
 								.build())
-						.build()).collect(Collectors.toList());
+						.build()).toList();
 	}
 
 	private Journalpost.TilgangJournalpost mapJournalpostTilgang(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {

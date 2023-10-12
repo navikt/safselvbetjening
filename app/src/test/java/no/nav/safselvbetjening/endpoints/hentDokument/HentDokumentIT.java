@@ -99,6 +99,20 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 	}
 
 	/**
+	 * Hvis dokarkiv journalpost metadata tjenesten returnerer en journalpost som ikke matcher journalpostId det ble spurt på så skal Internal Server Error returneres
+	 */
+	@Test
+	void skalGiInternalServerErrorFeilHvisFeilJournalpost() {
+		stubDokarkivJournalpost("1c-hentdokument-feil-journalpost.json");
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(INTERNAL_SERVER_ERROR);
+		assertThat(responseEntity.getBody()).contains("Journalpost som er returnert fra dokarkiv matcher ikke journalpost fra fagarkivet.");
+	}
+
+
+	/**
 	 * Hvis dokumentet sin journalpost er knyttet til en pensjon sak (fagsystem=PEN) så skal bruker utledes fra pensjon sakId.
 	 * Dokumentet returneres hvis bruker på pensjon saken matcher bruker som henter dokumentet
 	 */

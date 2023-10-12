@@ -25,7 +25,7 @@ public class IdentService {
 	}
 
 	public BrukerIdenter hentIdenter(ArkivJournalpost arkivJournalpost) {
-		if(arkivJournalpost.isTilknyttetSak()) {
+		if (arkivJournalpost.isTilknyttetSak()) {
 			return mapBrukerIdenterSakstilknytning(arkivJournalpost);
 		} else {
 			return mapBrukerIdenterMidlertidig(arkivJournalpost);
@@ -34,7 +34,7 @@ public class IdentService {
 
 	private BrukerIdenter mapBrukerIdenterSakstilknytning(ArkivJournalpost arkivJournalpost) {
 		ArkivSaksrelasjon arkivSaksrelasjon = arkivJournalpost.saksrelasjon();
-		if(arkivSaksrelasjon.isPensjonsak()) {
+		if (arkivSaksrelasjon.isPensjonsak()) {
 			String pensjonFnr = pensjonSakRestConsumer.hentBrukerForSak(arkivSaksrelasjon.sakId().toString()).fnr();
 			return hentIdenter(pensjonFnr);
 		} else {
@@ -43,7 +43,7 @@ public class IdentService {
 	}
 
 	private BrukerIdenter mapBrukerIdenterMidlertidig(ArkivJournalpost arkivJournalpost) {
-		if(arkivJournalpost.bruker() == null) {
+		if (arkivJournalpost.bruker() == null) {
 			return BrukerIdenter.empty();
 		} else {
 			return hentIdenter(arkivJournalpost.bruker().id());
@@ -52,7 +52,7 @@ public class IdentService {
 
 	public BrukerIdenter hentIdenter(final String ident) {
 		try {
-			if(isBlank(ident)) {
+			if (isBlank(ident)) {
 				return BrukerIdenter.empty();
 			}
 

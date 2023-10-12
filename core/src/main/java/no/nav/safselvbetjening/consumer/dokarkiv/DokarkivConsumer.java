@@ -126,13 +126,9 @@ public class DokarkivConsumer {
 				})
 				.attributes(getOAuth2AuthorizedClient())
 				.accept(APPLICATION_JSON)
-				.exchangeToMono(clientResponse -> {
-					if (clientResponse.statusCode().is2xxSuccessful()) {
-						return clientResponse.bodyToMono(ArkivJournalpost.class);
-					} else {
-						return clientResponse.createError();
-					}
-				}).doOnError(handleErrorJournalpost(journalpostId, dokumentInfoId))
+				.retrieve()
+				.bodyToMono(ArkivJournalpost.class)
+				.doOnError(handleErrorJournalpost(journalpostId, dokumentInfoId))
 				.block();
 	}
 

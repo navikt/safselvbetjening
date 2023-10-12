@@ -6,10 +6,12 @@ import org.springframework.http.ResponseEntity;
 import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_ANNEN_PART;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKANNET_DOKUMENT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKJULT_INNSYN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_ANNEN_PART;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_GDPR;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_SKANNET;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_SKJULT;
@@ -125,4 +127,21 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_SKANNET_DOKUMENT));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_SKANNET);
 	}
+
+	/**
+	 * Tilgangsregel: 2b
+	 * Hvis dokumentet ikke har innlogget bruker som avsender så skal det returneres en Forbidden feil
+	 */
+	@Test
+	void skalGiForbiddenHvisBrukerIkkeErAvsender() {
+		stubDokarkivJournalpost("2a-hentdokument-bruker-ikke-avsender-forbidden.json");
+		stubPdlGenerell();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_ANNEN_PART));
+		assertThat(responseEntity.getBody()).contains(FEILMELDING_ANNEN_PART);
+	}
+
 }
