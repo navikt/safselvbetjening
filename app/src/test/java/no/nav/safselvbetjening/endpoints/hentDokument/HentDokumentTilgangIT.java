@@ -7,11 +7,13 @@ import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_ANNEN_PART;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_FEILREGISTRERT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_PARTSINNSYN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKANNET_DOKUMENT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKJULT_INNSYN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_ANNEN_PART;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_FEILREGISTRERT;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_GDPR;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_SKANNET;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_SKJULT;
@@ -45,6 +47,22 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 	}
 
 	/**
+	 * Tilgangsregel: 1b
+	 * Selvbetjening viser ikke dokumenter før en hardkodet dato, konfigurert som safselvbetjening.tidligst-innsyn-dato
+	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 */
+	@Test
+	void skalHenteDokumentHvisInnsynVisesSelvOmEldreEnnInnsynsdato() {
+		stubDokarkivJournalpost("1b-hentdokument-innsyn-vises-ok.json");
+		stubPdlGenerell();
+		stubHentDokumentDokarkiv();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertOkArkivResponse(responseEntity);
+	}
+
+	/**
 	 * Tilgangsregel: 1c
 	 * Midlertidige journalposter har status M eller MO. Det betyr at de nylig er mottatt av NAV (typisk fra skanning)
 	 * Det kan være søknader bruker har under behandling og de har ingen sakstilknytning eller er ferdig journalført
@@ -62,7 +80,23 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 	}
 
 	/**
-	 * Tilgangsregel: 1c
+	 * Tilgangsregel: 1d
+	 * Hvis dokumentet har en feilregistrert saksrelasjon så skal det returneres en Forbidden feil
+	 */
+	@Test
+	void skalGiForbiddenHvisSaksrelasjonFeilregistrert() {
+		stubDokarkivJournalpost("1d-hentdokument-feilregistrert-forbidden.json");
+		stubPdlGenerell();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FEILREGISTRERT));
+		assertThat(responseEntity.getBody()).contains(FEILMELDING_FEILREGISTRERT);
+	}
+
+	/**
+	 * Tilgangsregel: 1f
 	 * Fagpost kan skjerme dokumenter på forespørsel, det settes da et flagg på Journalpost
 	 * Hvis journalpost er skjermet så skal det returneres Forbidden feil
 	 */
@@ -76,22 +110,6 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_GDPR));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_GDPR);
-	}
-
-	/**
-	 * Tilgangsregel: 1b
-	 * Selvbetjening viser ikke dokumenter før en hardkodet dato, konfigurert som safselvbetjening.tidligst-innsyn-dato
-	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
-	 */
-	@Test
-	void skalHenteDokumentHvisInnsynVisesSelvOmEldreEnnInnsynsdato() {
-		stubDokarkivJournalpost("1b-hentdokument-innsyn-vises-ok.json");
-		stubPdlGenerell();
-		stubHentDokumentDokarkiv();
-
-		ResponseEntity<String> responseEntity = callHentDokument();
-
-		assertOkArkivResponse(responseEntity);
 	}
 
 	/**
