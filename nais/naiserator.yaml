@@ -57,10 +57,9 @@ spec:
     max: {{ MAX_REPLICAS }}
   resources:
     limits:
-      cpu: 2000m
-      memory: 2560Mi
+      memory: 4000Mi
     requests:
-      memory: 1792Mi
+      memory: 1200Mi
   vault:
     enabled: true
     paths:
