@@ -58,6 +58,10 @@ public class BrukerIdenter {
 		return aktoerIds.isEmpty() && foedselsnummer.isEmpty();
 	}
 
+	public static BrukerIdenter empty() {
+		return new BrukerIdenter(List.of());
+	}
+
 	/**
 	 * Ikke risikere å skrive ut identer ved kall til toString()
 	 *

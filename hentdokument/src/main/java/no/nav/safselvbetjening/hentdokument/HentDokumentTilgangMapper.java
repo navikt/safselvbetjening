@@ -1,154 +1,171 @@
 package no.nav.safselvbetjening.hentdokument;
 
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangBrukerDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangDokumentInfoDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangSakDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangVariantDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivAvsenderMottaker;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivBruker;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivDokumentinfo;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivFildetaljer;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivRelevanteDatoer;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSak;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSaksrelasjon;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
+import no.nav.safselvbetjening.domain.Innsyn;
 import no.nav.safselvbetjening.domain.Journalpost;
+import no.nav.safselvbetjening.domain.Journalposttype;
+import no.nav.safselvbetjening.domain.Journalstatus;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.SkjermingType;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.FagsystemCode.PEN;
-import static no.nav.safselvbetjening.domain.Innsyn.valueOf;
-import static no.nav.safselvbetjening.domain.Kanal.INGEN_DISTRIBUSJON;
-import static no.nav.safselvbetjening.domain.Kanal.LOKAL_UTSKRIFT;
-import static no.nav.safselvbetjening.domain.Kanal.SENTRAL_UTSKRIFT;
-import static no.nav.safselvbetjening.domain.Kanal.UKJENT;
-
 @Component
-class HentDokumentTilgangMapper {
+public class HentDokumentTilgangMapper {
 
-	public Journalpost map(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
+	public Journalpost map(ArkivJournalpost arkivJournalpost, String variantFormat, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
 		return Journalpost.builder()
-				.journalpostId(tilgangJournalpostDto.getJournalpostId())
-				.journalposttype(tilgangJournalpostDto.getJournalpostType() == null ? null : tilgangJournalpostDto.getJournalpostType().toSafJournalposttype())
-				.journalstatus(tilgangJournalpostDto.getJournalStatus() == null ? null : tilgangJournalpostDto.getJournalStatus().toSafJournalstatus())
-				.kanal(mapKanal(tilgangJournalpostDto))
-				.tilgang(mapJournalpostTilgang(tilgangJournalpostDto, brukerIdenter, pensjonsakOpt))
-				.dokumenter(Collections.singletonList(mapDokumenter(tilgangJournalpostDto.getDokument())))
+				.journalpostId(arkivJournalpost.journalpostId().toString())
+				.journalposttype(mapJournalposttype(arkivJournalpost))
+				.journalstatus(mapJournalstatus(arkivJournalpost))
+				.tilgang(mapJournalpostTilgang(arkivJournalpost, brukerIdenter, pensjonsakOpt))
+				.dokumenter(mapDokumenter(arkivJournalpost.dokumenter(), variantFormat))
 				.build();
 	}
 
-	private DokumentInfo mapDokumenter(TilgangDokumentInfoDto tilgangDokumentInfoDto) {
-		if (tilgangDokumentInfoDto == null) {
+	private static Journalposttype mapJournalposttype(ArkivJournalpost arkivJournalpost) {
+		try {
+			return arkivJournalpost.type() == null ? null : JournalpostTypeCode.valueOf(arkivJournalpost.type()).toSafJournalposttype();
+		} catch (Exception e) {
 			return null;
 		}
-		return DokumentInfo.builder()
-				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-						.kassert(tilgangDokumentInfoDto.getKassert() != null && tilgangDokumentInfoDto.getKassert())
-						.kategori(tilgangDokumentInfoDto.getKategori())
-						.build())
-				.dokumentvarianter(Collections.singletonList(mapDokumentVarianter(tilgangDokumentInfoDto.getVariant())))
-				.build();
 	}
 
-	private Dokumentvariant mapDokumentVarianter(TilgangVariantDto tilgangVariantDto) {
-
-		return Dokumentvariant.builder()
-				.tilgangVariant(Dokumentvariant.TilgangVariant.builder()
-						.skjerming(mapSkjermingType(tilgangVariantDto.getSkjerming()))
-						.build())
-				.build();
+	private static Journalstatus mapJournalstatus(ArkivJournalpost arkivJournalpost) {
+		try {
+			return arkivJournalpost.status() == null ? null : JournalStatusCode.valueOf(arkivJournalpost.status()).toSafJournalstatus();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
-	private Journalpost.TilgangJournalpost mapJournalpostTilgang(TilgangJournalpostDto tilgangJournalpostDto, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
+	private List<DokumentInfo> mapDokumenter(List<ArkivDokumentinfo> arkivDokumentinfos, String variantFormat) {
+		if (arkivDokumentinfos == null || arkivDokumentinfos.isEmpty()) {
+			return List.of();
+		}
+
+		return arkivDokumentinfos.stream()
+				.map(arkivDokumentinfo -> DokumentInfo.builder()
+						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+								.kassert(arkivDokumentinfo.kassert() != null && arkivDokumentinfo.kassert())
+								.kategori(arkivDokumentinfo.kategori())
+								.build())
+						.dokumentvarianter(mapDokumentVarianter(arkivDokumentinfo.fildetaljer(), variantFormat))
+						.build()).toList();
+	}
+
+
+	private List<Dokumentvariant> mapDokumentVarianter(List<ArkivFildetaljer> arkivFildetaljer, String variantFormat) {
+		return arkivFildetaljer.stream()
+				.filter(fd -> fd.format().equals(variantFormat))
+				.map(fd -> Dokumentvariant.builder()
+						.tilgangVariant(Dokumentvariant.TilgangVariant.builder()
+								.skjerming(mapSkjermingType(fd.skjerming()))
+								.build())
+						.build()).toList();
+	}
+
+	private Journalpost.TilgangJournalpost mapJournalpostTilgang(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
 		return Journalpost.TilgangJournalpost.builder()
-				.journalstatus(tilgangJournalpostDto.getJournalStatus() == null ? null : tilgangJournalpostDto.getJournalStatus().name())
-				.datoOpprettet(tilgangJournalpostDto.getDatoOpprettet())
-				.mottakskanal(mapTilgangMottakskanal(tilgangJournalpostDto.getMottakskanal()))
-				.tema(mapTema(tilgangJournalpostDto))
-				.avsenderMottakerId(tilgangJournalpostDto.getAvsenderMottakerId())
-				.journalfoertDato(tilgangJournalpostDto.getJournalfoertDato())
-				.skjerming(mapSkjermingType(tilgangJournalpostDto.getSkjerming()))
-				.tilgangBruker(mapTilgangBruker(tilgangJournalpostDto.getBruker()))
-				.tilgangSak(mapTilgangSak(tilgangJournalpostDto.getSak(), brukerIdenter, pensjonsakOpt))
-				.innsyn(tilgangJournalpostDto.getInnsyn() == null ? null : valueOf(tilgangJournalpostDto.getInnsyn().name()))
+				.journalstatus(arkivJournalpost.status() == null ? null : arkivJournalpost.status())
+				.mottakskanal(mapTilgangMottakskanal(arkivJournalpost.mottakskanal()))
+				.tema(arkivJournalpost.fagomraade())
+				.avsenderMottakerId(mapAvsenderMottakerId(arkivJournalpost.avsenderMottaker()))
+				.datoOpprettet(arkivJournalpost.relevanteDatoer() == null ? null : arkivJournalpost.relevanteDatoer().opprettet().toLocalDateTime())
+				.journalfoertDato(mapJournalfoert(arkivJournalpost))
+				.skjerming(mapSkjermingType(arkivJournalpost.skjerming()))
+				.tilgangBruker(mapTilgangBruker(arkivJournalpost.bruker()))
+				.tilgangSak(mapTilgangSak(arkivJournalpost, brukerIdenter, pensjonsakOpt))
+				.innsyn(mapInnsyn(arkivJournalpost))
 				.build();
 	}
 
-	private static String mapTema(TilgangJournalpostDto tilgangJournalpostDto) {
-		return tilgangJournalpostDto.getFagomrade() == null ? null : tilgangJournalpostDto.getFagomrade().name();
-	}
-
-	private Kanal mapTilgangMottakskanal(MottaksKanalCode mottakskanal) {
-		if (mottakskanal == null) {
+	private static LocalDateTime mapJournalfoert(ArkivJournalpost arkivJournalpost) {
+		ArkivRelevanteDatoer arkivRelevanteDatoer = arkivJournalpost.relevanteDatoer();
+		if (arkivRelevanteDatoer == null) {
 			return null;
 		}
-		return mottakskanal.getSafKanal();
-	}
-
-	private Journalpost.TilgangBruker mapTilgangBruker(TilgangBrukerDto tilgangBrukerDto) {
-		if (tilgangBrukerDto == null) {
+		if (arkivRelevanteDatoer.journalfoert() == null) {
 			return null;
 		}
-		return Journalpost.TilgangBruker.builder().brukerId(tilgangBrukerDto.getBrukerId()).build();
+		return arkivRelevanteDatoer.journalfoert().toLocalDateTime();
 	}
 
-	private Journalpost.TilgangSak mapTilgangSak(TilgangSakDto tilgangSakDto, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
-		if (tilgangSakDto == null) {
+	private static Innsyn mapInnsyn(ArkivJournalpost arkivJournalpost) {
+		try {
+			return arkivJournalpost.innsyn() == null ? null : Innsyn.valueOf(arkivJournalpost.innsyn());
+		} catch (Exception e) {
 			return null;
 		}
-
-		return Journalpost.TilgangSak.builder()
-				.aktoerId(tilgangSakDto.getAktoerId())
-				.foedselsnummer(PEN.name().equals(tilgangSakDto.getFagsystem()) ? brukerIdenter.getFoedselsnummer().get(0) : null)
-				.fagsystem(tilgangSakDto.getFagsystem())
-				.feilregistrert(tilgangSakDto.getFeilregistrert() != null && tilgangSakDto.getFeilregistrert())
-				.tema(pensjonsakOpt.isPresent() ? pensjonsakOpt.get().arkivtema() : tilgangSakDto.getTema())
-				.build();
 	}
 
-	private SkjermingType mapSkjermingType(SkjermingTypeCode skjermingTypeCode) {
-		if (skjermingTypeCode == null) {
+	private static String mapAvsenderMottakerId(ArkivAvsenderMottaker avsenderMottaker) {
+		if (avsenderMottaker == null) {
 			return null;
 		}
-
-		return switch (skjermingTypeCode) {
-			case POL -> SkjermingType.POL;
-			case FEIL -> SkjermingType.FEIL;
-		};
+		return avsenderMottaker.id();
 	}
 
-	private Kanal mapKanal(TilgangJournalpostDto tilgangJournalpostDto) {
-		if (tilgangJournalpostDto.getJournalpostType() == null) {
+	private Kanal mapTilgangMottakskanal(String mottakskanal) {
+		try {
+			return mottakskanal == null ? null : MottaksKanalCode.valueOf(mottakskanal).getSafKanal();
+		} catch (Exception e) {
 			return null;
 		}
+	}
 
-		return switch (tilgangJournalpostDto.getJournalpostType()) {
-			case I -> {
-				if (tilgangJournalpostDto.getMottakskanal() == null) {
-					yield UKJENT;
-				}
-				yield tilgangJournalpostDto.getMottakskanal().getSafKanal();
+	private Journalpost.TilgangBruker mapTilgangBruker(ArkivBruker arkivBruker) {
+		if (arkivBruker == null) {
+			return null;
+		}
+		return Journalpost.TilgangBruker.builder().brukerId(arkivBruker.id()).build();
+	}
+
+	private Journalpost.TilgangSak mapTilgangSak(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
+		if (arkivJournalpost.isTilknyttetSak()) {
+			ArkivSaksrelasjon arkivSaksrelasjon = arkivJournalpost.saksrelasjon();
+			Journalpost.TilgangSak.TilgangSakBuilder tilgangSakBuilder = Journalpost.TilgangSak.builder()
+					.foedselsnummer(brukerIdenter.getAktivFolkeregisterident())
+					.fagsystem(arkivSaksrelasjon.fagsystem())
+					.feilregistrert(arkivSaksrelasjon.feilregistrert() != null && arkivSaksrelasjon.feilregistrert());
+			if (arkivSaksrelasjon.isPensjonsak()) {
+				return tilgangSakBuilder
+						.tema(pensjonsakOpt.map(Pensjonsak::arkivtema).orElse(null))
+						.build();
+			} else {
+				ArkivSak arkivSak = arkivSaksrelasjon.sak();
+				return tilgangSakBuilder
+						.aktoerId(arkivSak.aktoerId())
+						.tema(arkivSak.tema())
+						.build();
 			}
-			case U -> {
-				// utsendingskanal returneres ikke fra grensesnitt. Dette er en workaround for lokal utskrift
-				// Dvs brevet er printet ut av saksbehandler lokalt og skannet inn hos skanning leverandør.
-				if (tilgangJournalpostDto.getMottakskanal() == null) {
-					yield mapManglendeUtsendingskanal(tilgangJournalpostDto);
-				}
-				yield tilgangJournalpostDto.getMottakskanal().getSafKanal();
-			}
-			case N -> INGEN_DISTRIBUSJON;
-		};
+		} else {
+			return null;
+		}
 	}
 
-	private Kanal mapManglendeUtsendingskanal(TilgangJournalpostDto tilgangJournalpostDto) {
-		return switch (tilgangJournalpostDto.getJournalStatus()) {
-			case FL -> LOKAL_UTSKRIFT;
-			case FS, E -> SENTRAL_UTSKRIFT;
-			default -> null;
-		};
+	private SkjermingType mapSkjermingType(String skjerming) {
+		try {
+			return skjerming == null ? null : SkjermingType.valueOf(skjerming);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

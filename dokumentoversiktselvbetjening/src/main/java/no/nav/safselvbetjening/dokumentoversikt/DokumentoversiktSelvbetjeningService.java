@@ -3,11 +3,11 @@ package no.nav.safselvbetjening.dokumentoversikt;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
-import no.nav.safselvbetjening.consumer.fagarkiv.FagarkivConsumer;
-import no.nav.safselvbetjening.consumer.fagarkiv.FinnJournalposterRequestTo;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.DokarkivConsumer;
+import no.nav.safselvbetjening.consumer.dokarkiv.FinnJournalposterRequestTo;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.service.BrukerIdenter;
@@ -23,12 +23,12 @@ import java.util.Objects;
 
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.E;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FL;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.FS;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.J;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.M;
-import static no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode.MO;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.E;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.FL;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.FS;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.J;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.M;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.MO;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_IKKE_FUNNET_I_PDL;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 
@@ -44,20 +44,20 @@ class DokumentoversiktSelvbetjeningService {
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final IdentService identService;
 	private final SakService sakService;
-	private final FagarkivConsumer fagarkivConsumer;
+	private final DokarkivConsumer dokarkivConsumer;
 	private final JournalpostMapper journalpostMapper;
 	private final UtledTilgangService utledTilgangService;
 
 	public DokumentoversiktSelvbetjeningService(final SafSelvbetjeningProperties safSelvbetjeningProperties,
 												final IdentService identService,
 												final SakService sakService,
-												final FagarkivConsumer fagarkivConsumer,
+												final DokarkivConsumer dokarkivConsumer,
 												final JournalpostMapper journalpostMapper,
 												final UtledTilgangService utledTilgangService) {
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 		this.identService = identService;
 		this.sakService = sakService;
-		this.fagarkivConsumer = fagarkivConsumer;
+		this.dokarkivConsumer = dokarkivConsumer;
 		this.journalpostMapper = journalpostMapper;
 		this.utledTilgangService = utledTilgangService;
 	}
@@ -74,14 +74,14 @@ class DokumentoversiktSelvbetjeningService {
 	Journalpostdata queryFiltrerAlleJournalposter(final Basedata basedata, final List<String> tema) {
 		final BrukerIdenter brukerIdenter = basedata.getBrukerIdenter();
 		final Saker saker = basedata.getSaker();
-		List<JournalpostDto> tilgangJournalposter = fagarkivConsumer.finnJournalposter(finnAlleJournalposterRequest(brukerIdenter, saker)).getTilgangJournalposter();
+		List<JournalpostDto> tilgangJournalposter = dokarkivConsumer.finnJournalposter(finnAlleJournalposterRequest(brukerIdenter, saker)).getTilgangJournalposter();
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, saker, tilgangJournalposter);
 	}
 
 	Journalpostdata queryFiltrerSakstilknyttedeJournalposter(final Basedata basedata, final List<String> tema) {
 		final BrukerIdenter brukerIdenter = basedata.getBrukerIdenter();
 		final Saker saker = basedata.getSaker();
-		List<JournalpostDto> tilgangJournalposter = fagarkivConsumer.finnJournalposter(finnFerdigstilteJournalposterRequest(saker)).getTilgangJournalposter();
+		List<JournalpostDto> tilgangJournalposter = dokarkivConsumer.finnJournalposter(finnFerdigstilteJournalposterRequest(saker)).getTilgangJournalposter();
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, saker, tilgangJournalposter);
 	}
 

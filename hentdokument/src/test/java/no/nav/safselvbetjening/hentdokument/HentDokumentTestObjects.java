@@ -1,22 +1,27 @@
 package no.nav.safselvbetjening.hentdokument;
 
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.FagomradeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.InnsynCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalStatusCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.JournalpostTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.MottaksKanalCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.domain.SkjermingTypeCode;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangBrukerDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangDokumentInfoDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangJournalpostDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangSakDto;
-import no.nav.safselvbetjening.consumer.fagarkiv.tilgangjournalpost.TilgangVariantDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.FagomradeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.InnsynCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.SkjermingTypeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivAvsenderMottaker;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivBruker;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivDokumentinfo;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivFildetaljer;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivRelevanteDatoer;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSak;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSaksrelasjon;
 import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,43 +36,53 @@ public class HentDokumentTestObjects {
 	static final String TEMA = "FAR";
 	static final String TEMA_PENSJON_UFO = "UFO";
 	static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
-	static final LocalDateTime DATO_OPPRETTET = LocalDate.of(2018, Month.FEBRUARY, 23).atStartOfDay();
-	static final LocalDateTime DATO_JOURNALFOERT = LocalDate.of(2020, Month.JANUARY, 18).atStartOfDay();
+	static final OffsetDateTime DATO_OPPRETTET = LocalDate.of(2018, Month.FEBRUARY, 23).atStartOfDay().atOffset(ZoneOffset.of("+00:00"));
+	static final OffsetDateTime DATO_JOURNALFOERT = LocalDate.of(2020, Month.JANUARY, 18).atStartOfDay().atOffset(ZoneOffset.of("+00:00"));
 
-	public static TilgangJournalpostDto.TilgangJournalpostDtoBuilder createTilgangJournalpostDto() {
-		return createBaseTilgangJournalpost()
-				.dokument(createDokumentInfoDto().build())
-				.skjerming(SkjermingTypeCode.POL)
-				.bruker(TilgangBrukerDto.builder().brukerId(IDENT).build())
-				.innsyn(InnsynCode.BRUK_STANDARDREGLER)
-				.sak(TilgangSakDto.builder()
-						.aktoerId(AKTOER_ID)
+	public static ArkivJournalpost.ArkivJournalpostBuilder baseArkivJournalpost() {
+		return ArkivJournalpost.builder()
+				.journalpostId(Long.valueOf(JOURNALPOST_ID))
+				.avsenderMottaker(new ArkivAvsenderMottaker(AVSENDER_MOTTAKER_ID, null))
+				.type(JournalpostTypeCode.I.name())
+				.status(JournalStatusCode.M.name())
+				.mottakskanal(MottaksKanalCode.NAV_NO.name())
+				.relevanteDatoer(new ArkivRelevanteDatoer(DATO_OPPRETTET, DATO_JOURNALFOERT))
+				.fagomraade(FagomradeCode.PEN.name());
+	}
+
+	public static ArkivJournalpost arkivJournalpost() {
+		return baseArkivJournalpost()
+				.skjerming(SkjermingTypeCode.POL.name())
+				.bruker(new ArkivBruker(IDENT, null))
+				.innsyn(InnsynCode.BRUK_STANDARDREGLER.name())
+				.saksrelasjon(ArkivSaksrelasjon.builder()
+						.sakId(1L)
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(true)
-						.tema(TEMA)
-						.build());
+						.sak(new ArkivSak(TEMA, AKTOER_ID, null, null, null))
+						.build())
+				.dokumenter(List.of(arkivDokumentinfo(VariantFormatCode.ARKIV.name()), arkivDokumentinfo(VariantFormatCode.ORIGINAL.name())))
+				.build();
 	}
 
-	public static TilgangJournalpostDto.TilgangJournalpostDtoBuilder createBaseTilgangJournalpost() {
-		return TilgangJournalpostDto.builder()
-				.journalpostId(JOURNALPOST_ID)
-				.avsenderMottakerId(AVSENDER_MOTTAKER_ID)
-				.journalpostType(JournalpostTypeCode.I)
-				.journalStatus(JournalStatusCode.M)
-				.mottakskanal(MottaksKanalCode.NAV_NO)
-				.datoOpprettet(DATO_OPPRETTET)
-				.journalfoertDato(DATO_JOURNALFOERT)
-				.fagomrade(FagomradeCode.PEN);
+	public static ArkivJournalpost pensjonArkivJournalpost() {
+		return baseArkivJournalpost()
+				.skjerming(SkjermingTypeCode.POL.name())
+				.bruker(new ArkivBruker(IDENT, null))
+				.innsyn(InnsynCode.BRUK_STANDARDREGLER.name())
+				.saksrelasjon(ArkivSaksrelasjon.builder()
+						.sakId(1L)
+						.fagsystem(ARKIVSAKSYSTEM_PENSJON)
+						.feilregistrert(true)
+						.sak(null)
+						.build())
+				.dokumenter(List.of(arkivDokumentinfo(VariantFormatCode.ARKIV.name()), arkivDokumentinfo(VariantFormatCode.ORIGINAL.name())))
+				.build();
 	}
 
-	public static TilgangDokumentInfoDto.TilgangDokumentInfoDtoBuilder createDokumentInfoDto() {
-		return TilgangDokumentInfoDto
-				.builder()
-				.kassert(false)
-				.kategori(FORVALTNINGSNOTAT)
-				.variant(TilgangVariantDto.builder()
-						.skjerming(SkjermingTypeCode.FEIL)
-						.build());
+	public static ArkivDokumentinfo arkivDokumentinfo(String variantFormat) {
+		return new ArkivDokumentinfo(40000000L, SkjermingTypeCode.FEIL.name(), FORVALTNINGSNOTAT, null,
+				List.of(new ArkivFildetaljer(SkjermingTypeCode.FEIL.name(), variantFormat)));
 	}
 
 	static BrukerIdenter createBrukerIdenter() {
