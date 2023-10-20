@@ -6,6 +6,7 @@ import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.SkjermingTypeCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.UtsendingsKanalCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivAvsenderMottaker;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivBruker;
@@ -24,6 +25,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.E;
+import static no.nav.safselvbetjening.hentdokument.HentDokumentTilgangMapper.TILKNYTTET_SOM_HOVEDDOKUMENT;
 
 public class HentDokumentTestObjects {
 
@@ -65,6 +69,25 @@ public class HentDokumentTestObjects {
 				.build();
 	}
 
+	public static ArkivJournalpost utgaaendeArkivJournalpost() {
+		return baseArkivJournalpost()
+				.type(JournalpostTypeCode.U.name())
+				.mottakskanal(null)
+				.status(E.name())
+				.utsendingskanal(UtsendingsKanalCode.NAV_NO.name())
+				.skjerming(SkjermingTypeCode.POL.name())
+				.bruker(new ArkivBruker(IDENT, null))
+				.innsyn(InnsynCode.BRUK_STANDARDREGLER.name())
+				.saksrelasjon(ArkivSaksrelasjon.builder()
+						.sakId(1L)
+						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
+						.feilregistrert(true)
+						.sak(new ArkivSak(TEMA, AKTOER_ID, null, null, null))
+						.build())
+				.dokumenter(List.of(arkivDokumentinfo(VariantFormatCode.ARKIV.name()), arkivDokumentinfo(VariantFormatCode.ORIGINAL.name())))
+				.build();
+	}
+
 	public static ArkivJournalpost pensjonArkivJournalpost() {
 		return baseArkivJournalpost()
 				.skjerming(SkjermingTypeCode.POL.name())
@@ -81,7 +104,7 @@ public class HentDokumentTestObjects {
 	}
 
 	public static ArkivDokumentinfo arkivDokumentinfo(String variantFormat) {
-		return new ArkivDokumentinfo(40000000L, SkjermingTypeCode.FEIL.name(), FORVALTNINGSNOTAT, null,
+		return new ArkivDokumentinfo(40000000L, TILKNYTTET_SOM_HOVEDDOKUMENT, SkjermingTypeCode.FEIL.name(), FORVALTNINGSNOTAT, null,
 				List.of(new ArkivFildetaljer(SkjermingTypeCode.FEIL.name(), variantFormat)));
 	}
 

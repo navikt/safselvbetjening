@@ -38,8 +38,10 @@
           "format": "ORIGINAL",
           "skjerming": null
         }
-      ]
+      ],
+      "tilknyttetSom": "HOVEDDOKUMENT"
     }
   ],
-  "mottakskanal": null
+  "mottakskanal": null,
+  "utsendingskanal": "NAV_NO"
 }

@@ -45,9 +45,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class HentDokumentService {
 	private static final Logger secureLog = LoggerFactory.getLogger("secureLog");
 	public static final Set<String> HENTDOKUMENT_TILGANG_FIELDS = Set.of(
-			"journalpostId", "fagomraade", "status", "type", "skjerming", "mottakskanal", "innsyn",
+			"journalpostId", "fagomraade", "status", "type", "skjerming", "mottakskanal", "utsendingskanal", "innsyn",
 			"bruker", "avsenderMottaker", "relevanteDatoer", "saksrelasjon",
-			"dokumenter.dokumentInfoId", "dokumenter.kassert", "dokumenter.kategori", "dokumenter.skjerming", "dokumenter.fildetaljer");
+			"dokumenter.dokumentInfoId", "dokumenter.tilknyttetSom", "dokumenter.kategori", "dokumenter.skjerming", "dokumenter.fildetaljer");
 
 	private final DokarkivConsumer dokarkivConsumer;
 	private final IdentService identService;
@@ -115,7 +115,7 @@ public class HentDokumentService {
 		utledTilgangService.utledTilgangHentDokument(journalpost, brukerIdenter);
 		recordFullmaktAuditLog(fullmaktOpt, hentdokumentRequest);
 
-		return new Tilgangskontroll(journalpost.getJournalposttype(), journalpost.getTilgang().getJournalstatus(), fullmaktOpt);
+		return new Tilgangskontroll(journalpost, fullmaktOpt);
 	}
 
 	private static void validerRiktigJournalpost(HentdokumentRequest hentdokumentRequest, ArkivJournalpost arkivJournalpost) {
