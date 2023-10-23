@@ -112,7 +112,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 	}
 
 	/**
-	 * Hvis journalpost har utsendingskanal NAV_NO og dokumentet som hentes er hoveddokument så skal dokumenteres returneres
+	 * Hvis journalpost har utsendingskanal NAV_NO og dokumentet som hentes er hoveddokument så skal dokumenteret returneres
 	 * og det skal generes en Hoveddokument hendelse for å stoppe revarsling til bruker
 	 */
 	@Test
@@ -130,7 +130,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 	}
 
 	/**
-	 * Hvis journalpost har utsendingskanal NAV_NO og dokumentet som hentes er vedlegg så skal dokumenteres returneres
+	 * Hvis journalpost har utsendingskanal NAV_NO og dokumentet som hentes er vedlegg så skal dokumenteret returneres
 	 * og det skal ikke generes en Hoveddokument hendelse for å stoppe revarsling til bruker siden dokumentet er et vedlegg
 	 */
 	@Test

@@ -47,7 +47,7 @@ public class HentDokumentService {
 	public static final Set<String> HENTDOKUMENT_TILGANG_FIELDS = Set.of(
 			"journalpostId", "fagomraade", "status", "type", "skjerming", "mottakskanal", "utsendingskanal", "innsyn",
 			"bruker", "avsenderMottaker", "relevanteDatoer", "saksrelasjon",
-			"dokumenter.dokumentInfoId", "dokumenter.tilknyttetSom", "dokumenter.kategori", "dokumenter.skjerming", "dokumenter.fildetaljer");
+			"dokumenter.dokumentInfoId", "dokumenter.tilknyttetSom", "dokumenter.kassert", "dokumenter.kategori", "dokumenter.skjerming", "dokumenter.fildetaljer");
 
 	private final DokarkivConsumer dokarkivConsumer;
 	private final IdentService identService;

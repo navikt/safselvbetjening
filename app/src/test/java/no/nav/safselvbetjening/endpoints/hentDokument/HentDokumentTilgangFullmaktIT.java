@@ -48,6 +48,27 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 
 	/**
 	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
+	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten matcher tema dokumentet gjelder så skal dokument hentes
+	 *
+	 * Hvis dokumentet er et utgående hoveddokument med kanal NAV_NO skal det ikke genereres HoveddokumentLest hendelse
+	 */
+	@Test
+	void skalHenteUtgaaendeNavNoDokumentOgIkkeSendeHoveddokumentLestHendelseHvisPaaloggetBrukerErFullmektigMedGyldigFullmakt() {
+		stubPdlFullmakt("pdl-fullmakt-tema-hje.json");
+		stubDokarkivJournalpost("1c-hentdokument-utgaaende-ok.json");
+		stubPdlGenerell();
+		stubHentDokumentDokarkiv();
+
+		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+
+		assertOkArkivResponse(responseEntity);
+		HoveddokumentLest hoveddokumentLest = readFromHoveddokumentLestTopic();
+		assertThat(hoveddokumentLest).isNull();
+	}
+
+
+	/**
+	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
 	 * Hvis dokumentet er knyttet til pensjon sak så skal man hente bruker og sak fra pensjon. I saken fra pensjon vil riktig tema stå PEN (Alderspensjon) eller UFO (Uføretrygd)
 	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten matcher tema dokumentet gjelder så skal dokument hentes
 	 */
