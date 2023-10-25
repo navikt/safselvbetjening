@@ -1,8 +1,8 @@
 {
   "journalpostId": 400000000,
-  "type": "I",
+  "type": "U",
   "fagomraade": "HJE",
-  "status": "J",
+  "status": "E",
   "saksrelasjon": {
     "fagsystem": "FS22",
     "sak": {
@@ -25,7 +25,7 @@
     "id": "12345678911",
     "type": "PERSON"
   },
-  "innsyn": "SKJULES_BRUKERS_ONSKE",
+  "innsyn": null,
   "dokumenter": [
     {
       "dokumentInfoId": 410000000,
@@ -45,5 +45,6 @@
       "tilknyttetSom": "HOVEDDOKUMENT"
     }
   ],
-  "mottakskanal": "NAV_NO"
+  "mottakskanal": null,
+  "utsendingskanal": "NAV_NO"
 }

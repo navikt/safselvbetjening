@@ -1,22 +1,38 @@
 package no.nav.safselvbetjening.hentdokument;
 
+import no.nav.safselvbetjening.domain.DokumentInfo;
+import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Journalposttype;
+import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.fullmektig.Fullmakt;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.E;
-import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.FS;
 import static no.nav.safselvbetjening.domain.Journalposttype.U;
+import static no.nav.safselvbetjening.domain.Kanal.NAV_NO;
 
-record Tilgangskontroll(Journalposttype journalpostType, String tilgangJournalstatus,
+record Tilgangskontroll(Journalposttype journalpostType, Kanal kanal, boolean isHoveddokument,
 						Optional<Fullmakt> fullmakt) {
-	private static final Set<String> JOURNALSTATUS_GENERER_HOVEDDOKUMENTLEST_HENDELSE = Set.of(FS.name(), E.name());
+
+	public Tilgangskontroll(Journalpost journalpost, Optional<Fullmakt> fullmaktOpt) {
+		this(journalpost.getJournalposttype(),
+				journalpost.getKanal(),
+				isHoveddokument(journalpost.getDokumenter()),
+				fullmaktOpt);
+	}
+
+	private static boolean isHoveddokument(List<DokumentInfo> dokumenter) {
+		if(dokumenter.isEmpty()) {
+			return false;
+		}
+		return dokumenter.get(0).isHoveddokument();
+	}
 
 	boolean genererHoveddokumentLestHendelse() {
 		return journalpostType == U &&
-			   JOURNALSTATUS_GENERER_HOVEDDOKUMENTLEST_HENDELSE.contains(tilgangJournalstatus) &&
+			   kanal == NAV_NO &&
+			   isHoveddokument &&
 			   fullmakt.isEmpty();
 	}
 }

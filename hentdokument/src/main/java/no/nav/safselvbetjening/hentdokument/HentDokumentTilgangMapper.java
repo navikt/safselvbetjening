@@ -3,6 +3,7 @@ package no.nav.safselvbetjening.hentdokument;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.UtsendingsKanalCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivAvsenderMottaker;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivBruker;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivDokumentinfo;
@@ -27,14 +28,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static no.nav.safselvbetjening.domain.Kanal.INGEN_DISTRIBUSJON;
+import static no.nav.safselvbetjening.domain.Kanal.UKJENT;
+
 @Component
 public class HentDokumentTilgangMapper {
 
+	static final String TILKNYTTET_SOM_HOVEDDOKUMENT = "HOVEDDOKUMENT";
+
 	public Journalpost map(ArkivJournalpost arkivJournalpost, String variantFormat, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
+		Journalposttype journalposttype = mapJournalposttype(arkivJournalpost);
 		return Journalpost.builder()
 				.journalpostId(arkivJournalpost.journalpostId().toString())
-				.journalposttype(mapJournalposttype(arkivJournalpost))
+				.journalposttype(journalposttype)
 				.journalstatus(mapJournalstatus(arkivJournalpost))
+				.kanal(mapKanal(arkivJournalpost, journalposttype))
 				.tilgang(mapJournalpostTilgang(arkivJournalpost, brukerIdenter, pensjonsakOpt))
 				.dokumenter(mapDokumenter(arkivJournalpost.dokumenter(), variantFormat))
 				.build();
@@ -56,6 +64,26 @@ public class HentDokumentTilgangMapper {
 		}
 	}
 
+	private static Kanal mapKanal(ArkivJournalpost arkivJournalpost, Journalposttype journalposttype) {
+		if(journalposttype == null) {
+			return UKJENT;
+		}
+		return switch (journalposttype) {
+			case I:
+				if (arkivJournalpost.mottakskanal() == null) {
+					yield UKJENT;
+				}
+				yield MottaksKanalCode.valueOf(arkivJournalpost.mottakskanal()).getSafKanal();
+			case U:
+				if (arkivJournalpost.utsendingskanal() == null) {
+					yield UKJENT;
+				}
+				yield UtsendingsKanalCode.valueOf(arkivJournalpost.utsendingskanal()).getSafKanal();
+			case N:
+				yield INGEN_DISTRIBUSJON;
+		};
+	}
+
 	private List<DokumentInfo> mapDokumenter(List<ArkivDokumentinfo> arkivDokumentinfos, String variantFormat) {
 		if (arkivDokumentinfos == null || arkivDokumentinfos.isEmpty()) {
 			return List.of();
@@ -63,6 +91,7 @@ public class HentDokumentTilgangMapper {
 
 		return arkivDokumentinfos.stream()
 				.map(arkivDokumentinfo -> DokumentInfo.builder()
+						.hoveddokument(TILKNYTTET_SOM_HOVEDDOKUMENT.equals(arkivDokumentinfo.tilknyttetSom()))
 						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
 								.kassert(arkivDokumentinfo.kassert() != null && arkivDokumentinfo.kassert())
 								.kategori(arkivDokumentinfo.kategori())

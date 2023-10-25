@@ -20,6 +20,7 @@ public class DokumentInfo {
 	String tittel;
 	String brevkode;
 	Boolean sensitivtPselv;
+	boolean hoveddokument;
 	TilgangDokument tilgangDokument;
 
 	@Builder.Default

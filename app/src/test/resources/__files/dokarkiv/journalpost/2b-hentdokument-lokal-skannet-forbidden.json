@@ -41,7 +41,8 @@
           "format": "ORIGINAL",
           "skjerming": null
         }
-      ]
+      ],
+      "tilknyttetSom": "HOVEDDOKUMENT"
     }
   ],
   "mottakskanal": "SKAN_NETS"

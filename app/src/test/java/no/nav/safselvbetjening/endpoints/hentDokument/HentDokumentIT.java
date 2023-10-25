@@ -111,6 +111,40 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains("Journalpost som er returnert fra dokarkiv matcher ikke journalpost fra fagarkivet.");
 	}
 
+	/**
+	 * Hvis journalpost har utsendingskanal NAV_NO og dokumentet som hentes er hoveddokument så skal dokumenteret returneres
+	 * og det skal generes en Hoveddokument hendelse for å stoppe revarsling til bruker
+	 */
+	@Test
+	void skalHenteDokumentOgGenerereHoveddokumentLestHendelseHvisUtsendingskanalNavNoOgHoveddokument() {
+		stubPdlGenerell();
+		stubDokarkivJournalpost("1c-hentdokument-utgaaende-ok.json");
+		stubHentDokumentDokarkiv();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertOkArkivResponse(responseEntity);
+		HoveddokumentLest hoveddokumentLest = readFromHoveddokumentLestTopic();
+		assertThat(hoveddokumentLest.getJournalpostId()).isEqualTo(JOURNALPOST_ID);
+		assertThat(hoveddokumentLest.getDokumentInfoId()).isEqualTo(DOKUMENT_ID);
+	}
+
+	/**
+	 * Hvis journalpost har utsendingskanal NAV_NO og dokumentet som hentes er vedlegg så skal dokumenteret returneres
+	 * og det skal ikke generes en Hoveddokument hendelse for å stoppe revarsling til bruker siden dokumentet er et vedlegg
+	 */
+	@Test
+	void skalHenteDokumentOgSkalIkkeGenerereHoveddokumentLestHendelseHvisVedlegg() {
+		stubPdlGenerell();
+		stubDokarkivJournalpost("1c-hentdokument-utgaaende-vedlegg-ok.json");
+		stubHentDokumentDokarkiv();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertOkArkivResponse(responseEntity);
+		HoveddokumentLest hoveddokumentLest = readFromHoveddokumentLestTopic();
+		assertThat(hoveddokumentLest).isNull();
+	}
 
 	/**
 	 * Hvis dokumentet sin journalpost er knyttet til en pensjon sak (fagsystem=PEN) så skal bruker utledes fra pensjon sakId.
