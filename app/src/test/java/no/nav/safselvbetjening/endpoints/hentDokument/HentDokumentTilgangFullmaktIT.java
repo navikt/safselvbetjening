@@ -31,6 +31,8 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	/**
 	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
 	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten matcher tema dokumentet gjelder så skal dokument hentes
+	 *
+	 * Hvis dokumentet er et inngående hoveddokument med kanal NAV_NO skal det ikke genereres HoveddokumentLest hendelse
 	 */
 	@Test
 	void skalHenteDokumentHvisPaaloggetBrukerErFullmektigMedGyldigFullmakt() {
