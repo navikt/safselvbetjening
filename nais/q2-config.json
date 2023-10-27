@@ -9,7 +9,7 @@
   "SAFSELVBETJENING_ENDPOINTS_DOKARKIV_URL": "https://dokarkiv.dev.intern.nav.no/rest/internal/safintern",
   "SAFSELVBETJENING_ENDPOINTS_DOKARKIV_SCOPE": "api://dev-fss.teamdokumenthandtering.dokarkiv/.default",
   "SAFSELVBETJENING_ENDPOINTS_PENSJON_URL": "https://pensjon-pen-q2.dev.adeo.no",
-  "SAFSELVBETJENING_ENDPOINTS_PENSJON_SCOPE": "api://dev-fss.teampensjon.pensjon-pen-q2/.default",
+  "SAFSELVBETJENING_ENDPOINTS_PENSJON_SCOPE": "api://dev-fss.pensjon-q2.pensjon-pen-q2/.default",
   "SAFSELVBETJENING_ENDPOINTS_PDLFULLMAKT_URL": "https://pdl-fullmakt.dev.intern.nav.no",
   "SAFSELVBETJENING_ENDPOINTS_PDLFULLMAKT_SCOPE": "dev-fss:pdl:pdl-fullmakt",
   "SAFSELVBETJENING_TOPICS_DOKDISTDITTNAV": "teamdokumenthandtering.privat-dokdistdittnav-lestavmottaker",
