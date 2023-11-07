@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.1</version>
+		<version>3.1.5</version>
 	</parent>
 
 	<groupId>no.nav.safselvbetjening</groupId>
@@ -28,14 +28,13 @@
 		<graphql-java.version>21.3</graphql-java.version>
 		<logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
 		<logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-		<token-support.version>3.1.0</token-support.version>
-		<resilience4j.version>2.1.0</resilience4j.version>
-		<bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
-		<kafka-avro-serializer.version>7.4.0</kafka-avro-serializer.version>
+		<token-support.version>3.1.7</token-support.version>
+		<resilience4j-spring-boot3.version>2.1.0</resilience4j-spring-boot3.version>
+		<kafka-avro-serializer.version>7.5.1</kafka-avro-serializer.version>
 		<teamdokumenthandtering-avro-schemas.version>357738b9</teamdokumenthandtering-avro-schemas.version>
 
 		<!-- test -->
-		<spring-cloud-starter-contract-stub-runner.version>4.0.3</spring-cloud-starter-contract-stub-runner.version>
+		<spring-cloud-starter-contract-stub-runner.version>4.0.4</spring-cloud-starter-contract-stub-runner.version>
 
 		<!-- plugins -->
 		<maven-toolchains-plugin.version>3.1.0</maven-toolchains-plugin.version>
@@ -103,12 +102,7 @@
 			<dependency>
 				<groupId>io.github.resilience4j</groupId>
 				<artifactId>resilience4j-spring-boot3</artifactId>
-				<version>${resilience4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.bouncycastle</groupId>
-				<artifactId>bcprov-jdk15on</artifactId>
-				<version>${bcprov-jdk15on.version}</version>
+				<version>${resilience4j-spring-boot3.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.confluent</groupId>
