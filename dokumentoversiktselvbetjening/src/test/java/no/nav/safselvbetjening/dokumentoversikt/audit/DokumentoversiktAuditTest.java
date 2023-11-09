@@ -20,7 +20,7 @@ class DokumentoversiktAuditTest {
 	private final DokumentoversiktAudit audit = new DokumentoversiktAudit(Clock.fixed(Instant.parse("2023-08-11T12:01:01.001Z"), ZoneId.of("Europe/Oslo")));
 
 	@Test
-	void shouldMapDokumentoversiktAuditLog() {
+	void shouldMapFullmaktDokumentoversiktAuditLog() {
 		MDC.put(MDCUtils.MDC_CONSUMER_ID, "itest:teamdokumenthandtering:audit");
 		MDC.put(MDCUtils.MDC_CALL_ID, "1234-5678-9101");
 
@@ -31,5 +31,19 @@ class DokumentoversiktAuditTest {
 				.isEqualTo("CEF:0|safselvbetjening|AuditLog|1.0|audit:access|brukers dokumentoversikt hentet av fullmektig|INFO|" +
 						   "end=1691755261001 sproc=itest:teamdokumenthandtering:audit devicePayloadId=1234-5678-9101 suid=22222222222 spriv=fullmektig[BAR,FOR] " +
 						   "duid=11111111111 act=dokumentoversikt_fullmektig");
+	}
+
+	@Test
+	void shouldMapOwnDokumentoversiktAuditLog() {
+		MDC.put(MDCUtils.MDC_CONSUMER_ID, "itest:teamdokumenthandtering:audit");
+		MDC.put(MDCUtils.MDC_CALL_ID, "1234-5678-9101");
+
+		String ident = FULLMAKTSGIVER;
+
+		CommonEventFormat commonEventFormat = audit.mapDokumentoversikt(ident);
+		assertThat(commonEventFormat.toString())
+				.isEqualTo("CEF:0|safselvbetjening|AuditLog|1.0|audit:access|dokumentoversikten til bruker hentet av bruker selv|INFO|" +
+						"end=1691755261001 sproc=itest:teamdokumenthandtering:audit devicePayloadId=1234-5678-9101 suid=11111111111 spriv=null " +
+						"duid=11111111111 act=dokumentoversikt_bruker");
 	}
 }
