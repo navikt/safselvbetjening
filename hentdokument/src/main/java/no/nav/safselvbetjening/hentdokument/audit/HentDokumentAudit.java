@@ -2,13 +2,14 @@ package no.nav.safselvbetjening.hentdokument.audit;
 
 import no.nav.safselvbetjening.audit.Audit;
 import no.nav.safselvbetjening.audit.cef.CommonEventFormat;
-import no.nav.safselvbetjening.audit.cef.Headers;
 import no.nav.safselvbetjening.fullmektig.Fullmakt;
 import no.nav.safselvbetjening.hentdokument.HentdokumentRequest;
 
 import java.time.Clock;
 
 import static java.lang.String.join;
+import static no.nav.safselvbetjening.audit.cef.Headers.HENT_DOKUMENT_EGEN_HEADERS;
+import static no.nav.safselvbetjening.audit.cef.Headers.HENT_DOKUMENT_FULLMAKT_HEADERS;
 
 public record HentDokumentAudit(Clock clock) implements Audit {
 
@@ -22,7 +23,7 @@ public record HentDokumentAudit(Clock clock) implements Audit {
 
 	CommonEventFormat mapHentDokument(Fullmakt fullmakt, HentdokumentRequest hentdokumentRequest) {
 		return CommonEventFormat.builder()
-				.headers(Headers.HENT_DOKUMENT_FULLMAKT_HEADERS)
+				.headers(HENT_DOKUMENT_FULLMAKT_HEADERS)
 				.extension(HentDokumentExtension.builder()
 						.clock(clock())
 						.sourceUserId(fullmakt.fullmektig())
@@ -36,7 +37,7 @@ public record HentDokumentAudit(Clock clock) implements Audit {
 
 	CommonEventFormat mapHentDokument(HentdokumentRequest hentdokumentRequest, String ident) {
 		return CommonEventFormat.builder()
-				.headers(Headers.HENT_DOKUMENT_EGEN_HEADERS)
+				.headers(HENT_DOKUMENT_EGEN_HEADERS)
 				.extension(HentDokumentExtension.builder()
 						.clock(clock())
 						.sourceUserId(ident)
