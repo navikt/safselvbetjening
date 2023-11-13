@@ -90,7 +90,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
 			if (selectionSet.containsAnyOf("tema", "fagsak", "journalposter")) {
 				Dokumentoversikt dokumentoversikt = fetchDokumentoversikt(identArgument, tema, environment);
-				recordFullmaktAuditLog(fullmakt);
+				recordAuditLog(fullmakt, identArgument);
 				return DataFetcherResult.newResult()
 						.data(dokumentoversikt)
 						.build();
@@ -216,7 +216,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		return temaArgument.isEmpty() ? Tema.tillattInnsynNavNoString() : temaArgument;
 	}
 
-	private void recordFullmaktAuditLog(Optional<Fullmakt> fullmaktOpt) {
-		fullmaktOpt.ifPresent(audit::logSomFullmektig);
+	private void recordAuditLog(Optional<Fullmakt> fullmaktOpt, String ident) {
+		fullmaktOpt.ifPresentOrElse(audit::logSomFullmektig, () -> audit.logSomBruker(ident));
 	}
 }

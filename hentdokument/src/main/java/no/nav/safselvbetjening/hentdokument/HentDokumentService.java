@@ -144,7 +144,8 @@ public class HentDokumentService {
 	}
 
 	private void recordFullmaktAuditLog(Optional<Fullmakt> fullmaktOpt, HentdokumentRequest hentdokumentRequest) {
-		fullmaktOpt.ifPresent(fullmakt -> audit.logSomFullmektig(fullmakt, hentdokumentRequest));
+		fullmaktOpt.ifPresentOrElse(fullmakt -> audit.logSomFullmektig(fullmakt, hentdokumentRequest),
+									() -> audit.logSomBruker(hentdokumentRequest, getPidOrSubFromRequest(hentdokumentRequest)));
 	}
 
 	private void sendHoveddokumentLestHendelse(final HentdokumentRequest hentdokumentRequest) {
@@ -192,6 +193,15 @@ public class HentDokumentService {
 			return Optional.empty();
 		}
 		return Optional.empty();
+	}
+
+	private String getPidOrSubFromRequest(HentdokumentRequest hentdokumentRequest) {
+		var jwtToken = hentdokumentRequest.getTokenValidationContext().getFirstValidToken();
+		if (jwtToken.isPresent()) {
+			var jwtTokenClaims = jwtToken.get().getJwtTokenClaims();
+			return pidOrSub(jwtTokenClaims.getStringClaim("pid"), jwtTokenClaims.getStringClaim("sub"));
+		}
+		return null;
 	}
 
 	private String pidOrSub(String pid, String sub) {
