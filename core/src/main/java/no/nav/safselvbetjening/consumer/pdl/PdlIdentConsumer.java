@@ -1,26 +1,27 @@
 package no.nav.safselvbetjening.consumer.pdl;
 
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
+import io.github.resilience4j.reactor.retry.RetryOperator;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryRegistry;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.CallIdExchangeFilterFunction;
+import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.PersonIkkeFunnetException;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_PDL;
-import static no.nav.safselvbetjening.azure.AzureProperties.getOAuth2AuthorizeRequestForAzure;
+import static no.nav.safselvbetjening.consumer.ConsumerExceptionHandlers.handleMidlertidigNginxError;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
 /**
  * PDL implementasjon av {@link IdentConsumer}
@@ -34,30 +35,33 @@ class PdlIdentConsumer implements IdentConsumer {
 
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final WebClient webClient;
-	private final ReactiveOAuth2AuthorizedClientManager oAuth2AuthorizedClientManager;
+	private final CircuitBreaker circuitBreaker;
+	private final Retry retry;
 
 	public PdlIdentConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
 							final WebClient webClient,
-							ReactiveOAuth2AuthorizedClientManager oAuth2AuthorizedClientManager) {
+							final CircuitBreakerRegistry circuitBreakerRegistry,
+							final RetryRegistry retryRegistry) {
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
-		this.oAuth2AuthorizedClientManager = oAuth2AuthorizedClientManager;
 		this.webClient = webClient.mutate()
 				.filter(new CallIdExchangeFilterFunction(HEADER_NAV_CALL_ID))
 				.defaultHeaders(headers -> headers.setContentType(APPLICATION_JSON))
 				.build();
+		this.circuitBreaker = circuitBreakerRegistry.circuitBreaker(PDL_INSTANCE);
+		this.retry = retryRegistry.retry(PDL_INSTANCE);
 	}
 
-	@Retry(name = PDL_INSTANCE)
-	@CircuitBreaker(name = PDL_INSTANCE)
 	@Override
 	public List<PdlResponse.PdlIdent> hentIdenter(final String ident) throws PersonIkkeFunnetException {
 		PdlResponse pdlResponse = webClient.post()
 				.uri(safSelvbetjeningProperties.getEndpoints().getPdl().getUrl())
-				.attributes(getOAuth2AuthorizedClient())
+				.attributes(clientRegistrationId(CLIENT_REGISTRATION_PDL))
 				.bodyValue(mapHentIdenterQuery(ident))
 				.retrieve()
 				.bodyToMono(PdlResponse.class)
 				.doOnError(handleErrorPdl())
+				.transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
+				.transformDeferred(RetryOperator.of(retry))
 				.block();
 
 		if (pdlResponse.getErrors() == null || pdlResponse.getErrors().isEmpty()) {
@@ -81,13 +85,13 @@ class PdlIdentConsumer implements IdentConsumer {
 	private Consumer<Throwable> handleErrorPdl() {
 		return error -> {
 			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
+				if (error instanceof WebClientResponseException.NotFound notFound) {
+					handleMidlertidigNginxError(notFound);
+				}
 				throw new PdlFunctionalException("Kall mot pdl feilet funksjonelt.", error);
+			} else {
+				throw new ConsumerTechnicalException("Kall mot pdl feilet teknisk", error);
 			}
 		};
-	}
-
-	private Consumer<Map<String, Object>> getOAuth2AuthorizedClient() {
-		Mono<OAuth2AuthorizedClient> clientMono = oAuth2AuthorizedClientManager.authorize(getOAuth2AuthorizeRequestForAzure(CLIENT_REGISTRATION_PDL));
-		return oauth2AuthorizedClient(clientMono.block());
 	}
 }

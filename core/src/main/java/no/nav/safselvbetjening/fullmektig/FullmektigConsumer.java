@@ -30,7 +30,10 @@ public class FullmektigConsumer {
 	private final TokendingsConsumer tokendingsConsumer;
 	private final WebClient webClient;
 
-	public FullmektigConsumer(WebClient webClient, SafSelvbetjeningProperties safSelvbetjeningProperties, TokendingsConsumer tokendingsConsumer, ObjectMapper objectMapper) {
+	public FullmektigConsumer(WebClient webClient,
+							  SafSelvbetjeningProperties safSelvbetjeningProperties,
+							  TokendingsConsumer tokendingsConsumer,
+							  ObjectMapper objectMapper) {
 		this.pdlfullmakt = safSelvbetjeningProperties.getEndpoints().getPdlfullmakt();
 		this.tokendingsConsumer = tokendingsConsumer;
 		this.webClient = webClient.mutate()

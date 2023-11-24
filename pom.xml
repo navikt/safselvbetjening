@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.5</version>
+		<version>3.1.6</version>
 	</parent>
 
 	<groupId>no.nav.safselvbetjening</groupId>
@@ -29,7 +29,8 @@
 		<logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
 		<logback-syslog4j.version>1.0.0</logback-syslog4j.version>
 		<token-support.version>3.1.7</token-support.version>
-		<resilience4j-spring-boot3.version>2.1.0</resilience4j-spring-boot3.version>
+		<resilience4j.version>2.1.0</resilience4j.version>
+		<context-propagation.version>1.1.0</context-propagation.version>
 		<kafka-avro-serializer.version>7.5.1</kafka-avro-serializer.version>
 		<teamdokumenthandtering-avro-schemas.version>357738b9</teamdokumenthandtering-avro-schemas.version>
 
@@ -62,7 +63,6 @@
 				<artifactId>hentdokument</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>com.graphql-java</groupId>
 				<artifactId>graphql-java</artifactId>
@@ -101,8 +101,15 @@
 			</dependency>
 			<dependency>
 				<groupId>io.github.resilience4j</groupId>
-				<artifactId>resilience4j-spring-boot3</artifactId>
-				<version>${resilience4j-spring-boot3.version}</version>
+				<artifactId>resilience4j-bom</artifactId>
+				<version>${resilience4j.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.micrometer</groupId>
+				<artifactId>context-propagation</artifactId>
+				<version>${context-propagation.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.confluent</groupId>
