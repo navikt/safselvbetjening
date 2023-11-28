@@ -5,6 +5,7 @@ import no.nav.security.token.support.core.jwt.JwtToken;
 import org.slf4j.MDC;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -13,6 +14,7 @@ public final class MDCUtils {
 	public static final String MDC_CALL_ID = "callId";
 	public static final String MDC_CONSUMER_ID = "consumerId";
 	public static final String MDC_FULLMAKT_TEMA = "fullmaktTema";
+	public static final Set<String> ALL_KEYS = Set.of(MDC_CALL_ID, MDC_CONSUMER_ID, MDC_FULLMAKT_TEMA);
 	private static final String UKJENT_CONSUMERID = "ukjent";
 
 	public static String getCallId() {

@@ -1,79 +1,85 @@
 package no.nav.safselvbetjening.consumer.sak;
 
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
-import lombok.extern.slf4j.Slf4j;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
+import io.github.resilience4j.reactor.retry.RetryOperator;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryRegistry;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
+import no.nav.safselvbetjening.consumer.CallIdExchangeFilterFunction;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-import static no.nav.safselvbetjening.MDCUtils.getCallId;
-import static org.springframework.http.HttpMethod.GET;
+import static no.nav.safselvbetjening.consumer.ConsumerExceptionHandlers.handleMidlertidigNginxError;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 /**
  * Henter arkivsaker fra sak applikasjonen.
  * Master for data er SAK tabellen i joark databasen.
  */
-@Slf4j
 @Component
 public class JoarksakConsumer {
 
 	private static final String ARKIVSAK_INSTANCE = "arkivsak";
 	private static final String HEADER_SAK_CORRELATION_ID = "X-Correlation-ID";
 
-	private final RestTemplate restTemplate;
-	private final String sakUrl;
+	private final WebClient webClient;
+	private final CircuitBreaker circuitBreaker;
+	private final Retry retry;
 
-	public JoarksakConsumer(final RestTemplateBuilder restTemplateBuilder,
-							final SafSelvbetjeningProperties safSelvbetjeningProperties,
-							final ClientHttpRequestFactory requestFactory) {
-		this.sakUrl = safSelvbetjeningProperties.getEndpoints().getSak();
-		this.restTemplate = restTemplateBuilder
-				.basicAuthentication(
-						safSelvbetjeningProperties.getServiceuser().getUsername(),
-						safSelvbetjeningProperties.getServiceuser().getPassword()
-				)
-				.requestFactory(() -> requestFactory)
+	public JoarksakConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
+							final WebClient webClient,
+							final CircuitBreakerRegistry circuitBreakerRegistry,
+							final RetryRegistry retryRegistry) {
+		SafSelvbetjeningProperties.Serviceuser serviceuser = safSelvbetjeningProperties.getServiceuser();
+		this.webClient = webClient.mutate()
+				.baseUrl(safSelvbetjeningProperties.getEndpoints().getSak())
+				.filter(new CallIdExchangeFilterFunction(HEADER_SAK_CORRELATION_ID))
+				.defaultHeaders(httpHeaders -> httpHeaders.setBasicAuth(serviceuser.getUsername(), serviceuser.getPassword()))
 				.build();
+		this.circuitBreaker = circuitBreakerRegistry.circuitBreaker(ARKIVSAK_INSTANCE);
+		this.retry = retryRegistry.retry(ARKIVSAK_INSTANCE);
 	}
 
-	@Retry(name = ARKIVSAK_INSTANCE)
-	@CircuitBreaker(name = ARKIVSAK_INSTANCE)
 	public List<Joarksak> hentSaker(final List<String> aktoerId, final List<String> tema) {
-		if(tema.isEmpty()) {
+		if (tema.isEmpty()) {
 			return new ArrayList<>();
 		}
-		final UriComponentsBuilder uri = UriComponentsBuilder.fromHttpUrl(sakUrl)
-				.queryParam("aktoerId", aktoerId)
-				.queryParam("tema", tema);
-		return hentSaker(uri.toUriString());
+		return webClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.queryParam("aktoerId", aktoerId)
+						.queryParam("tema", tema)
+						.build())
+				.accept(APPLICATION_JSON)
+				.retrieve()
+				.bodyToMono(new ParameterizedTypeReference<List<Joarksak>>() {
+				})
+				.doOnError(handleErrorSak())
+				.transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
+				.transformDeferred(RetryOperator.of(retry))
+				.block();
 	}
 
-	private List<Joarksak> hentSaker(final String uri) {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.set(HEADER_SAK_CORRELATION_ID, getCallId());
-			ResponseEntity<List<Joarksak>> response = restTemplate.exchange(uri, GET, new HttpEntity<>(headers), new ParameterizedTypeReference<>() {
-			});
-			return response.getBody();
-		} catch (HttpServerErrorException e) {
-			throw new ConsumerTechnicalException("Teknisk feil. Kunne ikke hente saker for bruker fra sak.", e);
-		} catch (HttpClientErrorException e) {
-			throw new ConsumerFunctionalException("Funksjonell feil. Kunne ikke hente saker for bruker fra sak.", e);
-		}
+	private Consumer<Throwable> handleErrorSak() {
+		return error -> {
+			if (error instanceof WebClientResponseException webException) {
+				if (webException.getStatusCode().is4xxClientError()) {
+					handleMidlertidigNginxError(webException);
+					throw new ConsumerFunctionalException("Funksjonell feil. Kunne ikke hente saker for bruker fra sak.", error);
+				} else {
+					throw new ConsumerTechnicalException("Teknisk feil. Kunne ikke hente saker for bruker fra sak.", error);
+				}
+			}
+		};
 	}
+
 }
