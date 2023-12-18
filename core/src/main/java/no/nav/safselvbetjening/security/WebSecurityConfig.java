@@ -13,7 +13,15 @@ public class WebSecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		return http.csrf(AbstractHttpConfigurer::disable)
+		return http
+				.securityMatcher(
+						"/actuator", // helsesjekk og metrikker - åpent
+						"/graphql", // beskyttet av token-support @Protected
+						"/rest" // beskyttet av token-support @Protected
+				)
+				.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+				.csrf(AbstractHttpConfigurer::disable)
+				.cors(AbstractHttpConfigurer::disable)
 				.build();
 	}
 }
