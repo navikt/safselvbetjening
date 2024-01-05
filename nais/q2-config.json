@@ -81,6 +81,11 @@
       "app": "foreldrepengesoknad-api",
       "namespace": "teamforeldrepenger",
       "cluster": "dev-gcp"
+    },
+    {
+      "app": "oppslag",
+      "namespace": "aap",
+      "cluster": "dev-gcp"
     }
   ]
 }
