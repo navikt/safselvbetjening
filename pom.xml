@@ -28,7 +28,7 @@
 		<graphql-java.version>21.3</graphql-java.version>
 		<logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
 		<logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-		<token-support.version>3.2.0</token-support.version>
+		<token-support.version>4.1.0</token-support.version>
 		<resilience4j.version>2.2.0</resilience4j.version>
 		<context-propagation.version>1.1.0</context-propagation.version>
 		<kafka-avro-serializer.version>7.5.1</kafka-avro-serializer.version>
