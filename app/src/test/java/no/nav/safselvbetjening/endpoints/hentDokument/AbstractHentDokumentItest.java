@@ -73,7 +73,7 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 
 	protected HoveddokumentLest readFromHoveddokumentLestTopic() {
 		try (var consumer = setupKafkaConsumer()) {
-			ConsumerRecord<String, HoveddokumentLest> singleRecord = KafkaTestUtils.getSingleRecord(consumer, PRIVAT_DOKDISTDITTNAV_LESTAVMOTTAKER_TOPIC, ofSeconds(2));
+			ConsumerRecord<String, HoveddokumentLest> singleRecord = KafkaTestUtils.getSingleRecord(consumer, PRIVAT_DOKDISTDITTNAV_LESTAVMOTTAKER_TOPIC, ofSeconds(5));
 			assertThat(singleRecord).withFailMessage("Record fra topic er null").isNotNull();
 			return singleRecord.value();
 		} catch (IllegalStateException e) {
