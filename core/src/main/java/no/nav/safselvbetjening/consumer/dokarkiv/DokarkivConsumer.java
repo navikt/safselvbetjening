@@ -18,7 +18,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -91,7 +91,7 @@ public class DokarkivConsumer {
 					POST,
 					requestEntity,
 					FinnJournalposterResponseTo.class).getBody();
-		} catch (HttpServerErrorException e) {
+		} catch (RestClientException e) {
 			throw new ConsumerTechnicalException("Teknisk feil ved å finne journalpost for " + request, e);
 		}
 	}
