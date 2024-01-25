@@ -36,9 +36,9 @@ import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_IDENT_ER_BLANK;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_IDENT_ER_UGYLDIG;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_KUNNE_IKKE_HENTE_INTERN_REQUESTCONTEXT;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_MIDLERTIDIG_TEKNISK_FEIL;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_TOKEN_MANGLER_I_HEADER;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_TOKEN_MISMATCH_INGEN_FULLMAKT;
-import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_UKJENT_TEKNISK_FEIL;
 import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
 import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
 import static no.nav.safselvbetjening.graphql.GraphQLRequestContext.KEY;
@@ -106,9 +106,11 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 															   " Kall til denne tjenesten går ikke gjennom."))
 					.build();
 		} catch (Exception e) {
-			log.error("dokumentoversiktSelvbetjening ukjent teknisk feil. Undersøk grunnen og håndter feilen i koden slik at dette kan unngås.", e);
+			log.error("dokumentoversiktSelvbetjening midlertidig teknisk feil. " +
+					  "Dette er som oftest forårsaket av midlertidige feil på nettverk/kobling mellom apper. Se stacktrace. message={}",
+					e.getMessage(), e);
 			return DataFetcherResult.newResult()
-					.error(SERVER_ERROR.construct(environment, FEILMELDING_UKJENT_TEKNISK_FEIL))
+					.error(SERVER_ERROR.construct(environment, FEILMELDING_MIDLERTIDIG_TEKNISK_FEIL))
 					.build();
 		} finally {
 			MDC.clear();
