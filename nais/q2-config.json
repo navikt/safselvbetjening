@@ -91,6 +91,11 @@
       "app": "familie-ef-soknad-api",
       "namespace": "teamfamilie",
       "cluster": "dev-gcp"
+    },
+    {
+      "app": "tokenx-token-generator",
+      "namespace": "aura",
+      "cluster": "dev-gcp"
     }
   ]
 }
