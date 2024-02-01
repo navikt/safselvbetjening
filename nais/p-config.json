@@ -82,6 +82,11 @@
       "app": "oppslag",
       "namespace": "aap",
       "cluster": "prod-gcp"
+    },
+    {
+      "app": "familie-ef-soknad-api",
+      "namespace": "teamfamilie",
+      "cluster": "prod-gcp"
     }
   ]
 }
