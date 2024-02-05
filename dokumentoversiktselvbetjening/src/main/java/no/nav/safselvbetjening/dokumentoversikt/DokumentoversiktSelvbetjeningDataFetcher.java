@@ -187,8 +187,10 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 
 	private Optional<Fullmakt> validerInnloggetBrukerOgSjekkFullmakt(String identArgument, DataFetchingEnvironment environment,
 																	 GraphQLRequestContext graphQLRequestContext) {
-		JwtToken subjectJwt = graphQLRequestContext.getTokenValidationContext().getFirstValidToken()
-				.orElseThrow(() -> GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MANGLER_I_HEADER));
+		JwtToken subjectJwt = graphQLRequestContext.getTokenValidationContext().getFirstValidToken();
+		if (subjectJwt == null) {
+			throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MANGLER_I_HEADER);
+		}
 		if (!subjectJwt.getJwtTokenClaims().containsClaim(CLAIM_PID, identArgument) &&
 			!subjectJwt.getJwtTokenClaims().containsClaim(CLAIM_SUB, identArgument)) {
 			Optional<Fullmakt> fullmakt = fullmektigService.finnFullmakt(subjectJwt, identArgument);

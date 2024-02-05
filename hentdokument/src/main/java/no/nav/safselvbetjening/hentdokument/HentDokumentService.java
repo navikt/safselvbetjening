@@ -145,7 +145,7 @@ public class HentDokumentService {
 
 	private void recordFullmaktAuditLog(Optional<Fullmakt> fullmaktOpt, HentdokumentRequest hentdokumentRequest) {
 		fullmaktOpt.ifPresentOrElse(fullmakt -> audit.logSomFullmektig(fullmakt, hentdokumentRequest),
-									() -> audit.logSomBruker(hentdokumentRequest, getPidOrSubFromRequest(hentdokumentRequest)));
+				() -> audit.logSomBruker(hentdokumentRequest, getPidOrSubFromRequest(hentdokumentRequest)));
 	}
 
 	private void sendHoveddokumentLestHendelse(final HentdokumentRequest hentdokumentRequest) {
@@ -163,8 +163,10 @@ public class HentDokumentService {
 			BrukerIdenter brukerIdenter,
 			HentdokumentRequest hentdokumentRequest
 	) {
-		JwtToken subjectJwt = hentdokumentRequest.getTokenValidationContext().getFirstValidToken()
-				.orElseThrow(() -> new HentTilgangDokumentException(DENY_REASON_INGEN_GYLDIG_TOKEN, FEILMELDING_INGEN_GYLDIG_TOKEN));
+		JwtToken subjectJwt = hentdokumentRequest.getTokenValidationContext().getFirstValidToken();
+		if (subjectJwt == null) {
+			throw new HentTilgangDokumentException(DENY_REASON_INGEN_GYLDIG_TOKEN, FEILMELDING_INGEN_GYLDIG_TOKEN);
+		}
 		List<String> identer = brukerIdenter.getIdenter();
 		String pid = subjectJwt.getJwtTokenClaims().getStringClaim(CLAIM_PID);
 		String sub = subjectJwt.getJwtTokenClaims().getStringClaim(CLAIM_SUB);
@@ -197,8 +199,8 @@ public class HentDokumentService {
 
 	private String getPidOrSubFromRequest(HentdokumentRequest hentdokumentRequest) {
 		var jwtToken = hentdokumentRequest.getTokenValidationContext().getFirstValidToken();
-		if (jwtToken.isPresent()) {
-			var jwtTokenClaims = jwtToken.get().getJwtTokenClaims();
+		if (jwtToken != null) {
+			var jwtTokenClaims = jwtToken.getJwtTokenClaims();
 			return pidOrSub(jwtTokenClaims.getStringClaim("pid"), jwtTokenClaims.getStringClaim("sub"));
 		}
 		return null;
