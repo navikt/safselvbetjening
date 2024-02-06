@@ -4,7 +4,6 @@ import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import org.slf4j.MDC;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,9 +27,8 @@ public final class MDCUtils {
 	}
 
 	public static String getConsumerIdFromToken(TokenValidationContext tokenValidationContext) {
-		Optional<JwtToken> firstValidToken = tokenValidationContext.getFirstValidToken();
-		if (firstValidToken.isPresent()) {
-			JwtToken jwtToken = firstValidToken.get();
+		JwtToken jwtToken = tokenValidationContext.getFirstValidToken();
+		if (jwtToken != null) {
 			return getClientId(jwtToken);
 		}
 		return UKJENT_CONSUMERID;

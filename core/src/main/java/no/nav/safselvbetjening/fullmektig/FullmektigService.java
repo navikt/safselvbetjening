@@ -36,7 +36,7 @@ public class FullmektigService {
 	}
 
 	private Optional<Fullmakt> utledFullmakt(JwtToken subjectJwt, String fullmektigIdent, String fullmaktsgiverIdent) {
-		List<FullmektigTemaResponse> fullmektigTema = fullmektigConsumer.fullmektigTema(subjectJwt.getTokenAsString());
+		List<FullmektigTemaResponse> fullmektigTema = fullmektigConsumer.fullmektigTema(subjectJwt.getEncodedToken());
 
 		if (fullmektigTema.isEmpty()) {
 			return Optional.empty();
