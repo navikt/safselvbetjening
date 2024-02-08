@@ -2,6 +2,7 @@ package no.nav.safselvbetjening.endpoints.graphql;
 
 import lombok.Data;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
+import no.nav.safselvbetjening.domain.Journalpost;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class GraphQLResponse {
 	@Data
 	public static class DataWrapper {
 		private Dokumentoversikt dokumentoversiktSelvbetjening;
+		private Journalpost journalpostById;
 	}
 
 	@Data

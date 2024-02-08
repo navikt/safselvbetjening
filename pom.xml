@@ -19,6 +19,7 @@
 		<module>app</module>
 		<module>core</module>
 		<module>dokumentoversiktselvbetjening</module>
+		<module>journalpost</module>
 		<module>hentdokument</module>
 	</modules>
 
@@ -56,6 +57,11 @@
 			<dependency>
 				<groupId>no.nav.safselvbetjening</groupId>
 				<artifactId>dokumentoversiktselvbetjening</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>no.nav.safselvbetjening</groupId>
+				<artifactId>journalpost</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

@@ -29,6 +29,8 @@ public enum ErrorCode {
     public static final String FEILMELDING_BRUKER_IKKE_FUNNET_I_PDL = "Finner ingen identer på person i PDL.";
     public static final String FEILMELDING_IDENT_ER_BLANK = "Ident i query er blank. Denne må være satt.";
     public static final String FEILMELDING_IDENT_ER_UGYLDIG = "Ident i query er ugyldig. Det må være et gyldig fødselsnummer eller aktørid.";
+    public static final String FEILMELDING_JOURNALPOSTID_ER_BLANK = "journalpostId i argument til journalpostById query er blank eller null. Argumentet er påkrevd.";
+    public static final String FEILMELDING_JOURNALPOSTID_ER_IKKE_NUMERISK = "journalpostId i argument til journalpostById query må være numerisk. journalpostId=%s";
     public static final String FEILMELDING_KUNNE_IKKE_HENTE_INTERN_REQUESTCONTEXT = "Kunne ikke hente intern requestcontext.";
     public static final String FEILMELDING_MIDLERTIDIG_TEKNISK_FEIL = "Midlertidig teknisk feil. Som oftest løses dette ved at bruker forsøker på nytt. Hvis feilen vedvarer og skaper ulemper for bruker: gi beskjed på Slack-kanal #team_dokumentløsninger.";
 
