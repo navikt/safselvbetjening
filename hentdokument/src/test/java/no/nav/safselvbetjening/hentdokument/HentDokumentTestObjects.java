@@ -50,7 +50,7 @@ public class HentDokumentTestObjects {
 				.type(JournalpostTypeCode.I.name())
 				.status(JournalStatusCode.M.name())
 				.mottakskanal(MottaksKanalCode.NAV_NO.name())
-				.relevanteDatoer(new ArkivRelevanteDatoer(DATO_OPPRETTET, DATO_JOURNALFOERT))
+				.relevanteDatoer(new ArkivRelevanteDatoer(DATO_OPPRETTET, DATO_JOURNALFOERT, null, null, null, null, null, null))
 				.fagomraade(FagomradeCode.PEN.name());
 	}
 
@@ -105,7 +105,7 @@ public class HentDokumentTestObjects {
 
 	public static ArkivDokumentinfo arkivDokumentinfo(String variantFormat) {
 		return new ArkivDokumentinfo(40000000L, TILKNYTTET_SOM_HOVEDDOKUMENT, SkjermingTypeCode.FEIL.name(), FORVALTNINGSNOTAT, null,
-				List.of(new ArkivFildetaljer(SkjermingTypeCode.FEIL.name(), variantFormat)));
+				List.of(new ArkivFildetaljer(SkjermingTypeCode.FEIL.name(), variantFormat, null, null, null)), null, null, false);
 	}
 
 	static BrukerIdenter createBrukerIdenter() {

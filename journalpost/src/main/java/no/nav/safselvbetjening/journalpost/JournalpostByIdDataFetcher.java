@@ -45,7 +45,7 @@ public class JournalpostByIdDataFetcher implements DataFetcher<DataFetcherResult
 			final String journalpostId = environment.getArgument("journalpostId");
 			validerJournalpostId(journalpostId, environment);
 
-			Journalpost journalpost = journalpostService.queryJournalpost(journalpostId, environment);
+			Journalpost journalpost = journalpostService.queryJournalpost(journalpostId, environment, graphQLRequestContext);
 			return DataFetcherResult.<Journalpost>newResult().data(journalpost).build();
 		} catch (GraphQLException e) {
 			log.warn("journalpostById feilet: " + e.getError().getMessage());

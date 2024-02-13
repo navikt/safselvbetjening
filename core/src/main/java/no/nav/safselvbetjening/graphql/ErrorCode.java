@@ -19,6 +19,7 @@ import static java.util.Collections.singletonMap;
 @RequiredArgsConstructor
 public enum ErrorCode {
     UNAUTHORIZED(ExecutionAborted, "unauthorized"),
+    FORBIDDEN(ExecutionAborted, "forbidden"),
     NOT_FOUND(ExecutionAborted, "not_found"),
     BAD_REQUEST(ValidationError, "bad_request"),
     SERVER_ERROR(DataFetchingException, "server_error");

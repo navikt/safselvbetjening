@@ -17,7 +17,12 @@ public record ArkivJournalpost(Long journalpostId,
 							   ArkivAvsenderMottaker avsenderMottaker,
 							   ArkivBruker bruker,
 							   ArkivSaksrelasjon saksrelasjon,
-							   List<ArkivDokumentinfo> dokumenter) {
+							   List<ArkivDokumentinfo> dokumenter,
+							   // kun metadata, ikke brukt til tilgangskontroll
+							   String innhold,
+							   String kanalreferanseId
+
+) {
 	public boolean isTilknyttetSak() {
 		return saksrelasjon != null && saksrelasjon.sakId() != null;
 	}
