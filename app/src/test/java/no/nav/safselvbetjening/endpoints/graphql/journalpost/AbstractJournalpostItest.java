@@ -8,6 +8,7 @@ import no.nav.safselvbetjening.endpoints.AbstractItest;
 import no.nav.safselvbetjening.endpoints.graphql.GraphQLResponse;
 import no.nav.safselvbetjening.graphql.GraphQLRequest;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 
@@ -134,14 +135,28 @@ abstract class AbstractJournalpostItest extends AbstractItest {
 		return queryJournalpostById("journalpost_by_id_all.query", FULLMEKTIG_ID);
 	}
 
-	protected ResponseEntity<GraphQLResponse> queryJournalpostById(final String queryfile, String innloggetBrukerId) {
-		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/" + queryfile), null, Map.of("journalpostId", JOURNALPOST_ID));
+	protected ResponseEntity<GraphQLResponse> queryJournalpostById(String innloggetBrukerId) {
+		return queryJournalpostById("journalpost_by_id_all.query", innloggetBrukerId);
+	}
+
+	protected ResponseEntity<GraphQLResponse> queryJournalpostById(String queryfile, String innloggetBrukerId) {
+		return queryJournalpostById(queryfile, innloggetBrukerId, JOURNALPOST_ID);
+	}
+
+	protected ResponseEntity<GraphQLResponse> queryJournalpostById(String queryfile, String innloggetBrukerId, String journalpostId) {
+		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/" + queryfile), null, Map.of("journalpostId", journalpostId));
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(innloggetBrukerId), POST, URI.create("/graphql"));
 		return restTemplate.exchange(requestEntity, GraphQLResponse.class);
 	}
 
 	protected static void stubDokarkivJournalpost() {
 		stubDokarkivJournalpost("1c-journalpost-ok.json");
+	}
+
+	protected static void stubDokarkivJournalpost(HttpStatus httpStatus) {
+		stubFor(get("/dokarkiv/journalpost/journalpostId/" + JOURNALPOST_ID)
+				.willReturn(aResponse()
+						.withStatus(httpStatus.value())));
 	}
 
 	protected static void stubDokarkivJournalpost(String fil) {

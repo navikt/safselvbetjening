@@ -23,6 +23,7 @@ import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FORBIDDEN;
+import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
 import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_INGEN_GYLDIG_TOKEN;
@@ -51,7 +52,7 @@ public class JournalpostService {
 
 	Journalpost queryJournalpost(final String journalpostId, final DataFetchingEnvironment environment, final GraphQLRequestContext graphQLRequestContext) {
 		ArkivJournalpost arkivJournalpost = dokarkivConsumer.journalpost(journalpostId, Set.of());
-		// journalpost sanity check
+		validerRiktigJournalpost(journalpostId, arkivJournalpost, environment);
 		BrukerIdenter brukerIdenter = identService.hentIdenter(arkivJournalpost);
 		if (brukerIdenter.isEmpty()) {
 			throw GraphQLException.of(FORBIDDEN, environment, FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);
@@ -59,7 +60,6 @@ public class JournalpostService {
 		validerInnloggetBruker(brukerIdenter, environment, graphQLRequestContext);
 		Optional<Pensjonsak> pensjonsakOpt = hentPensjonssak(brukerIdenter.getAktivFolkeregisterident(), arkivJournalpost);
 
-		// map til Journalpost med tilganger
 		Journalpost journalpost = arkivJournalpostMapper.map(arkivJournalpost, brukerIdenter, pensjonsakOpt);
 
 		boolean tilgang = utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter);
@@ -71,7 +71,7 @@ public class JournalpostService {
 		return journalpost;
 	}
 
-	// TODO liknende brukt i hentdokument, abstract klasse?
+	// Har behov for å kunne vise ekte tema
 	private Optional<Pensjonsak> hentPensjonssak(String bruker, ArkivJournalpost arkivJournalpost) {
 		if (arkivJournalpost.isTilknyttetSak() && arkivJournalpost.saksrelasjon().isPensjonsak()) {
 			return pensjonSakRestConsumer.hentPensjonssaker(bruker)
@@ -95,6 +95,14 @@ public class JournalpostService {
 		String sub = subjectJwt.getJwtTokenClaims().getStringClaim(CLAIM_SUB);
 		if (!identer.contains(pid) && !identer.contains(sub)) {
 			throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
+		}
+	}
+
+	private static void validerRiktigJournalpost(String journalpostId, ArkivJournalpost arkivJournalpost, DataFetchingEnvironment environment) {
+		Long arkivJournalpostId = arkivJournalpost.journalpostId();
+		if (!journalpostId.equals(arkivJournalpostId.toString())) {
+			throw GraphQLException.of(SERVER_ERROR, environment, "journalpostId som er returnert fra fagarkivet matcher ikke journalpostId argument fra query. " +
+																 "journalpostById.journalpostId=" + journalpostId + ", arkivJournalpost.journalpostId=" + arkivJournalpostId);
 		}
 	}
 }
