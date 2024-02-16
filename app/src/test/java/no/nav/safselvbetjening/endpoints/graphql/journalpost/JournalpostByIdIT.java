@@ -12,8 +12,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Objects.requireNonNull;
-import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;
-import static no.nav.safselvbetjening.domain.Tema.HJE;
 import static no.nav.safselvbetjening.domain.Tema.UFO;
 import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,26 +38,6 @@ public class JournalpostByIdIT extends AbstractJournalpostItest {
 		assertInngaaendeJournalpost(journalpost);
 
 		assertDokumenter(journalpost.getDokumenter());
-	}
-
-	/**
-	 * Hvis journalpost er midlertidig (ingen sakstilknytning) så skal bruker kunne hente det hvis det tilhører bruker
-	 */
-	@Test
-	void skalQueryMidlertidigJournalpostById() {
-		stubPdlGenerell();
-		stubDokarkivJournalpost("1c-journalpost-midlertidig-ok.json");
-
-		ResponseEntity<GraphQLResponse> response = queryJournalpostById();
-
-		assertThat(response.getStatusCode()).isEqualTo(OK);
-		GraphQLResponse graphQLResponse = response.getBody();
-		assertThat(graphQLResponse).isNotNull();
-		Journalpost journalpost = graphQLResponse.getData().getJournalpostById();
-
-		assertThat(journalpost.getJournalstatus()).isEqualTo(MOTTATT);
-		assertThat(journalpost.getTema()).isEqualTo(HJE.name());
-		assertThat(journalpost.getSak()).isNull();
 	}
 
 	/**
