@@ -50,7 +50,7 @@ public class HentDokumentTestObjects {
 				.type(JournalpostTypeCode.I.name())
 				.status(JournalStatusCode.M.name())
 				.mottakskanal(MottaksKanalCode.NAV_NO.name())
-				.relevanteDatoer(new ArkivRelevanteDatoer(DATO_OPPRETTET, DATO_JOURNALFOERT, null, null, null, null, null, null))
+				.relevanteDatoer(new ArkivRelevanteDatoer(DATO_OPPRETTET, DATO_JOURNALFOERT, null, null, null, null, null))
 				.fagomraade(FagomradeCode.PEN.name());
 	}
 

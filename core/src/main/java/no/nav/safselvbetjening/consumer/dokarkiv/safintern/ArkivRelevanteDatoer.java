@@ -8,7 +8,6 @@ public record ArkivRelevanteDatoer(OffsetDateTime opprettet,
 								   OffsetDateTime ekspedert,
 								   OffsetDateTime forsendelseMottatt,
 								   OffsetDateTime hoveddokument,
-								   OffsetDateTime lest,
 								   OffsetDateTime retur,
 								   OffsetDateTime sendtPrint
 ) {

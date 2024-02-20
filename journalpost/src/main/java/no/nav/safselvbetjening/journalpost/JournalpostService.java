@@ -64,7 +64,6 @@ public class JournalpostService {
 
 		boolean tilgang = utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter);
 		if (!tilgang) {
-			// TODO deny reason? deny_reason, deny_message?
 			throw GraphQLException.of(FORBIDDEN, environment, "Bruker har ikke tilgang til journalpost");
 		}
 

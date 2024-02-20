@@ -51,6 +51,7 @@ public class ArkivJournalpostMapper {
 	static final String FILTYPE_PDFA = "PDFA";
 	static final String FILTYPE_PDF = "PDF";
 	static final String TILKNYTTET_SOM_HOVEDDOKUMENT = "HOVEDDOKUMENT";
+	static final String TILKNYTTET_SOM_VEDLEGG = "VEDLEGG";
 	static final Set<String> GYLDIGE_VARIANTER = Set.of("ARKIV", "SLADDET");
 
 	private final ArkivAvsenderMottakerMapper arkivAvsenderMottakerMapper;
@@ -238,7 +239,7 @@ public class ArkivJournalpostMapper {
 	 * Filtypen mappet om fra joark sitt domene til safselvbetjening. Konsolidering av PDF/PDFA til PDF.
 	 *
 	 * @param filtype "PDFA", "PDF", "PNG" osv.
-	 * @return "PDFA" mappet om til "PDF". Ellers innhold av param.
+	 * @return "PDFA" mappet om til "PDF". Ellers filtype.
 	 */
 	private static String mapFiltype(String filtype) {
 		if (FILTYPE_PDFA.equals(filtype)) {
