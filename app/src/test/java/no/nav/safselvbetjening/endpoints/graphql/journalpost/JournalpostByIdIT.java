@@ -97,7 +97,7 @@ public class JournalpostByIdIT extends AbstractJournalpostItest {
 	}
 
 	/**
-	 * Hvis journalpostId ikke finnes i fagarkivet så skal det returneres errors med extension.code = not_found
+	 * Hvis journalpostId fra journalpost ikke matcher journalpostId i argument, så skal det returneres errors med extension.code = server_error
 	 */
 	@Test
 	void skalGiServerErrorCodeHvisJournalpostIdFraResponsIkkeMatcherArgument() {

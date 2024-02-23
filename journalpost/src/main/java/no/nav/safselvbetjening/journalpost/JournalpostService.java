@@ -22,6 +22,7 @@ import java.util.Set;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_INGEN_TILGANG_TIL_JOURNALPOST;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FORBIDDEN;
 import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
 import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
@@ -64,7 +65,7 @@ public class JournalpostService {
 
 		boolean tilgang = utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter);
 		if (!tilgang) {
-			throw GraphQLException.of(FORBIDDEN, environment, "Bruker har ikke tilgang til journalpost");
+			throw GraphQLException.of(FORBIDDEN, environment, FEILMELDING_INGEN_TILGANG_TIL_JOURNALPOST);
 		}
 
 		return journalpost;

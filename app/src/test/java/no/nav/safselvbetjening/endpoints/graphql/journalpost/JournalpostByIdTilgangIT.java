@@ -7,8 +7,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
 import static java.util.Objects.requireNonNull;
+import static no.nav.safselvbetjening.domain.Journalposttype.N;
 import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;
 import static no.nav.safselvbetjening.domain.Tema.HJE;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_KASSERT;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_PARTSINNSYN;
+import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKANNET_DOKUMENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -57,7 +62,6 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 	/**
 	 * Tilgangsregel: 1b
 	 * Selvbetjening viser ikke journalposter før en hardkodet dato, konfigurert som safselvbetjening.tidligst-innsyn-dato
-	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres journalposten
 	 */
 	@Test
 	void skalGiForbiddenHvisJournalpostEldreEnnInnsynsdato() {
@@ -100,7 +104,7 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 	 * Hvis journalposten er en midlertidig journalpost og alle andre tilgangsregler er OK så skal dokumentet returneres
 	 */
 	@Test
-	void skalHenteDokumentHvisJournalpostErMidlertidig() {
+	void skalHenteJournalpostHvisJournalpostErMidlertidig() {
 		stubPdlGenerell();
 		stubDokarkivJournalpost("1c-journalpost-midlertidig-ok.json");
 
@@ -114,6 +118,25 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 		assertThat(journalpost.getJournalstatus()).isEqualTo(MOTTATT);
 		assertThat(journalpost.getTema()).isEqualTo(HJE.name());
 		assertThat(journalpost.getSak()).isNull();
+	}
+
+	/**
+	 * Tilgangsregel: 1c
+	 * Hvis journalposten er under arbeid så skal det returneres forbidden
+	 */
+	@Test
+	void skalGiForbiddenHvisJournalpostErUnderArbeid() {
+		stubPdlGenerell();
+		stubDokarkivJournalpost("1c-journalpost-under-arbeid-forbidden.json");
+
+		ResponseEntity<GraphQLResponse> response = queryJournalpostById();
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		assertThat(requireNonNull(response.getBody()).getErrors())
+				.extracting(e -> e.getExtensions().getCode())
+				.contains(ErrorCode.FORBIDDEN.getText());
 	}
 
 	/**
@@ -142,7 +165,7 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 	 * @see no.nav.safselvbetjening.domain.Tema
 	 */
 	@Test
-	void skalGiForbiddenHvisDokumentetHarTemaSomIkkeSkalGiInnsynPaaJournalpost() {
+	void skalGiForbiddenHvisJournalpostenHarTemaSomIkkeSkalGiInnsynPaaJournalpost() {
 		stubDokarkivJournalpost("1e-journalpost-midlertidig-tema-far-forbidden.json");
 		stubPdlGenerell();
 
@@ -163,7 +186,7 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 	 * @see no.nav.safselvbetjening.domain.Tema
 	 */
 	@Test
-	void skalGiForbiddenHvisDokumentetHarTemaSomIkkeSkalGiInnsynPaaSaksrelasjonOgJournalpostTemaErFeil() {
+	void skalGiForbiddenHvisJournalpostenHarTemaSomIkkeSkalGiInnsynPaaSaksrelasjonOgJournalpostTemaErFeil() {
 		stubDokarkivJournalpost("1e-journalpost-saksrelasjon-tema-far-forbidden.json");
 		stubPdlGenerell();
 
@@ -195,6 +218,44 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 		assertThat(requireNonNull(response.getBody()).getErrors())
 				.extracting(e -> e.getExtensions().getCode())
 				.contains(ErrorCode.FORBIDDEN.getText());
+	}
+
+	/**
+	 * Tilgangsregel: 1g
+	 * Bruker kan ikke se notater med mindre notatet er et FORVALTNINGSNOTAT (kategori på dokumentet)
+	 */
+	@Test
+	void skalGiForbiddenHvisJournalpostIkkeErForvaltningsnotat() {
+		stubDokarkivJournalpost("1g-journalpost-ikke-forvaltningsnotat-forbidden.json");
+		stubPdlGenerell();
+
+		ResponseEntity<GraphQLResponse> response = queryJournalpostById();
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		assertThat(requireNonNull(response.getBody()).getErrors())
+				.extracting(e -> e.getExtensions().getCode())
+				.contains(ErrorCode.FORBIDDEN.getText());
+	}
+
+	/**
+	 * Tilgangsregel: 1g
+	 * Bruker kan ikke se notater med mindre notatet er et FORVALTNINGSNOTAT (kategori på dokumentet)
+	 */
+	@Test
+	void skalHenteJournalpostHvisJournalpostErForvaltningsnotat() {
+		stubDokarkivJournalpost("1g-journalpost-forvaltningsnotat-ok.json");
+		stubPdlGenerell();
+
+		ResponseEntity<GraphQLResponse> response = queryJournalpostById();
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Journalpost journalpost = graphQLResponse.getData().getJournalpostById();
+
+		assertThat(journalpost.getJournalposttype()).isEqualTo(N);
 	}
 
 	/**
@@ -237,7 +298,7 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 		assertThat(graphQLResponse.getData()
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
-				.flatExtracting("code").containsExactly("ingen_partsinnsyn", "ingen_partsinnsyn");
+				.flatExtracting("code").containsExactly(DENY_REASON_PARTSINNSYN, DENY_REASON_PARTSINNSYN);
 	}
 
 	/**
@@ -263,7 +324,32 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 		assertThat(graphQLResponse.getData()
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
-				.flatExtracting("code").containsExactly("skannet_dokument", "skannet_dokument");
+				.flatExtracting("code").containsExactly(DENY_REASON_SKANNET_DOKUMENT, DENY_REASON_SKANNET_DOKUMENT);
+	}
+
+	/**
+	 * Tilgangsregel: 2e
+	 * Fagpost kan skjerme dokumenter.
+	 * Hvis dokumenter er skjermet så skal brukerHarTilgang=false gis på dokumentene
+	 */
+	@Test
+	void skalGiBrukerHarTilgangFalseHvisDokumentErSkjermet() {
+		stubDokarkivJournalpost("2e-journalpost-dokument-skjermet-ok.json");
+		stubPdlGenerell();
+
+		ResponseEntity<GraphQLResponse> response = queryJournalpostById();
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getData()
+				.getJournalpostById().getDokumenter().stream()
+				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
+				.extracting("brukerHarTilgang").containsExactly(true, false);
+		assertThat(graphQLResponse.getData()
+				.getJournalpostById().getDokumenter().stream()
+				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
+				.flatExtracting("code").containsExactly("ok", DENY_REASON_GDPR);
 	}
 
 	/**
@@ -288,7 +374,7 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 		assertThat(graphQLResponse.getData()
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
-				.flatExtracting("code").containsExactly("ok", "kassert_dokument");
+				.flatExtracting("code").containsExactly("ok", DENY_REASON_KASSERT);
 	}
 
 }
