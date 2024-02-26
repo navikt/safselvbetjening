@@ -222,7 +222,7 @@ public class ArkivJournalpostMapper {
 	private static Variantformat mapVariantformat(ArkivFildetaljer arkivFildetaljer) {
 		try {
 			return arkivFildetaljer.format() == null ? null : Variantformat.valueOf(arkivFildetaljer.format());
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			return null;
 		}
 	}
@@ -277,7 +277,7 @@ public class ArkivJournalpostMapper {
 	private static Innsyn mapInnsyn(ArkivJournalpost arkivJournalpost) {
 		try {
 			return arkivJournalpost.innsyn() == null ? null : Innsyn.valueOf(arkivJournalpost.innsyn());
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			return null;
 		}
 	}
@@ -292,7 +292,7 @@ public class ArkivJournalpostMapper {
 	private Kanal mapTilgangMottakskanal(String mottakskanal) {
 		try {
 			return mottakskanal == null ? null : MottaksKanalCode.valueOf(mottakskanal).getSafKanal();
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			return null;
 		}
 	}
@@ -330,7 +330,7 @@ public class ArkivJournalpostMapper {
 	private SkjermingType mapSkjermingType(String skjerming) {
 		try {
 			return skjerming == null ? null : SkjermingType.valueOf(skjerming);
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			return null;
 		}
 	}
