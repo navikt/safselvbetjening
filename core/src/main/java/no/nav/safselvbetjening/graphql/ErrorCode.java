@@ -19,6 +19,7 @@ import static java.util.Collections.singletonMap;
 @RequiredArgsConstructor
 public enum ErrorCode {
     UNAUTHORIZED(ExecutionAborted, "unauthorized"),
+    FORBIDDEN(ExecutionAborted, "forbidden"),
     NOT_FOUND(ExecutionAborted, "not_found"),
     BAD_REQUEST(ValidationError, "bad_request"),
     SERVER_ERROR(DataFetchingException, "server_error");
@@ -33,6 +34,9 @@ public enum ErrorCode {
     public static final String FEILMELDING_JOURNALPOSTID_ER_IKKE_NUMERISK = "journalpostId i argument til journalpostById query må være numerisk. journalpostId=%s";
     public static final String FEILMELDING_KUNNE_IKKE_HENTE_INTERN_REQUESTCONTEXT = "Kunne ikke hente intern requestcontext.";
     public static final String FEILMELDING_MIDLERTIDIG_TEKNISK_FEIL = "Midlertidig teknisk feil. Som oftest løses dette ved at bruker forsøker på nytt. Hvis feilen vedvarer og skaper ulemper for bruker: gi beskjed på Slack-kanal #team_dokumentløsninger.";
+    public static final String FEILMELDING_INGEN_PENSJONSSAK = "Kan ikke vise journalpost. Fant ingen pensjonssak knyttet til journalpost. Hvis feilen vedvarer og skaper ulemper for bruker: gi beskjed på Slack-kanal #team_dokumentløsninger.";
+    public static final String FEILMELDING_INGEN_JOURNALPOST_I_FAGARKIVET= "Kan ikke vise journalpost. Fant ingen journalpost i fagarkivet. Dette kan være midlertidig. Hvis feilen vedvarer og skaper ulemper for bruker: gi beskjed på Slack-kanal #team_dokumentløsninger.";
+    public static final String FEILMELDING_INGEN_TILGANG_TIL_JOURNALPOST = "Bruker har ikke tilgang til journalpost";
 
     private final ErrorClassification type;
     private final String text;

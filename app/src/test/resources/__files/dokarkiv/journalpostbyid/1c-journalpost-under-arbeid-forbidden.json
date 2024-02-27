@@ -1,0 +1,89 @@
+{
+  "journalpostId": 400000000,
+  "type": "U",
+  "fagomraade": "HJE",
+  "status": "D",
+  "saksrelasjon": {
+    "fagsystem": "FS22",
+    "sak": {
+      "aktoerId": "1012345678911",
+      "tema": "HJE",
+      "fagsakNr": "9000",
+      "applikasjon": "HJELPEMIDLER"
+    },
+    "sakId": 140000000
+  },
+  "skjerming": null,
+  "relevanteDatoer": {
+    "forsendelseMottatt": "2023-08-16T11:15:00.290+00:00",
+    "hoveddokument": "2023-08-16T11:15:00.290+00:00",
+    "journalfoert": "2023-09-12T13:42:13.647+00:00",
+    "opprettet": "2023-08-16T11:15:00.292+00:00"
+  },
+  "avsenderMottaker": {
+    "id": "12345678911",
+    "navn": "Bjarne Betjent",
+    "type": "FNR"
+  },
+  "bruker": {
+    "id": "12345678911",
+    "type": "PERSON"
+  },
+  "innsyn": null,
+  "dokumenter": [
+    {
+      "dokumentInfoId": 410000000,
+      "kassert": null,
+      "skjerming": null,
+      "kategori": "SOK",
+      "fildetaljer": [
+        {
+          "format": "ARKIV",
+          "skjerming": null,
+          "stoerrelse": "1024",
+          "type": "PDF",
+          "uuid": "11111111-2222-3333-4444-000000000001"
+        },
+        {
+          "format": "ORIGINAL",
+          "skjerming": null,
+          "stoerrelse": "2048",
+          "type": "JSON",
+          "uuid": "11111111-2222-3333-4444-000000000002"
+        }
+      ],
+      "tilknyttetSom": "HOVEDDOKUMENT",
+      "brevkode": "NAV 10-07.53",
+      "tittel": "Søknad om hjelpemidler"
+    },
+    {
+      "dokumentInfoId": 420000000,
+      "kassert": null,
+      "skjerming": null,
+      "kategori": "SOK",
+      "fildetaljer": [
+        {
+          "format": "ARKIV",
+          "skjerming": null,
+          "stoerrelse": "4096",
+          "type": "PDFA",
+          "uuid": "11111111-2222-3333-4444-000000000003"
+        },
+        {
+          "format": "ORIGINAL",
+          "skjerming": null,
+          "stoerrelse": "8192",
+          "type": "JSON",
+          "uuid": "11111111-2222-3333-4444-000000000004"
+        }
+      ],
+      "tilknyttetSom": "VEDLEGG",
+      "brevkode": "L7",
+      "tittel": "Kvitteringsside for dokumentinnsending"
+    }
+
+  ],
+  "mottakskanal": "SKAN_IM",
+  "innhold": "Søknad om hjelpemidler",
+  "kanalreferanseId": "11111111-2222-3333-4444-555555555555"
+}

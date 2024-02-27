@@ -5,6 +5,8 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.safselvbetjening.consumer.dokarkiv.JournalpostIkkeFunnetException;
+import no.nav.safselvbetjening.consumer.pensjon.PensjonsakIkkeFunnetException;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.graphql.GraphQLRequestContext;
@@ -15,10 +17,13 @@ import static no.nav.safselvbetjening.MDCUtils.MDC_CALL_ID;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CONSUMER_ID;
 import static no.nav.safselvbetjening.MDCUtils.getConsumerIdFromToken;
 import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_INGEN_JOURNALPOST_I_FAGARKIVET;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_INGEN_PENSJONSSAK;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_JOURNALPOSTID_ER_BLANK;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_JOURNALPOSTID_ER_IKKE_NUMERISK;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_KUNNE_IKKE_HENTE_INTERN_REQUESTCONTEXT;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_MIDLERTIDIG_TEKNISK_FEIL;
+import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
 import static no.nav.safselvbetjening.graphql.GraphQLRequestContext.KEY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -45,11 +50,15 @@ public class JournalpostByIdDataFetcher implements DataFetcher<DataFetcherResult
 			final String journalpostId = environment.getArgument("journalpostId");
 			validerJournalpostId(journalpostId, environment);
 
-			Journalpost journalpost = journalpostService.queryJournalpost(journalpostId, environment);
+			Journalpost journalpost = journalpostService.queryJournalpost(journalpostId, environment, graphQLRequestContext);
 			return DataFetcherResult.<Journalpost>newResult().data(journalpost).build();
 		} catch (GraphQLException e) {
 			log.warn("journalpostById feilet: " + e.getError().getMessage());
 			return e.toDataFetcherResult();
+		} catch (PensjonsakIkkeFunnetException e) {
+			return GraphQLException.of(NOT_FOUND, environment, FEILMELDING_INGEN_PENSJONSSAK).toDataFetcherResult();
+		} catch (JournalpostIkkeFunnetException e) {
+			return GraphQLException.of(NOT_FOUND, environment, FEILMELDING_INGEN_JOURNALPOST_I_FAGARKIVET).toDataFetcherResult();
 		} catch (CallNotPermittedException e) {
 			log.error("journalpostById circuitbreaker={} er åpen.", e.getCausingCircuitBreakerName(), e);
 			return DataFetcherResult.<Journalpost>newResult()

@@ -8,6 +8,7 @@ import no.nav.safselvbetjening.consumer.dokarkiv.FinnJournalposterRequestTo;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostDto;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
+import no.nav.safselvbetjening.domain.DomainConstants;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.service.BrukerIdenter;
@@ -39,7 +40,6 @@ class DokumentoversiktSelvbetjeningService {
 	private static final List<JournalStatusCode> MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(MO, M, J, E, FL, FS);
 	private static final List<JournalStatusCode> FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(J, E, FL, FS);
 	private static final List<JournalpostTypeCode> ALLE_JOURNALPOSTTYPER = Arrays.asList(JournalpostTypeCode.values());
-	private static final String STATUS_OK = "ok";
 
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final IdentService identService;
@@ -141,7 +141,7 @@ class DokumentoversiktSelvbetjeningService {
 				dokumentvariant -> {
 					List<String> codes = utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter);
 					dokumentvariant.setBrukerHarTilgang(codes.isEmpty());
-					dokumentvariant.setCode(codes.isEmpty() ? singletonList(STATUS_OK) : codes);
+					dokumentvariant.setCode(codes.isEmpty() ? singletonList(DomainConstants.DOKUMENT_TILGANG_STATUS_OK) : codes);
 				}));
 		return journalpost;
 	}

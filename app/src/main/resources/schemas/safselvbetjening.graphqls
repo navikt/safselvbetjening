@@ -11,7 +11,7 @@ type Query {
     # Henter dokumentoversikten til bruker. Oversikten kan gruppes på tema eller fagsak. Man kan også få ut en flat liste av journalposter.
     dokumentoversiktSelvbetjening(ident: String!, tema: [Tema]!): Dokumentoversikt!
 
-    # Henter journalpost for journalpostId. WIP TODO - ikke bruk denne i produksjon før det er klart! Returnerer en journalpost stub
+    # Henter journalpost for journalpostId.
     journalpostById(journalpostId: String!): Journalpost
 }
 

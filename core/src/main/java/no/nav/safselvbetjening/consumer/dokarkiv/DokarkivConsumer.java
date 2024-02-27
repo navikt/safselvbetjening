@@ -109,13 +109,13 @@ public class DokarkivConsumer {
 				.accept(APPLICATION_JSON)
 				.retrieve()
 				.bodyToMono(ArkivJournalpost.class)
-				.doOnError(handleErrorJournalpost(journalpostId, dokumentInfoId))
+				.doOnError(handleErrorJournalpostDokumentInfo(journalpostId, dokumentInfoId))
 				.transformDeferred(CircuitBreakerOperator.of(dokarkivMetadataCircuitBreaker))
 				.transformDeferred(RetryOperator.of(dokarkivMetadataRetry))
 				.block();
 	}
 
-	private Consumer<Throwable> handleErrorJournalpost(String journalpostId, String dokumentInfoId) {
+	private Consumer<Throwable> handleErrorJournalpostDokumentInfo(String journalpostId, String dokumentInfoId) {
 		return error -> {
 			if (error instanceof WebClientResponseException.NotFound notFound) {
 				handleMidlertidigNginxError(notFound);
@@ -129,6 +129,44 @@ public class DokarkivConsumer {
 				} else {
 					throw new ConsumerTechnicalException(String.format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
 							webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()), webException);
+				}
+			}	
+		};
+	}
+
+	public ArkivJournalpost journalpost(String journalpostId, Set<String> fields) {
+		return webClient.get()
+				.uri(uriBuilder -> {
+					uriBuilder.pathSegment("journalpost", "journalpostId", "{journalpostId}");
+					if (!fields.isEmpty()) {
+						uriBuilder.queryParam("fields", String.join(",", fields));
+					}
+					return uriBuilder.build(journalpostId);
+				})
+				.attributes(clientRegistrationId(CLIENT_REGISTRATION_DOKARKIV))
+				.accept(APPLICATION_JSON)
+				.retrieve()
+				.bodyToMono(ArkivJournalpost.class)
+				.doOnError(handleErrorJournalpost(journalpostId))
+				.transformDeferred(CircuitBreakerOperator.of(dokarkivMetadataCircuitBreaker))
+				.transformDeferred(RetryOperator.of(dokarkivMetadataRetry))
+				.block();
+	}
+
+	private Consumer<Throwable> handleErrorJournalpost(String journalpostId) {
+		return error -> {
+			if (error instanceof WebClientResponseException.NotFound notFound) {
+				handleMidlertidigNginxError(notFound);
+				throw new JournalpostIkkeFunnetException(format("Journalpost med journalpostId=%s ikke funnet i Joark.",
+						journalpostId), notFound);
+			}
+			if (error instanceof WebClientResponseException webException) {
+				if (webException.getStatusCode().is4xxClientError()) {
+					throw new ConsumerFunctionalException(format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%s. Feilmelding=%s",
+							webException.getStatusCode(), journalpostId, webException.getMessage()));
+				} else {
+					throw new ConsumerTechnicalException(String.format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s. Feilmelding=%s",
+							webException.getStatusCode(), journalpostId, webException.getMessage()), webException);
 				}
 			}
 		};

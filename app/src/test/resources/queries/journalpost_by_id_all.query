@@ -5,6 +5,7 @@ query journalpostById($journalpostId: String!) {
     journalposttype
     journalstatus
     tema
+    eksternReferanseId
     sak {
       fagsakId
       fagsaksystem

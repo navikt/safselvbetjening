@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -109,8 +110,12 @@ public abstract class AbstractItest {
 		return headers;
 	}
 
-	protected String stringFromClasspath(String resourcename) throws IOException {
-		return IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(resourcename), UTF_8);
+	protected String stringFromClasspath(String resourcename) {
+		try {
+			return IOUtils.toString(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(resourcename)), UTF_8);
+		} catch (IOException e) {
+			throw new IllegalStateException("Klarte ikke lese fil=" + resourcename + " fra classpath til string", e);
+		}
 	}
 
 	protected void stubAzure() {

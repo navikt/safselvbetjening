@@ -28,7 +28,7 @@ Kun tokenx vekslede tokens er støttet. Brukers fødselsnummer må ligge i `pid`
 
 For tilgang, ta kontakt med teamet eller oppdater `ACCESS_POLICY_INBOUND_RULES` i [q2-config.json](nais/q2-config.json)/[p-config.json](nais/p-config.json) i en PR og informer teamet.
 
-#### GraphQL dokumentoversiktSelvbetjening
+#### GraphQL dokumentoversiktSelvbetjening query
 
 | Header          | Type     | Beskrivelse                                                                          |
 |:----------------|:---------|:-------------------------------------------------------------------------------------|
@@ -131,6 +131,98 @@ Eksempel:
     }
   ],
   "data": null
+}
+```
+
+#### GraphQL journalpostById query
+
+| Header          | Type     | Beskrivelse                                                                          |
+|:----------------|:---------|:-------------------------------------------------------------------------------------|
+| `Authorization` | `string` | **Påkrevd**. Autorisasjon til tjenesten. `Bearer <tokenx>`                           |
+| `Nav-Callid`    | `string` | **Valgfri**. Sporing for på tvers av verdikjeder. Helst en GUID eller annen unik ID. |
+```http
+  POST /graphql
+```
+
+For oppbygging av query, se spec. Bruk en GraphQL klient som f.eks [Altair](https://altair.sirmuel.design/) for å gjøre introspeksjon. Typer og felt skal ha dokumentasjon.
+
+Public graphql spec (tilgjengelig fra internett) på `gh-pages` branchen: `https://navikt.github.io/safselvbetjening/schema.graphqls`
+
+##### Spesielt om digital fullmakt
+`journalpostById` query støtter ikke digital fullmakt. Det er noe som kommer.
+
+##### Suksess
+
+HttpStatus: `200 OK`
+
+Eksempel query:
+```
+query journalpostById($journalpostId: String!) {
+  journalpostById(journalpostId: $journalpostId) {
+    journalpostId
+    tittel
+  } 
+}
+```
+Eksempel variables:
+```
+{
+  "journalpostId": "400000000"
+}
+```
+Eksempel respons:
+
+```
+{
+  "data": {
+    "journalpostById": {
+      "journalpostId": "400000000",
+      "tittel": "Søknad om arbeidsavklaringspenger"
+    }
+  }
+}
+```
+
+##### Feil
+
+HttpStatus: `200 OK`
+
+Feilmeldinger propageres i `errors` i respons.
+
+Anbefales å logge `errors[0..n].message`. Samt klassifisering i `errors[0..n].extensions.code`.
+
+| `extensions.code` | Beskrivelse                                                                        |
+|:------------------|:-----------------------------------------------------------------------------------|
+| `bad_request`     | Feil i input til queries.                                                          |
+| `unauthorized`    | Ingen tilgang til tjenesten. Ugyldig token. Token som ikke tilhører ident i query. |
+| `not_found`       | Bruker finnes ikke i PDL. Ingen saker på bruker.                                   |
+| `server_error`    | Intern teknisk feil som ikke er håndtert.                                          |
+
+Eksempel:
+
+```
+{
+  "errors": [
+    {
+      "message": "Kan ikke vise journalpost. Fant ingen journalpost i fagarkivet. Dette kan være midlertidig. Hvis feilen vedvarer og skaper ulemper for bruker: gi beskjed på Slack-kanal #team_dokumentløsninger.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": [
+        "journalpostById"
+      ],
+      "extensions": {
+        "code": "not_found",
+        "classification": "ExecutionAborted"
+      }
+    }
+  ],
+  "data": {
+    "journalpostById": null
+  }
 }
 ```
 
