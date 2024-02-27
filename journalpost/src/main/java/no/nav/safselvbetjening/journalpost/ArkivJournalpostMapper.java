@@ -155,12 +155,15 @@ public class ArkivJournalpostMapper {
 		if (arkivRelevanteDatoer.opprettet() != null) {
 			relevanteDatoer.add(new RelevantDato(arkivRelevanteDatoer.opprettet(), Datotype.DATO_OPPRETTET));
 		}
+
 		if (arkivRelevanteDatoer.hoveddokument() != null) {
 			relevanteDatoer.add(new RelevantDato(arkivRelevanteDatoer.hoveddokument(), Datotype.DATO_DOKUMENT));
 		}
+
 		if (arkivRelevanteDatoer.journalfoert() != null) {
 			relevanteDatoer.add(new RelevantDato(arkivRelevanteDatoer.journalfoert(), Datotype.DATO_JOURNALFOERT));
 		}
+
 		switch (JournalpostTypeCode.valueOf(arkivJournalpost.type())) {
 			case I:
 				if (arkivRelevanteDatoer.forsendelseMottatt() != null) {
@@ -171,9 +174,11 @@ public class ArkivJournalpostMapper {
 				if (arkivRelevanteDatoer.sendtPrint() != null) {
 					relevanteDatoer.add(new RelevantDato(arkivRelevanteDatoer.sendtPrint(), Datotype.DATO_SENDT_PRINT));
 				}
+
 				if (arkivRelevanteDatoer.ekspedert() != null) {
 					relevanteDatoer.add(new RelevantDato(arkivRelevanteDatoer.ekspedert(), Datotype.DATO_EKSPEDERT));
 				}
+
 				if (arkivRelevanteDatoer.retur() != null) {
 					relevanteDatoer.add(new RelevantDato(arkivRelevanteDatoer.retur(), Datotype.DATO_AVS_RETUR));
 				}
@@ -268,9 +273,11 @@ public class ArkivJournalpostMapper {
 		if (arkivRelevanteDatoer == null) {
 			return null;
 		}
+
 		if (arkivRelevanteDatoer.journalfoert() == null) {
 			return null;
 		}
+
 		return arkivRelevanteDatoer.journalfoert().toLocalDateTime();
 	}
 
@@ -286,6 +293,7 @@ public class ArkivJournalpostMapper {
 		if (avsenderMottaker == null) {
 			return null;
 		}
+
 		return avsenderMottaker.id();
 	}
 
@@ -301,6 +309,7 @@ public class ArkivJournalpostMapper {
 		if (arkivBruker == null) {
 			return null;
 		}
+
 		return Journalpost.TilgangBruker.builder().brukerId(arkivBruker.id()).build();
 	}
 
