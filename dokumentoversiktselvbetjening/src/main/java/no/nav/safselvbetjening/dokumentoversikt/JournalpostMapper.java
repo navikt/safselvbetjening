@@ -214,6 +214,7 @@ public class JournalpostMapper {
 				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
 						.kassert(dokument.getKassert() != null && dokument.getKassert())
 						.kategori(dokument.getKategori() == null ? null : dokument.getKategori().toString())
+						.skjerming(dokument.getSkjerming())
 						.build())
 				.build()).collect(Collectors.toList());
 	}

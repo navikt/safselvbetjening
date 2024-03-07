@@ -2,6 +2,7 @@ package no.nav.safselvbetjening.tilgang;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -93,7 +94,7 @@ public class UtledTilgangService {
 		if (isSkannetDokumentAndInnsynIsNotVises(journalpost)) {
 			feilmeldinger.add(DENY_REASON_SKANNET_DOKUMENT);
 		}
-		if (isDokumentGDPRRestricted(dokumentvariant)) {
+		if (isDokumentGDPRRestricted(dokumentInfo, dokumentvariant)) {
 			feilmeldinger.add(DENY_REASON_GDPR);
 		}
 		if (isDokumentKassert(dokumentInfo)) {
@@ -137,10 +138,11 @@ public class UtledTilgangService {
 		if (isSkannetDokumentAndInnsynIsNotVises(journalpost)) {
 			throw new HentTilgangDokumentException(DENY_REASON_SKANNET_DOKUMENT, lagFeilmeldingForDokument(FEILMELDING_SKANNET));
 		}
-		if (isDokumentGDPRRestricted(journalpost.getDokumenter().get(0).getDokumentvarianter().get(0))) {
+		DokumentInfo dokumentInfo = journalpost.getDokumenter().get(0);
+		if (isDokumentGDPRRestricted(dokumentInfo, dokumentInfo.getDokumentvarianter().get(0))) {
 			throw new HentTilgangDokumentException(DENY_REASON_GDPR, lagFeilmeldingForDokument(FEILMELDING_GDPR));
 		}
-		if (isDokumentKassert(journalpost.getDokumenter().get(0))) {
+		if (isDokumentKassert(dokumentInfo)) {
 			throw new HentTilgangDokumentException(DENY_REASON_KASSERT, lagFeilmeldingForDokument(FEILMELDING_KASSERT));
 		}
 	}
@@ -300,10 +302,14 @@ public class UtledTilgangService {
 	/**
 	 * 2e) Dokumenter som er begrenset ihht. GDPR skal ikke vises
 	 */
-	boolean isDokumentGDPRRestricted(Dokumentvariant dokumentvariant) {
-		Dokumentvariant.TilgangVariant tilgangVariant = dokumentvariant.getTilgangVariant();
-		if (tilgangVariant != null) {
-			return SkjermingType.asList().contains(tilgangVariant.getSkjerming());
+	boolean isDokumentGDPRRestricted(DokumentInfo dokumentInfo, Dokumentvariant dokumentvariant) {
+		DokumentInfo.TilgangDokument tilgangDokument = dokumentInfo.getTilgangDokument();
+		if (tilgangDokument != null) {
+			Dokumentvariant.TilgangVariant tilgangVariant = dokumentvariant.getTilgangVariant();
+			if ( tilgangVariant == null ) {
+				return SkjermingTypeCode.asList().contains(tilgangDokument.getSkjerming());
+			}
+			return SkjermingType.asList().contains(tilgangVariant.getSkjerming()) || SkjermingTypeCode.asList().contains(tilgangDokument.getSkjerming());
 		}
 		return false;
 	}

@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.DokumentKategoriCode.FORVALTNINGSNOTAT;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.SkjermingTypeCode.POL;
 import static no.nav.safselvbetjening.domain.Innsyn.BRUK_STANDARDREGLER;
 import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_BRUKERS_ONSKE;
 import static no.nav.safselvbetjening.domain.Innsyn.SKJULES_FEILSENDT;
@@ -30,6 +31,8 @@ import static no.nav.safselvbetjening.domain.Innsyn.valueOf;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_IM;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_NETS;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_PEN;
+import static no.nav.safselvbetjening.domain.SkjermingType.FEIL;
+import static no.nav.safselvbetjening.domain.Variantformat.ARKIV;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.AKTOER_ID;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_AKTOER_ID;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_PART;
@@ -460,11 +463,33 @@ class UtledTilgangServiceTest {
 	//	2e - Dokumenter som er begrenset ihht. gdpr
 	@Test
 	void shouldReturnTrueWhenDokumentIsPolSkjermet() {
-		boolean actual = utledTilgangService.isDokumentGDPRRestricted(Dokumentvariant.builder()
-				.tilgangVariant(Dokumentvariant.TilgangVariant.builder()
-						.skjerming(SkjermingType.POL)
+		DokumentInfo dokumentInfo = DokumentInfo.builder()
+				.dokumentvarianter(List.of(Dokumentvariant.builder()
+						.variantformat(ARKIV)
+						.build()))
+				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+						.skjerming(POL)
 						.build())
-				.build());
+				.build();
+		boolean actual = utledTilgangService.isDokumentGDPRRestricted(dokumentInfo, dokumentInfo.getDokumentvarianter().get(0));
+		assertThat(actual).isTrue();
+	}
+
+	//	2e - Dokumenter som er begrenset ihht. gdpr
+	@Test
+	void shouldReturnTrueWhenDokumentVariantIsPolSkjermet() {
+		DokumentInfo dokumentInfo = DokumentInfo.builder()
+				.dokumentvarianter(List.of(Dokumentvariant.builder()
+						.brukerHarTilgang(true)
+						.tilgangVariant(Dokumentvariant.TilgangVariant.builder()
+								.skjerming(FEIL)
+								.build())
+						.build()))
+				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+						.skjerming(POL)
+						.build())
+				.build();
+		boolean actual = utledTilgangService.isDokumentGDPRRestricted(dokumentInfo, dokumentInfo.getDokumentvarianter().get(0));
 		assertThat(actual).isTrue();
 	}
 
