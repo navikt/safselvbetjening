@@ -329,8 +329,8 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 
 	/**
 	 * Tilgangsregel: 2e
-	 * Fagpost kan skjerme dokumenter.
-	 * Hvis dokumenter er skjermet så skal brukerHarTilgang=false gis på dokumentene
+	 * Fagpost kan skjerme dokumentvariant.
+	 * Hvis dokumentvariant er skjermet så skal brukerHarTilgang=false gis på dokumentene
 	 */
 	@Test
 	void skalGiBrukerHarTilgangFalseHvisDokumentVariantErSkjermet() {
