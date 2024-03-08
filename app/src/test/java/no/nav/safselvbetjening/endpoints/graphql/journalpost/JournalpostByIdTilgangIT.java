@@ -370,11 +370,11 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 		assertThat(graphQLResponse.getData()
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
-				.extracting("brukerHarTilgang").containsExactly(false, false);
+				.extracting("brukerHarTilgang").containsExactly(false, true);
 		assertThat(graphQLResponse.getData()
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
-				.flatExtracting("code").containsExactly(DENY_REASON_GDPR, DENY_REASON_GDPR);
+				.flatExtracting("code").containsExactly(DENY_REASON_GDPR, "ok");
 	}
 
 	/**

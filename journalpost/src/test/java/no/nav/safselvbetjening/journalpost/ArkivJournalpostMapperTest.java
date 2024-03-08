@@ -229,7 +229,7 @@ class ArkivJournalpostMapperTest {
 						HOVEDDOKUMENT_FIL_UUID,
 						FILTYPE_PDF,
 						parseInt(HOVEDDOKUMENT_FIL_STOERRELSE),
-						List.of(DENY_REASON_PARTSINNSYN, DENY_REASON_GDPR),
+						List.of(DENY_REASON_PARTSINNSYN, DENY_REASON_GDPR, DENY_REASON_GDPR),
 						false));
 
 		assertThat(dokumentvarianter)
@@ -259,7 +259,7 @@ class ArkivJournalpostMapperTest {
 						VEDLEGG_FIL_UUID,
 						FILTYPE_PDF,
 						parseInt(VEDLEGG_FIL_STOERRELSE),
-						List.of(DENY_REASON_PARTSINNSYN, DENY_REASON_GDPR),
+						List.of(DENY_REASON_PARTSINNSYN, DENY_REASON_GDPR, DENY_REASON_GDPR),
 						false));
 	}
 

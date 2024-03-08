@@ -32,6 +32,6 @@ public class DokumentInfo {
 	public static class TilgangDokument {
 		private final String kategori;
 		private final boolean kassert;
-		private SkjermingTypeCode skjerming;
+		private SkjermingType skjerming;
 	}
 }

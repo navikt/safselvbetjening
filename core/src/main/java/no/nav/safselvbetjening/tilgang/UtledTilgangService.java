@@ -69,13 +69,13 @@ public class UtledTilgangService {
 			}
 			// Med referanse til tilgangsreglene lenket i javadoc.
 			return isBrukerPart(journalpost, brukerIdenter) && // 1a
-				   !isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost) && // 1b
-				   isJournalpostFerdigstiltOrMidlertidig(journalpost) && // 1c
-				   !isJournalpostFeilregistrert(journalpost) && // 1d
-				   isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost) && // 1e
-				   isJournalpostNotGDPRRestricted(journalpost) && // 1f
-				   isJournalpostForvaltningsnotat(journalpost) && // 1g
-				   !isJournalpostInnsynSkjules(journalpost.getTilgang()); // 1i
+					!isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost) && // 1b
+					isJournalpostFerdigstiltOrMidlertidig(journalpost) && // 1c
+					!isJournalpostFeilregistrert(journalpost) && // 1d
+					isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost) && // 1e
+					isJournalpostNotGDPRRestricted(journalpost) && // 1f
+					isJournalpostForvaltningsnotat(journalpost) && // 1g
+					!isJournalpostInnsynSkjules(journalpost.getTilgang()); // 1i
 		} catch (Exception e) {
 			log.error("Feil oppstått i utledTilgangJournalpost for journalpost med journalpostId={}.", journalpost.getJournalpostId(), e);
 			return false;
@@ -94,7 +94,10 @@ public class UtledTilgangService {
 		if (isSkannetDokumentAndInnsynIsNotVises(journalpost)) {
 			feilmeldinger.add(DENY_REASON_SKANNET_DOKUMENT);
 		}
-		if (isDokumentGDPRRestricted(dokumentInfo, dokumentvariant)) {
+		if (isDokumentGDPRRestricted(dokumentInfo)) {
+			feilmeldinger.add(DENY_REASON_GDPR);
+		}
+		if (isDokumentvariantGDPRRestricted(dokumentvariant)) {
 			feilmeldinger.add(DENY_REASON_GDPR);
 		}
 		if (isDokumentKassert(dokumentInfo)) {
@@ -139,7 +142,10 @@ public class UtledTilgangService {
 			throw new HentTilgangDokumentException(DENY_REASON_SKANNET_DOKUMENT, lagFeilmeldingForDokument(FEILMELDING_SKANNET));
 		}
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().get(0);
-		if (isDokumentGDPRRestricted(dokumentInfo, dokumentInfo.getDokumentvarianter().get(0))) {
+		if (isDokumentGDPRRestricted(dokumentInfo)) {
+			throw new HentTilgangDokumentException(DENY_REASON_GDPR, lagFeilmeldingForDokument(FEILMELDING_GDPR));
+		}
+		if (isDokumentvariantGDPRRestricted(dokumentInfo.getDokumentvarianter().get(0))) {
 			throw new HentTilgangDokumentException(DENY_REASON_GDPR, lagFeilmeldingForDokument(FEILMELDING_GDPR));
 		}
 		if (isDokumentKassert(dokumentInfo)) {
@@ -300,16 +306,23 @@ public class UtledTilgangService {
 	}
 
 	/**
+	 * 2e) Dokumentvariant som er begrenset ihht. GDPR skal ikke vises
+	 */
+	boolean isDokumentvariantGDPRRestricted(Dokumentvariant dokumentvariant) {
+		Dokumentvariant.TilgangVariant tilgangVariant = dokumentvariant.getTilgangVariant();
+		if (tilgangVariant != null) {
+			return SkjermingType.asList().contains(tilgangVariant.getSkjerming());
+		}
+		return false;
+	}
+
+	/**
 	 * 2e) Dokumenter som er begrenset ihht. GDPR skal ikke vises
 	 */
-	boolean isDokumentGDPRRestricted(DokumentInfo dokumentInfo, Dokumentvariant dokumentvariant) {
+	boolean isDokumentGDPRRestricted(DokumentInfo dokumentInfo) {
 		DokumentInfo.TilgangDokument tilgangDokument = dokumentInfo.getTilgangDokument();
 		if (tilgangDokument != null) {
-			Dokumentvariant.TilgangVariant tilgangVariant = dokumentvariant.getTilgangVariant();
-			if ( tilgangVariant == null ) {
-				return SkjermingTypeCode.asList().contains(tilgangDokument.getSkjerming());
-			}
-			return SkjermingType.asList().contains(tilgangVariant.getSkjerming()) || SkjermingTypeCode.asList().contains(tilgangDokument.getSkjerming());
+			return SkjermingType.asList().contains(tilgangDokument.getSkjerming());
 		}
 		return false;
 	}

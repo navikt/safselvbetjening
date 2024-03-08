@@ -3,7 +3,6 @@ package no.nav.safselvbetjening.hentdokument;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
-import no.nav.safselvbetjening.consumer.dokarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.UtsendingsKanalCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivAvsenderMottaker;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivBruker;
@@ -96,7 +95,7 @@ public class HentDokumentTilgangMapper {
 						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
 								.kassert(arkivDokumentinfo.kassert() != null && arkivDokumentinfo.kassert())
 								.kategori(arkivDokumentinfo.kategori())
-								.skjerming(mapDokumentSkjermingType(arkivDokumentinfo.skjerming()))
+								.skjerming(mapSkjermingType(arkivDokumentinfo.skjerming()))
 								.build())
 						.dokumentvarianter(mapDokumentVarianter(arkivDokumentinfo.fildetaljer(), variantFormat))
 						.build()).toList();
@@ -195,14 +194,6 @@ public class HentDokumentTilgangMapper {
 	private SkjermingType mapSkjermingType(String skjerming) {
 		try {
 			return skjerming == null ? null : SkjermingType.valueOf(skjerming);
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	private SkjermingTypeCode mapDokumentSkjermingType(String skjerming) {
-		try {
-			return skjerming == null ? null : SkjermingTypeCode.valueOf(skjerming);
 		} catch (Exception e) {
 			return null;
 		}
