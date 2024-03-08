@@ -6,10 +6,12 @@ import java.util.EnumSet;
  * Enum for codes in T_K_BEGRENSNING_TYPE.
  */
 public enum SkjermingTypeCode {
-    POL,
-    FEIL;
+	POL,
+	FEIL;
 
-    public static EnumSet<SkjermingTypeCode> asList() {
-        return EnumSet.of(POL, FEIL);
-    }
+	private static final EnumSet<SkjermingTypeCode> VALUES = EnumSet.of(POL, FEIL);
+
+	public static EnumSet<SkjermingTypeCode> asList() {
+		return VALUES;
+	}
 }

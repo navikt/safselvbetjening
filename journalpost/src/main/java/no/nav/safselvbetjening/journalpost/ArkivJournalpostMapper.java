@@ -46,6 +46,7 @@ import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
 import static no.nav.safselvbetjening.domain.Sakstype.fromApplikasjon;
 import static no.nav.safselvbetjening.service.Saker.FAGSYSTEM_PENSJON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.util.StringUtils.hasText;
 
 @Component
 public class ArkivJournalpostMapper {
@@ -347,8 +348,13 @@ public class ArkivJournalpostMapper {
 	}
 
 	private SkjermingTypeCode mapDokumentSkjermingType(String skjerming) {
+
+		if (!hasText(skjerming)) {
+			return null;
+		}
+
 		try {
-			return skjerming == null ? null : SkjermingTypeCode.valueOf(skjerming);
+			return SkjermingTypeCode.valueOf(skjerming);
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
