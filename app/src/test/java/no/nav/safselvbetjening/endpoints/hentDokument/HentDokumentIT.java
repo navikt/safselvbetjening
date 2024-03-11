@@ -58,6 +58,21 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 	}
 
 	/**
+	 * Tilgangsregel: 2e
+	 * Hvis dokumenter er skjermet så skal det returneres en Forbidden feil.
+	 */
+	@Test
+	void skalGiForbiddenFeilHvisDokumentSkjermet() {
+		stubPdlGenerell();
+		stubDokarkivJournalpostWithSkjermDokument();
+		stubHentDokumentDokarkiv();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertForbiddenArkivResponse(responseEntity);
+	}
+
+	/**
 	 * Hvis dokarkiv hentdokument tjenesten returnerer 404 så skal det returneres Not Found feil
 	 */
 	@Test

@@ -23,6 +23,7 @@ import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SCHEMA_
 import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG;
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonList;
+import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode.ARKIV;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentService.HENTDOKUMENT_TILGANG_FIELDS;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_INSTANCE_ID_CONFIG;
@@ -31,7 +32,9 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZE
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
@@ -97,6 +100,10 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 		stubDokarkivJournalpost("1c-hentdokument-ok.json");
 	}
 
+	protected static void stubDokarkivJournalpostWithSkjermDokument() {
+		stubDokarkivJournalpost("2e-journalpost-dokument-skjermet-ok.json");
+	}
+
 	protected static void stubDokarkivJournalpost(String fil) {
 		stubFor(get("/dokarkiv/journalpost/journalpostId/" + JOURNALPOST_ID + "/dokumentInfoId/" + DOKUMENT_ID + "?fields=" + String.join(",", HENTDOKUMENT_TILGANG_FIELDS))
 				.willReturn(aResponse()
@@ -117,6 +124,13 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 		assertThat(responseEntity.getHeaders().getContentDisposition().getType()).isEqualTo("inline");
 		assertThat(responseEntity.getBody()).isEqualTo(new String(TEST_FILE_BYTES));
 		assertThat(responseEntity.getHeaders().getContentDisposition().getFilename()).isEqualTo(DOKUMENT_ID + "_" + VARIANTFORMAT + ".pdf");
+	}
+
+	protected void assertForbiddenArkivResponse(ResponseEntity<String> responseEntity) {
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+		assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(APPLICATION_JSON);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).contains("gdpr");
+		assertThat(responseEntity.getBody()).contains("Tilgang til dokument ble avvist ihht. GDPR.");
 	}
 
 	protected ResponseEntity<String> callHentDokument() {
