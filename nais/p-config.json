@@ -92,6 +92,11 @@
       "app": "familie-ef-soknad-api",
       "namespace": "teamfamilie",
       "cluster": "prod-gcp"
+    },
+    {
+      "app": "tms-mikrofrontend-selector",
+      "namespace": "min-side",
+      "cluster": "prod-gcp"
     }
   ]
 }
