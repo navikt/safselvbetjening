@@ -34,7 +34,7 @@
     {
       "dokumentInfoId": 410000000,
       "kassert": null,
-      "skjerming": "POL",
+      "skjerming": null,
       "kategori": "SOK",
       "fildetaljer": [
         {
@@ -64,7 +64,7 @@
       "fildetaljer": [
         {
           "format": "ARKIV",
-          "skjerming": null,
+          "skjerming": "POL",
           "stoerrelse": "4096",
           "type": "PDFA",
           "uuid": "11111111-2222-3333-4444-000000000003"

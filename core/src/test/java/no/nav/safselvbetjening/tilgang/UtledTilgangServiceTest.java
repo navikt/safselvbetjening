@@ -8,7 +8,6 @@ import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Journalposttype;
 import no.nav.safselvbetjening.domain.Journalstatus;
 import no.nav.safselvbetjening.domain.Kanal;
-import no.nav.safselvbetjening.domain.SkjermingType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -30,6 +29,9 @@ import static no.nav.safselvbetjening.domain.Innsyn.valueOf;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_IM;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_NETS;
 import static no.nav.safselvbetjening.domain.Kanal.SKAN_PEN;
+import static no.nav.safselvbetjening.domain.SkjermingType.FEIL;
+import static no.nav.safselvbetjening.domain.SkjermingType.POL;
+import static no.nav.safselvbetjening.domain.Variantformat.ARKIV;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.AKTOER_ID;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_AKTOER_ID;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_PART;
@@ -362,7 +364,7 @@ class UtledTilgangServiceTest {
 	void shouldReturnFalseWhenBegrensetWithGdpr() {
 		Journalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
 				.tilgang(Journalpost.TilgangJournalpost.builder()
-						.skjerming(SkjermingType.POL)
+						.skjerming(POL)
 						.build())
 				.build();
 		boolean actual = utledTilgangService.isJournalpostNotGDPRRestricted(journalpost);
@@ -459,12 +461,34 @@ class UtledTilgangServiceTest {
 
 	//	2e - Dokumenter som er begrenset ihht. gdpr
 	@Test
-	void shouldReturnTrueWhenDokumentIsPolSkjermet() {
-		boolean actual = utledTilgangService.isDokumentGDPRRestricted(Dokumentvariant.builder()
-				.tilgangVariant(Dokumentvariant.TilgangVariant.builder()
-						.skjerming(SkjermingType.POL)
+	void shouldReturnTrueWhenDokumentvariantIsPolSkjermet() {
+		DokumentInfo dokumentInfo = DokumentInfo.builder()
+				.dokumentvarianter(List.of(Dokumentvariant.builder()
+						.variantformat(ARKIV)
+						.build()))
+				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+						.skjerming(POL)
 						.build())
-				.build());
+				.build();
+		boolean actual = utledTilgangService.isDokumentGDPRRestricted(dokumentInfo);
+		assertThat(actual).isTrue();
+	}
+
+	//	2e - Dokumentervariant som er begrenset ihht. gdpr
+	@Test
+	void shouldReturnTrueWhenDokumentVariantIsPolSkjermet() {
+		DokumentInfo dokumentInfo = DokumentInfo.builder()
+				.dokumentvarianter(List.of(Dokumentvariant.builder()
+						.brukerHarTilgang(true)
+						.tilgangVariant(Dokumentvariant.TilgangVariant.builder()
+								.skjerming(FEIL)
+								.build())
+						.build()))
+				.tilgangDokument(DokumentInfo.TilgangDokument.builder()
+						.skjerming(POL)
+						.build())
+				.build();
+		boolean actual = utledTilgangService.isDokumentvariantGDPRRestricted(dokumentInfo.getDokumentvarianter().get(0));
 		assertThat(actual).isTrue();
 	}
 

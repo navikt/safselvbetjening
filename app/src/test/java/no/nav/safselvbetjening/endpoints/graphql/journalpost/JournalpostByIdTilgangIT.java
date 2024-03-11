@@ -329,6 +329,31 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 
 	/**
 	 * Tilgangsregel: 2e
+	 * Fagpost kan skjerme dokumentvariant.
+	 * Hvis dokumentvariant er skjermet så skal brukerHarTilgang=false gis på dokumentene
+	 */
+	@Test
+	void skalGiBrukerHarTilgangFalseHvisDokumentVariantErSkjermet() {
+		stubDokarkivJournalpost("2e-journalpost-dokument-dokumentvariant-skjermet-ok.json");
+		stubPdlGenerell();
+
+		ResponseEntity<GraphQLResponse> response = queryJournalpostById();
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getData()
+				.getJournalpostById().getDokumenter().stream()
+				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
+				.extracting("brukerHarTilgang").containsExactly(true, false);
+		assertThat(graphQLResponse.getData()
+				.getJournalpostById().getDokumenter().stream()
+				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
+				.flatExtracting("code").containsExactly("ok", DENY_REASON_GDPR);
+	}
+
+	/**
+	 * Tilgangsregel: 2e
 	 * Fagpost kan skjerme dokumenter.
 	 * Hvis dokumenter er skjermet så skal brukerHarTilgang=false gis på dokumentene
 	 */
@@ -345,11 +370,11 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 		assertThat(graphQLResponse.getData()
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
-				.extracting("brukerHarTilgang").containsExactly(true, false);
+				.extracting("brukerHarTilgang").containsExactly(false, true);
 		assertThat(graphQLResponse.getData()
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
-				.flatExtracting("code").containsExactly("ok", DENY_REASON_GDPR);
+				.flatExtracting("code").containsExactly(DENY_REASON_GDPR, "ok");
 	}
 
 	/**

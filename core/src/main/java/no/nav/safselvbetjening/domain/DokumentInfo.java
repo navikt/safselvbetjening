@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 import lombok.Value;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.SkjermingTypeCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,5 +32,6 @@ public class DokumentInfo {
 	public static class TilgangDokument {
 		private final String kategori;
 		private final boolean kassert;
+		private SkjermingType skjerming;
 	}
 }

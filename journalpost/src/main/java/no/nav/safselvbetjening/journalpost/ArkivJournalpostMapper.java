@@ -204,6 +204,7 @@ public class ArkivJournalpostMapper {
 						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
 								.kassert(arkivDokumentinfo.kassert() != null && arkivDokumentinfo.kassert())
 								.kategori(arkivDokumentinfo.kategori())
+								.skjerming(mapSkjermingType(arkivDokumentinfo.skjerming()))
 								.build())
 						.dokumentvarianter(mapDokumentVarianter(arkivDokumentinfo.fildetaljer()))
 						.build()).toList();
