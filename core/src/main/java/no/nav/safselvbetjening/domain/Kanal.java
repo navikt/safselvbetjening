@@ -21,7 +21,7 @@ public enum Kanal {
 	NAV_NO_UINNLOGGET("Ditt NAV uten ID-porten-pålogging"),
 	INNSENDT_NAV_ANSATT("Registrert av Nav-ansatt"),
 	NAV_NO_CHAT("Innlogget samtale"),
-	DPV("Digital Post til Virksomhet"),
+	DPV("Taushetsbelagt Post via Altinn"),
 	E_POST("E-post"),
 	ALTINN_INNBOKS("Altinn Innboks");
 
