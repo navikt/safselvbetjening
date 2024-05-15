@@ -388,7 +388,9 @@ class UtledTilgangServiceTest {
 
 	//	1i) Bruker kan ikke få se journalposter som innsyn begynner med SKJULES_*
 	@ParameterizedTest
-	@ValueSource(strings = {"SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_ORGAN_INTERNT", "SKJULES_FEILSENDT", "SKJULES_BRUKERS_ONSKE"})
+	@ValueSource(strings = {
+			"SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_ORGAN_INTERNT", "SKJULES_FEILSENDT", "SKJULES_BRUKERS_ONSKE", "SKJULES_BRUKERS_SIKKERHET"
+	})
 	void shouldReturnTrueWhenJournalpostInnsynSkjult(String innsyn) {
 		Journalpost journalpost = getBaseJournalfoertJournalpostWithInnsyn(innsyn);
 		boolean actual = utledTilgangService.isJournalpostInnsynSkjules(journalpost.getTilgang());
