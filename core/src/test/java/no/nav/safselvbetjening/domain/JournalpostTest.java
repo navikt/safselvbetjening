@@ -77,7 +77,9 @@ class JournalpostTest {
 	}
 
 	@ParameterizedTest
-	@EnumSource(value = Innsyn.class, names = {"SKJULES_BRUKERS_ONSKE", "SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_FEILSENDT", "SKJULES_ORGAN_INTERNT"})
+	@EnumSource(value = Innsyn.class, names = {
+			"SKJULES_BRUKERS_ONSKE", "SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_FEILSENDT", "SKJULES_ORGAN_INTERNT", "SKJULES_BRUKERS_SIKKERHET"
+	})
 	void shouldReturnTrueForInnsynSkjulesWhenSkjules(Innsyn innsyn) {
 		Journalpost.TilgangJournalpost tilgangJournalpost = Journalpost.TilgangJournalpost.builder()
 				.innsyn(innsyn)
@@ -86,7 +88,9 @@ class JournalpostTest {
 	}
 
 	@ParameterizedTest
-	@EnumSource(value = Innsyn.class, names = {"SKJULES_BRUKERS_ONSKE", "SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_FEILSENDT", "SKJULES_ORGAN_INTERNT"})
+	@EnumSource(value = Innsyn.class, names = {
+			"SKJULES_BRUKERS_ONSKE", "SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_FEILSENDT", "SKJULES_ORGAN_INTERNT", "SKJULES_BRUKERS_SIKKERHET"
+	})
 	void shouldReturnFalseForInnsynSkjulesWhenVises(Innsyn innsyn) {
 		Journalpost.TilgangJournalpost tilgangJournalpost = Journalpost.TilgangJournalpost.builder()
 				.innsyn(innsyn)
