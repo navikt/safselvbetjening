@@ -38,6 +38,11 @@
       "cluster": "dev-gcp"
     },
     {
+      "app": "dp-mine-dagpenger-frontend",
+      "namespace": "teamdagpenger",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "hm-dinehjelpemidler",
       "namespace": "teamdigihot",
       "cluster": "dev-gcp"
