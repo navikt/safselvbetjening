@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static no.nav.safselvbetjening.consumer.ConsumerExceptionHandlers.handleMidlertidigNginxError;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 /**
@@ -73,7 +72,6 @@ public class JoarksakConsumer {
 		return error -> {
 			if (error instanceof WebClientResponseException webException) {
 				if (webException.getStatusCode().is4xxClientError()) {
-					handleMidlertidigNginxError(webException);
 					throw new ConsumerFunctionalException("Funksjonell feil. Kunne ikke hente saker for bruker fra sak.", error);
 				} else {
 					throw new ConsumerTechnicalException("Teknisk feil. Kunne ikke hente saker for bruker fra sak.", error);
