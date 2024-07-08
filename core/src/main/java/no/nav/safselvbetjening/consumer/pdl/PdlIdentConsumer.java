@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_PDL;
-import static no.nav.safselvbetjening.consumer.ConsumerExceptionHandlers.handleMidlertidigNginxError;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
@@ -85,9 +84,6 @@ class PdlIdentConsumer implements IdentConsumer {
 	private Consumer<Throwable> handleErrorPdl() {
 		return error -> {
 			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-				if (error instanceof WebClientResponseException.NotFound notFound) {
-					handleMidlertidigNginxError(notFound);
-				}
 				throw new PdlFunctionalException("Kall mot pdl feilet funksjonelt.", error);
 			} else {
 				throw new ConsumerTechnicalException("Kall mot pdl feilet teknisk", error);

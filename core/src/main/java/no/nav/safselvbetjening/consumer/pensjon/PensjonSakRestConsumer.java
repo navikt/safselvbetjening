@@ -23,7 +23,6 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_PENSJON;
-import static no.nav.safselvbetjening.consumer.ConsumerExceptionHandlers.handleMidlertidigNginxError;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -76,9 +75,6 @@ public class PensjonSakRestConsumer {
 	private Consumer<Throwable> handleErrorBrukerForSak() {
 		return error -> {
 			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-				if (error instanceof WebClientResponseException.NotFound notFound) {
-					handleMidlertidigNginxError(notFound);
-				}
 				throw new ConsumerFunctionalException(format("hentBrukerForSak feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), response.getMessage()), error);
 			} else {
 				throw new ConsumerTechnicalException(format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
@@ -107,8 +103,7 @@ public class PensjonSakRestConsumer {
 	private Consumer<Throwable> handleErrorPensjonssaker() {
 		return error -> {
 			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-				if (error instanceof WebClientResponseException.NotFound notFound) {
-					handleMidlertidigNginxError(notFound);
+				if (error instanceof WebClientResponseException.NotFound) {
 					throw new ConsumerFunctionalException(
 							format("hentPensjonssaker feilet funksjonelt (person ikke funnet). Statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error);
 				}

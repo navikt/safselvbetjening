@@ -31,7 +31,6 @@ import static java.lang.String.format;
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_DOKARKIV;
-import static no.nav.safselvbetjening.consumer.ConsumerExceptionHandlers.handleMidlertidigNginxError;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
@@ -118,7 +117,6 @@ public class DokarkivConsumer {
 	private Consumer<Throwable> handleErrorJournalpostDokumentInfo(String journalpostId, String dokumentInfoId) {
 		return error -> {
 			if (error instanceof WebClientResponseException.NotFound notFound) {
-				handleMidlertidigNginxError(notFound);
 				throw new JournalpostIkkeFunnetException(format("Journalpost med journalpostId=%s, dokumentInfoId=%s ikke funnet i Joark.",
 						journalpostId, dokumentInfoId), notFound);
 			}
@@ -156,7 +154,6 @@ public class DokarkivConsumer {
 	private Consumer<Throwable> handleErrorJournalpost(String journalpostId) {
 		return error -> {
 			if (error instanceof WebClientResponseException.NotFound notFound) {
-				handleMidlertidigNginxError(notFound);
 				throw new JournalpostIkkeFunnetException(format("Journalpost med journalpostId=%s ikke funnet i Joark.",
 						journalpostId), notFound);
 			}
@@ -198,8 +195,7 @@ public class DokarkivConsumer {
 	private Consumer<Throwable> handleErrorHentDokument(String dokumentInfoId, String variantFormat) {
 		return error -> {
 			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-				if (error instanceof WebClientResponseException.NotFound notFound) {
-					handleMidlertidigNginxError(notFound);
+				if (error instanceof WebClientResponseException.NotFound) {
 					throw new DokumentIkkeFunnetException("Fant ikke dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
 				}
 				throw new ConsumerFunctionalException("Funksjonell feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
