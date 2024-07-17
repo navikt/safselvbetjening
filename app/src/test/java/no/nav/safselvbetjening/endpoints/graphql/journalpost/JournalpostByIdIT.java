@@ -24,7 +24,7 @@ public class JournalpostByIdIT extends AbstractJournalpostItest {
 	 * Alt i orden
 	 */
 	@Test
-	void skalQueryJournalpostById() {
+	void skalQueryInngaaendeJournalpostById() {
 		stubPdlGenerell();
 		stubDokarkivJournalpost();
 
@@ -36,6 +36,25 @@ public class JournalpostByIdIT extends AbstractJournalpostItest {
 		Journalpost journalpost = graphQLResponse.getData().getJournalpostById();
 
 		assertInngaaendeJournalpost(journalpost);
+
+		assertDokumenter(journalpost.getDokumenter());
+	}
+	/**
+	 * Alt i orden
+	 */
+	@Test
+	void skalQueryUtgaaendeJournalpostById() {
+		stubPdlGenerell();
+		stubDokarkivJournalpost("1c-journalpost-ok_utgaaende.json");
+
+		ResponseEntity<GraphQLResponse> response = queryJournalpostById();
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Journalpost journalpost = graphQLResponse.getData().getJournalpostById();
+
+		assertUtgaaendeJournalpost(journalpost);
 
 		assertDokumenter(journalpost.getDokumenter());
 	}

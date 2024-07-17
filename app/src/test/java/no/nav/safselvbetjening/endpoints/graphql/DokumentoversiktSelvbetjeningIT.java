@@ -2,7 +2,10 @@ package no.nav.safselvbetjening.endpoints.graphql;
 
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Fagsak;
+import no.nav.safselvbetjening.domain.Journalpost;
+import no.nav.safselvbetjening.domain.Journalposttype;
 import no.nav.safselvbetjening.domain.Sakstema;
+import no.nav.safselvbetjening.domain.Sakstype;
 import no.nav.safselvbetjening.domain.Tema;
 import no.nav.safselvbetjening.endpoints.AbstractItest;
 import no.nav.safselvbetjening.graphql.GraphQLRequest;
@@ -21,6 +24,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Objects.requireNonNull;
+import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
+import static no.nav.safselvbetjening.domain.Journalstatus.JOURNALFOERT;
+import static no.nav.safselvbetjening.domain.Kanal.NAV_NO;
+import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
+import static no.nav.safselvbetjening.domain.Sakstype.GENERELL_SAK;
 import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
@@ -155,6 +163,51 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	private void assertJournalposterQuery(Dokumentoversikt dokumentoversikt) {
 		assertThat(dokumentoversikt.getJournalposter()).hasSize(3);
+		for (Journalpost jp : dokumentoversikt.getJournalposter()) {
+			assertSpecificJournalpostData(jp);
+			if (jp.getJournalposttype() == Journalposttype.I) {
+				assertInngaaendeJournalpost(jp);
+			}
+			if (jp.getJournalposttype() == Journalposttype.U) {
+				assertUtgaaendeJournalpost(jp);
+			}
+		}
+	}
+
+	private void assertSpecificJournalpostData(Journalpost jp) {
+		switch (jp.getJournalpostId()) {
+			case "429837417" ->
+					doAssertJournalpost(jp, "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK);
+			case "429837329" -> doAssertJournalpost(jp, "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK);
+			case "429812815" ->
+					doAssertJournalpost(jp, "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK);
+			default -> assertThat(1).isEqualTo(2);
+		}
+	}
+
+	private void doAssertJournalpost(Journalpost jp, String tema, String tittel, String fagsakId, String fagsaksystem, Sakstype sakstype) {
+		assertThat(jp.getTema()).isEqualTo(tema);
+		assertThat(jp.getTittel()).isEqualTo(tittel);
+		assertThat(jp.getSak().getFagsakId()).isEqualTo(fagsakId);
+		assertThat(jp.getSak().getFagsaksystem()).isEqualTo(fagsaksystem);
+		assertThat(jp.getSak().getSakstype()).isEqualTo(sakstype);
+	}
+
+	protected static void assertInngaaendeJournalpost(Journalpost journalpost) {
+		assertThat(journalpost.getJournalstatus()).isEqualTo(JOURNALFOERT);
+		assertThat(journalpost.getKanal()).isEqualTo(NAV_NO);
+		assertThat(journalpost.getEksternReferanseId()).isEqualTo("123");
+		assertThat(journalpost.getAvsender().getId()).isEqualTo("12345678911");
+		assertThat(journalpost.getAvsender().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getAvsender().getNavn()).isEqualTo("HARRY POTTER");
+	}
+
+	protected static void assertUtgaaendeJournalpost(Journalpost journalpost) {
+		assertThat(journalpost.getJournalstatus()).isEqualTo(JOURNALFOERT);
+		assertThat(journalpost.getKanal()).isEqualTo(NAV_NO);
+		assertThat(journalpost.getMottaker().getId()).isEqualTo("12345678911");
+		assertThat(journalpost.getMottaker().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getMottaker().getNavn()).isEqualTo("HARRY POTTER");
 	}
 
 	@Test

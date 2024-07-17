@@ -9,6 +9,8 @@
       "innhold": "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger",
       "fagomrade": "FOR",
       "journalstatus": "J",
+      "avsenderMottakerId": 12345678911,
+      "AvsenderMottakerIdType": "FNR",
       "avsenderMottakerNavn": "HARRY POTTER",
       "journalfortAvNavn": "TMOT010",
       "mottakskanal": "NAV_NO",

@@ -24,6 +24,7 @@ public class ArkivAvsenderMottakerMapper {
 		return AvsenderMottaker.builder()
 				.id(arkivAvsenderMottaker.id())
 				.type(mapAvsenderMottakerIdType(arkivAvsenderMottaker.id(), arkivAvsenderMottaker.type()))
+				.navn(arkivAvsenderMottaker.navn())
 				.build();
 	}
 

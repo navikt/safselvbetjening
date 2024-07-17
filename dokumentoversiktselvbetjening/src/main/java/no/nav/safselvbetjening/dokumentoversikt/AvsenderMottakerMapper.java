@@ -22,6 +22,7 @@ public class AvsenderMottakerMapper {
 		return AvsenderMottaker.builder()
 				.id(journalpostDto.getAvsenderMottakerId())
 				.type(mapAvsenderMottakerIdType(journalpostDto.getAvsenderMottakerId(), journalpostDto.getAvsenderMottakerIdType()))
+				.navn(journalpostDto.getAvsenderMottakerNavn())
 				.build();
 	}
 

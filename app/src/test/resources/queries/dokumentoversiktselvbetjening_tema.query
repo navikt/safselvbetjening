@@ -15,6 +15,7 @@
         avsender {
           id
           type
+          navn
         }
         mottaker {
           id

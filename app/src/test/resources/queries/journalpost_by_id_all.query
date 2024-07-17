@@ -14,10 +14,12 @@ query journalpostById($journalpostId: String!) {
     avsender {
       id
       type
+      navn
     }
     mottaker {
       id
       type
+      navn
     }
     kanal
     relevanteDatoer {

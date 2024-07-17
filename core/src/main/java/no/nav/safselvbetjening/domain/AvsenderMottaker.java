@@ -9,5 +9,7 @@ import lombok.Value;
 public class AvsenderMottaker {
 	@ToString.Exclude
 	String id;
+	@ToString.Exclude
+	String navn;
 	AvsenderMottakerIdType type;
 }
