@@ -1,6 +1,5 @@
 package no.nav.safselvbetjening.endpoints.graphql;
 
-import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Fagsak;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -37,7 +36,6 @@ import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.OK;
@@ -60,7 +58,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertTemaQuery(dokumentoversikt);
 		assertFagsakQuery(dokumentoversikt);
-		assertJournalposterQuery(dokumentoversikt);
+		assertJournalposterQuery(dokumentoversikt.getJournalposter());
 	}
 
 	@Test
@@ -75,7 +73,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertTemaQuery(dokumentoversikt);
 		assertFagsakQuery(dokumentoversikt);
-		assertJournalposterQuery(dokumentoversikt);
+		assertJournalposterQuery(dokumentoversikt.getJournalposter());
 	}
 
 	@Test
@@ -113,6 +111,12 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertTemaQuery(dokumentoversikt);
+
+		List<Journalpost> journalposts = dokumentoversikt.getTema().getFirst().getJournalposter();
+		assertThat(journalposts).hasSize(2);
+		journalposts.sort(Comparator.comparing(Journalpost::getJournalpostId));
+		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
+		doAssertJournalpost(journalposts.get(1), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, BRUKER_NAVN);
 	}
 
 	@Test
@@ -126,6 +130,11 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertFagsakQuery(dokumentoversikt);
+
+		List<Journalpost> journalposts = dokumentoversikt.getFagsak().getFirst().getJournalposter();
+		assertThat(journalposts).hasSize(1);
+		journalposts.sort(Comparator.comparing(Journalpost::getJournalpostId));
+		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
 	}
 
 	@Test
@@ -138,7 +147,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
-		assertJournalposterQuery(dokumentoversikt);
+		assertJournalposterQuery(dokumentoversikt.getJournalposter());
 	}
 
 	@Test
@@ -151,7 +160,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
-		assertJournalposterQuery(dokumentoversikt);
+		assertJournalposterQuery(dokumentoversikt.getJournalposter());
 	}
 
 	@Test
@@ -193,10 +202,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(pensjon.getJournalposter()).hasSize(1);
 	}
 
-	private void assertJournalposterQuery(Dokumentoversikt dokumentoversikt) {
-		assertThat(dokumentoversikt.getJournalposter()).hasSize(3);
-		dokumentoversikt.getJournalposter().sort(Comparator.comparing(Journalpost::getJournalpostId));
-		List<Journalpost> journalposts = dokumentoversikt.getJournalposter();
+	private void assertJournalposterQuery(List<Journalpost> journalposts) {
+		assertThat(journalposts).hasSize(3);
+		journalposts.sort(Comparator.comparing(Journalpost::getJournalpostId));
+		//List<Journalpost> journalposts = dokumentoversikt.getJournalposter();
 		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
 		doAssertJournalpost(journalposts.get(1), "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK, BRUKER_NAVN);
 		doAssertJournalpost(journalposts.get(2), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, BRUKER_NAVN);
