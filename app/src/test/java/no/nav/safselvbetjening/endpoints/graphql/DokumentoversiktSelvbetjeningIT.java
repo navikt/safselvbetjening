@@ -1,9 +1,9 @@
 package no.nav.safselvbetjening.endpoints.graphql;
 
+import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Fagsak;
 import no.nav.safselvbetjening.domain.Journalpost;
-import no.nav.safselvbetjening.domain.Journalposttype;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Sakstype;
 import no.nav.safselvbetjening.domain.Tema;
@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Comparator;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
@@ -25,6 +27,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Objects.requireNonNull;
 import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
+import static no.nav.safselvbetjening.domain.Journalposttype.I;
+import static no.nav.safselvbetjening.domain.Journalposttype.U;
 import static no.nav.safselvbetjening.domain.Journalstatus.JOURNALFOERT;
 import static no.nav.safselvbetjening.domain.Kanal.NAV_NO;
 import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
@@ -33,12 +37,16 @@ import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.OK;
 
 public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private static final String BRUKER_ID = "12345678911";
+	private static final String BRUKER_NAVN = "HARRY POTTER";
+	private static final String UKJENT_MOTTAKER = "Ukjent mottaker";
+	private static final String UKJENT_AVSENDER = "Ukjent avsender";
 
 	@Test
 	void shouldGetDokumentoversiktWhenAllQueried() throws Exception {
@@ -69,6 +77,30 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertFagsakQuery(dokumentoversikt);
 		assertJournalposterQuery(dokumentoversikt);
 	}
+
+	@Test
+	void shouldGetFallbackNavnWhenAvsenderMottakerNavnIsNull() throws Exception {
+		happyStubs("finnjournalposter_avsenderMottaker_navn_null.json");
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertThat(dokumentoversikt.getJournalposter()).hasSize(3);
+
+		assertTemaQuery(dokumentoversikt);
+		assertFagsakQuery(dokumentoversikt);
+
+		assertThat(dokumentoversikt.getJournalposter()).hasSize(3);
+		dokumentoversikt.getJournalposter().sort(Comparator.comparing(Journalpost::getJournalpostId));
+		List<Journalpost> journalposts = dokumentoversikt.getJournalposter();
+		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, UKJENT_MOTTAKER);
+		doAssertJournalpost(journalposts.get(1), "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK, UKJENT_MOTTAKER);
+		doAssertJournalpost(journalposts.get(2), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, UKJENT_AVSENDER);
+	}
+
 
 	@Test
 	void shouldGetDokumentoversiktWhenTemaQueried() throws Exception {
@@ -163,52 +195,36 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	private void assertJournalposterQuery(Dokumentoversikt dokumentoversikt) {
 		assertThat(dokumentoversikt.getJournalposter()).hasSize(3);
-		for (Journalpost jp : dokumentoversikt.getJournalposter()) {
-			assertSpecificJournalpostData(jp);
-			if (jp.getJournalposttype() == Journalposttype.I) {
-				assertInngaaendeJournalpost(jp);
-			}
-			if (jp.getJournalposttype() == Journalposttype.U) {
-				assertUtgaaendeJournalpost(jp);
-			}
-		}
+		dokumentoversikt.getJournalposter().sort(Comparator.comparing(Journalpost::getJournalpostId));
+		List<Journalpost> journalposts = dokumentoversikt.getJournalposter();
+		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
+		doAssertJournalpost(journalposts.get(1), "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK, BRUKER_NAVN);
+		doAssertJournalpost(journalposts.get(2), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, BRUKER_NAVN);
 	}
 
-	private void assertSpecificJournalpostData(Journalpost jp) {
-		switch (jp.getJournalpostId()) {
-			case "429837417" ->
-					doAssertJournalpost(jp, "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK);
-			case "429837329" -> doAssertJournalpost(jp, "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK);
-			case "429812815" ->
-					doAssertJournalpost(jp, "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK);
-			default -> assertThat(1).isEqualTo(2);
-		}
-	}
 
-	private void doAssertJournalpost(Journalpost jp, String tema, String tittel, String fagsakId, String fagsaksystem, Sakstype sakstype) {
+	private void doAssertJournalpost(Journalpost jp, String tema, String tittel, String fagsakId, String fagsaksystem, Sakstype sakstype, String navn) {
 		assertThat(jp.getTema()).isEqualTo(tema);
 		assertThat(jp.getTittel()).isEqualTo(tittel);
 		assertThat(jp.getSak().getFagsakId()).isEqualTo(fagsakId);
 		assertThat(jp.getSak().getFagsaksystem()).isEqualTo(fagsaksystem);
 		assertThat(jp.getSak().getSakstype()).isEqualTo(sakstype);
+		assertThat(jp.getJournalstatus()).isEqualTo(JOURNALFOERT);
+		if (jp.getJournalposttype() == I) {
+			assertThat(jp.getAvsender().getId()).isEqualTo("12345678911");
+			assertThat(jp.getAvsender().getType()).isEqualTo(FNR);
+			assertThat(jp.getAvsender().getNavn()).isEqualTo(navn);
+			assertThat(jp.getKanal()).isEqualTo(NAV_NO);
+			assertThat(jp.getMottaker()).isNull();
+		} else if (jp.getJournalposttype() == U) {
+			assertThat(jp.getMottaker().getId()).isEqualTo("12345678911");
+			assertThat(jp.getMottaker().getType()).isEqualTo(FNR);
+			assertThat(jp.getMottaker().getNavn()).isEqualTo(navn);
+			assertThat(jp.getKanal()).isEqualTo(NAV_NO);
+			assertThat(jp.getAvsender()).isNull();
+		}
 	}
 
-	protected static void assertInngaaendeJournalpost(Journalpost journalpost) {
-		assertThat(journalpost.getJournalstatus()).isEqualTo(JOURNALFOERT);
-		assertThat(journalpost.getKanal()).isEqualTo(NAV_NO);
-		assertThat(journalpost.getEksternReferanseId()).isEqualTo("123");
-		assertThat(journalpost.getAvsender().getId()).isEqualTo("12345678911");
-		assertThat(journalpost.getAvsender().getType()).isEqualTo(FNR);
-		assertThat(journalpost.getAvsender().getNavn()).isEqualTo("HARRY POTTER");
-	}
-
-	protected static void assertUtgaaendeJournalpost(Journalpost journalpost) {
-		assertThat(journalpost.getJournalstatus()).isEqualTo(JOURNALFOERT);
-		assertThat(journalpost.getKanal()).isEqualTo(NAV_NO);
-		assertThat(journalpost.getMottaker().getId()).isEqualTo("12345678911");
-		assertThat(journalpost.getMottaker().getType()).isEqualTo(FNR);
-		assertThat(journalpost.getMottaker().getNavn()).isEqualTo("HARRY POTTER");
-	}
 
 	@Test
 	void shouldGetDokumentoversiktWhenOnlyForeldrepengerTemaQueried() throws Exception {
@@ -507,6 +523,16 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubSak();
 		stubPensjonssaker();
 		stubFagarkiv();
+		stubPdlFullmakt();
+	}
+
+	private void happyStubs(String fileName) {
+		stubAzure();
+		stubTokenx();
+		stubPdlGenerell();
+		stubSak();
+		stubPensjonssaker();
+		stubFagarkiv(fileName);
 		stubPdlFullmakt();
 	}
 

@@ -132,7 +132,7 @@ type AvsenderMottaker {
     # Identifikatortypen til parten som er avsender eller mottaker av dokumentene på journalposten.
     type: AvsenderMottakerIdType!
 
-    # navnet til parten som er avsender eller mottaker av dokumentene på journalposten.
+    # Navnet til parten som er avsender eller mottaker av dokumentene på journalposten.
     navn: String!
 }
 

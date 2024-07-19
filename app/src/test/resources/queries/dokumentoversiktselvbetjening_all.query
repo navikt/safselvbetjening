@@ -17,11 +17,13 @@
           id
           navn
           type
+          navn
         }
         mottaker {
           id
           navn
           type
+          navn
         }
         kanal
         relevanteDatoer {

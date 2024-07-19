@@ -9,11 +9,12 @@ import org.springframework.stereotype.Component;
 import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
 public class AvsenderMottakerMapper {
 
-    private static final Pattern FNR_SIMPLE_REGEX = Pattern.compile("[0-7]\\d{10}");
+	private static final Pattern FNR_SIMPLE_REGEX = Pattern.compile("[0-7]\\d{10}");
 
 	AvsenderMottaker map(JournalpostDto journalpostDto) {
 		if (isBlank(journalpostDto.getAvsenderMottakerId())) {
@@ -22,8 +23,17 @@ public class AvsenderMottakerMapper {
 		return AvsenderMottaker.builder()
 				.id(journalpostDto.getAvsenderMottakerId())
 				.type(mapAvsenderMottakerIdType(journalpostDto.getAvsenderMottakerId(), journalpostDto.getAvsenderMottakerIdType()))
-				.navn(journalpostDto.getAvsenderMottakerNavn())
+				.navn(mapNavn(journalpostDto))
 				.build();
+	}
+
+	private String mapNavn(JournalpostDto journalpostDto) {
+		String avsenderMottakerNavn = journalpostDto.getAvsenderMottakerNavn();
+		return switch (journalpostDto.getJournalposttype()) {
+			case I -> isEmpty(avsenderMottakerNavn) ? "Ukjent avsender" : avsenderMottakerNavn;
+			case U -> isEmpty(avsenderMottakerNavn) ? "Ukjent mottaker" : avsenderMottakerNavn;
+			default -> isEmpty(avsenderMottakerNavn) ? "Ukjent avsender/mottaker" : avsenderMottakerNavn;
+		};
 	}
 
 	private AvsenderMottakerIdType mapAvsenderMottakerIdType(String avsenderMottakerId, AvsenderMottakerIdTypeCode avsenderMottakerIdTypeCode) {
