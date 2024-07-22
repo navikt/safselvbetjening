@@ -18,6 +18,7 @@ import java.util.List;
 public class CacheConfig {
 
 	public static final String GRAPHQL_QUERY_CACHE = "graphql_query_cache";
+	public static final String TOKENDINGS_CACHE = "tokendings_cache";
 
 	@Bean
 	@Primary
@@ -26,6 +27,10 @@ public class CacheConfig {
 		manager.setCaches(List.of(
 				new CaffeineCache(GRAPHQL_QUERY_CACHE, Caffeine.newBuilder()
 						.maximumSize(1_000)
+						.recordStats()
+						.build()),
+				new CaffeineCache(TOKENDINGS_CACHE, Caffeine.newBuilder()
+						.maximumSize(5_000)
 						.recordStats()
 						.build())
 		));
