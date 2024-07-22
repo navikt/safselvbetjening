@@ -49,6 +49,7 @@ import static no.nav.safselvbetjening.journalpost.ArkivJournalpostTestObjects.AR
 import static no.nav.safselvbetjening.journalpost.ArkivJournalpostTestObjects.ARKIVSAKSYSTEM_PENSJON;
 import static no.nav.safselvbetjening.journalpost.ArkivJournalpostTestObjects.ARKIVSAK_AKTOER_ID;
 import static no.nav.safselvbetjening.journalpost.ArkivJournalpostTestObjects.AVSENDER_MOTTAKER_ID;
+import static no.nav.safselvbetjening.journalpost.ArkivJournalpostTestObjects.AVSENDER_MOTTAKER_NAVN;
 import static no.nav.safselvbetjening.journalpost.ArkivJournalpostTestObjects.BRUKER_IDENT;
 import static no.nav.safselvbetjening.journalpost.ArkivJournalpostTestObjects.FAGSAKNR;
 import static no.nav.safselvbetjening.journalpost.ArkivJournalpostTestObjects.HOVEDDOKUMENT_BREVKODE;
@@ -99,6 +100,7 @@ class ArkivJournalpostMapperTest {
 		assertThat(journalpost.getSak().getSakstype()).isEqualTo(FAGSAK);
 		assertThat(journalpost.getAvsender().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(journalpost.getAvsender().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getAvsender().getNavn()).isEqualTo(AVSENDER_MOTTAKER_NAVN);
 		assertThat(journalpost.getRelevanteDatoer())
 				.hasSize(4)
 				.contains(
@@ -136,6 +138,7 @@ class ArkivJournalpostMapperTest {
 		assertThat(journalpost.getSak().getFagsaksystem()).isEqualTo(APPLIKASJON);
 		assertThat(journalpost.getSak().getSakstype()).isEqualTo(FAGSAK);
 		assertThat(journalpost.getMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
+		assertThat(journalpost.getMottaker().getNavn()).isEqualTo(AVSENDER_MOTTAKER_NAVN);
 		assertThat(journalpost.getMottaker().getType()).isEqualTo(FNR);
 		assertThat(journalpost.getRelevanteDatoer())
 				.hasSize(6)
@@ -179,6 +182,7 @@ class ArkivJournalpostMapperTest {
 		assertThat(journalpost.getSak().getSakstype()).isEqualTo(FAGSAK);
 		assertThat(journalpost.getAvsender().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(journalpost.getAvsender().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getAvsender().getNavn()).isEqualTo(AVSENDER_MOTTAKER_NAVN);
 		assertThat(journalpost.getRelevanteDatoer())
 				.hasSize(4)
 				.contains(

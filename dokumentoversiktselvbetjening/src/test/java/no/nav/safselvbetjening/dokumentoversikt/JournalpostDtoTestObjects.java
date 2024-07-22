@@ -41,6 +41,8 @@ public class JournalpostDtoTestObjects {
 	static final Long DOKUMENT_INFO_ID = 50000000L;
 	static final String IDENT = "12345678911";
 	static final String AKTOER_ID = "10000000000";
+	static final String ORG_ID_NR = "123456789";
+	static final String ORG_NAVN = "Generisk organisasjonsnavn";
 	static final VariantFormatCode VARIANT_FORMAT_CODE_ARKIV = VariantFormatCode.ARKIV;
 	static final VariantFormatCode VARIANT_FORMAT_CODE_SLADDET = VariantFormatCode.SLADDET;
 	static final SkjermingTypeCode SKJERMING_TYPE_CODE_POL = SkjermingTypeCode.POL;

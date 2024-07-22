@@ -10,4 +10,6 @@ public class AvsenderMottaker {
 	@ToString.Exclude
 	String id;
 	AvsenderMottakerIdType type;
+	@ToString.Exclude
+	String navn;
 }

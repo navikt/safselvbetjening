@@ -2,7 +2,9 @@ package no.nav.safselvbetjening.endpoints.graphql;
 
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Fagsak;
+import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Sakstema;
+import no.nav.safselvbetjening.domain.Sakstype;
 import no.nav.safselvbetjening.domain.Tema;
 import no.nav.safselvbetjening.endpoints.AbstractItest;
 import no.nav.safselvbetjening.graphql.GraphQLRequest;
@@ -14,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Comparator;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
@@ -21,6 +25,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Objects.requireNonNull;
+import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
+import static no.nav.safselvbetjening.domain.Journalposttype.I;
+import static no.nav.safselvbetjening.domain.Journalposttype.U;
+import static no.nav.safselvbetjening.domain.Journalstatus.JOURNALFOERT;
+import static no.nav.safselvbetjening.domain.Kanal.NAV_NO;
+import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
+import static no.nav.safselvbetjening.domain.Sakstype.GENERELL_SAK;
 import static no.nav.safselvbetjening.graphql.ErrorCode.BAD_REQUEST;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
@@ -31,6 +42,9 @@ import static org.springframework.http.HttpStatus.OK;
 
 public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private static final String BRUKER_ID = "12345678911";
+	private static final String BRUKER_NAVN = "HARRY POTTER";
+	private static final String UKJENT_MOTTAKER = "Ukjent mottaker";
+	private static final String UKJENT_AVSENDER = "Ukjent avsender";
 
 	@Test
 	void shouldGetDokumentoversiktWhenAllQueried() throws Exception {
@@ -44,7 +58,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertTemaQuery(dokumentoversikt);
 		assertFagsakQuery(dokumentoversikt);
-		assertJournalposterQuery(dokumentoversikt);
+		assertJournalposterQuery(dokumentoversikt.getJournalposter());
 	}
 
 	@Test
@@ -59,8 +73,32 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertTemaQuery(dokumentoversikt);
 		assertFagsakQuery(dokumentoversikt);
-		assertJournalposterQuery(dokumentoversikt);
+		assertJournalposterQuery(dokumentoversikt.getJournalposter());
 	}
+
+	@Test
+	void shouldGetFallbackNavnWhenAvsenderMottakerNavnIsNull() throws Exception {
+		happyStubs("finnjournalposter_avsenderMottaker_navn_null.json");
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertThat(dokumentoversikt.getJournalposter()).hasSize(3);
+
+		assertTemaQuery(dokumentoversikt);
+		assertFagsakQuery(dokumentoversikt);
+
+		assertThat(dokumentoversikt.getJournalposter()).hasSize(3);
+		dokumentoversikt.getJournalposter().sort(Comparator.comparing(Journalpost::getJournalpostId));
+		List<Journalpost> journalposts = dokumentoversikt.getJournalposter();
+		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, UKJENT_MOTTAKER);
+		doAssertJournalpost(journalposts.get(1), "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK, UKJENT_MOTTAKER);
+		doAssertJournalpost(journalposts.get(2), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, UKJENT_AVSENDER);
+	}
+
 
 	@Test
 	void shouldGetDokumentoversiktWhenTemaQueried() throws Exception {
@@ -73,6 +111,12 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertTemaQuery(dokumentoversikt);
+
+		List<Journalpost> journalposts = dokumentoversikt.getTema().getFirst().getJournalposter();
+		assertThat(journalposts).hasSize(2);
+		journalposts.sort(Comparator.comparing(Journalpost::getJournalpostId));
+		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
+		doAssertJournalpost(journalposts.get(1), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, BRUKER_NAVN);
 	}
 
 	@Test
@@ -86,6 +130,11 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertFagsakQuery(dokumentoversikt);
+
+		List<Journalpost> journalposts = dokumentoversikt.getFagsak().getFirst().getJournalposter();
+		assertThat(journalposts).hasSize(1);
+		journalposts.sort(Comparator.comparing(Journalpost::getJournalpostId));
+		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
 	}
 
 	@Test
@@ -98,7 +147,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
-		assertJournalposterQuery(dokumentoversikt);
+		assertJournalposterQuery(dokumentoversikt.getJournalposter());
 	}
 
 	@Test
@@ -111,7 +160,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
-		assertJournalposterQuery(dokumentoversikt);
+		assertJournalposterQuery(dokumentoversikt.getJournalposter());
 	}
 
 	@Test
@@ -153,9 +202,38 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(pensjon.getJournalposter()).hasSize(1);
 	}
 
-	private void assertJournalposterQuery(Dokumentoversikt dokumentoversikt) {
-		assertThat(dokumentoversikt.getJournalposter()).hasSize(3);
+	private void assertJournalposterQuery(List<Journalpost> journalposts) {
+		assertThat(journalposts).hasSize(3);
+		journalposts.sort(Comparator.comparing(Journalpost::getJournalpostId));
+		//List<Journalpost> journalposts = dokumentoversikt.getJournalposter();
+		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
+		doAssertJournalpost(journalposts.get(1), "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK, BRUKER_NAVN);
+		doAssertJournalpost(journalposts.get(2), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, BRUKER_NAVN);
 	}
+
+
+	private void doAssertJournalpost(Journalpost jp, String tema, String tittel, String fagsakId, String fagsaksystem, Sakstype sakstype, String navn) {
+		assertThat(jp.getTema()).isEqualTo(tema);
+		assertThat(jp.getTittel()).isEqualTo(tittel);
+		assertThat(jp.getSak().getFagsakId()).isEqualTo(fagsakId);
+		assertThat(jp.getSak().getFagsaksystem()).isEqualTo(fagsaksystem);
+		assertThat(jp.getSak().getSakstype()).isEqualTo(sakstype);
+		assertThat(jp.getJournalstatus()).isEqualTo(JOURNALFOERT);
+		if (jp.getJournalposttype() == I) {
+			assertThat(jp.getAvsender().getId()).isEqualTo("12345678911");
+			assertThat(jp.getAvsender().getType()).isEqualTo(FNR);
+			assertThat(jp.getAvsender().getNavn()).isEqualTo(navn);
+			assertThat(jp.getKanal()).isEqualTo(NAV_NO);
+			assertThat(jp.getMottaker()).isNull();
+		} else if (jp.getJournalposttype() == U) {
+			assertThat(jp.getMottaker().getId()).isEqualTo("12345678911");
+			assertThat(jp.getMottaker().getType()).isEqualTo(FNR);
+			assertThat(jp.getMottaker().getNavn()).isEqualTo(navn);
+			assertThat(jp.getKanal()).isEqualTo(NAV_NO);
+			assertThat(jp.getAvsender()).isNull();
+		}
+	}
+
 
 	@Test
 	void shouldGetDokumentoversiktWhenOnlyForeldrepengerTemaQueried() throws Exception {
@@ -454,6 +532,16 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubSak();
 		stubPensjonssaker();
 		stubFagarkiv();
+		stubPdlFullmakt();
+	}
+
+	private void happyStubs(String fileName) {
+		stubAzure();
+		stubTokenx();
+		stubPdlGenerell();
+		stubSak();
+		stubPensjonssaker();
+		stubFagarkiv(fileName);
 		stubPdlFullmakt();
 	}
 

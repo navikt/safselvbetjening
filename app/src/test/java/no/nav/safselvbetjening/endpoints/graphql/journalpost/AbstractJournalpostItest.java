@@ -27,6 +27,7 @@ import static no.nav.safselvbetjening.domain.Datotype.DATO_OPPRETTET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_REGISTRERT;
 import static no.nav.safselvbetjening.domain.DomainConstants.DOKUMENT_TILGANG_STATUS_OK;
 import static no.nav.safselvbetjening.domain.Journalposttype.I;
+import static no.nav.safselvbetjening.domain.Journalposttype.U;
 import static no.nav.safselvbetjening.domain.Journalstatus.JOURNALFOERT;
 import static no.nav.safselvbetjening.domain.Kanal.NAV_NO;
 import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
@@ -58,6 +59,7 @@ abstract class AbstractJournalpostItest extends AbstractItest {
 		assertThat(journalpost.getEksternReferanseId()).isEqualTo("11111111-2222-3333-4444-555555555555");
 		assertThat(journalpost.getAvsender().getId()).isEqualTo("12345678911");
 		assertThat(journalpost.getAvsender().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getAvsender().getNavn()).isEqualTo("Bjarne Betjent");
 		assertThat(journalpost.getSak().getFagsakId()).isEqualTo("9000");
 		assertThat(journalpost.getSak().getFagsaksystem()).isEqualTo("HJELPEMIDLER");
 		assertThat(journalpost.getSak().getSakstype()).isEqualTo(FAGSAK);
@@ -66,6 +68,27 @@ abstract class AbstractJournalpostItest extends AbstractItest {
 				.contains(new RelevantDato(LocalDateTime.parse("2023-09-12T15:42:13"), DATO_JOURNALFOERT),
 						new RelevantDato(LocalDateTime.parse("2023-08-16T13:15:00"), DATO_OPPRETTET),
 						new RelevantDato(LocalDateTime.parse("2023-08-16T13:15:00"), DATO_REGISTRERT),
+						new RelevantDato(LocalDateTime.parse("2023-08-16T13:15:00"), DATO_DOKUMENT));
+	}
+
+	protected static void assertUtgaaendeJournalpost(Journalpost journalpost) {
+		assertThat(journalpost.getJournalpostId()).isEqualTo(JOURNALPOST_ID);
+		assertThat(journalpost.getJournalposttype()).isEqualTo(U);
+		assertThat(journalpost.getTema()).isEqualTo("HJE");
+		assertThat(journalpost.getJournalstatus()).isEqualTo(JOURNALFOERT);
+		assertThat(journalpost.getKanal()).isEqualTo(NAV_NO);
+		assertThat(journalpost.getTittel()).isEqualTo("Informasjon om vedtak");
+		assertThat(journalpost.getEksternReferanseId()).isEqualTo("11111111-2222-3333-4444-555555555555");
+		assertThat(journalpost.getMottaker().getId()).isEqualTo("12345678911");
+		assertThat(journalpost.getMottaker().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getMottaker().getNavn()).isEqualTo("Daemon Targaryen");
+		assertThat(journalpost.getSak().getFagsakId()).isEqualTo("9000");
+		assertThat(journalpost.getSak().getFagsaksystem()).isEqualTo("HJELPEMIDLER");
+		assertThat(journalpost.getSak().getSakstype()).isEqualTo(FAGSAK);
+		assertThat(journalpost.getRelevanteDatoer())
+				.hasSize(3)
+				.contains(new RelevantDato(LocalDateTime.parse("2023-09-12T15:42:13"), DATO_JOURNALFOERT),
+						new RelevantDato(LocalDateTime.parse("2023-08-16T13:15:00"), DATO_OPPRETTET),
 						new RelevantDato(LocalDateTime.parse("2023-08-16T13:15:00"), DATO_DOKUMENT));
 	}
 
@@ -151,6 +174,10 @@ abstract class AbstractJournalpostItest extends AbstractItest {
 
 	protected static void stubDokarkivJournalpost() {
 		stubDokarkivJournalpost("1c-journalpost-ok.json");
+	}
+
+	protected static void stubDokarkivJournalpostWithPath(String path) {
+		stubDokarkivJournalpost(path);
 	}
 
 	protected static void stubDokarkivJournalpost(HttpStatus httpStatus) {

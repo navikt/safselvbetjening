@@ -1,18 +1,29 @@
 package no.nav.safselvbetjening.dokumentoversikt;
 
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostDto;
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.AvsenderMottakerIdType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
 
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode.I;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode.N;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode.U;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVSENDER_MOTTAKER_ID;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVSENDER_MOTTAKER_NAVN;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ORG_ID_NR;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ORG_NAVN;
+import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
+import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.ORGNR;
+import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.UKJENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AvsenderMottakerMapperTest {
@@ -54,8 +65,28 @@ class AvsenderMottakerMapperTest {
 
 		AvsenderMottaker avsenderMottaker = mapper.map(journalpostDto);
 
-		assertThat(avsenderMottaker.getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
-		assertThat(avsenderMottaker.getType()).isEqualTo(AvsenderMottakerIdType.FNR);
+		assertAvsenderMottaker(avsenderMottaker, FNR, AVSENDER_MOTTAKER_ID, AVSENDER_MOTTAKER_NAVN);
+	}
+
+
+	@ParameterizedTest
+	@MethodSource("testProvide")
+	void shouldMapAvsenderMottakerNavnNull(JournalpostTypeCode type, String navn) {
+		JournalpostDto journalpostDto = JournalpostDtoTestObjects.buildJournalpostDtoInngaaendeType();
+		journalpostDto.setAvsenderMottakerNavn(null);
+		journalpostDto.setJournalposttype(type);
+
+		AvsenderMottaker avsenderMottaker = mapper.map(journalpostDto);
+
+		assertAvsenderMottaker(avsenderMottaker, FNR, AVSENDER_MOTTAKER_ID, navn);
+	}
+
+	private static Stream<Arguments> testProvide() {
+		return Stream.of(
+				Arguments.of(I, "Ukjent avsender"),
+				Arguments.of(U, "Ukjent mottaker"),
+				Arguments.of(N, "Ukjent avsender/mottaker")
+		);
 	}
 
 	@Nested
@@ -65,11 +96,12 @@ class AvsenderMottakerMapperTest {
 		@Test
 		void shouldMapAvsenderMottakerIdTypeORGNRWhenAvsenderMottakerIdIsOfLength9() {
 			JournalpostDto journalpostDto = buildJournalpostDtoAvsenderMottakerIdTypeNull();
-			journalpostDto.setAvsenderMottakerId("123456789");
+			journalpostDto.setAvsenderMottakerId(ORG_ID_NR);
+			journalpostDto.setAvsenderMottakerNavn(ORG_NAVN);
 
 			AvsenderMottaker avsenderMottaker = mapper.map(journalpostDto);
 
-			assertThat(avsenderMottaker.getType()).isEqualTo(AvsenderMottakerIdType.ORGNR);
+			assertAvsenderMottaker(avsenderMottaker, ORGNR, ORG_ID_NR, ORG_NAVN);
 		}
 
 		@ParameterizedTest
@@ -81,7 +113,7 @@ class AvsenderMottakerMapperTest {
 
 			AvsenderMottaker avsenderMottaker = mapper.map(journalpostDto);
 
-			assertThat(avsenderMottaker.getType()).isEqualTo(AvsenderMottakerIdType.FNR);
+			assertAvsenderMottaker(avsenderMottaker, FNR, input, AVSENDER_MOTTAKER_NAVN);
 		}
 
 		@ParameterizedTest
@@ -92,8 +124,7 @@ class AvsenderMottakerMapperTest {
 			journalpostDto.setAvsenderMottakerId(input);
 
 			AvsenderMottaker avsenderMottaker = mapper.map(journalpostDto);
-
-			assertThat(avsenderMottaker.getType()).isEqualTo(AvsenderMottakerIdType.UKJENT);
+			assertAvsenderMottaker(avsenderMottaker, UKJENT, input, AVSENDER_MOTTAKER_NAVN);
 		}
 
 		@ParameterizedTest
@@ -104,8 +135,7 @@ class AvsenderMottakerMapperTest {
 			journalpostDto.setAvsenderMottakerId(input);
 
 			AvsenderMottaker avsenderMottaker = mapper.map(journalpostDto);
-
-			assertThat(avsenderMottaker.getType()).isEqualTo(AvsenderMottakerIdType.UKJENT);
+			assertAvsenderMottaker(avsenderMottaker, UKJENT, input, AVSENDER_MOTTAKER_NAVN);
 		}
 
 		@ParameterizedTest
@@ -116,7 +146,7 @@ class AvsenderMottakerMapperTest {
 
 			AvsenderMottaker avsenderMottaker = mapper.map(journalpostDto);
 
-			assertThat(avsenderMottaker.getType()).isEqualTo(AvsenderMottakerIdType.UKJENT);
+			assertAvsenderMottaker(avsenderMottaker, UKJENT, input, AVSENDER_MOTTAKER_NAVN);
 		}
 
 		private JournalpostDto buildJournalpostDtoAvsenderMottakerIdTypeNull() {
@@ -124,5 +154,11 @@ class AvsenderMottakerMapperTest {
 			journalpostDto.setAvsenderMottakerIdType(null);
 			return journalpostDto;
 		}
+	}
+
+	private void assertAvsenderMottaker(AvsenderMottaker avsenderMottaker, AvsenderMottakerIdType code, String id, String navn) {
+		assertThat(avsenderMottaker.getType()).isEqualTo(code);
+		assertThat(avsenderMottaker.getId()).isEqualTo(id);
+		assertThat(avsenderMottaker.getNavn()).isEqualTo(navn);
 	}
 }

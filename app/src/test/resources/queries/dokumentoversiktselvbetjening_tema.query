@@ -15,10 +15,12 @@
         avsender {
           id
           type
+          navn
         }
         mottaker {
           id
           type
+          navn
         }
         kanal
         relevanteDatoer {

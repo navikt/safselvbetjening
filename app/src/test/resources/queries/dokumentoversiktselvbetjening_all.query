@@ -7,6 +7,7 @@
         journalposttype
         journalstatus
         tema
+        eksternReferanseId
         sak {
           fagsakId
           fagsaksystem
@@ -14,11 +15,15 @@
         }
         avsender {
           id
+          navn
           type
+          navn
         }
         mottaker {
           id
+          navn
           type
+          navn
         }
         kanal
         relevanteDatoer {
@@ -48,6 +53,7 @@
       journalposttype
       journalstatus
       tema
+      eksternReferanseId
       sak {
         fagsakId
         fagsaksystem
@@ -56,10 +62,12 @@
       avsender {
         id
         type
+        navn
       }
       mottaker {
         id
         type
+        navn
       }
       kanal
       relevanteDatoer {
@@ -88,6 +96,7 @@
         journalposttype
         journalstatus
         tema
+        eksternReferanseId
         sak {
           fagsakId
           fagsaksystem
@@ -96,10 +105,12 @@
         avsender {
           id
           type
+          navn
         }
         mottaker {
           id
           type
+          navn
         }
         kanal
         relevanteDatoer {

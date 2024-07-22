@@ -8,14 +8,15 @@ import org.springframework.stereotype.Component;
 import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
 public class ArkivAvsenderMottakerMapper {
 
-    private static final Pattern FNR_SIMPLE_REGEX = Pattern.compile("[0-7]\\d{10}");
+	private static final Pattern FNR_SIMPLE_REGEX = Pattern.compile("[0-7]\\d{10}");
 
 	AvsenderMottaker map(ArkivAvsenderMottaker arkivAvsenderMottaker) {
-		if(arkivAvsenderMottaker == null) {
+		if (arkivAvsenderMottaker == null) {
 			return null;
 		}
 		if (isBlank(arkivAvsenderMottaker.id())) {
@@ -24,7 +25,12 @@ public class ArkivAvsenderMottakerMapper {
 		return AvsenderMottaker.builder()
 				.id(arkivAvsenderMottaker.id())
 				.type(mapAvsenderMottakerIdType(arkivAvsenderMottaker.id(), arkivAvsenderMottaker.type()))
+				.navn(mapAvsenderMottakerNavn(arkivAvsenderMottaker.navn()))
 				.build();
+	}
+
+	private String mapAvsenderMottakerNavn(String navn) {
+		return isEmpty(navn) ? "Ukjent mottaker" : navn;
 	}
 
 	private AvsenderMottakerIdType mapAvsenderMottakerIdType(String avsenderMottakerId, String avsenderMottakerIdType) {

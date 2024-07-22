@@ -32,6 +32,7 @@ import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ARKIVSAKSYSTEM_PENSJON;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.ARKIVSAK_ID;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVSENDER_MOTTAKER_ID;
+import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVSENDER_MOTTAKER_NAVN;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.AVS_RETUR_DATO;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.BREVKODE;
 import static no.nav.safselvbetjening.dokumentoversikt.JournalpostDtoTestObjects.BRUKER_ID_PERSON;
@@ -95,6 +96,7 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.NAV_NO);
 		assertThat(journalpost.getEksternReferanseId()).isEqualTo(KANAL_REFERANSE_ID);
 		assertThat(journalpost.getAvsender().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
+		assertThat(journalpost.getAvsender().getNavn()).isEqualTo(AVSENDER_MOTTAKER_NAVN);
 		assertThat(journalpost.getAvsender().getType()).isEqualTo(FNR);
 		assertThat(journalpost.getMottaker()).isNull();
 		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
@@ -112,6 +114,7 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.SDP);
 		assertThat(journalpost.getMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(journalpost.getMottaker().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getMottaker().getNavn()).isEqualTo(AVSENDER_MOTTAKER_NAVN);
 		assertThat(journalpost.getAvsender()).isNull();
 		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
 				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),
@@ -190,6 +193,7 @@ class JournalpostMapperTest {
 		assertThat(journalpost.getKanal()).isEqualTo(Kanal.SDP);
 		assertThat(journalpost.getMottaker().getId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(journalpost.getMottaker().getType()).isEqualTo(FNR);
+		assertThat(journalpost.getMottaker().getNavn()).isEqualTo(AVSENDER_MOTTAKER_NAVN);
 		assertThat(journalpost.getAvsender()).isNull();
 		assertThat(journalpost.getRelevanteDatoer()).containsAll(List.of(
 				new RelevantDato(DATO_OPPRETTET, Datotype.DATO_OPPRETTET),

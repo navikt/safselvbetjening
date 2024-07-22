@@ -39,6 +39,7 @@ final class ArkivJournalpostTestObjects {
 	static final String APPLIKASJON = "HJELPEMIDLER";
 	static final String AVSENDER_MOTTAKER_ID = "11987654321";
 	static final String AVSENDER_MOTTAKER_ID_TYPE = "FNR";
+	static final String AVSENDER_MOTTAKER_NAVN = "RHAENYRA TARGARYEN";
 	static final String BRUKER_IDENT = "12345678911";
 	static final String ARKIVSAK_AKTOER_ID = "32345678911";
 	static final String ARKIVSAKSYSTEM_GOSYS = "FS22";
@@ -72,7 +73,7 @@ final class ArkivJournalpostTestObjects {
 	static ArkivJournalpost.ArkivJournalpostBuilder baseArkivJournalpost() {
 		return ArkivJournalpost.builder()
 				.journalpostId(Long.valueOf(JOURNALPOST_ID))
-				.avsenderMottaker(new ArkivAvsenderMottaker(AVSENDER_MOTTAKER_ID, AVSENDER_MOTTAKER_ID_TYPE))
+				.avsenderMottaker(new ArkivAvsenderMottaker(AVSENDER_MOTTAKER_ID, AVSENDER_MOTTAKER_ID_TYPE, AVSENDER_MOTTAKER_NAVN))
 				.type(JournalpostTypeCode.I.name())
 				.status(JournalStatusCode.M.name())
 				.mottakskanal(MottaksKanalCode.NAV_NO.name())

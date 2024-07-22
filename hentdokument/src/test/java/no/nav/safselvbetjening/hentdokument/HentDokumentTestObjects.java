@@ -33,6 +33,7 @@ public class HentDokumentTestObjects {
 
 	static final String IDENT = "12345678911";
 	static final String AVSENDER_MOTTAKER_ID = "11987654321";
+	static final String AVSENDER_MOTTAKER_NAVN = "ALICENT HIGHTOWER";
 	static final String AKTOER_ID = "32345678911";
 	static final String JOURNALPOST_ID = "40000000";
 	static final String ARKIVSAKSYSTEM_GOSYS = "FS22";
@@ -46,7 +47,7 @@ public class HentDokumentTestObjects {
 	public static ArkivJournalpost.ArkivJournalpostBuilder baseArkivJournalpost() {
 		return ArkivJournalpost.builder()
 				.journalpostId(Long.valueOf(JOURNALPOST_ID))
-				.avsenderMottaker(new ArkivAvsenderMottaker(AVSENDER_MOTTAKER_ID, null))
+				.avsenderMottaker(new ArkivAvsenderMottaker(AVSENDER_MOTTAKER_ID, null, AVSENDER_MOTTAKER_NAVN))
 				.type(JournalpostTypeCode.I.name())
 				.status(JournalStatusCode.M.name())
 				.mottakskanal(MottaksKanalCode.NAV_NO.name())

@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.DokumentInfoDto;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.InnsynCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostDto;
-import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.SaksrelasjonDto;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.SkjermingTypeCode;
@@ -34,6 +33,8 @@ import java.util.stream.Collectors;
 import static java.lang.Integer.parseInt;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.FagomradeCode.toTema;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.FagsystemCode.PEN;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode.I;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode.U;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode.ARKIV;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode.SLADDET;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
@@ -81,8 +82,8 @@ public class JournalpostMapper {
 					.tittel(journalpostDto.getInnhold())
 					.kanal(mapKanal(journalpostDto))
 					.eksternReferanseId(journalpostDto.getKanalReferanseId())
-					.avsender(JournalpostTypeCode.I == journalpostDto.getJournalposttype() ? avsenderMottakerMapper.map(journalpostDto) : null)
-					.mottaker(JournalpostTypeCode.U == journalpostDto.getJournalposttype() ? avsenderMottakerMapper.map(journalpostDto) : null)
+					.avsender(I == journalpostDto.getJournalposttype() ? avsenderMottakerMapper.map(journalpostDto) : null)
+					.mottaker(U == journalpostDto.getJournalposttype() ? avsenderMottakerMapper.map(journalpostDto) : null)
 					.relevanteDatoer(mapRelevanteDatoer(journalpostDto))
 					.dokumenter(mapDokumenter(journalpostDto))
 					.tilgang(mapJournalpostTilgang(journalpostDto, brukerIdenter))
