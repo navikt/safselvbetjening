@@ -3,6 +3,7 @@ package no.nav.safselvbetjening.fullmektig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
+import no.nav.safselvbetjening.tokendings.TokenResponse;
 import no.nav.safselvbetjening.tokendings.TokendingsConsumer;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.codec.DecodingException;
@@ -47,11 +48,11 @@ public class FullmektigConsumer {
 	}
 
 	public List<FullmektigTemaResponse> fullmektigTema(String fullmektigSubjectToken) {
-		String exchange = tokendingsConsumer.exchange(fullmektigSubjectToken, pdlfullmakt.getScope());
+		TokenResponse exchange = tokendingsConsumer.exchange(fullmektigSubjectToken, pdlfullmakt.getScope());
 		return webClient.get()
 				.uri("/api/fullmektig/tema")
 				.headers(h -> {
-					h.setBearerAuth(exchange);
+					h.setBearerAuth(exchange.accessToken());
 					h.set(HEADER_NAV_CALL_ID, getCallId());
 				})
 				.retrieve()

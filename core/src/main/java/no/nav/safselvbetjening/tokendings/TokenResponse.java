@@ -5,5 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record TokenResponse(
-		@JsonProperty(value = "access_token", required = true) String accessToken
+		@JsonProperty(value = "access_token", required = true) String accessToken,
+		@JsonProperty(value = "expires_in", required = true) long expiresIn
 ){}

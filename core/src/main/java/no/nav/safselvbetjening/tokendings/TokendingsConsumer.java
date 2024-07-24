@@ -45,7 +45,7 @@ public class TokendingsConsumer {
 	}
 
 	@Cacheable(value = TOKENDINGS_CACHE, key = "TokendingsConsumer.hashedCacheKey(#subjectToken, #scope)")
-	public String exchange(final String subjectToken, final String scope) {
+	public TokenResponse exchange(final String subjectToken, final String scope) {
 		MultiValueMap<String, String> formMultiValueData = new LinkedMultiValueMap<>();
 		formMultiValueData.add("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
 		formMultiValueData.add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
@@ -62,7 +62,7 @@ public class TokendingsConsumer {
 				.block();
 
 		try {
-			return objectMapper.readValue(responseJson, TokenResponse.class).accessToken();
+			return objectMapper.readValue(responseJson, TokenResponse.class);
 		} catch (JsonProcessingException e) {
 			throw new TokenException(format("Klarte ikke parse token fra Azure. Feilmelding=%s", e.getMessage()), e);
 		}
