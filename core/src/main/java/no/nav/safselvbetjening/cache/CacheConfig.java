@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 @Profile({"nais", "local"})
 public class CacheConfig {
 
+	private static final long CLOCK_SKEW_BUFFER_SECONDS = 60;
+
 	public static final String GRAPHQL_QUERY_CACHE = "graphql_query_cache";
 	public static final String TOKENDINGS_CACHE = "tokendings_cache";
 
@@ -39,7 +41,7 @@ public class CacheConfig {
 							@Override
 							public long expireAfterCreate(Object key, Object value, long currentTime) {
 								if (value instanceof TokenResponse tokenResponse) {
-									return TimeUnit.SECONDS.toNanos(tokenResponse.expiresIn());
+									return TimeUnit.SECONDS.toNanos(tokenResponse.expiresIn() - CLOCK_SKEW_BUFFER_SECONDS);
 								}
 								return 0;
 							}
