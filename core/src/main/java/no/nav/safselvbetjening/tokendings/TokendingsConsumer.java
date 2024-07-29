@@ -8,6 +8,7 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -22,6 +23,8 @@ import java.util.UUID;
 import static com.nimbusds.jose.JOSEObjectType.JWT;
 import static com.nimbusds.jose.JWSAlgorithm.RS256;
 import static java.lang.String.format;
+import static no.nav.safselvbetjening.cache.CacheConfig.TOKENDINGS_CACHE;
+import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
@@ -41,7 +44,8 @@ public class TokendingsConsumer {
 		this.objectMapper = objectMapper;
 	}
 
-	public String exchange(final String subjectToken, final String scope) {
+	@Cacheable(value = TOKENDINGS_CACHE, key = "T(no.nav.safselvbetjening.tokendings.TokendingsConsumer).hashedCacheKey(#subjectToken, #scope)")
+	public TokenResponse exchange(final String subjectToken, final String scope) {
 		MultiValueMap<String, String> formMultiValueData = new LinkedMultiValueMap<>();
 		formMultiValueData.add("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
 		formMultiValueData.add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
@@ -58,7 +62,7 @@ public class TokendingsConsumer {
 				.block();
 
 		try {
-			return objectMapper.readValue(responseJson, TokenResponse.class).accessToken();
+			return objectMapper.readValue(responseJson, TokenResponse.class);
 		} catch (JsonProcessingException e) {
 			throw new TokenException(format("Klarte ikke parse token fra Azure. Feilmelding=%s", e.getMessage()), e);
 		}
@@ -99,5 +103,9 @@ public class TokendingsConsumer {
 		} catch (JOSEException e) {
 			throw new ConsumerFunctionalException("Klarte ikke signere JWT", e);
 		}
+	}
+
+	public static String hashedCacheKey(String token, String scope) {
+		return sha256Hex(token + scope);
 	}
 }
