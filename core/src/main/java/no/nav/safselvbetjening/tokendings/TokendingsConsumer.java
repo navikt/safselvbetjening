@@ -44,7 +44,7 @@ public class TokendingsConsumer {
 		this.objectMapper = objectMapper;
 	}
 
-	@Cacheable(value = TOKENDINGS_CACHE, key = "TokendingsConsumer.hashedCacheKey(#subjectToken, #scope)")
+	@Cacheable(value = TOKENDINGS_CACHE, key = "T(no.nav.safselvbetjening.tokendings.TokendingsConsumer).hashedCacheKey(#subjectToken, #scope)")
 	public TokenResponse exchange(final String subjectToken, final String scope) {
 		MultiValueMap<String, String> formMultiValueData = new LinkedMultiValueMap<>();
 		formMultiValueData.add("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
@@ -105,7 +105,7 @@ public class TokendingsConsumer {
 		}
 	}
 
-	private static String hashedCacheKey(String token, String scope) {
+	public static String hashedCacheKey(String token, String scope) {
 		return sha256Hex(token + scope);
 	}
 }
