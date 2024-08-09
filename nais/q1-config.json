@@ -101,6 +101,11 @@
       "app": "tms-mikrofrontend-selector",
       "namespace": "min-side",
       "cluster": "dev-gcp"
+    },
+    {
+      "app": "tokenx-token-generator",
+      "namespace": "aura",
+      "cluster": "dev-gcp"
     }
   ]
 }
