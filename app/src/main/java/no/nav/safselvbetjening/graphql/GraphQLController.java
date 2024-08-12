@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
@@ -72,7 +73,8 @@ public class GraphQLController {
 						// https://www.graphql-java.com/documentation/execution/#query-caching
 						.preparsedDocumentProvider((executionInput, parseAndValidateFunction) -> {
 							Function<String, PreparsedDocumentEntry> mapCompute = key -> parseAndValidateFunction.apply(executionInput);
-							return cache.get(executionInput.getQuery(), mapCompute);
+							return CompletableFuture.completedFuture(
+									cache.get(executionInput.getQuery(), mapCompute));
 						})
 						.build()
 						.execute(ExecutionInput.newExecutionInput()
