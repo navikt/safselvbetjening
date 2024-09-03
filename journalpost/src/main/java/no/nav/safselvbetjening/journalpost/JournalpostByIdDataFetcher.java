@@ -47,8 +47,8 @@ public class JournalpostByIdDataFetcher implements DataFetcher<DataFetcherResult
 			MDC.put(MDC_CALL_ID, graphQLRequestContext.getNavCallId());
 			MDC.put(MDC_CONSUMER_ID, getConsumerIdFromToken(graphQLRequestContext.getTokenValidationContext()));
 
-			final String journalpostId = environment.getArgument("journalpostId");
-			validerJournalpostId(journalpostId, environment);
+			final String journalpostIdArg = environment.getArgument("journalpostId");
+			long journalpostId = validerAndParseJournalpostId(journalpostIdArg, environment);
 
 			Journalpost journalpost = journalpostService.queryJournalpost(journalpostId, environment, graphQLRequestContext);
 			return DataFetcherResult.<Journalpost>newResult().data(journalpost).build();
@@ -63,11 +63,11 @@ public class JournalpostByIdDataFetcher implements DataFetcher<DataFetcherResult
 			log.error("journalpostById circuitbreaker={} er åpen.", e.getCausingCircuitBreakerName(), e);
 			return DataFetcherResult.<Journalpost>newResult()
 					.error(SERVER_ERROR.construct(environment, "Circuitbreaker=" + e.getCausingCircuitBreakerName() + " er åpen." +
-															   " Kall til denne tjenesten går ikke gjennom."))
+							" Kall til denne tjenesten går ikke gjennom."))
 					.build();
 		} catch (Exception e) {
 			log.error("journalpostById midlertidig teknisk feil. " +
-					  "Dette er som oftest forårsaket av midlertidige feil på nettverk/kobling mellom apper. Se stacktrace. message={}",
+							"Dette er som oftest forårsaket av midlertidige feil på nettverk/kobling mellom apper. Se stacktrace. message={}",
 					e.getMessage(), e);
 			return DataFetcherResult.<Journalpost>newResult()
 					.error(SERVER_ERROR.construct(environment, FEILMELDING_MIDLERTIDIG_TEKNISK_FEIL))
@@ -77,7 +77,7 @@ public class JournalpostByIdDataFetcher implements DataFetcher<DataFetcherResult
 		}
 	}
 
-	private void validerJournalpostId(String journalpostId, DataFetchingEnvironment environment) {
+	private long validerAndParseJournalpostId(String journalpostId, DataFetchingEnvironment environment) {
 		if (isBlank(journalpostId)) {
 			throw GraphQLException.of(BAD_REQUEST, environment, FEILMELDING_JOURNALPOSTID_ER_BLANK);
 		}
@@ -85,5 +85,7 @@ public class JournalpostByIdDataFetcher implements DataFetcher<DataFetcherResult
 		if (!isNumeric(journalpostId)) {
 			throw GraphQLException.of(BAD_REQUEST, environment, FEILMELDING_JOURNALPOSTID_ER_IKKE_NUMERISK.formatted(journalpostId));
 		}
+
+		return Long.parseLong(journalpostId);
 	}
 }

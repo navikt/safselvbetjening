@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
 @Value
 @Builder
 public class Joarksak {
-	Integer id;
+	Long id;
 	String tema;
 	String applikasjon;
 	String aktoerId;

@@ -1,43 +1,38 @@
 package no.nav.safselvbetjening.dokumentoversikt;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.safselvbetjening.SafeLoggingUtil;
+import no.nav.safselvbetjening.consumer.dokarkiv.Basedata;
+import no.nav.safselvbetjening.consumer.dokarkiv.Saker;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
-import no.nav.safselvbetjening.service.Arkivsak;
-import no.nav.safselvbetjening.service.Saker;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import static java.lang.Boolean.TRUE;
 import static no.nav.safselvbetjening.domain.Tema.UKJ;
 
 @Slf4j
 @Component
-class TemaQueryService {
+public class TemaQueryService {
 
 	List<Sakstema> query(final Basedata basedata) {
 		log.info("dokumentoversiktSelvbetjening henter /tema.");
-		final Saker saker = basedata.getSaker();
-		List<Sakstema> sakstema = saker.getArkivsakerAsStream()
-				.filter(distinctByKey(Arkivsak::getTema))
-				.map(this::mapSakstema)
+		final Saker saker = basedata.saker();
+		List<Sakstema> sakstema = saker.getArkivsakerTemaer()
+				.distinct()
+				.map(TemaQueryService::mapSakstema)
 				.filter(Objects::nonNull)
 				.sorted(Comparator.comparing(Sakstema::getKode))
-				.collect(Collectors.toList());
+				.toList();
 		log.info("dokumentoversiktSelvbetjening hentet /tema. antall_tema={}.", sakstema.size());
 		return sakstema;
 	}
 
-	private Sakstema mapSakstema(Arkivsak arkivsak) {
-		final Tema tema = determineTema(arkivsak);
+	private static Sakstema mapSakstema(String arkivsakTema) {
+		final Tema tema = determineTema(arkivsakTema);
 		if (Tema.unntattInnsynNavNo().contains(tema)) {
 			return null;
 		}
@@ -47,17 +42,12 @@ class TemaQueryService {
 				.build();
 	}
 
-	private Tema determineTema(Arkivsak arkivsak) {
+	private static Tema determineTema(String arkivsakTema) {
 		try {
-			return Tema.valueOf(arkivsak.getTema());
+			return Tema.valueOf(arkivsakTema);
 		} catch (IllegalArgumentException e) {
-			log.error("Mapping av tema={} feilet. Dette må rettes.", arkivsak.getTema());
+			log.error("Mapping av tema={} feilet. Dette må rettes.", SafeLoggingUtil.removeUnsafeChars(arkivsakTema));
 			return UKJ;
 		}
-	}
-
-	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-		Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-		return t -> seen.putIfAbsent(keyExtractor.apply(t), TRUE) == null;
 	}
 }

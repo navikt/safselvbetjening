@@ -78,7 +78,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	@Test
 	void shouldGetFallbackNavnWhenAvsenderMottakerNavnIsNull() throws Exception {
-		happyStubs("finnjournalposter_avsenderMottaker_navn_null.json");
+		happyStubs("finnjournalposter_avsendermottaker_navn_null.json");
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
 

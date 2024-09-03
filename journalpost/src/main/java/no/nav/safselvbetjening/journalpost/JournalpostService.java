@@ -4,6 +4,7 @@ import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.dokarkiv.DokarkivConsumer;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper;
 import no.nav.safselvbetjening.consumer.pensjon.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -51,7 +52,7 @@ public class JournalpostService {
 		this.utledTilgangService = utledTilgangService;
 	}
 
-	Journalpost queryJournalpost(final String journalpostId, final DataFetchingEnvironment environment, final GraphQLRequestContext graphQLRequestContext) {
+	Journalpost queryJournalpost(final long journalpostId, final DataFetchingEnvironment environment, final GraphQLRequestContext graphQLRequestContext) {
 		ArkivJournalpost arkivJournalpost = dokarkivConsumer.journalpost(journalpostId, Set.of());
 		validerRiktigJournalpost(journalpostId, arkivJournalpost, environment);
 		BrukerIdenter brukerIdenter = identService.hentIdenter(arkivJournalpost);
@@ -75,7 +76,7 @@ public class JournalpostService {
 	private Optional<Pensjonsak> hentPensjonssak(String bruker, ArkivJournalpost arkivJournalpost) {
 		if (arkivJournalpost.isTilknyttetSak() && arkivJournalpost.saksrelasjon().isPensjonsak()) {
 			return pensjonSakRestConsumer.hentPensjonssaker(bruker)
-					.stream().filter(p -> p.sakId().equals(arkivJournalpost.saksrelasjon().sakId().toString()))
+					.stream().filter(p -> p.sakId().equals(arkivJournalpost.saksrelasjon().sakId()))
 					.findFirst();
 		}
 		return Optional.empty();
@@ -98,11 +99,11 @@ public class JournalpostService {
 		}
 	}
 
-	private static void validerRiktigJournalpost(String journalpostId, ArkivJournalpost arkivJournalpost, DataFetchingEnvironment environment) {
+	private static void validerRiktigJournalpost(long journalpostId, ArkivJournalpost arkivJournalpost, DataFetchingEnvironment environment) {
 		Long arkivJournalpostId = arkivJournalpost.journalpostId();
-		if (!journalpostId.equals(arkivJournalpostId.toString())) {
+		if (journalpostId != arkivJournalpostId) {
 			throw GraphQLException.of(SERVER_ERROR, environment, "journalpostId som er returnert fra fagarkivet matcher ikke journalpostId argument fra query. " +
-																 "journalpostById.journalpostId=" + journalpostId + ", arkivJournalpost.journalpostId=" + arkivJournalpostId);
+					"journalpostById.journalpostId=" + journalpostId + ", arkivJournalpost.journalpostId=" + arkivJournalpostId);
 		}
 	}
 }

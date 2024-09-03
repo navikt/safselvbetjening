@@ -1,8 +1,8 @@
-package no.nav.safselvbetjening.journalpost;
+package no.nav.safselvbetjening.consumer.dokarkiv.safintern;
 
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivAvsenderMottaker;
 import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.AvsenderMottakerIdType;
+import no.nav.safselvbetjening.domain.Journalposttype;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,16 +12,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
 
+import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.AVSENDER_MOTTAKER_ID;
+import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.AVSENDER_MOTTAKER_ID_TYPE;
+import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.AVSENDER_MOTTAKER_NAVN;
 import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
 import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.ORGNR;
 import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.UKJENT;
-import static no.nav.safselvbetjening.journalpost.ArkivJournalpostTestObjects.AVSENDER_MOTTAKER_ID;
-import static no.nav.safselvbetjening.journalpost.ArkivJournalpostTestObjects.AVSENDER_MOTTAKER_ID_TYPE;
-import static no.nav.safselvbetjening.journalpost.ArkivJournalpostTestObjects.AVSENDER_MOTTAKER_NAVN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ArkivAvsenderMottakerMapperTest {
 	private final String UKJENT_MOTTAKER = "Ukjent mottaker";
+	private final String UKJENT_AVSENDER = "Ukjent avsender";
 	private final ArkivAvsenderMottakerMapper mapper = new ArkivAvsenderMottakerMapper();
 
 	@ParameterizedTest
@@ -29,7 +30,7 @@ class ArkivAvsenderMottakerMapperTest {
 	void shouldMapToNullWhenInputNullOrBlankAndIdTypeNull(final String id) {
 		ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker(id, null, null);
 
-		AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker);
+		AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
 
 		assertThat(avsenderMottaker).isNull();
 	}
@@ -43,7 +44,7 @@ class ArkivAvsenderMottakerMapperTest {
 	void shouldMapToNullWhenIdBlank() {
 		ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker("", null, null);
 
-		AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker);
+		AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
 
 		assertThat(avsenderMottaker).isNull();
 	}
@@ -52,7 +53,7 @@ class ArkivAvsenderMottakerMapperTest {
 	void shouldMapAvsenderMottakerIdTypeFNR() {
 		ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker(AVSENDER_MOTTAKER_ID, AVSENDER_MOTTAKER_ID_TYPE, AVSENDER_MOTTAKER_NAVN);
 
-		AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker);
+		AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
 
 		assertAvsenderMottaker(avsenderMottaker, FNR, AVSENDER_MOTTAKER_ID, AVSENDER_MOTTAKER_NAVN);
 	}
@@ -65,11 +66,20 @@ class ArkivAvsenderMottakerMapperTest {
 		void shouldMapAvsenderMottakerIdTypeORGNRWhenAvsenderMottakerIdIsOfLength9() {
 			ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker("123456789", null, null);
 
-			AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker);
+			AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
 
 			assertAvsenderMottaker(avsenderMottaker, ORGNR, "123456789", UKJENT_MOTTAKER);
 
 
+		}
+
+		@Test
+		void shouldMapAvsenderMottakerIdTypeORGNRWhenAvsenderMottakerIdIsOfLength9AndIncomingDocument() {
+			ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker("123456789", null, null);
+
+			AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.I.name());
+
+			assertAvsenderMottaker(avsenderMottaker, ORGNR, "123456789", UKJENT_AVSENDER);
 		}
 
 		@ParameterizedTest
@@ -78,7 +88,7 @@ class ArkivAvsenderMottakerMapperTest {
 		void shouldMapAvsenderMottakerIdTypeFNRWhenAvsenderMottakerIdIs11DigitsLongAnd1DigitInRange0To7(String id) {
 			ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker(id, null, AVSENDER_MOTTAKER_NAVN);
 
-			AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker);
+			AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
 
 			assertAvsenderMottaker(avsenderMottaker, FNR, id, AVSENDER_MOTTAKER_NAVN);
 		}
@@ -89,7 +99,7 @@ class ArkivAvsenderMottakerMapperTest {
 		void shouldMapAvsenderMottakerIdTypeUKJENTWhenAvsenderMottakerIdIs11DigitsLongAndFirstDigitIs8Or9(String id) {
 			ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker(id, null, null);
 
-			AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker);
+			AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
 
 			assertAvsenderMottaker(avsenderMottaker, UKJENT, id, UKJENT_MOTTAKER);
 		}
@@ -100,7 +110,7 @@ class ArkivAvsenderMottakerMapperTest {
 		void shouldMapAvsenderMottakerIdTypeUKJENTWhenAvsenderMottakerIdIsLength11AndNonNumeric(String id) {
 			ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker(id, null, null);
 
-			AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker);
+			AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
 
 			assertAvsenderMottaker(avsenderMottaker, UKJENT, id, UKJENT_MOTTAKER);
 		}
@@ -110,7 +120,7 @@ class ArkivAvsenderMottakerMapperTest {
 		void shouldMapAvsenderMottakerIdTypeUKJENT(String id) {
 			ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker(id, null, null);
 
-			AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker);
+			AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
 
 			assertAvsenderMottaker(avsenderMottaker, UKJENT, id, UKJENT_MOTTAKER);
 		}

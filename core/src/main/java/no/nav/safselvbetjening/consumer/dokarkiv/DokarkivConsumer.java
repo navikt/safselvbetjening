@@ -12,14 +12,10 @@ import no.nav.safselvbetjening.consumer.CallIdExchangeFilterFunction;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalposter;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.FinnJournalposterRequest;
 import org.springframework.boot.autoconfigure.codec.CodecProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -28,10 +24,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static java.lang.String.format;
-import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_DOKARKIV;
-import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
@@ -43,17 +37,14 @@ public class DokarkivConsumer {
 	private static final String DOKARKIV_METADATA = "dokarkivmetadata";
 	private static final String DOKARKIV_DOKUMENTOVERSIKT = "dokarkivdokumentoversikt";
 	private static final String DOKARKIV_HENTDOKUMENT = "dokarkivhentdokument";
-	private final RestTemplate restTemplate;
 	private final WebClient webClient;
 	private final io.github.resilience4j.circuitbreaker.CircuitBreaker dokarkivHentdokumentCircuitBreaker;
 	private final io.github.resilience4j.circuitbreaker.CircuitBreaker dokarkivMetadataCircuitBreaker;
 	private final Retry dokarkivHentdokumentRetry;
 	private final Retry dokarkivMetadataRetry;
 
-	public DokarkivConsumer(final RestTemplateBuilder restTemplateBuilder,
-							final SafSelvbetjeningProperties safSelvbetjeningProperties,
+	public DokarkivConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
 							final CodecProperties codecProperties,
-							final ClientHttpRequestFactory requestFactory,
 							final WebClient webClient,
 							final CircuitBreakerRegistry circuitBreakerRegistry,
 							final RetryRegistry retryRegistry) {
@@ -68,14 +59,6 @@ public class DokarkivConsumer {
 						)
 						.build())
 				.build();
-		this.restTemplate = restTemplateBuilder
-				.rootUri(safSelvbetjeningProperties.getEndpoints().getFagarkiv())
-				.basicAuthentication(
-						safSelvbetjeningProperties.getServiceuser().getUsername(),
-						safSelvbetjeningProperties.getServiceuser().getPassword()
-				)
-				.requestFactory(() -> requestFactory)
-				.build();
 		this.dokarkivHentdokumentCircuitBreaker = circuitBreakerRegistry.circuitBreaker(DOKARKIV_HENTDOKUMENT);
 		this.dokarkivMetadataCircuitBreaker = circuitBreakerRegistry.circuitBreaker(DOKARKIV_METADATA);
 		this.dokarkivHentdokumentRetry = retryRegistry.retry(DOKARKIV_HENTDOKUMENT);
@@ -83,16 +66,28 @@ public class DokarkivConsumer {
 	}
 
 	@CircuitBreaker(name = DOKARKIV_DOKUMENTOVERSIKT)
-	public FinnJournalposterResponseTo finnJournalposter(final FinnJournalposterRequestTo request) {
-		try {
-			HttpEntity<FinnJournalposterRequestTo> requestEntity = new HttpEntity<>(request, baseHttpHeaders());
-			return restTemplate.exchange("/finnjournalposter",
-					POST,
-					requestEntity,
-					FinnJournalposterResponseTo.class).getBody();
-		} catch (RestClientException e) {
-			throw new ConsumerTechnicalException("Teknisk feil ved å finne journalpost for " + request, e);
-		}
+	public ArkivJournalposter finnJournalposter(FinnJournalposterRequest request, Set<String> fields) {
+		return webClient.post()
+				.uri(uriBuilder -> {
+					uriBuilder.path("/finnjournalposter");
+					if (!fields.isEmpty()) {
+						uriBuilder.queryParam("fields", String.join(",", fields));
+					}
+					return uriBuilder.build();
+				})
+				.bodyValue(request)
+				.attributes(clientRegistrationId(CLIENT_REGISTRATION_DOKARKIV))
+				.accept(APPLICATION_JSON)
+				.retrieve()
+				.bodyToMono(ArkivJournalposter.class)
+				.doOnError(handleErrorFinnJournalposter(request))
+				.transformDeferred(CircuitBreakerOperator.of(dokarkivMetadataCircuitBreaker))
+				.transformDeferred(RetryOperator.of(dokarkivMetadataRetry))
+				.block();
+	}
+
+	private Consumer<? super Throwable> handleErrorFinnJournalposter(FinnJournalposterRequest request) {
+		return ex -> log.error("{}", request, ex);
 	}
 
 	public ArkivJournalpost journalpost(String journalpostId, String dokumentInfoId, Set<String> fields) {
@@ -128,11 +123,11 @@ public class DokarkivConsumer {
 					throw new ConsumerTechnicalException(String.format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
 							webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()), webException);
 				}
-			}	
+			}
 		};
 	}
 
-	public ArkivJournalpost journalpost(String journalpostId, Set<String> fields) {
+	public ArkivJournalpost journalpost(long journalpostId, Set<String> fields) {
 		return webClient.get()
 				.uri(uriBuilder -> {
 					uriBuilder.pathSegment("journalpost", "journalpostId", "{journalpostId}");
@@ -151,7 +146,7 @@ public class DokarkivConsumer {
 				.block();
 	}
 
-	private Consumer<Throwable> handleErrorJournalpost(String journalpostId) {
+	private Consumer<Throwable> handleErrorJournalpost(long journalpostId) {
 		return error -> {
 			if (error instanceof WebClientResponseException.NotFound notFound) {
 				throw new JournalpostIkkeFunnetException(format("Journalpost med journalpostId=%s ikke funnet i Joark.",
@@ -203,11 +198,5 @@ public class DokarkivConsumer {
 				throw new ConsumerTechnicalException("Teknisk feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
 			}
 		};
-	}
-
-	private HttpHeaders baseHttpHeaders() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.set(NAV_CALLID, getCallId());
-		return headers;
 	}
 }

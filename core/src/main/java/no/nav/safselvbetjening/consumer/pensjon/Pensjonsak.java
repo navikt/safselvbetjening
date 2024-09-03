@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import no.nav.safselvbetjening.domain.Tema;
 
 public record Pensjonsak(
-		String sakId,
+		Long sakId,
 		String arkivtema
 ) {
 
 	@JsonCreator
 	public Pensjonsak(
-			@JsonProperty("sakId") String sakId,
+			@JsonProperty("sakId") Long sakId,
 			@JsonProperty("arkivtema") String arkivtema
 	) {
 		this.sakId = sakId;
