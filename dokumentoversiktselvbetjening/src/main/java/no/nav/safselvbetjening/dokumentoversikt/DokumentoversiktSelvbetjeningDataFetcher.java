@@ -7,6 +7,7 @@ import graphql.schema.DataFetchingFieldSelectionSet;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.dokarkiv.Basedata;
+import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.dokumentoversikt.audit.DokumentoversiktAudit;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Fagsak;
@@ -22,7 +23,10 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
@@ -119,12 +123,13 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 
 	Dokumentoversikt fetchDokumentoversikt(final String ident, final List<String> tema,
 										   final DataFetchingEnvironment environment) {
-		final DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
-		final Basedata basedata = dokumentoversiktSelvbetjeningService.queryBasedata(ident, tema, environment);
-		final Journalpostdata filtrerteJournalpostdata = filtrerteJournalposter(basedata, tema, selectionSet);
-		final List<Sakstema> sakstema = fetchSakstema(basedata, filtrerteJournalpostdata, selectionSet);
-		final List<Fagsak> fagsaker = fetchFagsak(basedata, filtrerteJournalpostdata, selectionSet);
-		final List<Journalpost> journalposter = fetchJournalposter(filtrerteJournalpostdata, selectionSet);
+		DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
+		Basedata basedata = dokumentoversiktSelvbetjeningService.queryBasedata(ident, tema, environment);
+		Map<Long, Pensjonsak> pensjonsaker = collectPensjonsakerInMapById(basedata);
+		Journalpostdata filtrerteJournalpostdata = filtrerteJournalposter(basedata, tema, selectionSet, pensjonsaker);
+		List<Sakstema> sakstema = fetchSakstema(basedata, filtrerteJournalpostdata, selectionSet);
+		List<Fagsak> fagsaker = fetchFagsak(basedata, filtrerteJournalpostdata, selectionSet);
+		List<Journalpost> journalposter = fetchJournalposter(filtrerteJournalpostdata, selectionSet);
 		return Dokumentoversikt.builder()
 				.tema(sakstema)
 				.fagsak(fagsaker)
@@ -133,11 +138,12 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	}
 
 	private Journalpostdata filtrerteJournalposter(Basedata basedata, List<String> tema,
-												   DataFetchingFieldSelectionSet selectionSet) {
+												   DataFetchingFieldSelectionSet selectionSet,
+												   Map<Long, Pensjonsak> pensjonsaker) {
 		if (selectionSet.containsAnyOf("tema/journalposter", "journalposter")) {
-			return dokumentoversiktSelvbetjeningService.queryFiltrerAlleJournalposter(basedata, tema);
+			return dokumentoversiktSelvbetjeningService.queryFiltrerAlleJournalposter(basedata, tema, pensjonsaker);
 		} else if (selectionSet.containsAnyOf("fagsak/journalposter")) {
-			return dokumentoversiktSelvbetjeningService.queryFiltrerSakstilknyttedeJournalposter(basedata, tema);
+			return dokumentoversiktSelvbetjeningService.queryFiltrerSakstilknyttedeJournalposter(basedata, tema, pensjonsaker);
 		}
 		return Journalpostdata.empty();
 	}
@@ -202,6 +208,12 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			}
 		}
 		return Optional.empty();
+	}
+
+	private static Map<Long, Pensjonsak> collectPensjonsakerInMapById(Basedata basedata) {
+		return basedata.saker().pensjonsaker()
+				.stream()
+				.collect(Collectors.toMap(Pensjonsak::sakId, Function.identity(), (a, b) -> a));
 	}
 
 	static List<String> temaArgumentEllerFullmakt(DataFetchingEnvironment environment, Optional<Fullmakt> fullmakt) {

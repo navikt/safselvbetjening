@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -77,18 +78,18 @@ public class DokumentoversiktSelvbetjeningService {
 		return new Basedata(brukerIdenter, saker);
 	}
 
-	Journalpostdata queryFiltrerAlleJournalposter(Basedata basedata, List<String> tema) {
+	Journalpostdata queryFiltrerAlleJournalposter(Basedata basedata, List<String> tema, Map<Long,Pensjonsak> pensjonsaker) {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
 		List<ArkivJournalpost> tilgangJournalposter = dokarkivConsumer.finnJournalposter(finnAlleJournalposterRequest(brukerIdenter, saker), emptySet()).journalposter();
-		return mapOgFiltrerJournalposter(tema, brukerIdenter, Optional.empty(), tilgangJournalposter);
+		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, tilgangJournalposter);
 	}
 
-	Journalpostdata queryFiltrerSakstilknyttedeJournalposter(Basedata basedata, List<String> tema) {
+	Journalpostdata queryFiltrerSakstilknyttedeJournalposter(Basedata basedata, List<String> tema, Map<Long,Pensjonsak> pensjonsaker) {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
 		List<ArkivJournalpost> tilgangJournalposter = dokarkivConsumer.finnJournalposter(finnFerdigstilteJournalposterRequest(saker), emptySet()).journalposter();
-		return mapOgFiltrerJournalposter(tema, brukerIdenter, Optional.empty(), tilgangJournalposter);
+		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, tilgangJournalposter);
 	}
 
 	/*
@@ -96,11 +97,12 @@ public class DokumentoversiktSelvbetjeningService {
 	 */
 	private Journalpostdata mapOgFiltrerJournalposter(List<String> tema,
 													  BrukerIdenter brukerIdenter,
-													  Optional<Pensjonsak> pensjonsakOptional,
+													  Map<Long,Pensjonsak> pensjonsaker,
 													  List<ArkivJournalpost> tilgangJournalposter) {
 		List<Journalpost> filtrerteJournalposter = tilgangJournalposter
 				.stream()
-				.map(journalpost -> arkivJournalpostMapper.map(journalpost, brukerIdenter, pensjonsakOptional))
+				.map(journalpost -> arkivJournalpostMapper.map(journalpost, brukerIdenter,
+								Optional.ofNullable(pensjonsaker.get(journalpost.saksrelasjon().sakId()))))
 				.filter(Objects::nonNull)
 				.filter(journalpost -> utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter))
 				.map(journalpost -> setDokumentVariant(journalpost, brukerIdenter))
