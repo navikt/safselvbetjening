@@ -62,13 +62,13 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	private final FullmektigService fullmektigService;
 	private final DokumentoversiktAudit audit;
 
-	public DokumentoversiktSelvbetjeningDataFetcher(DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService,
-													TemaQueryService temaQueryService,
-													TemaJournalposterQueryService temaJournalposterQueryService,
-													FagsakQueryService fagsakQueryService,
-													FagsakJournalposterQueryService fagsakJournalposterQueryService,
-													JournalposterQueryService journalposterQueryService,
-													FullmektigService fullmektigService) {
+	DokumentoversiktSelvbetjeningDataFetcher(DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService,
+											 TemaQueryService temaQueryService,
+											 TemaJournalposterQueryService temaJournalposterQueryService,
+											 FagsakQueryService fagsakQueryService,
+											 FagsakJournalposterQueryService fagsakJournalposterQueryService,
+											 JournalposterQueryService journalposterQueryService,
+											 FullmektigService fullmektigService) {
 		this.dokumentoversiktSelvbetjeningService = dokumentoversiktSelvbetjeningService;
 		this.temaQueryService = temaQueryService;
 		this.temaJournalposterQueryService = temaJournalposterQueryService;

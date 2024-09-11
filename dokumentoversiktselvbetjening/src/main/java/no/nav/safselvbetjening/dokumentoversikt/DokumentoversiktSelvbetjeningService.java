@@ -42,7 +42,7 @@ import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
 
 @Slf4j
 @Component
-public class DokumentoversiktSelvbetjeningService {
+class DokumentoversiktSelvbetjeningService {
 
 	private static final List<JournalStatusCode> MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(MO, M, J, E, FL, FS);
 	private static final List<JournalStatusCode> FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(J, E, FL, FS);
@@ -78,14 +78,14 @@ public class DokumentoversiktSelvbetjeningService {
 		return new Basedata(brukerIdenter, saker);
 	}
 
-	Journalpostdata queryFiltrerAlleJournalposter(Basedata basedata, List<String> tema, Map<Long,Pensjonsak> pensjonsaker) {
+	Journalpostdata queryFiltrerAlleJournalposter(Basedata basedata, List<String> tema, Map<Long, Pensjonsak> pensjonsaker) {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
 		List<ArkivJournalpost> tilgangJournalposter = dokarkivConsumer.finnJournalposter(finnAlleJournalposterRequest(brukerIdenter, saker), emptySet()).journalposter();
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, tilgangJournalposter);
 	}
 
-	Journalpostdata queryFiltrerSakstilknyttedeJournalposter(Basedata basedata, List<String> tema, Map<Long,Pensjonsak> pensjonsaker) {
+	Journalpostdata queryFiltrerSakstilknyttedeJournalposter(Basedata basedata, List<String> tema, Map<Long, Pensjonsak> pensjonsaker) {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
 		List<ArkivJournalpost> tilgangJournalposter = dokarkivConsumer.finnJournalposter(finnFerdigstilteJournalposterRequest(saker), emptySet()).journalposter();
@@ -97,12 +97,12 @@ public class DokumentoversiktSelvbetjeningService {
 	 */
 	private Journalpostdata mapOgFiltrerJournalposter(List<String> tema,
 													  BrukerIdenter brukerIdenter,
-													  Map<Long,Pensjonsak> pensjonsaker,
+													  Map<Long, Pensjonsak> pensjonsaker,
 													  List<ArkivJournalpost> tilgangJournalposter) {
 		List<Journalpost> filtrerteJournalposter = tilgangJournalposter
 				.stream()
 				.map(journalpost -> arkivJournalpostMapper.map(journalpost, brukerIdenter,
-								Optional.ofNullable(pensjonsaker.get(journalpost.saksrelasjon().sakId()))))
+						Optional.ofNullable(pensjonsaker.get(journalpost.saksrelasjon().sakId()))))
 				.filter(Objects::nonNull)
 				.filter(journalpost -> utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter))
 				.map(journalpost -> setDokumentVariant(journalpost, brukerIdenter))
@@ -130,17 +130,16 @@ public class DokumentoversiktSelvbetjeningService {
 	 * 1d) Bruker får ikke se feilregistrerte journalposter.
 	 */
 	private FinnJournalposterRequest baseFinnJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser, List<String> foedselsnummer) {
-		return new FinnJournalposterRequest(
-				saker.arkivsaker().stream().map(Joarksak::getId).toList(),
-				saker.pensjonsaker().stream().map(Pensjonsak::sakId).toList(),
-				safSelvbetjeningProperties.getTidligstInnsynDato().toString(),
-				null,
-				false,
-				foedselsnummer,
-				inkluderJournalstatuser,
-				ALLE_JOURNALPOSTTYPER,
-				9999,
-				null);
+		return FinnJournalposterRequest.builder()
+				.gsakSakIds(saker.arkivsaker().stream().map(Joarksak::getId).toList())
+				.psakSakIds(saker.pensjonsaker().stream().map(Pensjonsak::sakId).toList())
+				.fraDato(safSelvbetjeningProperties.getTidligstInnsynDato().toString())
+				.visFeilregistrerte(false)
+				.alleIdenter(foedselsnummer)
+				.journalstatuser(inkluderJournalstatuser)
+				.journalposttyper(ALLE_JOURNALPOSTTYPER)
+				.antallRader(9999)
+				.build();
 	}
 
 	private Journalpost setDokumentVariant(Journalpost journalpost, BrukerIdenter brukerIdenter) {

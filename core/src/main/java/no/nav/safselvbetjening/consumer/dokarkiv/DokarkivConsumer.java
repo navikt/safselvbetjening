@@ -1,7 +1,6 @@
 package no.nav.safselvbetjening.consumer.dokarkiv;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
 import io.github.resilience4j.reactor.retry.RetryOperator;
 import io.github.resilience4j.retry.Retry;
@@ -38,8 +37,10 @@ public class DokarkivConsumer {
 	private static final String DOKARKIV_DOKUMENTOVERSIKT = "dokarkivdokumentoversikt";
 	private static final String DOKARKIV_HENTDOKUMENT = "dokarkivhentdokument";
 	private final WebClient webClient;
+	private final io.github.resilience4j.circuitbreaker.CircuitBreaker dokarkivDokumentoversiktCircuitBreaker;
 	private final io.github.resilience4j.circuitbreaker.CircuitBreaker dokarkivHentdokumentCircuitBreaker;
 	private final io.github.resilience4j.circuitbreaker.CircuitBreaker dokarkivMetadataCircuitBreaker;
+	private final Retry dokarkivDokumentoversiktRetry;
 	private final Retry dokarkivHentdokumentRetry;
 	private final Retry dokarkivMetadataRetry;
 
@@ -59,13 +60,14 @@ public class DokarkivConsumer {
 						)
 						.build())
 				.build();
+		this.dokarkivDokumentoversiktCircuitBreaker = circuitBreakerRegistry.circuitBreaker(DOKARKIV_DOKUMENTOVERSIKT);
 		this.dokarkivHentdokumentCircuitBreaker = circuitBreakerRegistry.circuitBreaker(DOKARKIV_HENTDOKUMENT);
 		this.dokarkivMetadataCircuitBreaker = circuitBreakerRegistry.circuitBreaker(DOKARKIV_METADATA);
+		this.dokarkivDokumentoversiktRetry = retryRegistry.retry(DOKARKIV_DOKUMENTOVERSIKT);
 		this.dokarkivHentdokumentRetry = retryRegistry.retry(DOKARKIV_HENTDOKUMENT);
 		this.dokarkivMetadataRetry = retryRegistry.retry(DOKARKIV_METADATA);
 	}
 
-	@CircuitBreaker(name = DOKARKIV_DOKUMENTOVERSIKT)
 	public ArkivJournalposter finnJournalposter(FinnJournalposterRequest request, Set<String> fields) {
 		return webClient.post()
 				.uri(uriBuilder -> {
@@ -81,13 +83,23 @@ public class DokarkivConsumer {
 				.retrieve()
 				.bodyToMono(ArkivJournalposter.class)
 				.doOnError(handleErrorFinnJournalposter(request))
-				.transformDeferred(CircuitBreakerOperator.of(dokarkivMetadataCircuitBreaker))
-				.transformDeferred(RetryOperator.of(dokarkivMetadataRetry))
+				.transformDeferred(CircuitBreakerOperator.of(dokarkivDokumentoversiktCircuitBreaker))
+				.transformDeferred(RetryOperator.of(dokarkivDokumentoversiktRetry))
 				.block();
 	}
 
 	private Consumer<? super Throwable> handleErrorFinnJournalposter(FinnJournalposterRequest request) {
-		return ex -> log.error("{}", request, ex);
+		return error -> {
+			if (error instanceof WebClientResponseException webException) {
+				if (webException.getStatusCode().is4xxClientError()) {
+					throw new ConsumerFunctionalException(format("finnJournalposter feilet funksjonelt. status=%s, request=%s. Feilmelding=%s",
+							webException.getStatusCode(), request, webException.getMessage()));
+				} else {
+					throw new ConsumerTechnicalException(String.format("finnJournalposter feilet teknisk. status=%s, request=%s. Feilmelding=%s",
+							webException.getStatusCode(), request, webException.getMessage()), webException);
+				}
+			}
+		};
 	}
 
 	public ArkivJournalpost journalpost(String journalpostId, String dokumentInfoId, Set<String> fields) {
