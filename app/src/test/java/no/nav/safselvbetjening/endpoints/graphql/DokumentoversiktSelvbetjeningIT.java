@@ -283,7 +283,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(data.getTema()).hasSize(2);
 
 		Sakstema sakstemaPensjon = data.getTema().get(1);
-		assertEquals("UFO", sakstemaPensjon.getKode());
+		assertEquals("PEN", sakstemaPensjon.getKode());
 		assertEquals("21998969", sakstemaPensjon.getJournalposter().get(0).getSak().getFagsakId());
 
 		verify(1, getRequestedFor(urlMatching(".*/sammendrag")));
