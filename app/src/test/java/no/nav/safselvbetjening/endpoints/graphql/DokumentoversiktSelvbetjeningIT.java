@@ -62,6 +62,19 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	@Test
+	void shouldGetDokumentoversiktWhenAllAndTemporaryJournalposterQueried() throws Exception {
+		happyStubs("finnjournalposter_no_saksrelasjon.json");
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertThat(dokumentoversikt.getJournalposter()).hasSize(3);
+	}
+
+	@Test
 	void shouldGetDokumentoversiktWhenSubClaimUsed() throws Exception {
 		happyStubs();
 

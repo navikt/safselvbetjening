@@ -10,6 +10,7 @@ import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSaksrelasjon;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.FinnJournalposterRequest;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.consumer.sak.Joarksak;
@@ -102,7 +103,7 @@ class DokumentoversiktSelvbetjeningService {
 		List<Journalpost> filtrerteJournalposter = tilgangJournalposter
 				.stream()
 				.map(journalpost -> arkivJournalpostMapper.map(journalpost, brukerIdenter,
-						Optional.ofNullable(pensjonsaker.get(journalpost.saksrelasjon().sakId()))))
+						Optional.ofNullable(journalpost.saksrelasjon()).map(ArkivSaksrelasjon::sakId).map(pensjonsaker::get)))
 				.filter(Objects::nonNull)
 				.filter(journalpost -> utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter))
 				.map(journalpost -> setDokumentVariant(journalpost, brukerIdenter))

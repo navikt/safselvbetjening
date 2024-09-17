@@ -5,16 +5,8 @@
       "type": "U",
       "fagomraade": "FOR",
       "fagomraadenavn": "Tiltak",
-      "status": "J",
-      "saksrelasjon": {
-        "fagsystem": "FS22",
-        "sak": {
-          "opprettetTid": "2023-08-14T11:45:20.922931",
-          "aktoerId": "1012345678911",
-          "tema": "FOR"
-        },
-        "sakId": 135738496
-      },
+      "status": "M",
+      "saksrelasjon": null,
       "relevanteDatoer": {
         "hoveddokument": "2024-07-12T12:52:24.365+00:00",
         "journalfoert": "2024-07-12T12:52:24.391+00:00",
@@ -26,8 +18,8 @@
         "type": "FNR"
       },
       "bruker": {
-        "id": "919914149  ",
-        "type": "ORGANISASJON"
+        "id": "12345678911",
+        "type": "PERSON"
       },
       "dokumenter": [
         {
@@ -60,12 +52,10 @@
     {
       "journalpostId": 429837329,
       "type": "I",
-      "fagomraade": "PEN",
+      "fagomraade": "UFO",
       "fagomraadenavn": "Tiltak",
-      "status": "J",
+      "status": "M",
       "saksrelasjon": {
-        "fagsystem": "PEN",
-        "sakId": 21998969
       },
       "relevanteDatoer": {
         "forsendelseMottatt": "2024-06-02T22:00:00.000+00:00",
