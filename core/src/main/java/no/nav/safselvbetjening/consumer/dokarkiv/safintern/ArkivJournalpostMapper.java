@@ -1,17 +1,9 @@
-package no.nav.safselvbetjening.journalpost;
+package no.nav.safselvbetjening.consumer.dokarkiv.safintern;
 
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.UtsendingsKanalCode;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivAvsenderMottaker;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivBruker;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivDokumentinfo;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivFildetaljer;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivRelevanteDatoer;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSak;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSaksrelasjon;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.Datotype;
@@ -37,17 +29,18 @@ import java.util.Optional;
 import java.util.Set;
 
 import static java.lang.Integer.parseInt;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.domain.DomainConstants.DOKUMENT_TILGANG_STATUS_OK;
 import static no.nav.safselvbetjening.domain.Kanal.INGEN_DISTRIBUSJON;
 import static no.nav.safselvbetjening.domain.Kanal.UKJENT;
 import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
 import static no.nav.safselvbetjening.domain.Sakstype.fromApplikasjon;
-import static no.nav.safselvbetjening.service.Saker.FAGSYSTEM_PENSJON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 public class ArkivJournalpostMapper {
+	public static final String FAGSYSTEM_PENSJON = "PP01";
 	static final String FILTYPE_PDFA = "PDFA";
 	static final String FILTYPE_PDF = "PDF";
 	static final String TILKNYTTET_SOM_HOVEDDOKUMENT = "HOVEDDOKUMENT";
@@ -63,10 +56,10 @@ public class ArkivJournalpostMapper {
 		this.utledTilgangService = utledTilgangService;
 	}
 
-	Journalpost map(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
+	public Journalpost map(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
 		Journalposttype journalposttype = mapJournalposttype(arkivJournalpost);
 		Journalpost.TilgangJournalpost tilgang = mapJournalpostTilgang(arkivJournalpost, brukerIdenter, pensjonsakOpt);
-		AvsenderMottaker arkivAvsenderMottaker = arkivAvsenderMottakerMapper.map(arkivJournalpost.avsenderMottaker());
+		AvsenderMottaker arkivAvsenderMottaker = arkivAvsenderMottakerMapper.map(arkivJournalpost.avsenderMottaker(), arkivJournalpost.type());
 		Journalpost journalpost = Journalpost.builder()
 				.journalpostId(arkivJournalpost.journalpostId().toString())
 				.journalposttype(journalposttype)
@@ -191,7 +184,7 @@ public class ArkivJournalpostMapper {
 
 	private List<DokumentInfo> mapDokumenter(List<ArkivDokumentinfo> arkivDokumentinfos) {
 		if (arkivDokumentinfos == null || arkivDokumentinfos.isEmpty()) {
-			return List.of();
+			return emptyList();
 		}
 
 		return arkivDokumentinfos.stream()
@@ -207,7 +200,8 @@ public class ArkivJournalpostMapper {
 								.skjerming(mapSkjermingType(arkivDokumentinfo.skjerming()))
 								.build())
 						.dokumentvarianter(mapDokumentVarianter(arkivDokumentinfo.fildetaljer()))
-						.build()).toList();
+						.build())
+				.toList();
 	}
 
 
@@ -222,7 +216,8 @@ public class ArkivJournalpostMapper {
 						.tilgangVariant(Dokumentvariant.TilgangVariant.builder()
 								.skjerming(mapSkjermingType(fd.skjerming()))
 								.build())
-						.build()).toList();
+						.build())
+				.toList();
 	}
 
 	private static Variantformat mapVariantformat(ArkivFildetaljer arkivFildetaljer) {

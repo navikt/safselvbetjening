@@ -1,0 +1,128 @@
+{
+  "journalposter": [
+    {
+      "journalpostId": 429837329,
+      "type": "I",
+      "fagomraade": "BAR",
+      "fagomraadenavn": "Tiltak",
+      "status": "J",
+      "saksrelasjon": {
+        "fagsystem": "FS22",
+        "sak": {
+          "applikasjon": "FS22",
+          "opprettetTid": "2018-02-02T09:51:44.213",
+          "tema": "BAR"
+        },
+        "sakId": 135738496
+      },
+      "relevanteDatoer": {
+        "forsendelseMottatt": "2024-06-02T22:00:00.000+00:00",
+        "hoveddokument": "2024-06-03T14:45:02.015+00:00",
+        "journalfoert": "2024-06-04T08:34:43.308+00:00",
+        "opprettet": "2024-06-03T14:45:02.015+00:00"
+      },
+      "avsenderMottaker": {
+        "id": "12345678911",
+        "navn": "HARRY POTTER",
+        "type": "FNR"
+      },
+      "bruker": {
+        "id": "12345678911",
+        "type": "PERSON"
+      },
+      "dokumenter": [
+        {
+          "dokumentInfoId": 694581886,
+          "brevkode": "NAV 76-13.18",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "navn": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+              "stoerrelse": "240263",
+              "type": "PDFA",
+              "uuid": "d0ee5769-b148-4d04-964f-cf2e97f39029"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 663874521,
+          "tilknyttetSom": "HOVEDDOKUMENT",
+          "tittel": "MASKERT_FELT"
+        }
+      ],
+      "innhold": "Barnetrygd dokument",
+      "journalfoerendeEnhet": "0814",
+      "journalfoertAvNavn": "Lea, Hilde",
+      "kanalreferanseId": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+      "mottakskanal": "NAV_NO",
+      "opprettetAvNavn": "srvskanmotreferanse",
+      "tilleggsopplysninger": {
+        "antallSider": "3",
+        "endorsernr": "03.06.2024_R511804379_6_1067",
+        "strekkodePostboks": "1400",
+        "referansenr": "20240530057015",
+        "fysiskPostboks": "1400"
+      }
+    },
+    {
+      "journalpostId": 429812815,
+      "type": "U",
+      "fagomraade": "BAR",
+      "fagomraadenavn": "Tiltak",
+      "status": "M",
+      "saksrelasjon": {
+        "fagsystem": "FS22",
+        "sak": {
+          "applikasjon": "FS38",
+          "fagsakNr": "fp-12345",
+          "opprettetTid": "2023-10-18T19:08:22.146458",
+          "aktoerId": "1012345678911",
+          "tema": "FOR"
+        },
+        "sakId": 180998628
+      },
+      "relevanteDatoer": {
+        "hoveddokument": "2024-02-08T09:49:15.356+00:00",
+        "journalfoert": "2024-02-08T09:49:15.377+00:00",
+        "opprettet": "2024-02-08T09:49:15.356+00:00"
+      },
+      "avsenderMottaker": {
+        "id": "12345678911",
+        "navn": "HARRY POTTER",
+        "type": "FNR"
+      },
+      "dokumenter": [
+        {
+          "dokumentInfoId": 675886715,
+          "brevkode": "arena-tilskudd-forsok-enk-amo",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "stoerrelse": "17326",
+              "type": "PDFA",
+              "uuid": "afe9318f-5b32-4c2a-8b84-33cb8c490777"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 645976198,
+          "status": "FERDIGSTILT",
+          "tilknyttetSom": "HOVEDDOKUMENT",
+          "tittel": "MASKERT_FELT"
+        }
+      ],
+      "innhold": "SØKNAD_FORELDREPENGER_FØDSEL",
+      "journalfoerendeEnhet": "9999",
+      "journalfoertAvNavn": "srvtiltak-tilsagns",
+      "kanalreferanseId": "368449-tilsagnsbrev",
+      "opprettetAvNavn": "srvtiltak-tilsagns",
+      "tilleggsopplysninger": {},
+      "utsendingskanal": "NAV_NO"
+    }
+  ],
+  "antallRader": 2,
+  "totaltAntallRader": 2,
+  "page": 1,
+  "totalPages": 1,
+  "nextPage": ""
+}

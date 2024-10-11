@@ -1,4 +1,4 @@
-package no.nav.safselvbetjening.journalpost;
+package no.nav.safselvbetjening.consumer.dokarkiv.safintern;
 
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.InnsynCode;
@@ -8,14 +8,6 @@ import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.SkjermingTypeCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.UtsendingsKanalCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivAvsenderMottaker;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivBruker;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivDokumentinfo;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivFildetaljer;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivRelevanteDatoer;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSak;
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSaksrelasjon;
 import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 
@@ -27,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.E;
-import static no.nav.safselvbetjening.journalpost.ArkivJournalpostMapper.TILKNYTTET_SOM_HOVEDDOKUMENT;
-import static no.nav.safselvbetjening.journalpost.ArkivJournalpostMapper.TILKNYTTET_SOM_VEDLEGG;
+import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper.TILKNYTTET_SOM_HOVEDDOKUMENT;
+import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper.TILKNYTTET_SOM_VEDLEGG;
 
 final class ArkivJournalpostTestObjects {
 	static final String JOURNALPOST_ID = "40000000";

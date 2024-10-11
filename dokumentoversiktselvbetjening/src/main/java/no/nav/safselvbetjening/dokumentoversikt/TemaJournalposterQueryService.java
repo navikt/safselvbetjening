@@ -15,16 +15,16 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-class TemaJournalposterQueryService {
+public class TemaJournalposterQueryService {
 
 	List<Sakstema> query(final Journalpostdata journalpostdata) {
 		log.info("dokumentoversiktSelvbetjening henter /tema/journalposter.");
 		Map<String, List<Journalpost>> temaMap = groupedByFagomrade(journalpostdata.getJournalposter());
 
 		List<Sakstema> sakstema = temaMap.entrySet().stream()
-				.map(this::mapSakstema)
+				.map(TemaJournalposterQueryService::mapSakstema)
 				.sorted(Comparator.comparing(Sakstema::getKode))
-				.collect(Collectors.toList());
+				.toList();
 		log.info("dokumentoversiktSelvbetjening hentet /tema/journalposter. antall_tema={}, antall_journalposter={}/{}", sakstema.size(),
 				journalpostdata.getAntallEtterFiltrering(), journalpostdata.getAntallFoerFiltrering());
 		return sakstema;
@@ -38,7 +38,7 @@ class TemaJournalposterQueryService {
 		return temaMap;
 	}
 
-	private Sakstema mapSakstema(Map.Entry<String, List<Journalpost>> temaMap) {
+	private static Sakstema mapSakstema(Map.Entry<String, List<Journalpost>> temaMap) {
 		final Tema tema = Tema.valueOf(temaMap.getKey());
 
 		return Sakstema.builder()

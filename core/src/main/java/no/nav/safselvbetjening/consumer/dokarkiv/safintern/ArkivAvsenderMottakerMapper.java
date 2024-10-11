@@ -1,6 +1,5 @@
-package no.nav.safselvbetjening.journalpost;
+package no.nav.safselvbetjening.consumer.dokarkiv.safintern;
 
-import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivAvsenderMottaker;
 import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.AvsenderMottakerIdType;
 import org.springframework.stereotype.Component;
@@ -15,7 +14,7 @@ public class ArkivAvsenderMottakerMapper {
 
 	private static final Pattern FNR_SIMPLE_REGEX = Pattern.compile("[0-7]\\d{10}");
 
-	AvsenderMottaker map(ArkivAvsenderMottaker arkivAvsenderMottaker) {
+	AvsenderMottaker map(ArkivAvsenderMottaker arkivAvsenderMottaker, String journalposttype) {
 		if (arkivAvsenderMottaker == null) {
 			return null;
 		}
@@ -25,12 +24,16 @@ public class ArkivAvsenderMottakerMapper {
 		return AvsenderMottaker.builder()
 				.id(arkivAvsenderMottaker.id())
 				.type(mapAvsenderMottakerIdType(arkivAvsenderMottaker.id(), arkivAvsenderMottaker.type()))
-				.navn(mapAvsenderMottakerNavn(arkivAvsenderMottaker.navn()))
+				.navn(mapAvsenderMottakerNavn(arkivAvsenderMottaker.navn(), journalposttype))
 				.build();
 	}
 
-	private String mapAvsenderMottakerNavn(String navn) {
-		return isEmpty(navn) ? "Ukjent mottaker" : navn;
+	private String mapAvsenderMottakerNavn(String navn, String journalposttype) {
+		return switch (journalposttype) {
+			case "I" -> isEmpty(navn) ? "Ukjent avsender" : navn;
+			case "U" -> isEmpty(navn) ? "Ukjent mottaker" : navn;
+			default -> isEmpty(navn) ? "Ukjent avsender/mottaker" : navn;
+		};
 	}
 
 	private AvsenderMottakerIdType mapAvsenderMottakerIdType(String avsenderMottakerId, String avsenderMottakerIdType) {

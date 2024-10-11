@@ -126,7 +126,7 @@ class HentDokumentTilgangMapperTest {
 	@Test
 	void shouldMapJournalpostFromArkivJournalpostWhenPensjonssak() {
 		ArkivJournalpost arkivJournalpost = pensjonArkivJournalpost();
-		Pensjonsak pensjonsak = new Pensjonsak("123", TEMA_PENSJON_UFO);
+		Pensjonsak pensjonsak = new Pensjonsak(123L, TEMA_PENSJON_UFO);
 		Journalpost journalpost = mapper.map(arkivJournalpost, ARKIV_VARIANT, createBrukerIdenter(), Optional.of(pensjonsak));
 		assertThat(journalpost.getKanal()).isEqualTo(NAV_NO);
 
@@ -171,7 +171,7 @@ class HentDokumentTilgangMapperTest {
 	@Test
 	void shouldMapTilgangJournalpostDtoWhenPensjonSakTemaNull() {
 		ArkivJournalpost arkivJournalpost = pensjonArkivJournalpost();
-		Pensjonsak pensjonsak = new Pensjonsak("123", null);
+		Pensjonsak pensjonsak = new Pensjonsak(123L, null);
 		Journalpost journalpost = mapper.map(arkivJournalpost, ARKIV_VARIANT, createBrukerIdenter(), Optional.of(pensjonsak));
 
 		assertThat(journalpost.getTilgang().getTilgangSak().getTema()).isEqualTo(PEN.name());

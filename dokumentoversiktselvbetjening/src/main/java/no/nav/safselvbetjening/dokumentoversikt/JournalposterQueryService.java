@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-class JournalposterQueryService {
+public class JournalposterQueryService {
 
 	List<Journalpost> query(final Journalpostdata journalpostdata) {
 		log.info("dokumentoversiktSelvbetjening henter /journalposter.");

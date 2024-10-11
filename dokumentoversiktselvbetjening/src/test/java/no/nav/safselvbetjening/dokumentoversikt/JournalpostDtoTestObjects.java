@@ -18,10 +18,7 @@ import no.nav.safselvbetjening.consumer.dokarkiv.domain.UtsendingsKanalCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantDto;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode;
 import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
-import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
-import no.nav.safselvbetjening.consumer.sak.Joarksak;
 import no.nav.safselvbetjening.service.BrukerIdenter;
-import no.nav.safselvbetjening.service.Saker;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -32,7 +29,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.lang.Integer.parseInt;
 import static java.util.Collections.singletonList;
 
 public class JournalpostDtoTestObjects {
@@ -239,16 +235,5 @@ public class JournalpostDtoTestObjects {
 		pdlIdent.setHistorisk(historisk);
 		pdlIdent.setGruppe(gruppe);
 		return pdlIdent;
-	}
-
-	static Saker createSaker() {
-		return new Saker(
-				singletonList(Joarksak.builder()
-						.tema(TEMA.name())
-						.id(parseInt(ARKIVSAK_ID))
-						.applikasjon(FAGSAK_APPLIKASJON)
-						.fagsakNr(FAGSAK_ID)
-						.build()),
-				singletonList(new Pensjonsak(PENSJON_SAKID, PENSJON_TEMA)));
 	}
 }

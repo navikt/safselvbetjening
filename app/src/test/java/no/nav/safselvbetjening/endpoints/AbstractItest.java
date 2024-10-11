@@ -183,11 +183,11 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubFagarkiv(final String fil) {
-		stubFor(post("/fagarkiv/finnjournalposter")
+		stubFor(post("/dokarkiv/finnjournalposter")
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("fagarkiv/" + fil)));
+						.withBodyFile("dokarkiv/finnjournalposter/" + fil)));
 	}
 
 	protected void stubPdlFullmakt() {

@@ -62,6 +62,19 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	@Test
+	void shouldGetDokumentoversiktWhenAllAndTemporaryJournalposterQueried() throws Exception {
+		happyStubs("finnjournalposter_no_saksrelasjon.json");
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertThat(dokumentoversikt.getJournalposter()).hasSize(3);
+	}
+
+	@Test
 	void shouldGetDokumentoversiktWhenSubClaimUsed() throws Exception {
 		happyStubs();
 
@@ -78,7 +91,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	@Test
 	void shouldGetFallbackNavnWhenAvsenderMottakerNavnIsNull() throws Exception {
-		happyStubs("finnjournalposter_avsenderMottaker_navn_null.json");
+		happyStubs("finnjournalposter_avsendermottaker_navn_null.json");
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
 
@@ -283,7 +296,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(data.getTema()).hasSize(2);
 
 		Sakstema sakstemaPensjon = data.getTema().get(1);
-		assertEquals("UFO", sakstemaPensjon.getKode());
+		assertEquals("PEN", sakstemaPensjon.getKode());
 		assertEquals("21998969", sakstemaPensjon.getJournalposter().get(0).getSak().getFagsakId());
 
 		verify(1, getRequestedFor(urlMatching(".*/sammendrag")));

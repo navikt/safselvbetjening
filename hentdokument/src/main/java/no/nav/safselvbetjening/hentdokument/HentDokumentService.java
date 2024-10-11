@@ -189,7 +189,7 @@ public class HentDokumentService {
 		if (fullmaktOpt.isPresent()) {
 			if (arkivJournalpost.isTilknyttetSak() && arkivJournalpost.saksrelasjon().isPensjonsak()) {
 				return pensjonSakRestConsumer.hentPensjonssaker(bruker)
-						.stream().filter(p -> p.sakId().equals(arkivJournalpost.saksrelasjon().sakId().toString()))
+						.stream().filter(p -> p.sakId().equals(arkivJournalpost.saksrelasjon().sakId()))
 						.findFirst();
 			}
 			return Optional.empty();

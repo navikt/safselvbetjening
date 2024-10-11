@@ -6,6 +6,8 @@ import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.safselvbetjening.consumer.dokarkiv.Basedata;
+import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.dokumentoversikt.audit.DokumentoversiktAudit;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Fagsak;
@@ -20,11 +22,13 @@ import no.nav.security.token.support.core.jwt.JwtToken;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
 import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CALL_ID;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CONSUMER_ID;
@@ -58,13 +62,13 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	private final FullmektigService fullmektigService;
 	private final DokumentoversiktAudit audit;
 
-	public DokumentoversiktSelvbetjeningDataFetcher(DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService,
-													TemaQueryService temaQueryService,
-													TemaJournalposterQueryService temaJournalposterQueryService,
-													FagsakQueryService fagsakQueryService,
-													FagsakJournalposterQueryService fagsakJournalposterQueryService,
-													JournalposterQueryService journalposterQueryService,
-													FullmektigService fullmektigService) {
+	DokumentoversiktSelvbetjeningDataFetcher(DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService,
+											 TemaQueryService temaQueryService,
+											 TemaJournalposterQueryService temaJournalposterQueryService,
+											 FagsakQueryService fagsakQueryService,
+											 FagsakJournalposterQueryService fagsakJournalposterQueryService,
+											 JournalposterQueryService journalposterQueryService,
+											 FullmektigService fullmektigService) {
 		this.dokumentoversiktSelvbetjeningService = dokumentoversiktSelvbetjeningService;
 		this.temaQueryService = temaQueryService;
 		this.temaJournalposterQueryService = temaJournalposterQueryService;
@@ -103,11 +107,11 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			log.error("dokumentoversiktSelvbetjening circuitbreaker={} er åpen.", e.getCausingCircuitBreakerName(), e);
 			return DataFetcherResult.newResult()
 					.error(SERVER_ERROR.construct(environment, "Circuitbreaker=" + e.getCausingCircuitBreakerName() + " er åpen." +
-															   " Kall til denne tjenesten går ikke gjennom."))
+							" Kall til denne tjenesten går ikke gjennom."))
 					.build();
 		} catch (Exception e) {
 			log.error("dokumentoversiktSelvbetjening midlertidig teknisk feil. " +
-					  "Dette er som oftest forårsaket av midlertidige feil på nettverk/kobling mellom apper. Se stacktrace. message={}",
+							"Dette er som oftest forårsaket av midlertidige feil på nettverk/kobling mellom apper. Se stacktrace. message={}",
 					e.getMessage(), e);
 			return DataFetcherResult.newResult()
 					.error(SERVER_ERROR.construct(environment, FEILMELDING_MIDLERTIDIG_TEKNISK_FEIL))
@@ -119,12 +123,13 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 
 	Dokumentoversikt fetchDokumentoversikt(final String ident, final List<String> tema,
 										   final DataFetchingEnvironment environment) {
-		final DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
-		final Basedata basedata = dokumentoversiktSelvbetjeningService.queryBasedata(ident, tema, environment);
-		final Journalpostdata filtrerteJournalpostdata = filtrerteJournalposter(basedata, tema, selectionSet);
-		final List<Sakstema> sakstema = fetchSakstema(basedata, filtrerteJournalpostdata, selectionSet);
-		final List<Fagsak> fagsaker = fetchFagsak(basedata, filtrerteJournalpostdata, selectionSet);
-		final List<Journalpost> journalposter = fetchJournalposter(filtrerteJournalpostdata, selectionSet);
+		DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
+		Basedata basedata = dokumentoversiktSelvbetjeningService.queryBasedata(ident, tema, environment);
+		Map<Long, Pensjonsak> pensjonsaker = collectPensjonsakerInMapById(basedata);
+		Journalpostdata filtrerteJournalpostdata = filtrerteJournalposter(basedata, tema, selectionSet, pensjonsaker);
+		List<Sakstema> sakstema = fetchSakstema(basedata, filtrerteJournalpostdata, selectionSet);
+		List<Fagsak> fagsaker = fetchFagsak(basedata, filtrerteJournalpostdata, selectionSet);
+		List<Journalpost> journalposter = fetchJournalposter(filtrerteJournalpostdata, selectionSet);
 		return Dokumentoversikt.builder()
 				.tema(sakstema)
 				.fagsak(fagsaker)
@@ -133,11 +138,12 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	}
 
 	private Journalpostdata filtrerteJournalposter(Basedata basedata, List<String> tema,
-												   DataFetchingFieldSelectionSet selectionSet) {
+												   DataFetchingFieldSelectionSet selectionSet,
+												   Map<Long, Pensjonsak> pensjonsaker) {
 		if (selectionSet.containsAnyOf("tema/journalposter", "journalposter")) {
-			return dokumentoversiktSelvbetjeningService.queryFiltrerAlleJournalposter(basedata, tema);
+			return dokumentoversiktSelvbetjeningService.queryFiltrerAlleJournalposter(basedata, tema, pensjonsaker);
 		} else if (selectionSet.containsAnyOf("fagsak/journalposter")) {
-			return dokumentoversiktSelvbetjeningService.queryFiltrerSakstilknyttedeJournalposter(basedata, tema);
+			return dokumentoversiktSelvbetjeningService.queryFiltrerSakstilknyttedeJournalposter(basedata, tema, pensjonsaker);
 		}
 		return Journalpostdata.empty();
 	}
@@ -150,7 +156,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			}
 			return temaQueryService.query(basedata);
 		} else {
-			return new ArrayList<>();
+			return emptyList();
 		}
 	}
 
@@ -162,7 +168,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			}
 			return fagsakQueryService.query(basedata);
 		} else {
-			return new ArrayList<>();
+			return emptyList();
 		}
 	}
 
@@ -171,7 +177,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		if (selectionSet.contains("journalposter")) {
 			return journalposterQueryService.query(journalpostdata);
 		} else {
-			return new ArrayList<>();
+			return emptyList();
 		}
 	}
 
@@ -192,7 +198,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MANGLER_I_HEADER);
 		}
 		if (!subjectJwt.getJwtTokenClaims().containsClaim(CLAIM_PID, identArgument) &&
-			!subjectJwt.getJwtTokenClaims().containsClaim(CLAIM_SUB, identArgument)) {
+				!subjectJwt.getJwtTokenClaims().containsClaim(CLAIM_SUB, identArgument)) {
 			Optional<Fullmakt> fullmakt = fullmektigService.finnFullmakt(subjectJwt, identArgument);
 			if (fullmakt.isPresent()) {
 				MDC.put(MDC_FULLMAKT_TEMA, fullmakt.get().tema().toString());
@@ -204,19 +210,25 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		return Optional.empty();
 	}
 
+	private static Map<Long, Pensjonsak> collectPensjonsakerInMapById(Basedata basedata) {
+		return basedata.saker().pensjonsaker()
+				.stream()
+				.collect(Collectors.toMap(Pensjonsak::sakId, Function.identity(), (a, b) -> a));
+	}
+
 	static List<String> temaArgumentEllerFullmakt(DataFetchingEnvironment environment, Optional<Fullmakt> fullmakt) {
 		final List<String> temaArgument = temaArgumentEllerDefault(environment);
 		if (fullmakt.isPresent()) {
 			List<String> fullmaktTema = fullmakt.get().tema();
 			return temaArgument.stream()
 					.filter(fullmaktTema::contains)
-					.collect(Collectors.toList());
+					.toList();
 		}
 		return temaArgument;
 	}
 
 	private static List<String> temaArgumentEllerDefault(DataFetchingEnvironment environment) {
-		final List<String> temaArgument = environment.getArgumentOrDefault("tema", new ArrayList<>());
+		final List<String> temaArgument = environment.getArgumentOrDefault("tema", emptyList());
 		return temaArgument.isEmpty() ? Tema.tillattInnsynNavNoString() : temaArgument;
 	}
 
