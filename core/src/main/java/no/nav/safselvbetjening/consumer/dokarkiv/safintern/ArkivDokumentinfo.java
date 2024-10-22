@@ -1,5 +1,8 @@
 package no.nav.safselvbetjening.consumer.dokarkiv.safintern;
 
+import no.nav.safselvbetjening.tilgang.TilgangDokument;
+import no.nav.safselvbetjening.tilgang.TilgangSkjermingType;
+
 import java.util.List;
 
 public record ArkivDokumentinfo(Long dokumentInfoId,
@@ -13,4 +16,18 @@ public record ArkivDokumentinfo(Long dokumentInfoId,
 								String brevkode,
 								Boolean sensitivt
 ) {
+
+	public TilgangDokument getTilgangDokument() {
+		return TilgangDokument.builder()
+				.id(dokumentInfoId)
+				.kassert(kassert != null && kassert)
+				.kategori(kategori)
+				.skjerming(mapSkjerming(skjerming))
+				.dokumentvarianter(fildetaljer.stream().map(ArkivFildetaljer::getTilgangVariant).toList())
+				.build();
+	}
+
+	private TilgangSkjermingType mapSkjerming(String skjerming) {
+		return TilgangSkjermingType.from(skjerming);
+	}
 }

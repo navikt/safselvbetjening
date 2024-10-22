@@ -21,6 +21,7 @@
 		<module>dokumentoversiktselvbetjening</module>
 		<module>journalpost</module>
 		<module>hentdokument</module>
+		<module>innsyn-tilgang-api</module>
 	</modules>
 
 	<properties>
@@ -67,6 +68,11 @@
 			<dependency>
 				<groupId>no.nav.safselvbetjening</groupId>
 				<artifactId>hentdokument</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>no.nav.safselvbetjening</groupId>
+				<artifactId>innsyn-tilgang-api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

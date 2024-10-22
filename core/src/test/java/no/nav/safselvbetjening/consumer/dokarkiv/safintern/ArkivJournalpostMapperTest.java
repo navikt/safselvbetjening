@@ -6,7 +6,15 @@ import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.RelevantDato;
-import no.nav.safselvbetjening.domain.SkjermingType;
+import no.nav.safselvbetjening.tilgang.TilgangBruker;
+import no.nav.safselvbetjening.tilgang.TilgangDokument;
+import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
+import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
+import no.nav.safselvbetjening.tilgang.TilgangJournalstatus;
+import no.nav.safselvbetjening.tilgang.TilgangSak;
+import no.nav.safselvbetjening.tilgang.TilgangSkjermingType;
+import no.nav.safselvbetjening.tilgang.TilgangVariant;
+import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.junit.jupiter.api.Test;
 
@@ -15,27 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.lang.Integer.parseInt;
-import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.E;
-import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.M;
-import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
-import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
-import static no.nav.safselvbetjening.domain.Datotype.DATO_DOKUMENT;
-import static no.nav.safselvbetjening.domain.Datotype.DATO_EKSPEDERT;
-import static no.nav.safselvbetjening.domain.Datotype.DATO_JOURNALFOERT;
-import static no.nav.safselvbetjening.domain.Datotype.DATO_OPPRETTET;
-import static no.nav.safselvbetjening.domain.Datotype.DATO_REGISTRERT;
-import static no.nav.safselvbetjening.domain.Datotype.DATO_SENDT_PRINT;
-import static no.nav.safselvbetjening.domain.Innsyn.BRUK_STANDARDREGLER;
-import static no.nav.safselvbetjening.domain.Journalposttype.I;
-import static no.nav.safselvbetjening.domain.Journalposttype.U;
-import static no.nav.safselvbetjening.domain.Journalstatus.EKSPEDERT;
-import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;
-import static no.nav.safselvbetjening.domain.Kanal.NAV_NO;
-import static no.nav.safselvbetjening.domain.Kanal.SDP;
-import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
-import static no.nav.safselvbetjening.domain.SkjermingType.FEIL;
-import static no.nav.safselvbetjening.domain.Tema.HJE;
-import static no.nav.safselvbetjening.domain.Variantformat.ARKIV;
+import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper.FAGSYSTEM_PENSJON;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper.FILTYPE_PDF;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.APPLIKASJON;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.ARKIVJOURNALPOST_DATO_DOKUMENT;
@@ -45,8 +33,6 @@ import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpo
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.ARKIVJOURNALPOST_DATO_OPPRETTET;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.ARKIVJOURNALPOST_DATO_RETUR;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.ARKIVJOURNALPOST_DATO_SENDT_PRINT;
-import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.ARKIVSAKSYSTEM_GOSYS;
-import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.ARKIVSAKSYSTEM_PENSJON;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.ARKIVSAK_AKTOER_ID;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.AVSENDER_MOTTAKER_ID;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.AVSENDER_MOTTAKER_NAVN;
@@ -74,15 +60,32 @@ import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpo
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.inngaaendeArkivJournalpost;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.pensjonArkivJournalpost;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.utgaaendeArkivJournalpost;
-import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper.FAGSYSTEM_PENSJON;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_PARTSINNSYN;
+import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_DOKUMENT;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_EKSPEDERT;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_JOURNALFOERT;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_OPPRETTET;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_REGISTRERT;
+import static no.nav.safselvbetjening.domain.Datotype.DATO_SENDT_PRINT;
+import static no.nav.safselvbetjening.domain.Journalposttype.I;
+import static no.nav.safselvbetjening.domain.Journalposttype.U;
+import static no.nav.safselvbetjening.domain.Journalstatus.EKSPEDERT;
+import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;
+import static no.nav.safselvbetjening.domain.Kanal.NAV_NO;
+import static no.nav.safselvbetjening.domain.Kanal.SDP;
+import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
+import static no.nav.safselvbetjening.domain.Tema.HJE;
+import static no.nav.safselvbetjening.domain.Variantformat.ARKIV;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_ANNEN_PART;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_GDPR;
+import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.BRUK_STANDARDREGLER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
 class ArkivJournalpostMapperTest {
 
-	private final ArkivJournalpostMapper mapper = new ArkivJournalpostMapper(new ArkivAvsenderMottakerMapper(), new UtledTilgangService(safSelvbetjeningProperties()));
+	private final ArkivJournalpostMapper mapper = new ArkivJournalpostMapper(new ArkivAvsenderMottakerMapper(), new UtledTilgangService(safSelvbetjeningProperties().getTidligstInnsynDato()));
 
 	@Test
 	void skalMappeInngaaendeJournalpost() {
@@ -111,15 +114,15 @@ class ArkivJournalpostMapperTest {
 				);
 
 		DokumentInfo hoveddokument = journalpost.getDokumenter().get(0);
-		assertHoveddokument(hoveddokument);
+		assertHoveddokument(hoveddokument, journalpost);
 		DokumentInfo vedlegg = journalpost.getDokumenter().get(1);
 		assertVedlegg(vedlegg);
 
 		// tilgang mapping
-		Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
-		assertThat(tilgang.getJournalstatus()).isEqualTo(M.name());
+		TilgangJournalpost tilgang = journalpost.getTilgang();
+		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.MOTTATT);
 		assertThat(tilgang.getTema()).isEqualTo(HJE.name());
-		assertThat(tilgang.getMottakskanal()).isEqualTo(NAV_NO);
+		assertThat(tilgang.getMottakskanal()).isEqualTo(NAV_NO.name());
 		assertGsakJournalpostTilgang(tilgang);
 	}
 
@@ -152,13 +155,13 @@ class ArkivJournalpostMapperTest {
 				);
 
 		DokumentInfo hoveddokument = journalpost.getDokumenter().get(0);
-		assertHoveddokument(hoveddokument);
+		assertHoveddokument(hoveddokument, journalpost);
 		DokumentInfo vedlegg = journalpost.getDokumenter().get(1);
 		assertVedlegg(vedlegg);
 
 		// tilgang mapping
-		Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
-		assertThat(tilgang.getJournalstatus()).isEqualTo(E.name());
+		TilgangJournalpost tilgang = journalpost.getTilgang();
+		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.EKSPEDERT);
 		assertThat(tilgang.getTema()).isEqualTo(HJE.name());
 		assertThat(tilgang.getMottakskanal()).isNull();
 		assertGsakJournalpostTilgang(tilgang);
@@ -193,19 +196,19 @@ class ArkivJournalpostMapperTest {
 				);
 
 		DokumentInfo hoveddokument = journalpost.getDokumenter().get(0);
-		assertHoveddokument(hoveddokument);
+		assertHoveddokument(hoveddokument, journalpost);
 		DokumentInfo vedlegg = journalpost.getDokumenter().get(1);
 		assertVedlegg(vedlegg);
 
 		// tilgang mapping
-		Journalpost.TilgangJournalpost tilgang = journalpost.getTilgang();
-		assertThat(tilgang.getJournalstatus()).isEqualTo(M.name());
+		TilgangJournalpost tilgang = journalpost.getTilgang();
+		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.MOTTATT);
 		assertThat(tilgang.getTema()).isEqualTo(TEMA_PENSJON_ALDERSPENSJON);
-		assertThat(tilgang.getMottakskanal()).isEqualTo(NAV_NO);
+		assertThat(tilgang.getMottakskanal()).isEqualTo(NAV_NO.name());
 		assertPensjonJournalpostTilgang(tilgang);
 	}
 
-	private static void assertHoveddokument(DokumentInfo hoveddokument) {
+	private static void assertHoveddokument(DokumentInfo hoveddokument, Journalpost journalpost) {
 		assertThat(hoveddokument.getDokumentInfoId()).isEqualTo(String.valueOf(HOVEDDOKUMENT_DOKUMENT_INFO_ID));
 		assertThat(hoveddokument.getBrevkode()).isEqualTo(HOVEDDOKUMENT_BREVKODE);
 		assertThat(hoveddokument.getTittel()).isEqualTo(HOVEDDOKUMENT_TITTEL);
@@ -215,9 +218,10 @@ class ArkivJournalpostMapperTest {
 
 		// tilgang mapping
 		assertThat(hoveddokument.isHoveddokument()).isTrue();
-		DokumentInfo.TilgangDokument tilgangDokument = hoveddokument.getTilgangDokument();
-		assertThat(tilgangDokument.getKategori()).isEqualTo(KATEGORI_FORVALTNINGSNOTAT);
-		assertThat(tilgangDokument.isKassert()).isFalse();
+		TilgangDokument tilgangDokument = journalpost.getTilgang().getDokumenter().getFirst();
+		assertThat(tilgangDokument.kategori()).isEqualTo(KATEGORI_FORVALTNINGSNOTAT);
+		assertThat(tilgangDokument.kassert()).isFalse();
+		assertTilgangsVarianter(tilgangDokument.dokumentvarianter());
 	}
 
 	private static void assertHoveddokumentVarianter(List<Dokumentvariant> dokumentvarianter) {
@@ -233,12 +237,18 @@ class ArkivJournalpostMapperTest {
 						HOVEDDOKUMENT_FIL_UUID,
 						FILTYPE_PDF,
 						parseInt(HOVEDDOKUMENT_FIL_STOERRELSE),
-						List.of(DENY_REASON_PARTSINNSYN, DENY_REASON_GDPR, DENY_REASON_GDPR),
+						List.of(DENY_REASON_ANNEN_PART.reason, DENY_REASON_GDPR.reason, DENY_REASON_GDPR.reason),
 						false));
+	}
+
+	private static void assertTilgangsVarianter(List<TilgangVariant> dokumentvarianter) {
+		assertThat(dokumentvarianter).hasSize(1);
 
 		assertThat(dokumentvarianter)
-				.extracting("tilgangVariant")
-				.containsExactly(Dokumentvariant.TilgangVariant.builder().skjerming(FEIL).build());
+				.containsExactly(TilgangVariant.builder()
+						.skjerming(TilgangSkjermingType.FEIL)
+						.variantformat(TilgangVariantFormat.ARKIV)
+						.build());
 	}
 
 	private static void assertVedlegg(DokumentInfo vedlegg) {
@@ -263,44 +273,44 @@ class ArkivJournalpostMapperTest {
 						VEDLEGG_FIL_UUID,
 						FILTYPE_PDF,
 						parseInt(VEDLEGG_FIL_STOERRELSE),
-						List.of(DENY_REASON_PARTSINNSYN, DENY_REASON_GDPR, DENY_REASON_GDPR),
+						List.of(DENY_REASON_ANNEN_PART.reason, DENY_REASON_GDPR.reason, DENY_REASON_GDPR.reason),
 						false));
 	}
 
-	private static void assertGsakJournalpostTilgang(Journalpost.TilgangJournalpost tilgang) {
-		assertThat(tilgang.getSkjerming()).isEqualTo(SkjermingType.POL);
+	private static void assertGsakJournalpostTilgang(TilgangJournalpost tilgang) {
+		assertThat(tilgang.getSkjerming()).isEqualTo(TilgangSkjermingType.POL);
 		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(ARKIVJOURNALPOST_DATO_OPPRETTET.toLocalDateTime());
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(ARKIVJOURNALPOST_DATO_JOURNALFOERT.toLocalDateTime());
 
-		Journalpost.TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
+		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
 		assertThat(tilgangBruker.getBrukerId()).isEqualTo(BRUKER_IDENT);
 
-		Journalpost.TilgangSak tilgangSak = tilgang.getTilgangSak();
-		assertThat(tilgangSak.getAktoerId()).isEqualTo(ARKIVSAK_AKTOER_ID);
-		assertThat(tilgangSak.getFoedselsnummer()).isEqualTo(BRUKER_IDENT);
-		assertThat(tilgangSak.getFagsystem()).isEqualTo(ARKIVSAKSYSTEM_GOSYS);
-		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
-		assertThat(tilgangSak.isFeilregistrert()).isTrue();
+		TilgangSak tilgangSak = tilgang.getTilgangSak();
+		assertThat(tilgangSak.aktoerId()).isEqualTo(ARKIVSAK_AKTOER_ID);
+		assertThat(tilgangSak.foedselsnummer()).isEqualTo(BRUKER_IDENT);
+		assertThat(tilgangSak.fagsystem()).isEqualTo(TilgangFagsystem.FS22);
+		assertThat(tilgangSak.tema()).isEqualTo(TEMA);
+		assertThat(tilgangSak.feilregistrert()).isTrue();
 	}
 
-	private static void assertPensjonJournalpostTilgang(Journalpost.TilgangJournalpost tilgang) {
-		assertThat(tilgang.getSkjerming()).isEqualTo(SkjermingType.POL);
+	private static void assertPensjonJournalpostTilgang(TilgangJournalpost tilgang) {
+		assertThat(tilgang.getSkjerming()).isEqualTo(TilgangSkjermingType.POL);
 		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(ARKIVJOURNALPOST_DATO_OPPRETTET.toLocalDateTime());
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(ARKIVJOURNALPOST_DATO_JOURNALFOERT.toLocalDateTime());
 
-		Journalpost.TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
+		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
 		assertThat(tilgangBruker.getBrukerId()).isEqualTo(BRUKER_IDENT);
 
-		Journalpost.TilgangSak tilgangSak = tilgang.getTilgangSak();
-		assertThat(tilgangSak.getAktoerId()).isNull();
-		assertThat(tilgangSak.getFoedselsnummer()).isEqualTo(BRUKER_IDENT);
-		assertThat(tilgangSak.getFagsystem()).isEqualTo(ARKIVSAKSYSTEM_PENSJON);
-		assertThat(tilgangSak.getTema()).isEqualTo(TEMA_PENSJON_UFORETRYGD);
-		assertThat(tilgangSak.isFeilregistrert()).isTrue();
+		TilgangSak tilgangSak = tilgang.getTilgangSak();
+		assertThat(tilgangSak.aktoerId()).isNull();
+		assertThat(tilgangSak.foedselsnummer()).isEqualTo(BRUKER_IDENT);
+		assertThat(tilgangSak.fagsystem()).isEqualTo(TilgangFagsystem.PEN);
+		assertThat(tilgangSak.tema()).isEqualTo(TEMA_PENSJON_UFORETRYGD);
+		assertThat(tilgangSak.feilregistrert()).isTrue();
 	}
 
 	static SafSelvbetjeningProperties safSelvbetjeningProperties() {

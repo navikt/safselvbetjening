@@ -1,7 +1,5 @@
 package no.nav.safselvbetjening.domain;
 
-import java.util.EnumSet;
-
 public enum Journalstatus {
 	MOTTATT,
 	JOURNALFOERT,
@@ -15,9 +13,4 @@ public enum Journalstatus {
 	RESERVERT,
 	OPPLASTING_DOKUMENT,
 	UKJENT;
-
-	public static EnumSet<Journalstatus> ferdigstilt() {
-		return EnumSet.of(FERDIGSTILT, JOURNALFOERT, EKSPEDERT);
-	}
-
 }

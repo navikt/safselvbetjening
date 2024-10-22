@@ -37,6 +37,10 @@
 			<artifactId>spring-kafka-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>no.nav.safselvbetjening</groupId>
+			<artifactId>innsyn-tilgang-api</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>

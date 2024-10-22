@@ -1,74 +1,71 @@
 package no.nav.safselvbetjening.consumer.dokarkiv.domain;
 
 import no.nav.safselvbetjening.domain.Journalstatus;
+import no.nav.safselvbetjening.tilgang.TilgangJournalstatus;
 
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 
 public enum JournalStatusCode {
 	/**
 	 * journalført
 	 */
-	J(Journalstatus.JOURNALFOERT),
+	J(Journalstatus.JOURNALFOERT, TilgangJournalstatus.JOURNALFOERT),
 	/**
 	 * midl journalført
 	 */
-	M(Journalstatus.MOTTATT),
+	M(Journalstatus.MOTTATT, TilgangJournalstatus.MOTTATT),
 	/**
 	 * Utgår før tilknytn til sak
 	 */
-	U(Journalstatus.UTGAAR),
+	U(Journalstatus.UTGAAR, TilgangJournalstatus.UTGAAR),
 	/**
 	 * Dokument under produksjon
 	 */
-	D(Journalstatus.UNDER_ARBEID),
+	D(Journalstatus.UNDER_ARBEID, TilgangJournalstatus.UNDER_ARBEID),
 	/**
 	 * Reservert dokument
 	 */
-	R(Journalstatus.RESERVERT),
+	R(Journalstatus.RESERVERT, TilgangJournalstatus.RESERVERT),
 	/**
 	 * Ferdig og sentral print
 	 */
-	FS(Journalstatus.FERDIGSTILT),
+	FS(Journalstatus.FERDIGSTILT, TilgangJournalstatus.FERDIGSTILT),
 	/**
 	 * Ferdig og lokal print
 	 */
-	FL(Journalstatus.FERDIGSTILT),
+	FL(Journalstatus.FERDIGSTILT, TilgangJournalstatus.FERDIGSTILT),
 	/**
 	 * Ekspedert
 	 */
-	E(Journalstatus.EKSPEDERT),
+	E(Journalstatus.EKSPEDERT, TilgangJournalstatus.EKSPEDERT),
 	/**
 	 * Avbrutt
 	 */
-	A(Journalstatus.AVBRUTT),
+	A(Journalstatus.AVBRUTT, TilgangJournalstatus.AVBRUTT),
 	/**
-	 * Mottatt   
+	 * Mottatt
 	 */
-	MO(Journalstatus.MOTTATT),
+	MO(Journalstatus.MOTTATT, TilgangJournalstatus.MOTTATT),
 	/**
-	 * Ukjent bruker 
+	 * Ukjent bruker
 	 */
-	UB(Journalstatus.UKJENT_BRUKER),
+	UB(Journalstatus.UKJENT_BRUKER, TilgangJournalstatus.UKJENT_BRUKER),
 	/**
-	 * Opplasting dokument 
+	 * Opplasting dokument
 	 */
-	OD(Journalstatus.OPPLASTING_DOKUMENT);
+	OD(Journalstatus.OPPLASTING_DOKUMENT, TilgangJournalstatus.OPPLASTING_DOKUMENT);
 
 	private final Journalstatus safJournalstatus;
+	private final TilgangJournalstatus tilgangJournalstatus;
 
-	JournalStatusCode(Journalstatus safJournalstatus) {
+	JournalStatusCode(Journalstatus safJournalstatus, TilgangJournalstatus tilgangJournalstatus) {
 		this.safJournalstatus = safJournalstatus;
+		this.tilgangJournalstatus = tilgangJournalstatus;
 	}
 
 	public Journalstatus toSafJournalstatus() {
 		return safJournalstatus;
-	}
-
-	public static List<JournalStatusCode> asList() {
-		return Arrays.asList(values());
 	}
 
 	public static Set<JournalStatusCode> getJournalstatusFerdigstilt() {
@@ -77,5 +74,9 @@ public enum JournalStatusCode {
 
 	public static Set<JournalStatusCode> getJournalstatusMidlertidig() {
 		return EnumSet.of(M, MO);
+	}
+
+	public TilgangJournalstatus toTilgangJournalstatus() {
+		return tilgangJournalstatus;
 	}
 }

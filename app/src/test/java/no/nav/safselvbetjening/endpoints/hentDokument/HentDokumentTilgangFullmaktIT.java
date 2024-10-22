@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
 import static java.util.Collections.singletonList;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
+import static no.nav.safselvbetjening.hentdokument.HentDokumentService.DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN;
+import static no.nav.safselvbetjening.hentdokument.HentDokumentService.DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -31,7 +31,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	/**
 	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
 	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten matcher tema dokumentet gjelder så skal dokument hentes
-	 *
+	 * <p>
 	 * Hvis dokumentet er et inngående hoveddokument med kanal NAV_NO skal det ikke genereres HoveddokumentLest hendelse
 	 */
 	@Test
@@ -51,7 +51,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	/**
 	 * Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har fullmakt overfor bruker B
 	 * Hvis pdl-fullmakt returnerer fullmakt for A der B er fullmaktsgiver og tema i fullmakten matcher tema dokumentet gjelder så skal dokument hentes
-	 *
+	 * <p>
 	 * Hvis dokumentet er et utgående hoveddokument med kanal NAV_NO skal det ikke genereres HoveddokumentLest hendelse
 	 */
 	@Test
@@ -139,7 +139,8 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktIkkeFinnes() {
-		stubPdlFullmakt("pdl-fullmakt-empty.json");;
+		stubPdlFullmakt("pdl-fullmakt-empty.json");
+		;
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 

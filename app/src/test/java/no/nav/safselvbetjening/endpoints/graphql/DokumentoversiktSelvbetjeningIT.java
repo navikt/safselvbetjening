@@ -218,7 +218,6 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private void assertJournalposterQuery(List<Journalpost> journalposts) {
 		assertThat(journalposts).hasSize(3);
 		journalposts.sort(Comparator.comparing(Journalpost::getJournalpostId));
-		//List<Journalpost> journalposts = dokumentoversikt.getJournalposter();
 		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
 		doAssertJournalpost(journalposts.get(1), "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK, BRUKER_NAVN);
 		doAssertJournalpost(journalposts.get(2), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, BRUKER_NAVN);

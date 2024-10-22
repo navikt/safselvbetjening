@@ -89,6 +89,10 @@
 			<groupId>com.papertrailapp</groupId>
 			<artifactId>logback-syslog4j</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>no.nav.safselvbetjening</groupId>
+			<artifactId>innsyn-tilgang-api</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_INGEN_GYLDIG_TOKEN;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
@@ -27,8 +29,6 @@ import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_INGEN_TILGAN
 import static no.nav.safselvbetjening.graphql.ErrorCode.FORBIDDEN;
 import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
 import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_INGEN_GYLDIG_TOKEN;
 
 @Slf4j
 @Component
@@ -64,8 +64,8 @@ public class JournalpostService {
 
 		Journalpost journalpost = arkivJournalpostMapper.map(arkivJournalpost, brukerIdenter, pensjonsakOpt);
 
-		boolean tilgang = utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter);
-		if (!tilgang) {
+		var denyReasons = utledTilgangService.utledTilgangJournalpost(journalpost.getTilgang(), brukerIdenter.getIdenter());
+		if (!denyReasons.isEmpty()) {
 			throw GraphQLException.of(FORBIDDEN, environment, FEILMELDING_INGEN_TILGANG_TIL_JOURNALPOST);
 		}
 

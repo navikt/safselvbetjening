@@ -14,7 +14,6 @@ import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSaksrelasjon;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.FinnJournalposterRequest;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.consumer.sak.Joarksak;
-import no.nav.safselvbetjening.domain.DomainConstants;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.service.BrukerIdenter;
@@ -31,7 +30,6 @@ import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.E;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.FL;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.FS;
@@ -105,8 +103,7 @@ class DokumentoversiktSelvbetjeningService {
 				.map(journalpost -> arkivJournalpostMapper.map(journalpost, brukerIdenter,
 						Optional.ofNullable(journalpost.saksrelasjon()).map(ArkivSaksrelasjon::sakId).map(pensjonsaker::get)))
 				.filter(Objects::nonNull)
-				.filter(journalpost -> utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter))
-				.map(journalpost -> setDokumentVariant(journalpost, brukerIdenter))
+				.filter(journalpost -> utledTilgangService.utledTilgangJournalpost(journalpost.getTilgang(), brukerIdenter.getIdenter()).isEmpty())
 				// Filtrer ut midlertidige journalposter som ikke har riktig tema.
 				.filter(journalpost -> tema.contains(journalpost.getTema()))
 				.toList();
@@ -141,15 +138,5 @@ class DokumentoversiktSelvbetjeningService {
 				.journalposttyper(ALLE_JOURNALPOSTTYPER)
 				.antallRader(9999)
 				.build();
-	}
-
-	private Journalpost setDokumentVariant(Journalpost journalpost, BrukerIdenter brukerIdenter) {
-		journalpost.getDokumenter().forEach(dokumentInfo -> dokumentInfo.getDokumentvarianter().forEach(
-				dokumentvariant -> {
-					List<String> codes = utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter);
-					dokumentvariant.setBrukerHarTilgang(codes.isEmpty());
-					dokumentvariant.setCode(codes.isEmpty() ? singletonList(DomainConstants.DOKUMENT_TILGANG_STATUS_OK) : codes);
-				}));
-		return journalpost;
 	}
 }

@@ -9,16 +9,12 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>journalpost</artifactId>
+	<artifactId>innsyn-tilgang-api</artifactId>
 
 	<dependencies>
 		<dependency>
-			<groupId>no.nav.safselvbetjening</groupId>
-			<artifactId>core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>no.nav.safselvbetjening</groupId>
-			<artifactId>innsyn-tilgang-api</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
 	</dependencies>
 

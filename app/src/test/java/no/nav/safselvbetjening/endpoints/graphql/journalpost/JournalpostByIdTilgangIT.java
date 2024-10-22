@@ -10,10 +10,10 @@ import static java.util.Objects.requireNonNull;
 import static no.nav.safselvbetjening.domain.Journalposttype.N;
 import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;
 import static no.nav.safselvbetjening.domain.Tema.HJE;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_KASSERT;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_PARTSINNSYN;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKANNET_DOKUMENT;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_ANNEN_PART;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_GDPR;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_KASSERT;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKANNET_DOKUMENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -298,7 +298,7 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 		assertThat(graphQLResponse.getData()
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
-				.flatExtracting("code").containsExactly(DENY_REASON_PARTSINNSYN, DENY_REASON_PARTSINNSYN);
+				.flatExtracting("code").containsExactly(DENY_REASON_ANNEN_PART.reason, DENY_REASON_ANNEN_PART.reason);
 	}
 
 	/**
@@ -324,7 +324,7 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 		assertThat(graphQLResponse.getData()
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
-				.flatExtracting("code").containsExactly(DENY_REASON_SKANNET_DOKUMENT, DENY_REASON_SKANNET_DOKUMENT);
+				.flatExtracting("code").containsExactly(DENY_REASON_SKANNET_DOKUMENT.reason, DENY_REASON_SKANNET_DOKUMENT.reason);
 	}
 
 	/**
@@ -349,7 +349,7 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 		assertThat(graphQLResponse.getData()
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
-				.flatExtracting("code").containsExactly("ok", DENY_REASON_GDPR);
+				.flatExtracting("code").containsExactly("ok", DENY_REASON_GDPR.reason);
 	}
 
 	/**
@@ -374,7 +374,7 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 		assertThat(graphQLResponse.getData()
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
-				.flatExtracting("code").containsExactly(DENY_REASON_GDPR, "ok");
+				.flatExtracting("code").containsExactly(DENY_REASON_GDPR.reason, "ok");
 	}
 
 	/**
@@ -399,7 +399,7 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 		assertThat(graphQLResponse.getData()
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
-				.flatExtracting("code").containsExactly("ok", DENY_REASON_KASSERT);
+				.flatExtracting("code").containsExactly("ok", DENY_REASON_KASSERT.reason);
 	}
 
 }

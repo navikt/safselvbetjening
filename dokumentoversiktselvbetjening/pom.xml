@@ -17,5 +17,9 @@
             <groupId>no.nav.safselvbetjening</groupId>
             <artifactId>core</artifactId>
         </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>no.nav.safselvbetjening</groupId>
+			<artifactId>innsyn-tilgang-api</artifactId>
+		</dependency>
+	</dependencies>
 </project>
