@@ -1,13 +1,13 @@
-FROM eclipse-temurin:21-jre as builder
+FROM eclipse-temurin:21-jre AS builder
 WORKDIR /build
 COPY app/target/app.jar app.jar
-RUN java -Djarmode=tools -jar app.jar extract --launcher --layers
+RUN java -Djarmode=tools -jar app.jar extract --launcher --layers --destination extracted
 
 FROM ghcr.io/navikt/baseimages/temurin:21
-COPY --from=builder --chown=apprunner:apprunner /build/dependencies/ ./
-COPY --from=builder --chown=apprunner:apprunner /build/snapshot-dependencies/ ./
-COPY --from=builder --chown=apprunner:apprunner /build/spring-boot-loader/ ./
-COPY --from=builder --chown=apprunner:apprunner /build/application/ ./
+COPY --from=builder --chown=apprunner:apprunner /build/extracted/dependencies/ ./
+COPY --from=builder --chown=apprunner:apprunner /build/extracted/snapshot-dependencies/ ./
+COPY --from=builder --chown=apprunner:apprunner /build/extracted/spring-boot-loader/ ./
+COPY --from=builder --chown=apprunner:apprunner /build/extracted/application/ ./
 COPY export-vault-secrets.sh /init-scripts/10-export-vault-secrets.sh
 COPY run-java.sh /
 USER root
