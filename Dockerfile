@@ -9,10 +9,7 @@ COPY --from=builder --chown=apprunner:apprunner /build/extracted/snapshot-depend
 COPY --from=builder --chown=apprunner:apprunner /build/extracted/spring-boot-loader/ ./
 COPY --from=builder --chown=apprunner:apprunner /build/extracted/application/ ./
 COPY export-vault-secrets.sh /init-scripts/10-export-vault-secrets.sh
-COPY run-java.sh /
-USER root
-RUN chmod +x /run-java.sh
-USER apprunner
+COPY --chown=apprunner:apprunner --chmod=0755 run-java.sh /
 
 ENV MAIN_CLASS="org.springframework.boot.loader.launch.JarLauncher"
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 \
