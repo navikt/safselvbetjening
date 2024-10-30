@@ -1,5 +1,6 @@
 {
   "APP_NAME": "safselvbetjening",
+  "ENVIRONMENT": "p",
   "KAFKA_POOL": "nav-prod",
   "SERVICEUSER_VAULT_PATH": "/serviceuser/data/prod/srvsafselvbetjening",
   "SAFSELVBETJENING_ENDPOINTS_PDL_URL": "http://pdl-api.pdl.svc.nais.local/graphql",
@@ -13,8 +14,6 @@
   "SAFSELVBETJENING_ENDPOINTS_PDLFULLMAKT_URL": "http://pdl-fullmakt.pdl.svc.nais.local",
   "SAFSELVBETJENING_ENDPOINTS_PDLFULLMAKT_SCOPE": "prod-fss:pdl:pdl-fullmakt",
   "SAFSELVBETJENING_TOPICS_DOKDISTDITTNAV": "teamdokumenthandtering.privat-dokdistdittnav-lestavmottaker",
-  "APPDYNAMICS": "/apikey/appdynamics/prod",
-  "APPD_NAME": "safselvbetjening",
   "MIN_REPLICAS": 4,
   "MAX_REPLICAS": 10,
   "INGRESSES": [
