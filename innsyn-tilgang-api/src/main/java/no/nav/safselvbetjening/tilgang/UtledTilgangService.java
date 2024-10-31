@@ -22,7 +22,6 @@ import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.PEN;
 import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.BRUK_STANDARDREGLER;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT_STATUS;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.MOTTATT;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Regler for tilgangskontroll for journalposter: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
@@ -238,13 +237,13 @@ public class UtledTilgangService {
 		if (TilgangJournalposttype.N == tilgangJournalpost.getJournalposttype()) {
 			return true;
 		}
-		if (isNotBlank(avsenderMottakerId)) {
-			if (tilgangJournalpost.getInnsyn() != null) {
-				return idents.contains(avsenderMottakerId) || tilgangJournalpost.innsynVises();
-			}
-			return idents.contains(avsenderMottakerId);
+		if (isBlank(avsenderMottakerId)) {
+			return false;
 		}
-		return false;
+		if (tilgangJournalpost.getInnsyn() != null) {
+			return idents.contains(avsenderMottakerId) || tilgangJournalpost.innsynVises();
+		}
+		return idents.contains(avsenderMottakerId);
 	}
 
 	/**
@@ -291,4 +290,7 @@ public class UtledTilgangService {
 		return false;
 	}
 
+	public static boolean isBlank(String string) {
+		return string == null || string.isBlank();
+	}
 }

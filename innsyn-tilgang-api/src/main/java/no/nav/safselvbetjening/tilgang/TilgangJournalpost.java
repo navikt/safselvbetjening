@@ -9,7 +9,7 @@ import java.util.List;
 
 import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.SKJULES;
 import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.VISES;
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangService.isBlank;
 
 @Data
 @Builder

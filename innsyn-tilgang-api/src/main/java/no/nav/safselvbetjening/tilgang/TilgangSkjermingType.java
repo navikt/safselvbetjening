@@ -1,6 +1,6 @@
 package no.nav.safselvbetjening.tilgang;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangService.isBlank;
 
 public enum TilgangSkjermingType {
 	POL(true),
