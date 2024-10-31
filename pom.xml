@@ -24,6 +24,13 @@
 		<module>innsyn-tilgang-api</module>
 	</modules>
 
+	<distributionManagement>
+		<repository>
+			<id>ghcr</id>
+			<url>https://maven.pkg.github.com/navikt/safselvbetjening</url>
+		</repository>
+	</distributionManagement>
+
 	<properties>
 		<java.version>21</java.version>
 
