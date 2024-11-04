@@ -12,6 +12,7 @@ import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.graphql.GraphQLRequestContext;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
+import no.nav.safselvbetjening.tilgang.Ident;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import org.springframework.stereotype.Component;
@@ -91,7 +92,7 @@ public class JournalpostService {
 		if (subjectJwt == null) {
 			throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_INGEN_GYLDIG_TOKEN);
 		}
-		List<String> identer = brukerIdenter.getIdenter();
+		List<String> identer = brukerIdenter.getIdenter().stream().map(Ident::get).toList();
 		String pid = subjectJwt.getJwtTokenClaims().getStringClaim(CLAIM_PID);
 		String sub = subjectJwt.getJwtTokenClaims().getStringClaim(CLAIM_SUB);
 		if (!identer.contains(pid) && !identer.contains(sub)) {

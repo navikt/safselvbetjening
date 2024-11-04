@@ -7,9 +7,9 @@ public record TilgangSak(
 		String tema,
 		TilgangFagsystem fagsystem,
 		// Populert for arkivsaksystem gsak
-		String aktoerId,
+		AktoerId aktoerId,
 		// Populert for arkivsaksystem pensjon
-		String foedselsnummer,
+		Foedselsnummer foedselsnummer,
 		boolean feilregistrert
 ) {
 }

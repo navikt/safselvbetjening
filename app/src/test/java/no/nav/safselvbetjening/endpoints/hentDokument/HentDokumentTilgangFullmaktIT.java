@@ -140,7 +140,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktIkkeFinnes() {
 		stubPdlFullmakt("pdl-fullmakt-empty.json");
-		;
+
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 

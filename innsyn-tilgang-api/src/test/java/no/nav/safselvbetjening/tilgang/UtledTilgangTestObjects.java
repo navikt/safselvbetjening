@@ -47,15 +47,13 @@ public class UtledTilgangTestObjects {
 
 	static TilgangJournalpost.TilgangJournalpostBuilder baseTilgangJournalpost(String tema, TilgangInnsyn innsyn) {
 		return TilgangJournalpost.builder()
-				.tilgangBruker(TilgangBruker.builder()
-						.brukerId(IDENT)
-						.build())
+				.tilgangBruker(new TilgangBruker(Foedselsnummer.of(IDENT)))
 				.datoOpprettet(LocalDateTime.now())
 				.tema(tema)
 				.journalfoertDato(LocalDateTime.now())
 				.innsyn(innsyn)
 				.tilgangSak(TilgangSak.builder()
-						.aktoerId(AKTOER_ID)
+						.aktoerId(AktoerId.of(AKTOER_ID))
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(false)
 						.tema(tema)
@@ -75,7 +73,7 @@ public class UtledTilgangTestObjects {
 				.tilgangSak(null);
 	}
 
-	static List<String> defaultBrukerIdenter() {
-		return List.of(AKTOER_ID, IDENT);
+	static List<Ident> defaultBrukerIdenter() {
+		return List.of(AktoerId.of(AKTOER_ID), Foedselsnummer.of(IDENT));
 	}
 }

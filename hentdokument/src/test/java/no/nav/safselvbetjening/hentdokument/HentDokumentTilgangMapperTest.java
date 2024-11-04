@@ -5,6 +5,8 @@ import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Journalpost;
+import no.nav.safselvbetjening.tilgang.AktoerId;
+import no.nav.safselvbetjening.tilgang.Foedselsnummer;
 import no.nav.safselvbetjening.tilgang.TilgangBruker;
 import no.nav.safselvbetjening.tilgang.TilgangDokument;
 import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
@@ -17,8 +19,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.FagomradeCode.PEN;
-import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.E;
-import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.M;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode.SLADDET;
 import static no.nav.safselvbetjening.domain.Journalposttype.I;
 import static no.nav.safselvbetjening.domain.Journalposttype.U;
@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class HentDokumentTilgangMapperTest {
 
+	private static final Foedselsnummer FOEDSELSNUMMER = Foedselsnummer.of(IDENT);
 	public static final String ARKIV_VARIANT = VariantFormatCode.ARKIV.name();
 	private final HentDokumentTilgangMapper mapper = new HentDokumentTilgangMapper();
 
@@ -68,11 +69,11 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT.toLocalDateTime());
 
 		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
-		assertThat(tilgangBruker.getBrukerId()).isEqualTo(IDENT);
+		assertThat(tilgangBruker.brukerId()).isEqualTo(FOEDSELSNUMMER);
 
 		TilgangSak tilgangSak = tilgang.getTilgangSak();
-		assertThat(tilgangSak.aktoerId()).isEqualTo(AKTOER_ID);
-		assertThat(tilgangSak.foedselsnummer()).isEqualTo(IDENT);
+		assertThat(tilgangSak.aktoerId()).isEqualTo(AktoerId.of(AKTOER_ID));
+		assertThat(tilgangSak.foedselsnummer()).isEqualTo(FOEDSELSNUMMER);
 		assertThat(tilgangSak.fagsystem()).isEqualTo(TilgangFagsystem.FS22);
 		assertThat(tilgangSak.tema()).isEqualTo(TEMA);
 		assertThat(tilgangSak.feilregistrert()).isTrue();
@@ -108,11 +109,11 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT.toLocalDateTime());
 
 		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
-		assertThat(tilgangBruker.getBrukerId()).isEqualTo(IDENT);
+		assertThat(tilgangBruker.brukerId()).isEqualTo(FOEDSELSNUMMER);
 
 		TilgangSak tilgangSak = tilgang.getTilgangSak();
-		assertThat(tilgangSak.aktoerId()).isEqualTo(AKTOER_ID);
-		assertThat(tilgangSak.foedselsnummer()).isEqualTo(IDENT);
+		assertThat(tilgangSak.aktoerId()).isEqualTo(AktoerId.of(AKTOER_ID));
+		assertThat(tilgangSak.foedselsnummer()).isEqualTo(FOEDSELSNUMMER);
 		assertThat(tilgangSak.fagsystem()).isEqualTo(TilgangFagsystem.FS22);
 		assertThat(tilgangSak.tema()).isEqualTo(TEMA);
 		assertThat(tilgangSak.feilregistrert()).isTrue();
@@ -145,11 +146,11 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT.toLocalDateTime());
 
 		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
-		assertThat(tilgangBruker.getBrukerId()).isEqualTo(IDENT);
+		assertThat(tilgangBruker.brukerId()).isEqualTo(FOEDSELSNUMMER);
 
 		TilgangSak tilgangSak = tilgang.getTilgangSak();
 		assertThat(tilgangSak.aktoerId()).isNull();
-		assertThat(tilgangSak.foedselsnummer()).isEqualTo(IDENT);
+		assertThat(tilgangSak.foedselsnummer()).isEqualTo(FOEDSELSNUMMER);
 		assertThat(tilgangSak.fagsystem()).isEqualTo(TilgangFagsystem.PEN);
 		assertThat(tilgangSak.tema()).isEqualTo(TEMA_PENSJON_UFO);
 		assertThat(tilgangSak.feilregistrert()).isTrue();

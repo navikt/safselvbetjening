@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_ANNEN_PART;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FEILREGISTRERT;
@@ -44,7 +45,7 @@ public class UtledTilgangService {
 	 * @param brukerIdenter en liste med brukerens gyldige identer
 	 * @return en liste med grunner til at brukeren ikke kan se journalposten. Om listen er tom skal brukeren ha tilgang.
 	 */
-	public List<TilgangDenyReason> utledTilgangJournalpost(TilgangJournalpost journalpost, List<String> brukerIdenter) {
+	public List<TilgangDenyReason> utledTilgangJournalpost(TilgangJournalpost journalpost, List<Ident> brukerIdenter) {
 		List<TilgangDenyReason> feilmeldinger = new ArrayList<>();
 
 		// Med referanse til tilgangsreglene lenket i javadoc.
@@ -84,7 +85,7 @@ public class UtledTilgangService {
 	 * @param brukerIdenter  en liste med brukerens gyldige identer
 	 * @return en liste med grunner til at brukeren ikke kan se dokumentet. Om listen er tom skal brukeren ha tilgang
 	 */
-	public List<TilgangDenyReason> utledTilgangDokument(TilgangJournalpost journalpost, TilgangDokument dokumentInfo, TilgangVariant tilgangVariant, List<String> brukerIdenter) {
+	public List<TilgangDenyReason> utledTilgangDokument(TilgangJournalpost journalpost, TilgangDokument dokumentInfo, TilgangVariant tilgangVariant, List<Ident> brukerIdenter) {
 		List<TilgangDenyReason> feilmeldinger = new ArrayList<>();
 
 		if (!isAvsenderMottakerPart(journalpost, brukerIdenter)) {
@@ -120,12 +121,12 @@ public class UtledTilgangService {
 	/**
 	 * 1a) Bruker må være part for å se journalpost
 	 */
-	boolean isBrukerPart(TilgangJournalpost tilgangJournalpost, List<String> identer) {
+	boolean isBrukerPart(TilgangJournalpost tilgangJournalpost, List<Ident> identer) {
 		TilgangJournalstatus journalstatus = tilgangJournalpost.getJournalstatus();
 		if (MOTTATT == journalstatus) {
 			TilgangBruker tilgangBruker = tilgangJournalpost.getTilgangBruker();
 			if (tilgangBruker != null) {
-				return identer.contains(tilgangBruker.getBrukerId());
+				return identer.contains(tilgangBruker.brukerId());
 			}
 		} else {
 			TilgangSak tilgangSak = tilgangJournalpost.getTilgangSak();
@@ -231,7 +232,7 @@ public class UtledTilgangService {
 	/**
 	 * 2a) Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
 	 */
-	boolean isAvsenderMottakerPart(TilgangJournalpost tilgangJournalpost, List<String> idents) {
+	boolean isAvsenderMottakerPart(TilgangJournalpost tilgangJournalpost, List<Ident> idents) {
 		final String avsenderMottakerId = tilgangJournalpost.getAvsenderMottakerId();
 		// Notat er unntatt
 		if (TilgangJournalposttype.N == tilgangJournalpost.getJournalposttype()) {
@@ -240,10 +241,12 @@ public class UtledTilgangService {
 		if (isBlank(avsenderMottakerId)) {
 			return false;
 		}
+
+		Set<String> identsAsSet = idents.stream().map(Ident::get).collect(Collectors.toSet());
 		if (tilgangJournalpost.getInnsyn() != null) {
-			return idents.contains(avsenderMottakerId) || tilgangJournalpost.innsynVises();
+			return identsAsSet.contains(avsenderMottakerId) || tilgangJournalpost.innsynVises();
 		}
-		return idents.contains(avsenderMottakerId);
+		return identsAsSet.contains(avsenderMottakerId);
 	}
 
 	/**

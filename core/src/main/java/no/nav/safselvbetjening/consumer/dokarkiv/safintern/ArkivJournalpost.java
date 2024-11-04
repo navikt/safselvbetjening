@@ -5,6 +5,9 @@ import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.service.BrukerIdenter;
+import no.nav.safselvbetjening.tilgang.AktoerId;
+import no.nav.safselvbetjening.tilgang.Foedselsnummer;
+import no.nav.safselvbetjening.tilgang.Organisasjonsnummer;
 import no.nav.safselvbetjening.tilgang.TilgangBruker;
 import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
 import no.nav.safselvbetjening.tilgang.TilgangInnsyn;
@@ -94,8 +97,11 @@ public record ArkivJournalpost(Long journalpostId,
 		if (bruker == null) {
 			return null;
 		}
+		if ("ORGANISASJON".equals(bruker.type())) {
+			return new TilgangBruker(Organisasjonsnummer.of(bruker.id()));
+		}
 
-		return TilgangBruker.builder().brukerId(bruker.id()).build();
+		return new TilgangBruker(Foedselsnummer.of(bruker.id()));
 	}
 
 	private TilgangSak mapTilgangSak(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
@@ -105,7 +111,7 @@ public record ArkivJournalpost(Long journalpostId,
 
 		ArkivSaksrelasjon arkivSaksrelasjon = arkivJournalpost.saksrelasjon();
 		TilgangSak.TilgangSakBuilder tilgangSakBuilder = TilgangSak.builder()
-				.foedselsnummer(brukerIdenter.getAktivFolkeregisterident())
+				.foedselsnummer(Foedselsnummer.of(brukerIdenter.getAktivFolkeregisterident()))
 				.fagsystem(TilgangFagsystem.from(arkivSaksrelasjon.fagsystem()))
 				.feilregistrert(arkivSaksrelasjon.feilregistrert() != null && arkivSaksrelasjon.feilregistrert());
 
@@ -116,7 +122,7 @@ public record ArkivJournalpost(Long journalpostId,
 		} else {
 			ArkivSak arkivSak = arkivSaksrelasjon.sak();
 			return tilgangSakBuilder
-					.aktoerId(arkivSak.aktoerId())
+					.aktoerId(arkivSak.aktoerId() != null ? AktoerId.of(arkivSak.aktoerId()) : null)
 					.tema(arkivSak.tema())
 					.build();
 		}

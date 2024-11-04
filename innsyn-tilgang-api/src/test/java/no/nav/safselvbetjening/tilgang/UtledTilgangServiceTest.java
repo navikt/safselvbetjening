@@ -98,9 +98,7 @@ class UtledTilgangServiceTest {
 	@Test
 	void shouldReturnTrueWhenMottattAndBrukerPartIsSet() {
 		TilgangJournalpost journalpost = baseMottattJournalpost()
-				.tilgangBruker(TilgangBruker.builder()
-						.brukerId(IDENT)
-						.build())
+				.tilgangBruker(new TilgangBruker(Foedselsnummer.of(IDENT)))
 				.datoOpprettet(LocalDateTime.now())
 				.tema(TEMA_DAGPENGER)
 				.build();
@@ -113,9 +111,7 @@ class UtledTilgangServiceTest {
 	@Test
 	void shouldReturnFalseWhenMottattAndBrukerPartIsSet() {
 		TilgangJournalpost journalpost = baseMottattJournalpost()
-				.tilgangBruker(TilgangBruker.builder()
-						.brukerId(ANNEN_PART)
-						.build())
+				.tilgangBruker(new TilgangBruker(Foedselsnummer.of(ANNEN_PART)))
 				.datoOpprettet(LocalDateTime.now())
 				.tema(TEMA_DAGPENGER)
 				.build();
@@ -142,7 +138,7 @@ class UtledTilgangServiceTest {
 				.tema(TEMA_PENSJON)
 				.journalfoertDato(LocalDateTime.now())
 				.tilgangSak(TilgangSak.builder()
-						.foedselsnummer(IDENT)
+						.foedselsnummer(Foedselsnummer.of(IDENT))
 						.fagsystem(ARKIVSAKSYSTEM_PENSJON)
 						.feilregistrert(false)
 						.build())
@@ -156,14 +152,12 @@ class UtledTilgangServiceTest {
 	@Test
 	void shouldReturnFalseWhenJournalfoertInGsakAndAnnenPart() {
 		TilgangJournalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
-				.tilgangBruker(TilgangBruker.builder()
-						.brukerId(ANNEN_PART)
-						.build())
+				.tilgangBruker(new TilgangBruker(Foedselsnummer.of(ANNEN_PART)))
 				.datoOpprettet(LocalDateTime.now())
 				.tema(TEMA_DAGPENGER)
 				.journalfoertDato(LocalDateTime.now())
 				.tilgangSak(TilgangSak.builder()
-						.aktoerId(ANNEN_AKTOER_ID)
+						.aktoerId(AktoerId.of(ANNEN_AKTOER_ID))
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(false)
 						.tema(TEMA_DAGPENGER)
@@ -178,9 +172,7 @@ class UtledTilgangServiceTest {
 	@Test
 	void shouldReturnFalseWhenJournalfoertInPensjonAndAnnenPart() {
 		TilgangJournalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, null)
-				.tilgangBruker(TilgangBruker.builder()
-						.brukerId(ANNEN_PART)
-						.build())
+				.tilgangBruker(new TilgangBruker(Foedselsnummer.of(ANNEN_PART)))
 				.datoOpprettet(LocalDateTime.now())
 				.tema(TEMA_PENSJON)
 				.journalfoertDato(LocalDateTime.now())
@@ -292,10 +284,9 @@ class UtledTilgangServiceTest {
 	void shouldReturnFalseWhenJournalfoertAndSakTemaIkkeInnsynForBruker(String tema) {
 		TilgangJournalpost journalpost = baseJournalfoertJournalpost(tema, SKJULES_BRUKERS_ONSKE)
 				.datoOpprettet(LocalDateTime.now())
-				// .journalstatus("")
 				.tema(tema)
 				.tilgangSak(TilgangSak.builder()
-						.aktoerId(AKTOER_ID)
+						.aktoerId(AktoerId.of(AKTOER_ID))
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(false)
 						.tema(tema)

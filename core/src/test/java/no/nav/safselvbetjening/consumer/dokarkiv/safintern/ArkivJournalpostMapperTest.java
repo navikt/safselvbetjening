@@ -6,6 +6,8 @@ import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.RelevantDato;
+import no.nav.safselvbetjening.tilgang.AktoerId;
+import no.nav.safselvbetjening.tilgang.Foedselsnummer;
 import no.nav.safselvbetjening.tilgang.TilgangBruker;
 import no.nav.safselvbetjening.tilgang.TilgangDokument;
 import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
@@ -84,6 +86,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
 class ArkivJournalpostMapperTest {
+	private final static Foedselsnummer BRUKER_FNR = Foedselsnummer.of(BRUKER_IDENT);
 
 	private final ArkivJournalpostMapper mapper = new ArkivJournalpostMapper(new ArkivAvsenderMottakerMapper(), new UtledTilgangService(safSelvbetjeningProperties().getTidligstInnsynDato()));
 
@@ -285,11 +288,11 @@ class ArkivJournalpostMapperTest {
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(ARKIVJOURNALPOST_DATO_JOURNALFOERT.toLocalDateTime());
 
 		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
-		assertThat(tilgangBruker.getBrukerId()).isEqualTo(BRUKER_IDENT);
+		assertThat(tilgangBruker.brukerId()).isEqualTo(BRUKER_FNR);
 
 		TilgangSak tilgangSak = tilgang.getTilgangSak();
-		assertThat(tilgangSak.aktoerId()).isEqualTo(ARKIVSAK_AKTOER_ID);
-		assertThat(tilgangSak.foedselsnummer()).isEqualTo(BRUKER_IDENT);
+		assertThat(tilgangSak.aktoerId()).isEqualTo(AktoerId.of(ARKIVSAK_AKTOER_ID));
+		assertThat(tilgangSak.foedselsnummer()).isEqualTo(BRUKER_FNR);
 		assertThat(tilgangSak.fagsystem()).isEqualTo(TilgangFagsystem.FS22);
 		assertThat(tilgangSak.tema()).isEqualTo(TEMA);
 		assertThat(tilgangSak.feilregistrert()).isTrue();
@@ -303,11 +306,11 @@ class ArkivJournalpostMapperTest {
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(ARKIVJOURNALPOST_DATO_JOURNALFOERT.toLocalDateTime());
 
 		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
-		assertThat(tilgangBruker.getBrukerId()).isEqualTo(BRUKER_IDENT);
+		assertThat(tilgangBruker.brukerId()).isEqualTo(BRUKER_FNR);
 
 		TilgangSak tilgangSak = tilgang.getTilgangSak();
 		assertThat(tilgangSak.aktoerId()).isNull();
-		assertThat(tilgangSak.foedselsnummer()).isEqualTo(BRUKER_IDENT);
+		assertThat(tilgangSak.foedselsnummer()).isEqualTo(BRUKER_FNR);
 		assertThat(tilgangSak.fagsystem()).isEqualTo(TilgangFagsystem.PEN);
 		assertThat(tilgangSak.tema()).isEqualTo(TEMA_PENSJON_UFORETRYGD);
 		assertThat(tilgangSak.feilregistrert()).isTrue();
