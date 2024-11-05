@@ -1,8 +1,6 @@
 package no.nav.safselvbetjening.consumer.dokarkiv.safintern;
 
 import lombok.Builder;
-import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
-import no.nav.safselvbetjening.consumer.dokarkiv.domain.MottaksKanalCode;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.tilgang.AktoerId;
@@ -13,6 +11,8 @@ import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
 import no.nav.safselvbetjening.tilgang.TilgangInnsyn;
 import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 import no.nav.safselvbetjening.tilgang.TilgangJournalposttype;
+import no.nav.safselvbetjening.tilgang.TilgangJournalstatus;
+import no.nav.safselvbetjening.tilgang.TilgangMottakskanal;
 import no.nav.safselvbetjening.tilgang.TilgangSak;
 import no.nav.safselvbetjening.tilgang.TilgangSkjermingType;
 
@@ -47,18 +47,18 @@ public record ArkivJournalpost(Long journalpostId,
 
 	public TilgangJournalpost getJournalpostTilgang(BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
 		return TilgangJournalpost.builder()
-				.journalstatus(status == null ? null : JournalStatusCode.valueOf(status).toTilgangJournalstatus())
-				.journalposttype(TilgangJournalposttype.valueOf(type))
-				.mottakskanal(mapTilgangMottakskanal())
+				.journalstatus(TilgangJournalstatus.from(status))
+				.journalposttype(TilgangJournalposttype.from(type))
+				.mottakskanal(TilgangMottakskanal.from(mottakskanal))
 				.tema(fagomraade)
 				.avsenderMottakerId(mapAvsenderMottakerId())
-				.datoOpprettet(relevanteDatoer == null ? null : relevanteDatoer.opprettet().toLocalDateTime())
+				.datoOpprettet(relevanteDatoer == null ? LocalDateTime.MIN : relevanteDatoer.opprettet().toLocalDateTime())
 				.journalfoertDato(mapJournalfoert())
 				.skjerming(mapSkjermingType())
 				.dokumenter(dokumenter == null ? emptyList() : dokumenter.stream().map(ArkivDokumentinfo::getTilgangDokument).toList())
 				.tilgangBruker(mapTilgangBruker())
-				.tilgangSak(mapTilgangSak(this, brukerIdenter, pensjonsakOpt))
-				.innsyn(mapInnsyn())
+				.tilgangSak(mapTilgangSak(brukerIdenter, pensjonsakOpt))
+				.innsyn(TilgangInnsyn.from(innsyn))
 				.build();
 	}
 
@@ -69,28 +69,12 @@ public record ArkivJournalpost(Long journalpostId,
 		return relevanteDatoer.journalfoert().toLocalDateTime();
 	}
 
-	private TilgangInnsyn mapInnsyn() {
-		try {
-			return innsyn == null ? null : TilgangInnsyn.valueOf(innsyn);
-		} catch (IllegalArgumentException e) {
-			return null;
-		}
-	}
-
 	private String mapAvsenderMottakerId() {
 		if (avsenderMottaker == null) {
 			return null;
 		}
 
 		return avsenderMottaker.id();
-	}
-
-	private String mapTilgangMottakskanal() {
-		try {
-			return mottakskanal == null ? null : MottaksKanalCode.valueOf(mottakskanal).getSafKanal().name();
-		} catch (IllegalArgumentException e) {
-			return null;
-		}
 	}
 
 	private TilgangBruker mapTilgangBruker() {
@@ -104,12 +88,12 @@ public record ArkivJournalpost(Long journalpostId,
 		return new TilgangBruker(Foedselsnummer.of(bruker.id()));
 	}
 
-	private TilgangSak mapTilgangSak(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
-		if (!arkivJournalpost.isTilknyttetSak()) {
+	private TilgangSak mapTilgangSak(BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
+		if (!this.isTilknyttetSak()) {
 			return null;
 		}
 
-		ArkivSaksrelasjon arkivSaksrelasjon = arkivJournalpost.saksrelasjon();
+		ArkivSaksrelasjon arkivSaksrelasjon = this.saksrelasjon();
 		TilgangSak.TilgangSakBuilder tilgangSakBuilder = TilgangSak.builder()
 				.foedselsnummer(Foedselsnummer.of(brukerIdenter.getAktivFolkeregisterident()))
 				.fagsystem(TilgangFagsystem.from(arkivSaksrelasjon.fagsystem()))

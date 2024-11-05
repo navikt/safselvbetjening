@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,7 +22,7 @@ import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_UGYL
 import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.FS22;
 import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.PEN;
 import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.BRUK_STANDARDREGLER;
-import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT_STATUS;
+import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.MOTTATT;
 
 /**
@@ -29,7 +30,6 @@ import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.MOTTATT;
  */
 public class UtledTilgangService {
 	private static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
-	private static final Set<String> KANAL_SKANNING = Set.of("SKAN_IM", "SKAN_NETS", "SKAN_PEN");
 	private static final Set<String> GJELDENDE_TEMA_UNNTATT_INNSYN = Set.of("FAR", "KTR", "KTA", "ARS", "ARP");
 
 	private final LocalDateTime tidligstInnsynDateTime;
@@ -67,7 +67,7 @@ public class UtledTilgangService {
 		if (isJournalpostGDPRRestricted(journalpost)) { // 1f
 			feilmeldinger.add(DENY_REASON_GDPR);
 		}
-		if (!isJournalpostForvaltningsnotat(journalpost)) { // 1g
+		if (!isJournalpostNotatXNORForvaltningsnotat(journalpost)) { // 1g
 			feilmeldinger.add(DENY_REASON_FORVALTNINGSNOTAT);
 		}
 		if (isJournalpostInnsynSkjules(journalpost)) { // 1i
@@ -130,7 +130,7 @@ public class UtledTilgangService {
 			}
 		} else {
 			TilgangSak tilgangSak = tilgangJournalpost.getTilgangSak();
-			if (tilgangSak != null && FERDIGSTILT_STATUS.contains(journalstatus)) {
+			if (tilgangSak != null && FERDIGSTILT == journalstatus) {
 				if (FS22 == tilgangSak.fagsystem()) {
 					return identer.contains(tilgangSak.aktoerId());
 				} else if (PEN == tilgangSak.fagsystem()) {
@@ -146,12 +146,12 @@ public class UtledTilgangService {
 	 */
 	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(TilgangJournalpost journalpost) {
 		if (journalpost.getJournalfoertDato() == null) {
-			if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
+			if (BRUK_STANDARDREGLER == journalpost.getInnsyn()) {
 				return journalpost.getDatoOpprettet().isBefore(tidligstInnsynDateTime);
 			}
 			return journalpost.getDatoOpprettet().isBefore(tidligstInnsynDateTime) && !journalpost.innsynVises();
 		} else {
-			if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
+			if (BRUK_STANDARDREGLER == journalpost.getInnsyn()) {
 				return (journalpost.getJournalfoertDato().isBefore(tidligstInnsynDateTime) ||
 						journalpost.getDatoOpprettet().isBefore(tidligstInnsynDateTime));
 			}
@@ -164,7 +164,7 @@ public class UtledTilgangService {
 	 * 1c) Bruker får kun se midlertidige eller ferdigstilte journalposter (status M, MO, J, FS, FL eller E)
 	 */
 	boolean isJournalpostFerdigstiltOrMidlertidig(TilgangJournalpost journalpost) {
-		return FERDIGSTILT_STATUS.contains(journalpost.getJournalstatus()) || MOTTATT == journalpost.getJournalstatus();
+		return FERDIGSTILT == journalpost.getJournalstatus() || MOTTATT == journalpost.getJournalstatus();
 	}
 
 	/**
@@ -193,10 +193,7 @@ public class UtledTilgangService {
 			return true;
 		}
 		boolean isTemaUnntattInnsyn = GJELDENDE_TEMA_UNNTATT_INNSYN.contains(journalpost.getGjeldendeTema());
-		if (journalpost.getInnsyn() != null && isTemaUnntattInnsyn) {
-			return journalpost.innsynVises();
-		}
-		return !isTemaUnntattInnsyn;
+		return !isTemaUnntattInnsyn || journalpost.innsynVises();
 	}
 
 	/**
@@ -210,13 +207,11 @@ public class UtledTilgangService {
 	 * 1g) Hvis journalpost er notat må hoveddokumentet være markert som "forvaltningsnotat" eller
 	 * innsyn bør begynne med VISES_* for å vise journalposten.
 	 */
-	boolean isJournalpostForvaltningsnotat(TilgangJournalpost journalpost) {
-		List<TilgangDokument> dokumenter = journalpost.getDokumenter();
-		if (TilgangJournalposttype.N == journalpost.getJournalposttype() && !dokumenter.isEmpty() && dokumenter.getFirst() != null) {
-			boolean isForvaltningsnotat = FORVALTNINGSNOTAT.equals(dokumenter.getFirst().kategori());
-			if (journalpost.getInnsyn() == null || BRUK_STANDARDREGLER.equals(journalpost.getInnsyn())) {
-				return isForvaltningsnotat;
-			}
+	boolean isJournalpostNotatXNORForvaltningsnotat(TilgangJournalpost journalpost) {
+		Optional<TilgangDokument> hoveddokument = journalpost.getDokumenter().stream()
+				.filter(TilgangDokument::hoveddokument).findFirst();
+		if (TilgangJournalposttype.NOTAT == journalpost.getJournalposttype() && hoveddokument.isPresent()) {
+			boolean isForvaltningsnotat = FORVALTNINGSNOTAT.equals(hoveddokument.get().kategori());
 			return isForvaltningsnotat || journalpost.innsynVises();
 		}
 		return true;
@@ -235,7 +230,7 @@ public class UtledTilgangService {
 	boolean isAvsenderMottakerPart(TilgangJournalpost tilgangJournalpost, List<Ident> idents) {
 		final String avsenderMottakerId = tilgangJournalpost.getAvsenderMottakerId();
 		// Notat er unntatt
-		if (TilgangJournalposttype.N == tilgangJournalpost.getJournalposttype()) {
+		if (TilgangJournalposttype.NOTAT == tilgangJournalpost.getJournalposttype()) {
 			return true;
 		}
 		if (isBlank(avsenderMottakerId)) {
@@ -243,24 +238,14 @@ public class UtledTilgangService {
 		}
 
 		Set<String> identsAsSet = idents.stream().map(Ident::get).collect(Collectors.toSet());
-		if (tilgangJournalpost.getInnsyn() != null) {
-			return identsAsSet.contains(avsenderMottakerId) || tilgangJournalpost.innsynVises();
-		}
-		return identsAsSet.contains(avsenderMottakerId);
+		return identsAsSet.contains(avsenderMottakerId) || tilgangJournalpost.innsynVises();
 	}
 
 	/**
 	 * 2b) Bruker får ikke se skannede dokumenter med mindre innsyn begynner med VISES_*
 	 */
 	boolean isSkannetDokumentAndInnsynIsNotVises(TilgangJournalpost tilgangJournalpost) {
-		String mottakskanal = tilgangJournalpost.getMottakskanal();
-		if (mottakskanal == null) {
-			return false;
-		}
-		if (tilgangJournalpost.getInnsyn() != null && KANAL_SKANNING.contains(mottakskanal)) {
-			return !tilgangJournalpost.innsynVises();
-		}
-		return KANAL_SKANNING.contains(mottakskanal);
+		return tilgangJournalpost.getMottakskanal() == TilgangMottakskanal.SKANNING && !tilgangJournalpost.innsynVises();
 	}
 
 	/**

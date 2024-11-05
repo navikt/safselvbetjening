@@ -9,6 +9,7 @@ public record TilgangDokument(
 		long id,
 		String kategori,
 		boolean kassert,
+		boolean hoveddokument,
 		TilgangSkjermingType skjerming,
 		List<TilgangVariant> dokumentvarianter
 ) {

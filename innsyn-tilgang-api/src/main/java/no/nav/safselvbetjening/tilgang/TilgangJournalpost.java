@@ -1,7 +1,6 @@
 package no.nav.safselvbetjening.tilgang;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.Value;
@@ -24,14 +23,17 @@ public class TilgangJournalpost {
 	LocalDateTime datoOpprettet;
 	LocalDateTime journalfoertDato;
 	String tema;
-	String mottakskanal;
+	@NonNull
+	TilgangMottakskanal mottakskanal;
 	@ToString.Exclude
 	String avsenderMottakerId;
 	TilgangSkjermingType skjerming;
 	TilgangSak tilgangSak;
 	TilgangBruker tilgangBruker;
+	@NonNull
 	TilgangInnsyn innsyn;
-	@NonNull @Builder.Default
+	@NonNull
+	@Builder.Default
 	List<TilgangDokument> dokumenter = new ArrayList<>();
 
 	/**
@@ -50,18 +52,10 @@ public class TilgangJournalpost {
 	}
 
 	public boolean innsynSkjules() {
-		if (innsyn == null) {
-			return false;
-		} else {
-			return SKJULES.contains(innsyn);
-		}
+		return SKJULES.contains(innsyn);
 	}
 
 	public boolean innsynVises() {
-		if (innsyn == null) {
-			return false;
-		} else {
-			return VISES.contains(innsyn);
-		}
+		return VISES.contains(innsyn);
 	}
 }

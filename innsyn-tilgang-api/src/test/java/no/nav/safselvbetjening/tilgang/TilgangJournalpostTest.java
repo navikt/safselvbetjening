@@ -6,13 +6,16 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import java.time.LocalDateTime;
 
+import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.BRUK_STANDARDREGLER;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class JournalpostTest {
+class TilgangJournalpostTest {
 	@Test
 	void shouldMapTilgangJournalpostGjeldendeTemaWhenSakstilknytning() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
+				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
 				.tema("AAP")
 				.tilgangSak(TilgangSak.builder()
 						.tema("DAG")
@@ -24,7 +27,9 @@ class JournalpostTest {
 	@Test
 	void shouldMapTilgangJournalpostGjeldendeTemaWhenNoSakstilknytning() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
+				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
 				.tema("AAP")
 				.tilgangSak(null)
 				.build();
@@ -34,7 +39,9 @@ class JournalpostTest {
 	@Test
 	void shouldMapTilgangJournalpostGjeldendeTemaWhenSakstilknytningTemaNull() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
+				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
 				.tema("AAP")
 				.tilgangSak(TilgangSak.builder()
 						.tema(null)
@@ -44,19 +51,21 @@ class JournalpostTest {
 	}
 
 	@Test
-	void shouldReturnFalseForInnsynSkjulesWhenNull() {
+	void shouldReturnFalseForInnsynSkjulesWhenStandardregler() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
-				.innsyn(null)
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.innsyn(BRUK_STANDARDREGLER)
 				.build();
 		assertThat(tilgangJournalpost.innsynSkjules()).isFalse();
 	}
 
 	@Test
-	void shouldReturnFalseForInnsynVisesWhenNull() {
+	void shouldReturnFalseForInnsynVisesWhenStandardregler() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
-				.innsyn(null)
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.innsyn(BRUK_STANDARDREGLER)
 				.build();
 		assertThat(tilgangJournalpost.innsynVises()).isFalse();
 	}
@@ -68,6 +77,7 @@ class JournalpostTest {
 	void shouldReturnTrueForInnsynSkjulesWhenSkjules(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
 				.innsyn(innsyn)
 				.build();
 		assertThat(tilgangJournalpost.innsynSkjules()).isTrue();
@@ -80,6 +90,7 @@ class JournalpostTest {
 	void shouldReturnFalseForInnsynSkjulesWhenVises(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
 				.innsyn(innsyn)
 				.build();
 		assertThat(tilgangJournalpost.innsynVises()).isFalse();
@@ -90,6 +101,7 @@ class JournalpostTest {
 	void shouldReturnTrueForInnsynVisesWhenVises(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
 				.innsyn(innsyn)
 				.build();
 		assertThat(tilgangJournalpost.innsynVises()).isTrue();
@@ -100,6 +112,7 @@ class JournalpostTest {
 	void shouldReturnFalseForInnsynVisesWhenSkjules(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
 				.innsyn(innsyn)
 				.build();
 		assertThat(tilgangJournalpost.innsynSkjules()).isFalse();

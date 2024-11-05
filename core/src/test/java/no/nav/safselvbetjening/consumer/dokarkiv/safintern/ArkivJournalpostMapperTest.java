@@ -13,6 +13,7 @@ import no.nav.safselvbetjening.tilgang.TilgangDokument;
 import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
 import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 import no.nav.safselvbetjening.tilgang.TilgangJournalstatus;
+import no.nav.safselvbetjening.tilgang.TilgangMottakskanal;
 import no.nav.safselvbetjening.tilgang.TilgangSak;
 import no.nav.safselvbetjening.tilgang.TilgangSkjermingType;
 import no.nav.safselvbetjening.tilgang.TilgangVariant;
@@ -125,7 +126,7 @@ class ArkivJournalpostMapperTest {
 		TilgangJournalpost tilgang = journalpost.getTilgang();
 		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.MOTTATT);
 		assertThat(tilgang.getTema()).isEqualTo(HJE.name());
-		assertThat(tilgang.getMottakskanal()).isEqualTo(NAV_NO.name());
+		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
 		assertGsakJournalpostTilgang(tilgang);
 	}
 
@@ -164,9 +165,9 @@ class ArkivJournalpostMapperTest {
 
 		// tilgang mapping
 		TilgangJournalpost tilgang = journalpost.getTilgang();
-		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.EKSPEDERT);
+		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.FERDIGSTILT);
 		assertThat(tilgang.getTema()).isEqualTo(HJE.name());
-		assertThat(tilgang.getMottakskanal()).isNull();
+		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
 		assertGsakJournalpostTilgang(tilgang);
 	}
 
@@ -207,7 +208,7 @@ class ArkivJournalpostMapperTest {
 		TilgangJournalpost tilgang = journalpost.getTilgang();
 		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.MOTTATT);
 		assertThat(tilgang.getTema()).isEqualTo(TEMA_PENSJON_ALDERSPENSJON);
-		assertThat(tilgang.getMottakskanal()).isEqualTo(NAV_NO.name());
+		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
 		assertPensjonJournalpostTilgang(tilgang);
 	}
 

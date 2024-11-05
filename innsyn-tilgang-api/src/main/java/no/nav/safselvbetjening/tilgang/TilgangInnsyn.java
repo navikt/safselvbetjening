@@ -9,4 +9,11 @@ public enum TilgangInnsyn {
 
 	public static final EnumSet<TilgangInnsyn> VISES = EnumSet.of(VISES_MASKINELT_GODKJENT, VISES_MANUELT_GODKJENT, VISES_FORVALTNINGSNOTAT);
 	public static final EnumSet<TilgangInnsyn> SKJULES = EnumSet.of(SKJULES_BRUKERS_ONSKE, SKJULES_INNSKRENKET_PARTSINNSYN, SKJULES_FEILSENDT, SKJULES_ORGAN_INTERNT, SKJULES_BRUKERS_SIKKERHET);
+
+	public static TilgangInnsyn from(String innsynNavn) {
+		if (innsynNavn == null) {
+			return BRUK_STANDARDREGLER;
+		}
+		return valueOf(innsynNavn.toUpperCase());
+	}
 }

@@ -1,21 +1,15 @@
 package no.nav.safselvbetjening.tilgang;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 public enum TilgangJournalstatus {
 	MOTTATT,
-	JOURNALFOERT,
 	FERDIGSTILT,
-	EKSPEDERT,
-	UNDER_ARBEID,
-	FEILREGISTRERT,
-	UTGAAR,
-	AVBRUTT,
-	UKJENT_BRUKER,
-	RESERVERT,
-	OPPLASTING_DOKUMENT,
-	UKJENT;
+	ANNEN;
 
-	public static final Set<TilgangJournalstatus> FERDIGSTILT_STATUS = EnumSet.of(FERDIGSTILT, JOURNALFOERT, EKSPEDERT);
+	public static TilgangJournalstatus from(String journalstatus) {
+		return switch (journalstatus) {
+			case "M", "MO" -> TilgangJournalstatus.MOTTATT;
+			case "J", "E", "FS", "FL" -> TilgangJournalstatus.FERDIGSTILT;
+			default -> TilgangJournalstatus.ANNEN;
+		};
+	}
 }

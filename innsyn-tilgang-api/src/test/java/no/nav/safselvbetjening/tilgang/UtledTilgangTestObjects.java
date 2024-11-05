@@ -5,8 +5,9 @@ import java.util.List;
 
 import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.FS22;
 import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.PEN;
-import static no.nav.safselvbetjening.tilgang.TilgangJournalposttype.I;
-import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.JOURNALFOERT;
+import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.BRUK_STANDARDREGLER;
+import static no.nav.safselvbetjening.tilgang.TilgangJournalposttype.ANNEN;
+import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.MOTTATT;
 
 public class UtledTilgangTestObjects {
@@ -26,11 +27,27 @@ public class UtledTilgangTestObjects {
 	static final TilgangFagsystem ARKIVSAKSYSTEM_PENSJON = PEN;
 	static final LocalDateTime FOER_INNSYNSDATO = LocalDateTime.parse("2016-01-01T12:00");
 
+	static TilgangJournalpost.TilgangJournalpostBuilder baseTilgangJournalpost(String tema, TilgangInnsyn innsyn) {
+		return TilgangJournalpost.builder()
+				.tilgangBruker(new TilgangBruker(Foedselsnummer.of(IDENT)))
+				.datoOpprettet(LocalDateTime.now())
+				.tema(tema)
+				.journalfoertDato(LocalDateTime.now())
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.innsyn(innsyn)
+				.tilgangSak(TilgangSak.builder()
+						.aktoerId(AktoerId.of(AKTOER_ID))
+						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
+						.feilregistrert(false)
+						.tema(tema)
+						.build());
+	}
+
 	static TilgangJournalpost.TilgangJournalpostBuilder baseJournalpost(String tema, TilgangInnsyn innsyn) {
 		return baseTilgangJournalpost(tema, innsyn)
 				.journalpostId(40000000)
-				.journalstatus(JOURNALFOERT)
-				.journalposttype(I)
+				.journalstatus(FERDIGSTILT)
+				.journalposttype(ANNEN)
 				.avsenderMottakerId(IDENT)
 				.skjerming(TilgangSkjermingType.INGEN_SKJERMING)
 				.dokumenter(List.of(
@@ -45,27 +62,13 @@ public class UtledTilgangTestObjects {
 								.build()));
 	}
 
-	static TilgangJournalpost.TilgangJournalpostBuilder baseTilgangJournalpost(String tema, TilgangInnsyn innsyn) {
-		return TilgangJournalpost.builder()
-				.tilgangBruker(new TilgangBruker(Foedselsnummer.of(IDENT)))
-				.datoOpprettet(LocalDateTime.now())
-				.tema(tema)
-				.journalfoertDato(LocalDateTime.now())
-				.innsyn(innsyn)
-				.tilgangSak(TilgangSak.builder()
-						.aktoerId(AktoerId.of(AKTOER_ID))
-						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
-						.feilregistrert(false)
-						.tema(tema)
-						.build());
-	}
 
 	static TilgangJournalpost.TilgangJournalpostBuilder baseJournalfoertJournalpost(String tema, TilgangInnsyn innsyn) {
-		return baseJournalpost(tema, innsyn).journalstatus(JOURNALFOERT);
+		return baseJournalpost(tema, innsyn).journalstatus(FERDIGSTILT);
 	}
 
 	static TilgangJournalpost.TilgangJournalpostBuilder baseMottattJournalpost() {
-		return baseJournalpost(TEMA_DAGPENGER, null).journalstatus(MOTTATT)
+		return baseJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).journalstatus(MOTTATT)
 				.tilgangBruker(null)
 				.datoOpprettet(LocalDateTime.now())
 				.tema(TEMA_DAGPENGER)

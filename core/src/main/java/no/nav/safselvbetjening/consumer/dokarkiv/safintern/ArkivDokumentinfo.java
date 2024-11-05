@@ -22,6 +22,7 @@ public record ArkivDokumentinfo(Long dokumentInfoId,
 				.id(dokumentInfoId)
 				.kassert(kassert != null && kassert)
 				.kategori(kategori)
+				.hoveddokument(ArkivJournalpostMapper.TILKNYTTET_SOM_HOVEDDOKUMENT.equals(tilknyttetSom))
 				.skjerming(mapSkjerming(skjerming))
 				.dokumentvarianter(fildetaljer.stream().map(ArkivFildetaljer::getTilgangVariant).toList())
 				.build();

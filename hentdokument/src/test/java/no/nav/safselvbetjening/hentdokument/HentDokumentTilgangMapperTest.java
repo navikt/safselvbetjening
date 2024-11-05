@@ -12,6 +12,7 @@ import no.nav.safselvbetjening.tilgang.TilgangDokument;
 import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
 import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 import no.nav.safselvbetjening.tilgang.TilgangJournalstatus;
+import no.nav.safselvbetjening.tilgang.TilgangMottakskanal;
 import no.nav.safselvbetjening.tilgang.TilgangSak;
 import no.nav.safselvbetjening.tilgang.TilgangVariant;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class HentDokumentTilgangMapperTest {
 
 	private static final Foedselsnummer FOEDSELSNUMMER = Foedselsnummer.of(IDENT);
-	public static final String ARKIV_VARIANT = VariantFormatCode.ARKIV.name();
+	private static final String ARKIV_VARIANT = VariantFormatCode.ARKIV.name();
 	private final HentDokumentTilgangMapper mapper = new HentDokumentTilgangMapper();
 
 	@Test
@@ -62,7 +63,7 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.MOTTATT);
 		assertThat(tilgang.getTema()).isEqualTo(PEN.name());
 		assertThat(tilgang.getSkjerming().erSkjermet).isTrue();
-		assertThat(tilgang.getMottakskanal()).isEqualTo(NAV_NO.name());
+		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
 		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
@@ -99,10 +100,10 @@ class HentDokumentTilgangMapperTest {
 		assertThat(journalpost.getKanal()).isEqualTo(NAV_NO);
 
 		TilgangJournalpost tilgang = journalpost.getTilgang();
-		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.EKSPEDERT);
+		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.FERDIGSTILT);
 		assertThat(tilgang.getTema()).isEqualTo(PEN.name());
 		assertThat(tilgang.getSkjerming().erSkjermet).isTrue();
-		assertThat(tilgang.getMottakskanal()).isNull();
+		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
 		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
@@ -139,7 +140,7 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.MOTTATT);
 		assertThat(tilgang.getTema()).isEqualTo(PEN.name());
 		assertThat(tilgang.getSkjerming().erSkjermet).isTrue();
-		assertThat(tilgang.getMottakskanal()).isEqualTo(NAV_NO.name());
+		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
 		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
