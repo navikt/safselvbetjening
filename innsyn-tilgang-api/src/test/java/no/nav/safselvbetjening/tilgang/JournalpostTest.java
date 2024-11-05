@@ -4,12 +4,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JournalpostTest {
 	@Test
 	void shouldMapTilgangJournalpostGjeldendeTemaWhenSakstilknytning() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
+				.datoOpprettet(LocalDateTime.now())
 				.tema("AAP")
 				.tilgangSak(TilgangSak.builder()
 						.tema("DAG")
@@ -21,6 +24,7 @@ class JournalpostTest {
 	@Test
 	void shouldMapTilgangJournalpostGjeldendeTemaWhenNoSakstilknytning() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
+				.datoOpprettet(LocalDateTime.now())
 				.tema("AAP")
 				.tilgangSak(null)
 				.build();
@@ -30,6 +34,7 @@ class JournalpostTest {
 	@Test
 	void shouldMapTilgangJournalpostGjeldendeTemaWhenSakstilknytningTemaNull() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
+				.datoOpprettet(LocalDateTime.now())
 				.tema("AAP")
 				.tilgangSak(TilgangSak.builder()
 						.tema(null)
@@ -41,6 +46,7 @@ class JournalpostTest {
 	@Test
 	void shouldReturnFalseForInnsynSkjulesWhenNull() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
+				.datoOpprettet(LocalDateTime.now())
 				.innsyn(null)
 				.build();
 		assertThat(tilgangJournalpost.innsynSkjules()).isFalse();
@@ -49,6 +55,7 @@ class JournalpostTest {
 	@Test
 	void shouldReturnFalseForInnsynVisesWhenNull() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
+				.datoOpprettet(LocalDateTime.now())
 				.innsyn(null)
 				.build();
 		assertThat(tilgangJournalpost.innsynVises()).isFalse();
@@ -60,6 +67,7 @@ class JournalpostTest {
 	})
 	void shouldReturnTrueForInnsynSkjulesWhenSkjules(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
+				.datoOpprettet(LocalDateTime.now())
 				.innsyn(innsyn)
 				.build();
 		assertThat(tilgangJournalpost.innsynSkjules()).isTrue();
@@ -71,6 +79,7 @@ class JournalpostTest {
 	})
 	void shouldReturnFalseForInnsynSkjulesWhenVises(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
+				.datoOpprettet(LocalDateTime.now())
 				.innsyn(innsyn)
 				.build();
 		assertThat(tilgangJournalpost.innsynVises()).isFalse();
@@ -80,6 +89,7 @@ class JournalpostTest {
 	@EnumSource(value = TilgangInnsyn.class, names = {"VISES_MASKINELT_GODKJENT", "VISES_MANUELT_GODKJENT", "VISES_FORVALTNINGSNOTAT"})
 	void shouldReturnTrueForInnsynVisesWhenVises(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
+				.datoOpprettet(LocalDateTime.now())
 				.innsyn(innsyn)
 				.build();
 		assertThat(tilgangJournalpost.innsynVises()).isTrue();
@@ -89,6 +99,7 @@ class JournalpostTest {
 	@EnumSource(value = TilgangInnsyn.class, names = {"VISES_MASKINELT_GODKJENT", "VISES_MANUELT_GODKJENT", "VISES_FORVALTNINGSNOTAT"})
 	void shouldReturnFalseForInnsynVisesWhenSkjules(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
+				.datoOpprettet(LocalDateTime.now())
 				.innsyn(innsyn)
 				.build();
 		assertThat(tilgangJournalpost.innsynSkjules()).isFalse();

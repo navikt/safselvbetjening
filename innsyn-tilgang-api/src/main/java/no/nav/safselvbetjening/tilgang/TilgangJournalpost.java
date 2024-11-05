@@ -2,32 +2,37 @@ package no.nav.safselvbetjening.tilgang;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.ToString;
+import lombok.Value;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.SKJULES;
 import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.VISES;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangService.isBlank;
 
-@Data
+@Value
 @Builder
 public class TilgangJournalpost {
-	private final long journalpostId;
-	private final TilgangJournalstatus journalstatus;
-	private final TilgangJournalposttype journalposttype;
-	private final LocalDateTime datoOpprettet;
-	private final LocalDateTime journalfoertDato;
-	private final String tema;
-	private final String mottakskanal;
+	long journalpostId;
+	TilgangJournalstatus journalstatus;
+	TilgangJournalposttype journalposttype;
+	@NonNull
+	LocalDateTime datoOpprettet;
+	LocalDateTime journalfoertDato;
+	String tema;
+	String mottakskanal;
 	@ToString.Exclude
-	private final String avsenderMottakerId;
-	private final TilgangSkjermingType skjerming;
-	private final TilgangSak tilgangSak;
-	private final TilgangBruker tilgangBruker;
-	private final TilgangInnsyn innsyn;
-	private final List<TilgangDokument> dokumenter;
+	String avsenderMottakerId;
+	TilgangSkjermingType skjerming;
+	TilgangSak tilgangSak;
+	TilgangBruker tilgangBruker;
+	TilgangInnsyn innsyn;
+	@NonNull @Builder.Default
+	List<TilgangDokument> dokumenter = new ArrayList<>();
 
 	/**
 	 * Tema på sakstilknytning er prioritert over tema på journalpost

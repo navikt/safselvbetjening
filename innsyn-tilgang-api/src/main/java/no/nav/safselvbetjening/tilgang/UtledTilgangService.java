@@ -171,10 +171,10 @@ public class UtledTilgangService {
 	 * 1d) Bruker får ikke se feilregistrerte journalposter
 	 */
 	boolean isJournalpostFeilregistrert(TilgangJournalpost journalpost) {
-		if (journalpost.getTilgangSak() != null) {
-			return journalpost.getTilgangSak().feilregistrert();
+		if (journalpost.getTilgangSak() == null) {
+			return false;
 		}
-		return false;
+		return journalpost.getTilgangSak().feilregistrert();
 	}
 
 	/**
@@ -189,14 +189,14 @@ public class UtledTilgangService {
 	boolean isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(TilgangJournalpost journalpost) {
 		TilgangJournalstatus journalstatus = journalpost.getJournalstatus();
 
-		if (journalstatus != null) {
-			boolean isTemaUnntattInnsyn = GJELDENDE_TEMA_UNNTATT_INNSYN.contains(journalpost.getGjeldendeTema());
-			if (journalpost.getInnsyn() != null && isTemaUnntattInnsyn) {
-				return journalpost.innsynVises();
-			}
-			return !isTemaUnntattInnsyn;
+		if (journalstatus == null) {
+			return true;
 		}
-		return true;
+		boolean isTemaUnntattInnsyn = GJELDENDE_TEMA_UNNTATT_INNSYN.contains(journalpost.getGjeldendeTema());
+		if (journalpost.getInnsyn() != null && isTemaUnntattInnsyn) {
+			return journalpost.innsynVises();
+		}
+		return !isTemaUnntattInnsyn;
 	}
 
 	/**
@@ -254,43 +254,43 @@ public class UtledTilgangService {
 	 */
 	boolean isSkannetDokumentAndInnsynIsNotVises(TilgangJournalpost tilgangJournalpost) {
 		String mottakskanal = tilgangJournalpost.getMottakskanal();
-		if (mottakskanal != null) {
-			if (tilgangJournalpost.getInnsyn() != null && KANAL_SKANNING.contains(mottakskanal)) {
-				return !tilgangJournalpost.innsynVises();
-			}
-			return KANAL_SKANNING.contains(mottakskanal);
+		if (mottakskanal == null) {
+			return false;
 		}
-		return false;
+		if (tilgangJournalpost.getInnsyn() != null && KANAL_SKANNING.contains(mottakskanal)) {
+			return !tilgangJournalpost.innsynVises();
+		}
+		return KANAL_SKANNING.contains(mottakskanal);
 	}
 
 	/**
 	 * 2e) Dokumentvariant som er begrenset ihht. GDPR skal ikke vises
 	 */
 	boolean isDokumentvariantGDPRRestricted(TilgangVariant tilgangVariant) {
-		if (tilgangVariant != null) {
-			return tilgangVariant.skjerming().erSkjermet;
+		if (tilgangVariant == null) {
+			return false;
 		}
-		return false;
+		return tilgangVariant.skjerming().erSkjermet;
 	}
 
 	/**
 	 * 2e) Dokumenter som er begrenset ihht. GDPR skal ikke vises
 	 */
 	boolean isDokumentGDPRRestricted(TilgangDokument tilgangDokument) {
-		if (tilgangDokument != null) {
-			return tilgangDokument.skjerming().erSkjermet;
+		if (tilgangDokument == null) {
+			return false;
 		}
-		return false;
+		return tilgangDokument.skjerming().erSkjermet;
 	}
 
 	/**
 	 * 2f) Kasserte dokumenter skal ikke vises
 	 */
 	boolean isDokumentKassert(TilgangDokument tilgangDokument) {
-		if (tilgangDokument != null) {
-			return tilgangDokument.kassert();
+		if (tilgangDokument == null) {
+			return false;
 		}
-		return false;
+		return tilgangDokument.kassert();
 	}
 
 	public static boolean isBlank(String string) {

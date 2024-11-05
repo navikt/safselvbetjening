@@ -189,8 +189,10 @@ class UtledTilgangServiceTest {
 	// Journalført før innsynsdato
 	@Test
 	void shouldReturnFalseWhenJournalfoertBeforeInnsynsdatoAndStartedWithVises() {
+		final LocalDateTime journalfoertDato = LocalDateTime.of(2016, 5, 6, 0, 0);
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
-				.journalfoertDato(LocalDateTime.of(2016, 5, 6, 0, 0))
+				.datoOpprettet(journalfoertDato)
+				.journalfoertDato(journalfoertDato)
 				.innsyn(VISES_MANUELT_GODKJENT)
 				.build();
 		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
@@ -201,8 +203,10 @@ class UtledTilgangServiceTest {
 	// Journalført før innsynsdato og hvis innsyn er BRUK_STANDARDREGLER.
 	@Test
 	void shouldReturnTrueWhenJournalfoertBeforeInnsynsdatoAndInnsynWithBrukStandardRegler() {
+		final LocalDateTime journalfoertDato = LocalDateTime.of(2016, 5, 6, 0, 0);
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
-				.journalfoertDato(LocalDateTime.of(2016, 5, 6, 0, 0))
+				.datoOpprettet(journalfoertDato)
+				.journalfoertDato(journalfoertDato)
 				.innsyn(BRUK_STANDARDREGLER)
 				.build();
 		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
@@ -213,8 +217,10 @@ class UtledTilgangServiceTest {
 	// Journalført før innsynsdato og hvis innsyn er null.
 	@Test
 	void shouldReturnTrueWhenJournalfoertBeforeInnsynsdatoAndInnsynIsNull() {
+		final LocalDateTime journalfoertDato = LocalDateTime.of(2016, 5, 6, 0, 0);
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
-				.journalfoertDato(LocalDateTime.of(2016, 5, 6, 0, 0))
+				.datoOpprettet(journalfoertDato)
+				.journalfoertDato(journalfoertDato)
 				.build();
 		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
 		assertThat(actual).isTrue();
@@ -245,6 +251,7 @@ class UtledTilgangServiceTest {
 	@Test
 	void shouldReturnTrueWhenFeilregistrert() {
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
+				.datoOpprettet(LocalDateTime.now())
 				.tilgangSak(TilgangSak.builder()
 						.feilregistrert(true)
 						.build())
@@ -447,6 +454,7 @@ class UtledTilgangServiceTest {
 	void shouldReturnFalseWhenGjeldendeTemaIsUnntattInnsyn() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.tema("KTA")
+				.datoOpprettet(LocalDateTime.now())
 				.journalstatus(FERDIGSTILT)
 				.tilgangSak(TilgangSak.builder()
 						.tema("KTA")
@@ -459,6 +467,7 @@ class UtledTilgangServiceTest {
 	void shouldReturnTrueWhenGjeldendeTemaIsNotUnntattInnsyn() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.tema("DAG")
+				.datoOpprettet(LocalDateTime.now())
 				.journalstatus(FERDIGSTILT)
 				.tilgangSak(TilgangSak.builder()
 						.tema("DAG")
@@ -470,6 +479,7 @@ class UtledTilgangServiceTest {
 	private boolean isSkannetDokument(String kanal, TilgangInnsyn innsyn) {
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
 				.mottakskanal(kanal)
+				.datoOpprettet(LocalDateTime.now())
 				.innsyn(innsyn)
 				.build();
 		return utledTilgangService.isSkannetDokumentAndInnsynIsNotVises(journalpost);
