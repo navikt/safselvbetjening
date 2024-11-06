@@ -21,13 +21,13 @@ import static no.nav.safselvbetjening.tilgang.TilgangJournalposttype.ANNEN;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalposttype.NOTAT;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT;
 import static no.nav.safselvbetjening.tilgang.TilgangMottakskanal.IKKE_SKANNING;
+import static no.nav.safselvbetjening.tilgang.TilgangMottakskanal.SKANNING;
 import static no.nav.safselvbetjening.tilgang.TilgangSkjermingType.INGEN_SKJERMING;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.AKTOER_ID;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_AKTOER_ID;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_PART;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ARKIVSAKSYSTEM_GOSYS;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ARKIVSAKSYSTEM_PENSJON;
-import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.FOER_INNSYNSDATO;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.IDENT;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_ARBEIDSRAADGIVNING_PSYKOLOGTESTER;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_ARBEIDSRAADGIVNING_SKJERMET;
@@ -38,12 +38,18 @@ import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_KONTR
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_PENSJON;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseJournalfoertJournalpost;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseMottattJournalpost;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseTilgangDokument;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseTilgangJournalpost;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseTilgangVariant;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.defaultBrukerIdenter;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.tilgangDokument;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.tilgangVariant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UtledTilgangServiceTest {
 
+	private static final LocalDate TIDLIGSTE_INNSYNSDATO = LocalDate.of(2016, 6, 4);
+	private static final LocalDateTime FOER_TIDLIGSTE_INNSYNSDATO = TIDLIGSTE_INNSYNSDATO.atStartOfDay().minusMinutes(1);
 	private static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
 	private static final String SKAN_IM = "SKAN_IM";
 	private static final String SKAN_NETS = "SKAN_NETS";
@@ -51,40 +57,117 @@ class UtledTilgangServiceTest {
 	private final UtledTilgangService utledTilgangService;
 
 	public UtledTilgangServiceTest() {
-		utledTilgangService = new UtledTilgangService(LocalDate.of(2016, 6, 4));
+		utledTilgangService = new UtledTilgangService(TIDLIGSTE_INNSYNSDATO);
 	}
 
 	@Test
-	void shouldReturnTrueWhenTilgangTilJournalpost() {
+	void shouldReturnEmptyListWhenTilgangTilJournalpost() {
 		var tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).build(), defaultBrukerIdenter());
 		assertThat(tilgang).isEmpty();
 	}
 
 	@Test
-	void shouldReturnTrueWhenTilgangTilJournalpostWithInnsynBrukerStandardRegler() {
+	void shouldReturnEmptyListWhenTilgangTilJournalpostWithInnsynBrukerStandardRegler() {
 		var tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).build(), defaultBrukerIdenter());
 		assertThat(tilgang).isEmpty();
 	}
 
 	@Test
-	void shouldReturnTrueWhenTilgangTilJournalpostWithInnsynIsVises() {
+	void shouldReturnEmptyListWhenTilgangTilJournalpostWithInnsynIsVises() {
 		var tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_FARSKAP, VISES_MANUELT_GODKJENT).build(), defaultBrukerIdenter());
 		assertThat(tilgang).isEmpty();
 	}
 
 	@Test
-	void shouldReturnFalseeWhenTilgangTilJournalpostWithInnsynIsSjult() {
+	void shouldReturnSkjultInnsynReasonWhenTilgangTilJournalpostWithInnsynIsSkjult() {
 		var tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER, SKJULES_ORGAN_INTERNT).build(), defaultBrukerIdenter());
-		assertThat(tilgang).isNotEmpty();
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_SKJULT_INNSYN);
 	}
 
 	@Test
-	void shouldReturnFalseWhenJournalpostJournaldatoFoerOpprettetDato() {
+	void shouldReturnInnsynsdatoReasonWhenJournalpostJournaldatoFoerOpprettetDato() {
 		var tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER)
-				.journalfoertDato(FOER_INNSYNSDATO)
+				.journalfoertDato(FOER_TIDLIGSTE_INNSYNSDATO)
 				.build(), defaultBrukerIdenter());
-		assertThat(tilgang).isNotEmpty();
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_INNSYNSDATO);
 	}
+
+	@Test
+	void shouldReturnEmptyListWhenTilgangTilDokument() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).build(), tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
+		assertThat(tilgang).isEmpty();
+	}
+
+	@Test
+	void shouldReturnEmptyListWhenTilgangTilDokumentWithInnsynBrukerStandardRegler() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).build(), tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
+		assertThat(tilgang).isEmpty();
+	}
+
+	@Test
+	void shouldReturnEmptyListWhenTilgangTilDokumentWithInnsynIsVises() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_FARSKAP, VISES_MANUELT_GODKJENT).build(), tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
+		assertThat(tilgang).isEmpty();
+	}
+
+	@Test
+	void shouldReturnInnsynsdatoWhenJournalpostDokumentFoerOpprettetDato() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).journalfoertDato(FOER_TIDLIGSTE_INNSYNSDATO).build(),
+				tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_INNSYNSDATO);
+	}
+
+	@Test
+	void shouldReturnGDPRWhenTilgangTilDokumentWithSkjermingPOL() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).build(),
+				baseTilgangDokument().skjerming(TilgangSkjermingType.POL).build(), tilgangVariant(), defaultBrukerIdenter());
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_GDPR);
+	}
+
+	@Test
+	void shouldReturnGDPRWhenTilgangVariantWithSkjermingPOL() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).build(),
+				tilgangDokument(), baseTilgangVariant().skjerming(TilgangSkjermingType.POL).build(), defaultBrukerIdenter());
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_GDPR);
+	}
+
+	@Test
+	void shouldReturnDenyKassertWhenTilgangDokumentKassert() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).build(),
+				baseTilgangDokument().kassert(true).build(), tilgangVariant(), defaultBrukerIdenter());
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_KASSERT);
+	}
+
+	@Test
+	void shouldReturnDenySkannetWhenDokumentSkannet() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).mottakskanal(SKANNING).build(),
+				tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_SKANNET_DOKUMENT);
+	}
+
+	@Test
+	void shouldReturnEmptyListWhenDokumentSkannetAndInnsynVises() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).mottakskanal(SKANNING).innsyn(VISES_MANUELT_GODKJENT).build(),
+				tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
+		assertThat(tilgang).isEmpty();
+	}
+
+	@Test
+	void shouldReturnUgyldigVariantWhenTilgangVariantNotArkivOrSladdet() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).build(),
+				tilgangDokument(), baseTilgangVariant().variantformat(TilgangVariantFormat.from("ORIGINAL")).build(), defaultBrukerIdenter());
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_UGYLDIG_VARIANTFORMAT);
+	}
+
+	@Test
+	void shouldReturnAnnenPartWhenDokumentBelongsToAnnenPart() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER)
+						.avsenderMottakerId(ANNEN_PART)
+						.build(),
+				tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_ANNEN_PART);
+	}
+
 
 	//	1a - Bruker må være part for å se journalposter
 	// 	Mottatt - ingen sakstilknytning eller bruker
@@ -158,7 +241,7 @@ class UtledTilgangServiceTest {
 				.tema(TEMA_DAGPENGER)
 				.journalfoertDato(LocalDateTime.now())
 				.tilgangSak(TilgangGosysSak.builder()
-				.aktoerId(AktoerId.of(ANNEN_AKTOER_ID))
+						.aktoerId(AktoerId.of(ANNEN_AKTOER_ID))
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(false)
 						.tema(TEMA_DAGPENGER)
@@ -304,7 +387,7 @@ class UtledTilgangServiceTest {
 				.mottakskanal(IKKE_SKANNING)
 				.tema(tema)
 				.tilgangSak(TilgangGosysSak.builder()
-				.aktoerId(AktoerId.of(AKTOER_ID))
+						.aktoerId(AktoerId.of(AKTOER_ID))
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(false)
 						.tema(tema)

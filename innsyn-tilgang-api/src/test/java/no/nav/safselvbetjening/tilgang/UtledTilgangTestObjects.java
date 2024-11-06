@@ -25,7 +25,6 @@ public class UtledTilgangTestObjects {
 	public static final String TEMA_ARBEIDSRAADGIVNING_PSYKOLOGTESTER = "ARP";
 	static final TilgangFagsystem ARKIVSAKSYSTEM_GOSYS = GOSYS;
 	static final TilgangFagsystem ARKIVSAKSYSTEM_PENSJON = PENSJON;
-	static final LocalDateTime FOER_INNSYNSDATO = LocalDateTime.parse("2016-01-01T12:00");
 
 	static TilgangJournalpost.TilgangJournalpostBuilder baseTilgangJournalpost(String tema, TilgangInnsyn innsyn) {
 		return TilgangJournalpost.builder()
@@ -43,32 +42,39 @@ public class UtledTilgangTestObjects {
 						.build());
 	}
 
-	static TilgangJournalpost.TilgangJournalpostBuilder baseJournalpost(String tema, TilgangInnsyn innsyn) {
+	static TilgangJournalpost.TilgangJournalpostBuilder baseJournalfoertJournalpost(String tema, TilgangInnsyn innsyn) {
 		return baseTilgangJournalpost(tema, innsyn)
 				.journalpostId(40000000)
 				.journalstatus(FERDIGSTILT)
 				.journalposttype(ANNEN)
 				.avsenderMottakerId(IDENT)
 				.skjerming(TilgangSkjermingType.INGEN_SKJERMING)
-				.dokumenter(List.of(
-						TilgangDokument.builder()
-								.kassert(false)
-								.skjerming(TilgangSkjermingType.INGEN_SKJERMING)
-								.kategori("ES")
-								.dokumentvarianter(
-										List.of(TilgangVariant.builder()
-												.skjerming(TilgangSkjermingType.INGEN_SKJERMING)
-												.variantformat(TilgangVariantFormat.ARKIV)
-												.build()))
-								.build()));
+				.dokumenter(List.of(tilgangDokument()));
 	}
 
-	static TilgangJournalpost.TilgangJournalpostBuilder baseJournalfoertJournalpost(String tema, TilgangInnsyn innsyn) {
-		return baseJournalpost(tema, innsyn).journalstatus(FERDIGSTILT);
+	static TilgangDokument.TilgangDokumentBuilder baseTilgangDokument() {
+		return TilgangDokument.builder()
+				.kassert(false)
+				.skjerming(TilgangSkjermingType.INGEN_SKJERMING)
+				.kategori("ES")
+				.dokumentvarianter(List.of(tilgangVariant()));
+	}
+
+	static TilgangDokument tilgangDokument() {
+		return baseTilgangDokument().build();
+	}
+
+	static TilgangVariant.TilgangVariantBuilder baseTilgangVariant() {
+		return TilgangVariant.builder()
+				.skjerming(TilgangSkjermingType.INGEN_SKJERMING)
+				.variantformat(TilgangVariantFormat.ARKIV);
+	}
+	static TilgangVariant tilgangVariant() {
+		return baseTilgangVariant().build();
 	}
 
 	static TilgangJournalpost.TilgangJournalpostBuilder baseMottattJournalpost() {
-		return baseJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).journalstatus(MOTTATT)
+		return baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).journalstatus(MOTTATT)
 				.tilgangBruker(null)
 				.datoOpprettet(LocalDateTime.now())
 				.tema(TEMA_DAGPENGER)
