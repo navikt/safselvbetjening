@@ -43,10 +43,10 @@ public class TilgangJournalpost {
 		if (tilgangSak == null) {
 			return tema;
 		} else {
-			if (isBlank(tilgangSak.tema())) {
+			if (isBlank(tilgangSak.getTema())) {
 				return tema;
 			} else {
-				return tilgangSak.tema();
+				return tilgangSak.getTema();
 			}
 		}
 	}

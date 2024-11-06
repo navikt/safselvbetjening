@@ -1,9 +1,15 @@
 package no.nav.safselvbetjening.tilgang;
 
 public enum TilgangFagsystem {
-	FS22, PEN;
+	GOSYS, PENSJON;
 
 	public static TilgangFagsystem from(String fagsystem) {
-		return fagsystem == null ? null : valueOf(fagsystem.toUpperCase());
+		if ("PEN".equals(fagsystem)) {
+			return PENSJON;
+		} else if ("FS22".equals(fagsystem)) {
+			return GOSYS;
+		} else {
+			throw new IllegalArgumentException("Fagsystem " + fagsystem + " is not supported");
+		}
 	}
 }

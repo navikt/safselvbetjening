@@ -1,15 +1,13 @@
 package no.nav.safselvbetjening.tilgang;
 
-import lombok.Builder;
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
-@Builder
-public record TilgangSak(
-		String tema,
-		TilgangFagsystem fagsystem,
-		// Populert for arkivsaksystem gsak
-		AktoerId aktoerId,
-		// Populert for arkivsaksystem pensjon
-		Foedselsnummer foedselsnummer,
-		boolean feilregistrert
-) {
+@Getter
+@SuperBuilder
+public abstract sealed class TilgangSak permits TilgangGosysSak, TilgangPensjonSak {
+	private final String tema;
+	private final TilgangFagsystem fagsystem;
+	private final boolean feilregistrert;
 }
+

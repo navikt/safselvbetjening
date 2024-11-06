@@ -13,6 +13,13 @@ public final class AktoerId extends Ident {
 		return new AktoerId(value.trim());
 	}
 
+	public static AktoerId ofNullable(String value) {
+		if (value == null) {
+			return null;
+		}
+		return of(value);
+	}
+
 	public String toString() {
 		return "AktoerId(" + value + ")";
 	}

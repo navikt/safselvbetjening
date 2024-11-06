@@ -1,10 +1,11 @@
 package no.nav.safselvbetjening.tilgang;
 
 import lombok.Builder;
+import lombok.NonNull;
 
 @Builder
 public record TilgangVariant(
-		TilgangSkjermingType skjerming,
-		TilgangVariantFormat variantformat
+		@NonNull TilgangSkjermingType skjerming,
+		@NonNull TilgangVariantFormat variantformat
 ) {
 }

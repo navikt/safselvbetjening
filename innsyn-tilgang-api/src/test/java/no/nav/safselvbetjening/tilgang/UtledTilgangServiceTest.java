@@ -20,6 +20,8 @@ import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.VISES_MASKINELT_GODK
 import static no.nav.safselvbetjening.tilgang.TilgangJournalposttype.ANNEN;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalposttype.NOTAT;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT;
+import static no.nav.safselvbetjening.tilgang.TilgangMottakskanal.IKKE_SKANNING;
+import static no.nav.safselvbetjening.tilgang.TilgangSkjermingType.INGEN_SKJERMING;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.AKTOER_ID;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_AKTOER_ID;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_PART;
@@ -136,7 +138,7 @@ class UtledTilgangServiceTest {
 				.datoOpprettet(LocalDateTime.now())
 				.tema(TEMA_PENSJON)
 				.journalfoertDato(LocalDateTime.now())
-				.tilgangSak(TilgangSak.builder()
+				.tilgangSak(TilgangPensjonSak.builder()
 						.foedselsnummer(Foedselsnummer.of(IDENT))
 						.fagsystem(ARKIVSAKSYSTEM_PENSJON)
 						.feilregistrert(false)
@@ -155,8 +157,8 @@ class UtledTilgangServiceTest {
 				.datoOpprettet(LocalDateTime.now())
 				.tema(TEMA_DAGPENGER)
 				.journalfoertDato(LocalDateTime.now())
-				.tilgangSak(TilgangSak.builder()
-						.aktoerId(AktoerId.of(ANNEN_AKTOER_ID))
+				.tilgangSak(TilgangGosysSak.builder()
+				.aktoerId(AktoerId.of(ANNEN_AKTOER_ID))
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(false)
 						.tema(TEMA_DAGPENGER)
@@ -175,8 +177,8 @@ class UtledTilgangServiceTest {
 				.datoOpprettet(LocalDateTime.now())
 				.tema(TEMA_PENSJON)
 				.journalfoertDato(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
-				.tilgangSak(TilgangSak.builder()
+				.mottakskanal(IKKE_SKANNING)
+				.tilgangSak(TilgangPensjonSak.builder()
 						.fagsystem(ARKIVSAKSYSTEM_PENSJON)
 						.feilregistrert(false)
 						.build())
@@ -192,7 +194,7 @@ class UtledTilgangServiceTest {
 		final LocalDateTime journalfoertDato = LocalDateTime.of(2016, 5, 6, 0, 0);
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
 				.datoOpprettet(journalfoertDato)
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING)
 				.journalfoertDato(journalfoertDato)
 				.innsyn(VISES_MANUELT_GODKJENT)
 				.build();
@@ -208,7 +210,7 @@ class UtledTilgangServiceTest {
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
 				.datoOpprettet(journalfoertDato)
 				.journalfoertDato(journalfoertDato)
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING)
 				.innsyn(BRUK_STANDARDREGLER)
 				.build();
 		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
@@ -224,7 +226,7 @@ class UtledTilgangServiceTest {
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(journalfoertDato)
 				.journalfoertDato(journalfoertDato)
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING)
 				.build();
 		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
 		assertThat(actual).isTrue();
@@ -238,7 +240,7 @@ class UtledTilgangServiceTest {
 				.journalfoertDato(LocalDateTime.of(2017, 5, 6, 0, 0))
 				.datoOpprettet(LocalDateTime.of(2015, 5, 6, 0, 0))
 				.innsyn(SKJULES_BRUKERS_ONSKE)
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING)
 				.build();
 		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
 		assertThat(actual).isTrue();
@@ -258,8 +260,8 @@ class UtledTilgangServiceTest {
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
-				.tilgangSak(TilgangSak.builder()
+				.mottakskanal(IKKE_SKANNING)
+				.tilgangSak(TilgangGosysSak.builder()
 						.feilregistrert(true)
 						.build())
 				.build();
@@ -280,7 +282,7 @@ class UtledTilgangServiceTest {
 	void shouldReturnFalseWhenMottattAndKontrollsakOrFarskapssak(String tema) {
 		TilgangJournalpost journalpost = baseMottattJournalpost()
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING)
 				.tema(tema)
 				.build();
 		assertThat(utledTilgangService.isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost)).isFalse();
@@ -299,10 +301,10 @@ class UtledTilgangServiceTest {
 	void shouldReturnFalseWhenJournalfoertAndSakTemaIkkeInnsynForBruker(String tema) {
 		TilgangJournalpost journalpost = baseJournalfoertJournalpost(tema, SKJULES_BRUKERS_ONSKE)
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING)
 				.tema(tema)
-				.tilgangSak(TilgangSak.builder()
-						.aktoerId(AktoerId.of(AKTOER_ID))
+				.tilgangSak(TilgangGosysSak.builder()
+				.aktoerId(AktoerId.of(AKTOER_ID))
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(false)
 						.tema(tema)
@@ -346,6 +348,7 @@ class UtledTilgangServiceTest {
 				.journalposttype(NOTAT)
 				.dokumenter(List.of(
 						TilgangDokument.builder()
+								.skjerming(INGEN_SKJERMING)
 								.kategori(FORVALTNINGSNOTAT)
 								.build()))
 				.build();
@@ -442,6 +445,7 @@ class UtledTilgangServiceTest {
 				.skjerming(TilgangSkjermingType.POL)
 				.dokumentvarianter(List.of(TilgangVariant.builder()
 						.skjerming(TilgangSkjermingType.POL)
+						.variantformat(TilgangVariantFormat.ARKIV)
 						.build()))
 				.build();
 		boolean actual = utledTilgangService.isDokumentvariantGDPRRestricted(dokumentInfo.dokumentvarianter().getFirst());
@@ -453,6 +457,7 @@ class UtledTilgangServiceTest {
 	void shouldReturnWhenDokumentIsKassert() {
 		boolean actual = utledTilgangService.isDokumentKassert(
 				TilgangDokument.builder()
+						.skjerming(INGEN_SKJERMING)
 						.kassert(true)
 						.build());
 		assertThat(actual).isTrue();
@@ -465,9 +470,9 @@ class UtledTilgangServiceTest {
 				.tema("KTA")
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING)
 				.journalstatus(FERDIGSTILT)
-				.tilgangSak(TilgangSak.builder()
+				.tilgangSak(TilgangGosysSak.builder()
 						.tema("KTA")
 						.build())
 				.build();
@@ -480,9 +485,9 @@ class UtledTilgangServiceTest {
 				.tema("DAG")
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING)
 				.journalstatus(FERDIGSTILT)
-				.tilgangSak(TilgangSak.builder()
+				.tilgangSak(TilgangGosysSak.builder()
 						.tema("DAG")
 						.build())
 				.build();
@@ -512,9 +517,8 @@ class UtledTilgangServiceTest {
 	private TilgangJournalpost getBaseJournalfoertJournalpostWithInnsyn(TilgangInnsyn innsyn) {
 		return baseJournalfoertJournalpost(TEMA_DAGPENGER, innsyn)
 				.dokumenter(List.of(
-						TilgangDokument.builder().build(),
-						TilgangDokument.builder()
-								.build()
+						TilgangDokument.builder().skjerming(INGEN_SKJERMING).build(),
+						TilgangDokument.builder().skjerming(INGEN_SKJERMING).build()
 				))
 				.build();
 	}

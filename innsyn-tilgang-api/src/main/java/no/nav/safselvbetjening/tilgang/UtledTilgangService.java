@@ -19,8 +19,6 @@ import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKJU
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_TEMAER_UNNTATT_INNSYN;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_UGYLDIG_JOURNALSTATUS;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_UGYLDIG_VARIANTFORMAT;
-import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.FS22;
-import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.PEN;
 import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.BRUK_STANDARDREGLER;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.MOTTATT;
@@ -129,13 +127,13 @@ public class UtledTilgangService {
 				return identer.contains(tilgangBruker.brukerId());
 			}
 		} else {
-			TilgangSak tilgangSak = tilgangJournalpost.getTilgangSak();
-			if (tilgangSak != null && FERDIGSTILT == journalstatus) {
-				if (FS22 == tilgangSak.fagsystem()) {
-					return identer.contains(tilgangSak.aktoerId());
-				} else if (PEN == tilgangSak.fagsystem()) {
-					return tilgangSak.foedselsnummer() != null && identer.contains(tilgangSak.foedselsnummer());
-				}
+			if (FERDIGSTILT == journalstatus) {
+				TilgangSak tilgangSak = tilgangJournalpost.getTilgangSak();
+				return switch (tilgangSak) {
+					case null -> false;
+					case TilgangGosysSak gSak -> identer.contains(gSak.getAktoerId());
+					case TilgangPensjonSak pensjonSak -> pensjonSak.getFoedselsnummer() != null && identer.contains(pensjonSak.getFoedselsnummer());
+				};
 			}
 		}
 		return false;
@@ -174,7 +172,7 @@ public class UtledTilgangService {
 		if (journalpost.getTilgangSak() == null) {
 			return false;
 		}
-		return journalpost.getTilgangSak().feilregistrert();
+		return journalpost.getTilgangSak().isFeilregistrert();
 	}
 
 	/**

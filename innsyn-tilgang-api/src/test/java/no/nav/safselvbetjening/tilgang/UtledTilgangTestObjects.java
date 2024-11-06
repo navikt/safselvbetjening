@@ -3,8 +3,8 @@ package no.nav.safselvbetjening.tilgang;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.FS22;
-import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.PEN;
+import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.GOSYS;
+import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.PENSJON;
 import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.BRUK_STANDARDREGLER;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalposttype.ANNEN;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT;
@@ -23,8 +23,8 @@ public class UtledTilgangTestObjects {
 	public static final String TEMA_KONTROLL_ANMELDELSE = "KTA";
 	public static final String TEMA_ARBEIDSRAADGIVNING_SKJERMET = "ARS";
 	public static final String TEMA_ARBEIDSRAADGIVNING_PSYKOLOGTESTER = "ARP";
-	static final TilgangFagsystem ARKIVSAKSYSTEM_GOSYS = FS22;
-	static final TilgangFagsystem ARKIVSAKSYSTEM_PENSJON = PEN;
+	static final TilgangFagsystem ARKIVSAKSYSTEM_GOSYS = GOSYS;
+	static final TilgangFagsystem ARKIVSAKSYSTEM_PENSJON = PENSJON;
 	static final LocalDateTime FOER_INNSYNSDATO = LocalDateTime.parse("2016-01-01T12:00");
 
 	static TilgangJournalpost.TilgangJournalpostBuilder baseTilgangJournalpost(String tema, TilgangInnsyn innsyn) {
@@ -35,7 +35,7 @@ public class UtledTilgangTestObjects {
 				.journalfoertDato(LocalDateTime.now())
 				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
 				.innsyn(innsyn)
-				.tilgangSak(TilgangSak.builder()
+				.tilgangSak(TilgangGosysSak.builder()
 						.aktoerId(AktoerId.of(AKTOER_ID))
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(false)
@@ -58,10 +58,10 @@ public class UtledTilgangTestObjects {
 								.dokumentvarianter(
 										List.of(TilgangVariant.builder()
 												.skjerming(TilgangSkjermingType.INGEN_SKJERMING)
+												.variantformat(TilgangVariantFormat.ARKIV)
 												.build()))
 								.build()));
 	}
-
 
 	static TilgangJournalpost.TilgangJournalpostBuilder baseJournalfoertJournalpost(String tema, TilgangInnsyn innsyn) {
 		return baseJournalpost(tema, innsyn).journalstatus(FERDIGSTILT);

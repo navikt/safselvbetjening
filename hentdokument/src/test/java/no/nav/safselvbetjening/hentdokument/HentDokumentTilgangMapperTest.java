@@ -10,10 +10,11 @@ import no.nav.safselvbetjening.tilgang.Foedselsnummer;
 import no.nav.safselvbetjening.tilgang.TilgangBruker;
 import no.nav.safselvbetjening.tilgang.TilgangDokument;
 import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
+import no.nav.safselvbetjening.tilgang.TilgangGosysSak;
 import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 import no.nav.safselvbetjening.tilgang.TilgangJournalstatus;
 import no.nav.safselvbetjening.tilgang.TilgangMottakskanal;
-import no.nav.safselvbetjening.tilgang.TilgangSak;
+import no.nav.safselvbetjening.tilgang.TilgangPensjonSak;
 import no.nav.safselvbetjening.tilgang.TilgangVariant;
 import org.junit.jupiter.api.Test;
 
@@ -72,12 +73,12 @@ class HentDokumentTilgangMapperTest {
 		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
 		assertThat(tilgangBruker.brukerId()).isEqualTo(FOEDSELSNUMMER);
 
-		TilgangSak tilgangSak = tilgang.getTilgangSak();
-		assertThat(tilgangSak.aktoerId()).isEqualTo(AktoerId.of(AKTOER_ID));
-		assertThat(tilgangSak.foedselsnummer()).isEqualTo(FOEDSELSNUMMER);
-		assertThat(tilgangSak.fagsystem()).isEqualTo(TilgangFagsystem.FS22);
-		assertThat(tilgangSak.tema()).isEqualTo(TEMA);
-		assertThat(tilgangSak.feilregistrert()).isTrue();
+		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangGosysSak.class);
+		TilgangGosysSak tilgangSak = (TilgangGosysSak) tilgang.getTilgangSak();
+		assertThat(tilgangSak.getAktoerId()).isEqualTo(AktoerId.of(AKTOER_ID));
+		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.GOSYS);
+		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
+		assertThat(tilgangSak.isFeilregistrert()).isTrue();
 
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().getFirst();
 		assertThat(dokumentInfo.isHoveddokument()).isTrue();
@@ -112,12 +113,12 @@ class HentDokumentTilgangMapperTest {
 		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
 		assertThat(tilgangBruker.brukerId()).isEqualTo(FOEDSELSNUMMER);
 
-		TilgangSak tilgangSak = tilgang.getTilgangSak();
-		assertThat(tilgangSak.aktoerId()).isEqualTo(AktoerId.of(AKTOER_ID));
-		assertThat(tilgangSak.foedselsnummer()).isEqualTo(FOEDSELSNUMMER);
-		assertThat(tilgangSak.fagsystem()).isEqualTo(TilgangFagsystem.FS22);
-		assertThat(tilgangSak.tema()).isEqualTo(TEMA);
-		assertThat(tilgangSak.feilregistrert()).isTrue();
+		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangGosysSak.class);
+		TilgangGosysSak tilgangSak = (TilgangGosysSak) tilgang.getTilgangSak();
+		assertThat(tilgangSak.getAktoerId()).isEqualTo(AktoerId.of(AKTOER_ID));
+		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.GOSYS);
+		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
+		assertThat(tilgangSak.isFeilregistrert()).isTrue();
 
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().getFirst();
 		assertThat(dokumentInfo.isHoveddokument()).isTrue();
@@ -149,12 +150,12 @@ class HentDokumentTilgangMapperTest {
 		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
 		assertThat(tilgangBruker.brukerId()).isEqualTo(FOEDSELSNUMMER);
 
-		TilgangSak tilgangSak = tilgang.getTilgangSak();
-		assertThat(tilgangSak.aktoerId()).isNull();
-		assertThat(tilgangSak.foedselsnummer()).isEqualTo(FOEDSELSNUMMER);
-		assertThat(tilgangSak.fagsystem()).isEqualTo(TilgangFagsystem.PEN);
-		assertThat(tilgangSak.tema()).isEqualTo(TEMA_PENSJON_UFO);
-		assertThat(tilgangSak.feilregistrert()).isTrue();
+		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangPensjonSak.class);
+		TilgangPensjonSak tilgangSak = (TilgangPensjonSak) tilgang.getTilgangSak();
+		assertThat(tilgangSak.getFoedselsnummer()).isEqualTo(FOEDSELSNUMMER);
+		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.PENSJON);
+		assertThat(tilgangSak.getTema()).isEqualTo(TEMA_PENSJON_UFO);
+		assertThat(tilgangSak.isFeilregistrert()).isTrue();
 
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().getFirst();
 		assertThat(dokumentInfo.isHoveddokument()).isTrue();
@@ -180,7 +181,7 @@ class HentDokumentTilgangMapperTest {
 		Pensjonsak pensjonsak = new Pensjonsak(123L, null);
 		Journalpost journalpost = mapper.map(arkivJournalpost, arkivJournalpost.dokumenter().getFirst().dokumentInfoId(), ARKIV_VARIANT, createBrukerIdenter(), Optional.of(pensjonsak));
 
-		assertThat(journalpost.getTilgang().getTilgangSak().tema()).isEqualTo(PEN.name());
+		assertThat(journalpost.getTilgang().getTilgangSak().getTema()).isEqualTo(PEN.name());
 	}
 
 	@Test

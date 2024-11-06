@@ -11,10 +11,11 @@ import no.nav.safselvbetjening.tilgang.Foedselsnummer;
 import no.nav.safselvbetjening.tilgang.TilgangBruker;
 import no.nav.safselvbetjening.tilgang.TilgangDokument;
 import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
+import no.nav.safselvbetjening.tilgang.TilgangGosysSak;
 import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 import no.nav.safselvbetjening.tilgang.TilgangJournalstatus;
 import no.nav.safselvbetjening.tilgang.TilgangMottakskanal;
-import no.nav.safselvbetjening.tilgang.TilgangSak;
+import no.nav.safselvbetjening.tilgang.TilgangPensjonSak;
 import no.nav.safselvbetjening.tilgang.TilgangSkjermingType;
 import no.nav.safselvbetjening.tilgang.TilgangVariant;
 import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
@@ -291,12 +292,12 @@ class ArkivJournalpostMapperTest {
 		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
 		assertThat(tilgangBruker.brukerId()).isEqualTo(BRUKER_FNR);
 
-		TilgangSak tilgangSak = tilgang.getTilgangSak();
-		assertThat(tilgangSak.aktoerId()).isEqualTo(AktoerId.of(ARKIVSAK_AKTOER_ID));
-		assertThat(tilgangSak.foedselsnummer()).isEqualTo(BRUKER_FNR);
-		assertThat(tilgangSak.fagsystem()).isEqualTo(TilgangFagsystem.FS22);
-		assertThat(tilgangSak.tema()).isEqualTo(TEMA);
-		assertThat(tilgangSak.feilregistrert()).isTrue();
+		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangGosysSak.class);
+		TilgangGosysSak tilgangSak = (TilgangGosysSak) tilgang.getTilgangSak();
+		assertThat(tilgangSak.getAktoerId()).isEqualTo(AktoerId.of(ARKIVSAK_AKTOER_ID));
+		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.GOSYS);
+		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
+		assertThat(tilgangSak.isFeilregistrert()).isTrue();
 	}
 
 	private static void assertPensjonJournalpostTilgang(TilgangJournalpost tilgang) {
@@ -309,12 +310,12 @@ class ArkivJournalpostMapperTest {
 		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
 		assertThat(tilgangBruker.brukerId()).isEqualTo(BRUKER_FNR);
 
-		TilgangSak tilgangSak = tilgang.getTilgangSak();
-		assertThat(tilgangSak.aktoerId()).isNull();
-		assertThat(tilgangSak.foedselsnummer()).isEqualTo(BRUKER_FNR);
-		assertThat(tilgangSak.fagsystem()).isEqualTo(TilgangFagsystem.PEN);
-		assertThat(tilgangSak.tema()).isEqualTo(TEMA_PENSJON_UFORETRYGD);
-		assertThat(tilgangSak.feilregistrert()).isTrue();
+		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangPensjonSak.class);
+		TilgangPensjonSak tilgangSak = (TilgangPensjonSak) tilgang.getTilgangSak();
+		assertThat(tilgangSak.getFoedselsnummer()).isEqualTo(BRUKER_FNR);
+		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.PENSJON);
+		assertThat(tilgangSak.getTema()).isEqualTo(TEMA_PENSJON_UFORETRYGD);
+		assertThat(tilgangSak.isFeilregistrert()).isTrue();
 	}
 
 	static SafSelvbetjeningProperties safSelvbetjeningProperties() {

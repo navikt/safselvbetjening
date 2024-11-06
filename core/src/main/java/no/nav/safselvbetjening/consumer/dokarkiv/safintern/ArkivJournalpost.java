@@ -6,6 +6,8 @@ import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.tilgang.AktoerId;
 import no.nav.safselvbetjening.tilgang.Foedselsnummer;
 import no.nav.safselvbetjening.tilgang.Organisasjonsnummer;
+import no.nav.safselvbetjening.tilgang.TilgangGosysSak;
+import no.nav.safselvbetjening.tilgang.TilgangPensjonSak;
 import no.nav.safselvbetjening.tilgang.TilgangBruker;
 import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
 import no.nav.safselvbetjening.tilgang.TilgangInnsyn;
@@ -89,25 +91,24 @@ public record ArkivJournalpost(Long journalpostId,
 	}
 
 	private TilgangSak mapTilgangSak(BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
-		if (!this.isTilknyttetSak()) {
+		if (!isTilknyttetSak()) {
 			return null;
 		}
 
-		ArkivSaksrelasjon arkivSaksrelasjon = this.saksrelasjon();
-		TilgangSak.TilgangSakBuilder tilgangSakBuilder = TilgangSak.builder()
-				.foedselsnummer(Foedselsnummer.of(brukerIdenter.getAktivFolkeregisterident()))
-				.fagsystem(TilgangFagsystem.from(arkivSaksrelasjon.fagsystem()))
-				.feilregistrert(arkivSaksrelasjon.feilregistrert() != null && arkivSaksrelasjon.feilregistrert());
-
-		if (arkivSaksrelasjon.isPensjonsak()) {
-			return tilgangSakBuilder
+		if (saksrelasjon.isPensjonsak()) {
+			return TilgangPensjonSak.builder()
+					.fagsystem(TilgangFagsystem.from(saksrelasjon.fagsystem()))
+					.feilregistrert(saksrelasjon.feilregistrert() != null && saksrelasjon.feilregistrert())
 					.tema(pensjonsakOpt.map(Pensjonsak::arkivtema).orElse(null))
+					.foedselsnummer(Foedselsnummer.of(brukerIdenter.getAktivFolkeregisterident()))
 					.build();
 		} else {
-			ArkivSak arkivSak = arkivSaksrelasjon.sak();
-			return tilgangSakBuilder
-					.aktoerId(arkivSak.aktoerId() != null ? AktoerId.of(arkivSak.aktoerId()) : null)
+			ArkivSak arkivSak = saksrelasjon.sak();
+			return TilgangGosysSak.builder()
+					.fagsystem(TilgangFagsystem.from(saksrelasjon.fagsystem()))
+					.feilregistrert(saksrelasjon.feilregistrert() != null && saksrelasjon.feilregistrert())
 					.tema(arkivSak.tema())
+					.aktoerId(AktoerId.ofNullable(arkivSak.aktoerId()))
 					.build();
 		}
 	}

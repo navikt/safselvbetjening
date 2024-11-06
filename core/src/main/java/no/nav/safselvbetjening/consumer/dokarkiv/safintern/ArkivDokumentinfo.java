@@ -23,12 +23,8 @@ public record ArkivDokumentinfo(Long dokumentInfoId,
 				.kassert(kassert != null && kassert)
 				.kategori(kategori)
 				.hoveddokument(ArkivJournalpostMapper.TILKNYTTET_SOM_HOVEDDOKUMENT.equals(tilknyttetSom))
-				.skjerming(mapSkjerming(skjerming))
+				.skjerming(TilgangSkjermingType.from(skjerming))
 				.dokumentvarianter(fildetaljer.stream().map(ArkivFildetaljer::getTilgangVariant).toList())
 				.build();
-	}
-
-	private TilgangSkjermingType mapSkjerming(String skjerming) {
-		return TilgangSkjermingType.from(skjerming);
 	}
 }

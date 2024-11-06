@@ -1,6 +1,7 @@
 package no.nav.safselvbetjening.tilgang;
 
 import lombok.Builder;
+import lombok.NonNull;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ public record TilgangDokument(
 		String kategori,
 		boolean kassert,
 		boolean hoveddokument,
-		TilgangSkjermingType skjerming,
+		@NonNull TilgangSkjermingType skjerming,
 		List<TilgangVariant> dokumentvarianter
 ) {
 }
