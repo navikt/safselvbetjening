@@ -128,7 +128,7 @@ public class HentDokumentService {
 		return new Tilgangskontroll(journalpost, fullmaktOpt);
 	}
 
-	private void utledTilgangHentDokument(TilgangJournalpost journalpost, List<Ident> brukerIdenter, String variantFormat) {
+	private void utledTilgangHentDokument(TilgangJournalpost journalpost, Set<Ident> brukerIdenter, String variantFormat) {
 
 		// Tilgang for journalpost
 		var journalpostErrors = utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter);

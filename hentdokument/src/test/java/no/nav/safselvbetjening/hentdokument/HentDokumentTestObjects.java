@@ -58,7 +58,7 @@ public class HentDokumentTestObjects {
 	public static ArkivJournalpost arkivJournalpost() {
 		return baseArkivJournalpost()
 				.skjerming(SkjermingTypeCode.POL.name())
-				.bruker(new ArkivBruker(IDENT, null))
+				.bruker(new ArkivBruker(IDENT, "PERSON"))
 				.innsyn(InnsynCode.BRUK_STANDARDREGLER.name())
 				.saksrelasjon(ArkivSaksrelasjon.builder()
 						.sakId(1L)
@@ -77,7 +77,7 @@ public class HentDokumentTestObjects {
 				.status(E.name())
 				.utsendingskanal(UtsendingsKanalCode.NAV_NO.name())
 				.skjerming(SkjermingTypeCode.POL.name())
-				.bruker(new ArkivBruker(IDENT, null))
+				.bruker(new ArkivBruker(IDENT, "PERSON"))
 				.innsyn(InnsynCode.BRUK_STANDARDREGLER.name())
 				.saksrelasjon(ArkivSaksrelasjon.builder()
 						.sakId(1L)
@@ -92,7 +92,7 @@ public class HentDokumentTestObjects {
 	public static ArkivJournalpost pensjonArkivJournalpost() {
 		return baseArkivJournalpost()
 				.skjerming(SkjermingTypeCode.POL.name())
-				.bruker(new ArkivBruker(IDENT, null))
+				.bruker(new ArkivBruker(IDENT, "PERSON"))
 				.innsyn(InnsynCode.BRUK_STANDARDREGLER.name())
 				.saksrelasjon(ArkivSaksrelasjon.builder()
 						.sakId(1L)

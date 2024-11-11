@@ -5,16 +5,16 @@ import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.tilgang.AktoerId;
 import no.nav.safselvbetjening.tilgang.Foedselsnummer;
+import no.nav.safselvbetjening.tilgang.Ident;
 import no.nav.safselvbetjening.tilgang.Organisasjonsnummer;
-import no.nav.safselvbetjening.tilgang.TilgangGosysSak;
-import no.nav.safselvbetjening.tilgang.TilgangPensjonSak;
 import no.nav.safselvbetjening.tilgang.TilgangBruker;
-import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
+import no.nav.safselvbetjening.tilgang.TilgangGosysSak;
 import no.nav.safselvbetjening.tilgang.TilgangInnsyn;
 import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 import no.nav.safselvbetjening.tilgang.TilgangJournalposttype;
 import no.nav.safselvbetjening.tilgang.TilgangJournalstatus;
 import no.nav.safselvbetjening.tilgang.TilgangMottakskanal;
+import no.nav.safselvbetjening.tilgang.TilgangPensjonSak;
 import no.nav.safselvbetjening.tilgang.TilgangSak;
 import no.nav.safselvbetjening.tilgang.TilgangSkjermingType;
 
@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
+import static org.apache.commons.lang3.StringUtils.isNumeric;
 
 @Builder
 public record ArkivJournalpost(Long journalpostId,
@@ -71,23 +72,52 @@ public record ArkivJournalpost(Long journalpostId,
 		return relevanteDatoer.journalfoert().toLocalDateTime();
 	}
 
-	private String mapAvsenderMottakerId() {
+	private Ident mapAvsenderMottakerId() {
 		if (avsenderMottaker == null) {
 			return null;
 		}
 
-		return avsenderMottaker.id();
+		if (avsenderMottaker.type() != null) {
+			if ("ORGNR".equalsIgnoreCase(avsenderMottaker.type())) {
+				return Organisasjonsnummer.of(avsenderMottaker.id());
+			} else if ("FNR".equalsIgnoreCase(avsenderMottaker.type())) {
+				return Foedselsnummer.of(avsenderMottaker.id());
+			} else {
+				return AktoerId.of(avsenderMottaker.id());
+			}
+		} else {
+			if (avsenderMottaker.id() == null) {
+				return null;
+			} else {
+				switch (avsenderMottaker.id().length()) {
+					case 11:
+						if (isNumeric(avsenderMottaker.id())) {
+							return Foedselsnummer.of(avsenderMottaker.id());
+						} else {
+							return AktoerId.of(avsenderMottaker.id());
+						}
+					case 9:
+						return Organisasjonsnummer.of(avsenderMottaker.id());
+					default:
+						return AktoerId.of(avsenderMottaker.id());
+				}
+			}
+
+		}
 	}
 
 	private TilgangBruker mapTilgangBruker() {
 		if (bruker == null) {
 			return null;
 		}
+
 		if ("ORGANISASJON".equals(bruker.type())) {
 			return new TilgangBruker(Organisasjonsnummer.of(bruker.id()));
+		} else if ("PERSON".equalsIgnoreCase(bruker.type())) {
+			return new TilgangBruker(Foedselsnummer.of(bruker.id()));
+		} else {
+			return new TilgangBruker(AktoerId.of(bruker.id()));
 		}
-
-		return new TilgangBruker(Foedselsnummer.of(bruker.id()));
 	}
 
 	private TilgangSak mapTilgangSak(BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
@@ -97,7 +127,6 @@ public record ArkivJournalpost(Long journalpostId,
 
 		if (saksrelasjon.isPensjonsak()) {
 			return TilgangPensjonSak.builder()
-					.fagsystem(TilgangFagsystem.from(saksrelasjon.fagsystem()))
 					.feilregistrert(saksrelasjon.feilregistrert() != null && saksrelasjon.feilregistrert())
 					.tema(pensjonsakOpt.map(Pensjonsak::arkivtema).orElse(null))
 					.foedselsnummer(Foedselsnummer.of(brukerIdenter.getAktivFolkeregisterident()))
@@ -105,7 +134,6 @@ public record ArkivJournalpost(Long journalpostId,
 		} else {
 			ArkivSak arkivSak = saksrelasjon.sak();
 			return TilgangGosysSak.builder()
-					.fagsystem(TilgangFagsystem.from(saksrelasjon.fagsystem()))
 					.feilregistrert(saksrelasjon.feilregistrert() != null && saksrelasjon.feilregistrert())
 					.tema(arkivSak.tema())
 					.aktoerId(AktoerId.ofNullable(arkivSak.aktoerId()))

@@ -2,6 +2,11 @@ package no.nav.safselvbetjening.tilgang;
 
 import java.util.Set;
 
+/**
+ * TilgangVariantFormat er et enum som inneholder variantFormat som er relevante for tilgangskontroll. De eneste
+ * variantformatene som er tillatt for å gi innsyn i er SLADDET og ARKIV. Andre varianter skal mappes til UGYLDIG_FOR_INNSYN.
+ * Bruk from(String) for å mappe fra Dokarkiv-verdier
+ */
 public enum TilgangVariantFormat {
 	SLADDET(true),
 	ARKIV(true),
@@ -15,9 +20,16 @@ public enum TilgangVariantFormat {
 
 	public final boolean gyldigForInnsyn;
 
-	public static TilgangVariantFormat from(String value) {
-		if (GYLDIGE_VARIANTER.contains(value)) {
-			return valueOf(value);
+	/**
+	 * Map til TilgangVariantFormat fra verdi for variantformat fra dokarkiv sitt api
+	 *
+	 * @param variantformat verdi for skjerming fra dokarkiv sitt api
+	 * @return TilgangVariantFormat som korresponderer med verdi fra dokarkiv sitt api. UGYLDIG_FOR_INNSYN om
+	 * variantformatet ikke kan vises gjennom innsynsløsningen
+	 */
+	public static TilgangVariantFormat from(String variantformat) {
+		if (GYLDIGE_VARIANTER.contains(variantformat)) {
+			return valueOf(variantformat);
 		}
 		return UGYLDIG_FOR_INNSYN;
 	}

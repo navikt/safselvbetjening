@@ -1,5 +1,9 @@
 package no.nav.safselvbetjening.tilgang;
 
+/**
+ * TilgangDenyReason inneholder alle feilkodene som kan komme om en bruker skal nektes tilgang til en Journalpost eller
+ * et dokument. Kodene kan med fordel sendes ut i en eventuell respons til konsumenten, men bør ledsages av en menneske-vennlig tekst.
+ */
 public enum TilgangDenyReason {
 	DENY_REASON_ANNEN_PART("annen_part"),
 	DENY_REASON_INNSYNSDATO("opprettet_for_innsynsdato"),

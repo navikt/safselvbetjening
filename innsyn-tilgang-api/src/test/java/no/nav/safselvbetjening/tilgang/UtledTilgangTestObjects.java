@@ -2,6 +2,7 @@ package no.nav.safselvbetjening.tilgang;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.GOSYS;
 import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.PENSJON;
@@ -12,8 +13,8 @@ import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.MOTTATT;
 
 public class UtledTilgangTestObjects {
 
-	static final String IDENT = "12345678911";
-	static final String ANNEN_PART = "23456789101";
+	static final Foedselsnummer IDENT = Foedselsnummer.of("12345678911");
+	static final Foedselsnummer ANNEN_PART = Foedselsnummer.of("23456789101");
 	static final String AKTOER_ID = "10000000000";
 	static final String ANNEN_AKTOER_ID = "12000000000";
 	public static final String TEMA_PENSJON = "PEN";
@@ -28,7 +29,7 @@ public class UtledTilgangTestObjects {
 
 	static TilgangJournalpost.TilgangJournalpostBuilder baseTilgangJournalpost(String tema, TilgangInnsyn innsyn) {
 		return TilgangJournalpost.builder()
-				.tilgangBruker(new TilgangBruker(Foedselsnummer.of(IDENT)))
+				.tilgangBruker(new TilgangBruker(IDENT))
 				.datoOpprettet(LocalDateTime.now())
 				.tema(tema)
 				.journalfoertDato(LocalDateTime.now())
@@ -36,7 +37,6 @@ public class UtledTilgangTestObjects {
 				.innsyn(innsyn)
 				.tilgangSak(TilgangGosysSak.builder()
 						.aktoerId(AktoerId.of(AKTOER_ID))
-						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(false)
 						.tema(tema)
 						.build());
@@ -82,7 +82,7 @@ public class UtledTilgangTestObjects {
 				.tilgangSak(null);
 	}
 
-	static List<Ident> defaultBrukerIdenter() {
-		return List.of(AktoerId.of(AKTOER_ID), Foedselsnummer.of(IDENT));
+	static Set<Ident> defaultBrukerIdenter() {
+		return Set.of(AktoerId.of(AKTOER_ID), IDENT);
 	}
 }

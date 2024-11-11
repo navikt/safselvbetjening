@@ -284,7 +284,7 @@ class ArkivJournalpostMapperTest {
 
 	private static void assertGsakJournalpostTilgang(TilgangJournalpost tilgang) {
 		assertThat(tilgang.getSkjerming()).isEqualTo(TilgangSkjermingType.POL);
-		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
+		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Foedselsnummer.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(ARKIVJOURNALPOST_DATO_OPPRETTET.toLocalDateTime());
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(ARKIVJOURNALPOST_DATO_JOURNALFOERT.toLocalDateTime());
@@ -302,7 +302,7 @@ class ArkivJournalpostMapperTest {
 
 	private static void assertPensjonJournalpostTilgang(TilgangJournalpost tilgang) {
 		assertThat(tilgang.getSkjerming()).isEqualTo(TilgangSkjermingType.POL);
-		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
+		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Foedselsnummer.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(ARKIVJOURNALPOST_DATO_OPPRETTET.toLocalDateTime());
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(ARKIVJOURNALPOST_DATO_JOURNALFOERT.toLocalDateTime());

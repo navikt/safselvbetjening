@@ -13,6 +13,12 @@ import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.SKJULES;
 import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.VISES;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangService.isBlank;
 
+/**
+ * TilgangJournalpost representerer en journalpost, og inneholder den nødvendige informasjonen for å avgjøre om en
+ * innlogget bruker har tilgang til å se en journalpost eller et dokument i selvbetjeningsløsningen på nav.no.
+ * Feltene i TilgangJournalpost korresponderer med ArkivJournalpost-modellen fra dokarkiv sitt api.
+ * Se de enkelte typene for statiske metoder som mapper fra dokarkiv-data til tilgangsdomenet.
+ */
 @Value
 @Builder
 public class TilgangJournalpost {
@@ -26,7 +32,7 @@ public class TilgangJournalpost {
 	@NonNull
 	TilgangMottakskanal mottakskanal;
 	@ToString.Exclude
-	String avsenderMottakerId;
+	Ident avsenderMottakerId;
 	TilgangSkjermingType skjerming;
 	TilgangSak tilgangSak;
 	TilgangBruker tilgangBruker;

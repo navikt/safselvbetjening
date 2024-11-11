@@ -74,7 +74,7 @@ public class ArkivJournalpostMapper {
 			dokumentTilganger.put(tilgangDokument.id(), variantTilganger);
 		}
 
-		AvsenderMottaker arkivAvsenderMottaker = arkivAvsenderMottakerMapper.map(arkivJournalpost.avsenderMottaker(), arkivJournalpost.type());
+		AvsenderMottaker avsenderMottaker = arkivAvsenderMottakerMapper.map(arkivJournalpost.avsenderMottaker(), arkivJournalpost.type());
 		return Journalpost.builder()
 				.journalpostId(arkivJournalpost.journalpostId().toString())
 				.journalposttype(journalposttype)
@@ -84,8 +84,8 @@ public class ArkivJournalpostMapper {
 				.tittel(arkivJournalpost.innhold())
 				.eksternReferanseId(arkivJournalpost.kanalreferanseId())
 				.sak(mapSak(arkivJournalpost.saksrelasjon()))
-				.avsender(Journalposttype.I == journalposttype ? arkivAvsenderMottaker : null)
-				.mottaker(Journalposttype.U == journalposttype ? arkivAvsenderMottaker : null)
+				.avsender(Journalposttype.I == journalposttype ? avsenderMottaker : null)
+				.mottaker(Journalposttype.U == journalposttype ? avsenderMottaker : null)
 				.relevanteDatoer(mapRelevanteDatoer(arkivJournalpost))
 				.dokumenter(mapDokumenter(arkivJournalpost.dokumenter(), dokumentTilganger))
 				.tilgang(tilgang)

@@ -65,7 +65,7 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getTema()).isEqualTo(PEN.name());
 		assertThat(tilgang.getSkjerming().erSkjermet).isTrue();
 		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
-		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
+		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Foedselsnummer.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT.toLocalDateTime());
@@ -105,7 +105,7 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getTema()).isEqualTo(PEN.name());
 		assertThat(tilgang.getSkjerming().erSkjermet).isTrue();
 		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
-		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
+		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Foedselsnummer.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT.toLocalDateTime());
@@ -142,7 +142,7 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getTema()).isEqualTo(PEN.name());
 		assertThat(tilgang.getSkjerming().erSkjermet).isTrue();
 		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
-		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(AVSENDER_MOTTAKER_ID);
+		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Foedselsnummer.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT.toLocalDateTime());
