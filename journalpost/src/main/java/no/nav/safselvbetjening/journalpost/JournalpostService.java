@@ -63,14 +63,19 @@ public class JournalpostService {
 		validerInnloggetBruker(brukerIdenter, environment, graphQLRequestContext);
 		Optional<Pensjonsak> pensjonsakOpt = hentPensjonssak(brukerIdenter.getAktivFolkeregisterident(), arkivJournalpost);
 
-		Journalpost journalpost = arkivJournalpostMapper.map(arkivJournalpost, brukerIdenter, pensjonsakOpt);
+		try {
+			Journalpost journalpost = arkivJournalpostMapper.map(arkivJournalpost, brukerIdenter, pensjonsakOpt);
 
-		var denyReasons = utledTilgangService.utledTilgangJournalpost(journalpost.getTilgang(), brukerIdenter.getIdenter());
-		if (!denyReasons.isEmpty()) {
+			var denyReasons = utledTilgangService.utledTilgangJournalpost(journalpost.getTilgang(), brukerIdenter.getIdenter());
+			if (!denyReasons.isEmpty()) {
+				throw GraphQLException.of(FORBIDDEN, environment, FEILMELDING_INGEN_TILGANG_TIL_JOURNALPOST);
+			}
+
+			return journalpost;
+		} catch (IllegalArgumentException e) {
+			log.error("Klarte ikke å mappe arkivJournalpost med id={} til tilgangsjournalpost. Tilgang blir avvist. Feilmelding={}", arkivJournalpost.journalpostId(), e.getMessage(), e);
 			throw GraphQLException.of(FORBIDDEN, environment, FEILMELDING_INGEN_TILGANG_TIL_JOURNALPOST);
 		}
-
-		return journalpost;
 	}
 
 	// Har behov for å kunne vise ekte tema

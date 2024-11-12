@@ -90,6 +90,22 @@ final class ArkivJournalpostTestObjects {
 				.build();
 	}
 
+	static ArkivJournalpost inngaaendeArkivJournalpostMedHulleteData() {
+		return baseArkivJournalpost()
+				.skjerming(SkjermingTypeCode.POL.name())
+				.bruker(new ArkivBruker(null, "PERSON"))
+				.avsenderMottaker(new ArkivAvsenderMottaker(null, AVSENDER_MOTTAKER_ID_TYPE, AVSENDER_MOTTAKER_NAVN))
+				.innsyn(InnsynCode.BRUK_STANDARDREGLER.name())
+				.saksrelasjon(ArkivSaksrelasjon.builder()
+						.sakId(ARKIVSAK_ID)
+						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
+						.feilregistrert(true)
+						.sak(new ArkivSak(TEMA, ARKIVSAK_AKTOER_ID, null, FAGSAKNR, APPLIKASJON))
+						.build())
+				.dokumenter(List.of(hoveddokumentArkivDokumentinfo(), vedleggArkivDokumentinfo()))
+				.build();
+	}
+
 	static ArkivJournalpost utgaaendeArkivJournalpost() {
 		return baseArkivJournalpost()
 				.type(JournalpostTypeCode.U.name())

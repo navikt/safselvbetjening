@@ -73,7 +73,7 @@ public record ArkivJournalpost(Long journalpostId,
 	}
 
 	private Ident mapAvsenderMottakerId() {
-		if (avsenderMottaker == null) {
+		if (avsenderMottaker == null || avsenderMottaker.id() == null) {
 			return null;
 		}
 
@@ -86,28 +86,24 @@ public record ArkivJournalpost(Long journalpostId,
 				return AktoerId.of(avsenderMottaker.id());
 			}
 		} else {
-			if (avsenderMottaker.id() == null) {
-				return null;
-			} else {
-				switch (avsenderMottaker.id().length()) {
-					case 11:
-						if (isNumeric(avsenderMottaker.id())) {
-							return Foedselsnummer.of(avsenderMottaker.id());
-						} else {
-							return AktoerId.of(avsenderMottaker.id());
-						}
-					case 9:
-						return Organisasjonsnummer.of(avsenderMottaker.id());
-					default:
+			switch (avsenderMottaker.id().length()) {
+				case 11:
+					if (isNumeric(avsenderMottaker.id())) {
+						return Foedselsnummer.of(avsenderMottaker.id());
+					} else {
 						return AktoerId.of(avsenderMottaker.id());
-				}
+					}
+				case 9:
+					return Organisasjonsnummer.of(avsenderMottaker.id());
+				default:
+					return AktoerId.of(avsenderMottaker.id());
 			}
 
 		}
 	}
 
 	private TilgangBruker mapTilgangBruker() {
-		if (bruker == null) {
+		if (bruker == null || bruker.id() == null) {
 			return null;
 		}
 

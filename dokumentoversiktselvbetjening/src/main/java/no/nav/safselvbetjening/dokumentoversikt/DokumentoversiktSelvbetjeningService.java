@@ -100,8 +100,15 @@ class DokumentoversiktSelvbetjeningService {
 													  List<ArkivJournalpost> tilgangJournalposter) {
 		List<Journalpost> filtrerteJournalposter = tilgangJournalposter
 				.stream()
-				.map(journalpost -> arkivJournalpostMapper.map(journalpost, brukerIdenter,
-						Optional.ofNullable(journalpost.saksrelasjon()).map(ArkivSaksrelasjon::sakId).map(pensjonsaker::get)))
+				.map(journalpost -> {
+					try {
+						return arkivJournalpostMapper.map(journalpost, brukerIdenter,
+								Optional.ofNullable(journalpost.saksrelasjon()).map(ArkivSaksrelasjon::sakId).map(pensjonsaker::get));
+					} catch (IllegalArgumentException e) {
+						log.error("Klarte ikke å mappe arkivJournalpost med id={} til tilgangsjournalpost. Tilgang blir avvist. Feilmelding={}", journalpost.journalpostId(), e.getMessage(), e);
+						return null;
+					}
+				})
 				.filter(Objects::nonNull)
 				.filter(journalpost -> utledTilgangService.utledTilgangJournalpost(journalpost.getTilgang(), brukerIdenter.getIdenter()).isEmpty())
 				// Filtrer ut midlertidige journalposter som ikke har riktig tema.
