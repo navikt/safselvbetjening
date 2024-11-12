@@ -96,6 +96,11 @@
       "app": "tms-mikrofrontend-selector",
       "namespace": "min-side",
       "cluster": "prod-gcp"
+    },
+    {
+      "app": "dp-mine-dagpenger-frontend",
+      "namespace": "teamdagpenger",
+      "cluster": "prod-gcp"
     }
   ]
 }
