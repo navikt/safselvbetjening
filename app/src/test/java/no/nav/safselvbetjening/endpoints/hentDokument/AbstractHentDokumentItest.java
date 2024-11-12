@@ -26,7 +26,7 @@ import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode.ARKIV;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentService.HENTDOKUMENT_TILGANG_FIELDS;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_GDPR;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_INSTANCE_ID_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG;
@@ -130,7 +130,7 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 	protected void assertForbiddenArkivResponse(ResponseEntity<String> responseEntity) {
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(APPLICATION_JSON);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).contains(DENY_REASON_GDPR);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).contains(DENY_REASON_GDPR.reason);
 		assertThat(responseEntity.getBody()).contains("Tilgang til dokument ble avvist ihht. GDPR.");
 	}
 

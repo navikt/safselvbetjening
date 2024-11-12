@@ -2,11 +2,6 @@ package no.nav.safselvbetjening.consumer.dokarkiv.domain;
 
 import no.nav.safselvbetjening.domain.Journalstatus;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-
 public enum JournalStatusCode {
 	/**
 	 * journalført
@@ -45,15 +40,15 @@ public enum JournalStatusCode {
 	 */
 	A(Journalstatus.AVBRUTT),
 	/**
-	 * Mottatt   
+	 * Mottatt
 	 */
 	MO(Journalstatus.MOTTATT),
 	/**
-	 * Ukjent bruker 
+	 * Ukjent bruker
 	 */
 	UB(Journalstatus.UKJENT_BRUKER),
 	/**
-	 * Opplasting dokument 
+	 * Opplasting dokument
 	 */
 	OD(Journalstatus.OPPLASTING_DOKUMENT);
 
@@ -65,17 +60,5 @@ public enum JournalStatusCode {
 
 	public Journalstatus toSafJournalstatus() {
 		return safJournalstatus;
-	}
-
-	public static List<JournalStatusCode> asList() {
-		return Arrays.asList(values());
-	}
-
-	public static Set<JournalStatusCode> getJournalstatusFerdigstilt() {
-		return EnumSet.of(FL, FS, J, E);
-	}
-
-	public static Set<JournalStatusCode> getJournalstatusMidlertidig() {
-		return EnumSet.of(M, MO);
 	}
 }

@@ -12,6 +12,10 @@
 
 	<artifactId>core</artifactId>
 
+	<properties>
+		<maven.deploy.skip>true</maven.deploy.skip>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -88,6 +92,10 @@
 		<dependency>
 			<groupId>com.papertrailapp</groupId>
 			<artifactId>logback-syslog4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.safselvbetjening</groupId>
+			<artifactId>innsyn-tilgang-api</artifactId>
 		</dependency>
 	</dependencies>
 

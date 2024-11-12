@@ -4,23 +4,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
 import static java.util.Collections.singletonList;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_ANNEN_PART;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FEILREGISTRERT;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_GDPR;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_KASSERT;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_SKANNET;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_SKJULT;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_TEMAER_UNNTATT_INNSYN;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_ANNEN_PART;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_FEILREGISTRERT;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_GDPR;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_KASSERT;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_PARTSINNSYN;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKANNET_DOKUMENT;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_SKJULT_INNSYN;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.DENY_REASON_TEMAER_UNNTATT_INNSYN;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_ANNEN_PART;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_FEILREGISTRERT;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_GDPR;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_KASSERT;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_SKANNET;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_SKJULT;
-import static no.nav.safselvbetjening.tilgang.DenyReasonFactory.FEILMELDING_TEMAER_UNNTATT_INNSYN;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_ANNEN_PART;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FEILREGISTRERT;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_GDPR;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_KASSERT;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKANNET_DOKUMENT;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKJULT_INNSYN;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_TEMAER_UNNTATT_INNSYN;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -46,7 +45,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_PARTSINNSYN));
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_ANNEN_PART.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);
 	}
 
@@ -95,13 +94,14 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FEILREGISTRERT));
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FEILREGISTRERT.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_FEILREGISTRERT);
 	}
 
 	/**
 	 * Tilgangsregel: 1e
 	 * Hvis dokumentet har tema unntatt innsyn på journalpost og den er midlertidig så skal det returneres Forbidden
+	 *
 	 * @see no.nav.safselvbetjening.domain.Tema
 	 */
 	@Test
@@ -112,13 +112,14 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_TEMAER_UNNTATT_INNSYN));
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_TEMAER_UNNTATT_INNSYN.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_TEMAER_UNNTATT_INNSYN);
 	}
 
 	/**
 	 * Tilgangsregel: 1e
 	 * Hvis dokumentet har tema unntatt innsyn på saksrelasjon og journalposten sitt tema er feil så skal det returneres Forbidden
+	 *
 	 * @see no.nav.safselvbetjening.domain.Tema
 	 */
 	@Test
@@ -129,7 +130,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_TEMAER_UNNTATT_INNSYN));
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_TEMAER_UNNTATT_INNSYN.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_TEMAER_UNNTATT_INNSYN);
 	}
 
@@ -146,7 +147,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_GDPR));
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_GDPR.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_GDPR);
 	}
 
@@ -162,7 +163,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_SKJULT_INNSYN));
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_SKJULT_INNSYN.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_SKJULT);
 	}
 
@@ -178,7 +179,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_ANNEN_PART));
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_ANNEN_PART.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_ANNEN_PART);
 	}
 
@@ -196,7 +197,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_SKANNET_DOKUMENT));
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_SKANNET_DOKUMENT.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_SKANNET);
 	}
 
@@ -213,7 +214,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_KASSERT));
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_KASSERT.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_KASSERT);
 	}
 

@@ -3,6 +3,7 @@ package no.nav.safselvbetjening;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.config.MeterFilter;
 import io.micrometer.core.instrument.config.MeterFilterReply;
+import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -74,5 +75,10 @@ public class CoreConfig {
 				return ACCEPT;
 			}
 		};
+	}
+
+	@Bean
+	UtledTilgangService utledTilgangService(SafSelvbetjeningProperties safSelvbetjeningProperties) {
+		return new UtledTilgangService(safSelvbetjeningProperties.getTidligstInnsynDato());
 	}
 }

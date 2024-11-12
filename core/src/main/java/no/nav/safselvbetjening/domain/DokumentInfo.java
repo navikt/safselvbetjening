@@ -1,10 +1,9 @@
 package no.nav.safselvbetjening.domain;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.ToString;
 import lombok.Value;
-import no.nav.safselvbetjening.consumer.dokarkiv.domain.SkjermingTypeCode;
+import no.nav.safselvbetjening.tilgang.TilgangDokument;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +25,4 @@ public class DokumentInfo {
 
 	@Builder.Default
 	List<Dokumentvariant> dokumentvarianter = new ArrayList<>();
-
-	@Data
-	@Builder
-	public static class TilgangDokument {
-		private final String kategori;
-		private final boolean kassert;
-		private SkjermingType skjerming;
-	}
 }

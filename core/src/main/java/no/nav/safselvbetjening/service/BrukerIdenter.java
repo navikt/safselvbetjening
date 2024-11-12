@@ -2,10 +2,14 @@ package no.nav.safselvbetjening.service;
 
 import lombok.Getter;
 import no.nav.safselvbetjening.consumer.pdl.PdlResponse;
+import no.nav.safselvbetjening.tilgang.AktoerId;
+import no.nav.safselvbetjening.tilgang.Foedselsnummer;
+import no.nav.safselvbetjening.tilgang.Ident;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,8 +54,8 @@ public class BrukerIdenter {
 		return Collections.unmodifiableList(foedselsnummer);
 	}
 
-	public List<String> getIdenter() {
-		return Stream.concat(getAktoerIds().stream(), getFoedselsnummer().stream()).collect(Collectors.toList());
+	public Set<Ident> getIdenter() {
+		return Stream.concat(getAktoerIds().stream().map(AktoerId::of), getFoedselsnummer().stream().map(Foedselsnummer::of)).collect(Collectors.toSet());
 	}
 
 	public boolean isEmpty() {

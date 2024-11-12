@@ -5,7 +5,16 @@ on:
     types:
       - published
 
+# NB: vi publiserer en package som inneholder logikken for tilgangsstyring av innsyn i dokumenter, som andre apper  bruker
 jobs:
+  publish-artifact:
+    permissions:
+      packages: write
+      contents: read
+    uses: navikt/dok-workflows/.github/workflows/publish-artifact.yml@main
+    with:
+      java-version: '21'
+    secrets: inherit
   deploy-prod:
     permissions:
       contents: read

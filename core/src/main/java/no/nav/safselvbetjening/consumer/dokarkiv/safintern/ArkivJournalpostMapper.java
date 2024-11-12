@@ -9,22 +9,26 @@ import no.nav.safselvbetjening.domain.AvsenderMottaker;
 import no.nav.safselvbetjening.domain.Datotype;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
-import no.nav.safselvbetjening.domain.Innsyn;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Journalposttype;
 import no.nav.safselvbetjening.domain.Journalstatus;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.domain.RelevantDato;
 import no.nav.safselvbetjening.domain.Sak;
-import no.nav.safselvbetjening.domain.SkjermingType;
 import no.nav.safselvbetjening.domain.Variantformat;
 import no.nav.safselvbetjening.service.BrukerIdenter;
+import no.nav.safselvbetjening.tilgang.TilgangDenyReason;
+import no.nav.safselvbetjening.tilgang.TilgangDokument;
+import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
+import no.nav.safselvbetjening.tilgang.TilgangVariant;
+import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -58,9 +62,20 @@ public class ArkivJournalpostMapper {
 
 	public Journalpost map(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
 		Journalposttype journalposttype = mapJournalposttype(arkivJournalpost);
-		Journalpost.TilgangJournalpost tilgang = mapJournalpostTilgang(arkivJournalpost, brukerIdenter, pensjonsakOpt);
-		AvsenderMottaker arkivAvsenderMottaker = arkivAvsenderMottakerMapper.map(arkivJournalpost.avsenderMottaker(), arkivJournalpost.type());
-		Journalpost journalpost = Journalpost.builder()
+		TilgangJournalpost tilgang = arkivJournalpost.getJournalpostTilgang(brukerIdenter, pensjonsakOpt);
+
+		Map<Long, Map<TilgangVariantFormat, List<TilgangDenyReason>>> dokumentTilganger = new HashMap<>();
+		for (TilgangDokument tilgangDokument : tilgang.getDokumenter()) {
+			Map<TilgangVariantFormat, List<TilgangDenyReason>> variantTilganger = new HashMap<>();
+			for (TilgangVariant variant : tilgangDokument.dokumentvarianter()) {
+				List<TilgangDenyReason> denyReasons = utledTilgangService.utledTilgangDokument(tilgang, tilgangDokument, variant, brukerIdenter.getIdenter());
+				variantTilganger.put(variant.variantformat(), denyReasons);
+			}
+			dokumentTilganger.put(tilgangDokument.id(), variantTilganger);
+		}
+
+		AvsenderMottaker avsenderMottaker = arkivAvsenderMottakerMapper.map(arkivJournalpost.avsenderMottaker(), arkivJournalpost.type());
+		return Journalpost.builder()
 				.journalpostId(arkivJournalpost.journalpostId().toString())
 				.journalposttype(journalposttype)
 				.journalstatus(mapJournalstatus(arkivJournalpost))
@@ -69,19 +84,12 @@ public class ArkivJournalpostMapper {
 				.tittel(arkivJournalpost.innhold())
 				.eksternReferanseId(arkivJournalpost.kanalreferanseId())
 				.sak(mapSak(arkivJournalpost.saksrelasjon()))
-				.avsender(Journalposttype.I == journalposttype ? arkivAvsenderMottaker : null)
-				.mottaker(Journalposttype.U == journalposttype ? arkivAvsenderMottaker : null)
+				.avsender(Journalposttype.I == journalposttype ? avsenderMottaker : null)
+				.mottaker(Journalposttype.U == journalposttype ? avsenderMottaker : null)
 				.relevanteDatoer(mapRelevanteDatoer(arkivJournalpost))
-				.dokumenter(mapDokumenter(arkivJournalpost.dokumenter()))
+				.dokumenter(mapDokumenter(arkivJournalpost.dokumenter(), dokumentTilganger))
 				.tilgang(tilgang)
 				.build();
-		journalpost.getDokumenter().forEach(dokumentInfo -> dokumentInfo.getDokumentvarianter().forEach(
-				dokumentvariant -> {
-					List<String> codes = utledTilgangService.utledTilgangDokument(journalpost, dokumentInfo, dokumentvariant, brukerIdenter);
-					dokumentvariant.setBrukerHarTilgang(codes.isEmpty());
-					dokumentvariant.setCode(codes.isEmpty() ? singletonList(DOKUMENT_TILGANG_STATUS_OK) : codes);
-				}));
-		return journalpost;
 	}
 
 	private static Journalposttype mapJournalposttype(ArkivJournalpost arkivJournalpost) {
@@ -182,7 +190,7 @@ public class ArkivJournalpostMapper {
 		return relevanteDatoer;
 	}
 
-	private List<DokumentInfo> mapDokumenter(List<ArkivDokumentinfo> arkivDokumentinfos) {
+	private List<DokumentInfo> mapDokumenter(List<ArkivDokumentinfo> arkivDokumentinfos, Map<Long, Map<TilgangVariantFormat, List<TilgangDenyReason>>> dokumentTilganger) {
 		if (arkivDokumentinfos == null || arkivDokumentinfos.isEmpty()) {
 			return emptyList();
 		}
@@ -194,30 +202,34 @@ public class ArkivJournalpostMapper {
 						.tittel(arkivDokumentinfo.tittel())
 						.hoveddokument(TILKNYTTET_SOM_HOVEDDOKUMENT.equals(arkivDokumentinfo.tilknyttetSom()))
 						.sensitivtPselv(arkivDokumentinfo.sensitivt())
-						.tilgangDokument(DokumentInfo.TilgangDokument.builder()
-								.kassert(arkivDokumentinfo.kassert() != null && arkivDokumentinfo.kassert())
-								.kategori(arkivDokumentinfo.kategori())
-								.skjerming(mapSkjermingType(arkivDokumentinfo.skjerming()))
-								.build())
-						.dokumentvarianter(mapDokumentVarianter(arkivDokumentinfo.fildetaljer()))
+						.dokumentvarianter(mapDokumentVarianter(arkivDokumentinfo.fildetaljer(), dokumentTilganger.get(arkivDokumentinfo.dokumentInfoId())))
 						.build())
 				.toList();
 	}
 
 
-	private List<Dokumentvariant> mapDokumentVarianter(List<ArkivFildetaljer> arkivFildetaljer) {
+	private List<Dokumentvariant> mapDokumentVarianter(List<ArkivFildetaljer> arkivFildetaljer, Map<TilgangVariantFormat, List<TilgangDenyReason>> variantTilganger) {
 		return arkivFildetaljer.stream()
-				.filter(fd -> GYLDIGE_VARIANTER.contains(fd.format()))
-				.map(fd -> Dokumentvariant.builder()
-						.variantformat(mapVariantformat(fd))
-						.filtype(mapFiltype(fd.type()))
-						.filuuid(fd.uuid())
-						.filstorrelse(mapFilStoerrelse(fd))
-						.tilgangVariant(Dokumentvariant.TilgangVariant.builder()
-								.skjerming(mapSkjermingType(fd.skjerming()))
-								.build())
-						.build())
+				.filter(fildetaljer -> GYLDIGE_VARIANTER.contains(fildetaljer.format()))
+				.map(fildetaljer -> {
+					TilgangVariantFormat tilgangVariantFormat = TilgangVariantFormat.from(fildetaljer.format());
+					return Dokumentvariant.builder()
+							.variantformat(mapVariantformat(fildetaljer))
+							.filtype(mapFiltype(fildetaljer.type()))
+							.filuuid(fildetaljer.uuid())
+							.filstorrelse(mapFilStoerrelse(fildetaljer))
+							.brukerHarTilgang(variantTilganger.get(tilgangVariantFormat).isEmpty())
+							.code(mapTilgangForVariant(variantTilganger, tilgangVariantFormat))
+							.build();
+				})
 				.toList();
+	}
+
+	private static List<String> mapTilgangForVariant(Map<TilgangVariantFormat, List<TilgangDenyReason>> variantTilganger, TilgangVariantFormat variantFormat) {
+		if (variantTilganger.get(variantFormat).isEmpty()) {
+			return singletonList(DOKUMENT_TILGANG_STATUS_OK);
+		}
+		return variantTilganger.get(variantFormat).stream().map(denyReason -> denyReason.reason).toList();
 	}
 
 	private static Variantformat mapVariantformat(ArkivFildetaljer arkivFildetaljer) {
@@ -247,96 +259,5 @@ public class ArkivJournalpostMapper {
 			return FILTYPE_PDF;
 		}
 		return filtype;
-	}
-
-	private Journalpost.TilgangJournalpost mapJournalpostTilgang(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
-		return Journalpost.TilgangJournalpost.builder()
-				.journalstatus(arkivJournalpost.status() == null ? null : arkivJournalpost.status())
-				.mottakskanal(mapTilgangMottakskanal(arkivJournalpost.mottakskanal()))
-				.tema(arkivJournalpost.fagomraade())
-				.avsenderMottakerId(mapAvsenderMottakerId(arkivJournalpost.avsenderMottaker()))
-				.datoOpprettet(arkivJournalpost.relevanteDatoer() == null ? null : arkivJournalpost.relevanteDatoer().opprettet().toLocalDateTime())
-				.journalfoertDato(mapJournalfoert(arkivJournalpost))
-				.skjerming(mapSkjermingType(arkivJournalpost.skjerming()))
-				.tilgangBruker(mapTilgangBruker(arkivJournalpost.bruker()))
-				.tilgangSak(mapTilgangSak(arkivJournalpost, brukerIdenter, pensjonsakOpt))
-				.innsyn(mapInnsyn(arkivJournalpost))
-				.build();
-	}
-
-	private static LocalDateTime mapJournalfoert(ArkivJournalpost arkivJournalpost) {
-		ArkivRelevanteDatoer arkivRelevanteDatoer = arkivJournalpost.relevanteDatoer();
-		if (arkivRelevanteDatoer == null) {
-			return null;
-		}
-
-		if (arkivRelevanteDatoer.journalfoert() == null) {
-			return null;
-		}
-
-		return arkivRelevanteDatoer.journalfoert().toLocalDateTime();
-	}
-
-	private static Innsyn mapInnsyn(ArkivJournalpost arkivJournalpost) {
-		try {
-			return arkivJournalpost.innsyn() == null ? null : Innsyn.valueOf(arkivJournalpost.innsyn());
-		} catch (IllegalArgumentException e) {
-			return null;
-		}
-	}
-
-	private static String mapAvsenderMottakerId(ArkivAvsenderMottaker avsenderMottaker) {
-		if (avsenderMottaker == null) {
-			return null;
-		}
-
-		return avsenderMottaker.id();
-	}
-
-	private Kanal mapTilgangMottakskanal(String mottakskanal) {
-		try {
-			return mottakskanal == null ? null : MottaksKanalCode.valueOf(mottakskanal).getSafKanal();
-		} catch (IllegalArgumentException e) {
-			return null;
-		}
-	}
-
-	private Journalpost.TilgangBruker mapTilgangBruker(ArkivBruker arkivBruker) {
-		if (arkivBruker == null) {
-			return null;
-		}
-
-		return Journalpost.TilgangBruker.builder().brukerId(arkivBruker.id()).build();
-	}
-
-	private Journalpost.TilgangSak mapTilgangSak(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
-		if (arkivJournalpost.isTilknyttetSak()) {
-			ArkivSaksrelasjon arkivSaksrelasjon = arkivJournalpost.saksrelasjon();
-			Journalpost.TilgangSak.TilgangSakBuilder tilgangSakBuilder = Journalpost.TilgangSak.builder()
-					.foedselsnummer(brukerIdenter.getAktivFolkeregisterident())
-					.fagsystem(arkivSaksrelasjon.fagsystem())
-					.feilregistrert(arkivSaksrelasjon.feilregistrert() != null && arkivSaksrelasjon.feilregistrert());
-			if (arkivSaksrelasjon.isPensjonsak()) {
-				return tilgangSakBuilder
-						.tema(pensjonsakOpt.map(Pensjonsak::arkivtema).orElse(null))
-						.build();
-			} else {
-				ArkivSak arkivSak = arkivSaksrelasjon.sak();
-				return tilgangSakBuilder
-						.aktoerId(arkivSak.aktoerId())
-						.tema(arkivSak.tema())
-						.build();
-			}
-		} else {
-			return null;
-		}
-	}
-
-	private SkjermingType mapSkjermingType(String skjerming) {
-		try {
-			return skjerming == null ? null : SkjermingType.valueOf(skjerming);
-		} catch (IllegalArgumentException e) {
-			return null;
-		}
 	}
 }

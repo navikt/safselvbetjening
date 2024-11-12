@@ -21,7 +21,15 @@
 		<module>dokumentoversiktselvbetjening</module>
 		<module>journalpost</module>
 		<module>hentdokument</module>
+		<module>innsyn-tilgang-api</module>
 	</modules>
+
+	<distributionManagement>
+		<repository>
+			<id>ghcr</id>
+			<url>https://maven.pkg.github.com/navikt/safselvbetjening</url>
+		</repository>
+	</distributionManagement>
 
 	<properties>
 		<java.version>21</java.version>
@@ -67,6 +75,11 @@
 			<dependency>
 				<groupId>no.nav.safselvbetjening</groupId>
 				<artifactId>hentdokument</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>no.nav.safselvbetjening</groupId>
+				<artifactId>innsyn-tilgang-api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
