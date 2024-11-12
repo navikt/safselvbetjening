@@ -62,7 +62,7 @@ public class ArkivJournalpostMapper {
 
 	public Journalpost map(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
 		Journalposttype journalposttype = mapJournalposttype(arkivJournalpost);
-		TilgangJournalpost tilgang = mapJournalpostTilgang(arkivJournalpost, brukerIdenter, pensjonsakOpt);
+		TilgangJournalpost tilgang = arkivJournalpost.getJournalpostTilgang(brukerIdenter, pensjonsakOpt);
 
 		Map<Long, Map<TilgangVariantFormat, List<TilgangDenyReason>>> dokumentTilganger = new HashMap<>();
 		for (TilgangDokument tilgangDokument : tilgang.getDokumenter()) {
@@ -260,9 +260,4 @@ public class ArkivJournalpostMapper {
 		}
 		return filtype;
 	}
-
-	private TilgangJournalpost mapJournalpostTilgang(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
-		return arkivJournalpost.getJournalpostTilgang(brukerIdenter, pensjonsakOpt);
-	}
-
 }

@@ -16,6 +16,7 @@ import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.safselvbetjening.tilgang.Ident;
+import no.nav.safselvbetjening.tilgang.TilgangDokument;
 import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 import no.nav.safselvbetjening.tilgang.TilgangVariant;
 import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -122,13 +124,13 @@ public class HentDokumentService {
 		validerFullmakt(hentdokumentRequest, fullmaktOpt, journalpost);
 
 		TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
-		utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), hentdokumentRequest.getVariantFormat());
+		utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), Long.parseLong(hentdokumentRequest.getDokumentInfoId()), TilgangVariantFormat.from(hentdokumentRequest.getVariantFormat()));
 		recordFullmaktAuditLog(fullmaktOpt, hentdokumentRequest);
 
 		return new Tilgangskontroll(journalpost, fullmaktOpt);
 	}
 
-	private void utledTilgangHentDokument(TilgangJournalpost journalpost, Set<Ident> brukerIdenter, String variantFormat) {
+	private void utledTilgangHentDokument(TilgangJournalpost journalpost, Set<Ident> brukerIdenter, long dokumentInfoId, TilgangVariantFormat variantFormat) {
 
 		// Tilgang for journalpost
 		var journalpostErrors = utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter);
@@ -137,10 +139,15 @@ public class HentDokumentService {
 		}
 
 		// Tilgang for dokument
-		Optional<TilgangVariant> dokumentvariant = journalpost.getDokumenter().getFirst().dokumentvarianter().stream()
-				.filter(tilgangVariant -> tilgangVariant.variantformat() == TilgangVariantFormat.from(variantFormat))
+		Optional<TilgangDokument> tilgangDokument = journalpost.getDokumenter().stream()
+				.filter(dokument -> dokument.id() == dokumentInfoId)
 				.findFirst();
-		var dokumentErrors = utledTilgangService.utledTilgangDokument(journalpost, journalpost.getDokumenter().getFirst(),
+		Optional<TilgangVariant> dokumentvariant = tilgangDokument.stream()
+				.map(TilgangDokument::dokumentvarianter)
+				.flatMap(Collection::stream)
+				.filter(tilgangVariant -> tilgangVariant.variantformat() == variantFormat)
+				.findFirst();
+		var dokumentErrors = utledTilgangService.utledTilgangDokument(journalpost, tilgangDokument.orElse(null),
 						dokumentvariant.orElse(null), brukerIdenter)
 				.stream()
 				.filter(not(DENY_REASON_INNSYNSDATO::equals))
