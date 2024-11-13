@@ -15,7 +15,6 @@ import no.nav.safselvbetjening.domain.Journalposttype;
 import no.nav.safselvbetjening.domain.Journalstatus;
 import no.nav.safselvbetjening.domain.Kanal;
 import no.nav.safselvbetjening.service.BrukerIdenter;
-import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -36,7 +35,7 @@ public class HentDokumentTilgangMapper {
 				.journalposttype(journalposttype)
 				.journalstatus(mapJournalstatus(arkivJournalpost))
 				.kanal(mapKanal(arkivJournalpost, journalposttype))
-				.tilgang(mapJournalpostTilgang(arkivJournalpost, brukerIdenter, pensjonsakOpt))
+				.tilgang(arkivJournalpost.getJournalpostTilgang(brukerIdenter, pensjonsakOpt))
 				.dokumenter(mapDokumenter(arkivJournalpost.dokumenter(), dokumentinfoId, variantFormat))
 				.build();
 	}
@@ -97,7 +96,4 @@ public class HentDokumentTilgangMapper {
 				.map(fd -> Dokumentvariant.builder().build()).toList();
 	}
 
-	private TilgangJournalpost mapJournalpostTilgang(ArkivJournalpost arkivJournalpost, BrukerIdenter brukerIdenter, Optional<Pensjonsak> pensjonsakOpt) {
-		return arkivJournalpost.getJournalpostTilgang(brukerIdenter, pensjonsakOpt);
-	}
 }

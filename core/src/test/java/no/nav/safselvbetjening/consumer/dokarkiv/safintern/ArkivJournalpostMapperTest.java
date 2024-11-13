@@ -62,6 +62,7 @@ import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpo
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.VEDLEGG_TITTEL;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.createBrukerIdenter;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.inngaaendeArkivJournalpost;
+import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.inngaaendeArkivJournalpostMedHulleteData;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.pensjonArkivJournalpost;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.utgaaendeArkivJournalpost;
 import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
@@ -211,6 +212,56 @@ class ArkivJournalpostMapperTest {
 		assertThat(tilgang.getTema()).isEqualTo(TEMA_PENSJON_ALDERSPENSJON);
 		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
 		assertPensjonJournalpostTilgang(tilgang);
+	}
+
+	@Test
+	void skalMappeInngaaendeJournalpostMedDaarligeDataUtenAaEksplodere() {
+		Journalpost journalpost = mapper.map(inngaaendeArkivJournalpostMedHulleteData(), createBrukerIdenter(), Optional.empty());
+
+		assertThat(journalpost.getJournalpostId()).isEqualTo(JOURNALPOST_ID);
+		assertThat(journalpost.getJournalposttype()).isEqualTo(I);
+		assertThat(journalpost.getJournalstatus()).isEqualTo(MOTTATT);
+		assertThat(journalpost.getKanal()).isEqualTo(NAV_NO);
+		assertThat(journalpost.getTema()).isEqualTo(TEMA);
+		assertThat(journalpost.getTittel()).isEqualTo(INNHOLD);
+		assertThat(journalpost.getEksternReferanseId()).isEqualTo(KANAL_REFERANSE_ID);
+		assertThat(journalpost.getSak().getFagsakId()).isEqualTo(FAGSAKNR);
+		assertThat(journalpost.getSak().getFagsaksystem()).isEqualTo(APPLIKASJON);
+		assertThat(journalpost.getSak().getSakstype()).isEqualTo(FAGSAK);
+		assertThat(journalpost.getAvsender()).isNull();
+		assertThat(journalpost.getRelevanteDatoer())
+				.hasSize(4)
+				.contains(
+						new RelevantDato(ARKIVJOURNALPOST_DATO_OPPRETTET, DATO_OPPRETTET),
+						new RelevantDato(ARKIVJOURNALPOST_DATO_JOURNALFOERT, DATO_JOURNALFOERT),
+						new RelevantDato(ARKIVJOURNALPOST_DATO_DOKUMENT, DATO_DOKUMENT),
+						new RelevantDato(ARKIVJOURNALPOST_DATO_MOTTATT, DATO_REGISTRERT)
+				);
+
+		DokumentInfo hoveddokument = journalpost.getDokumenter().get(0);
+		assertHoveddokument(hoveddokument, journalpost);
+		DokumentInfo vedlegg = journalpost.getDokumenter().get(1);
+		assertVedlegg(vedlegg);
+
+		// tilgang mapping
+		TilgangJournalpost tilgang = journalpost.getTilgang();
+		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.MOTTATT);
+		assertThat(tilgang.getTema()).isEqualTo(HJE.name());
+		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
+		assertThat(tilgang.getSkjerming()).isEqualTo(TilgangSkjermingType.POL);
+		assertThat(tilgang.getAvsenderMottakerId()).isNull();
+		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
+		assertThat(tilgang.getDatoOpprettet()).isEqualTo(ARKIVJOURNALPOST_DATO_OPPRETTET.toLocalDateTime());
+		assertThat(tilgang.getJournalfoertDato()).isEqualTo(ARKIVJOURNALPOST_DATO_JOURNALFOERT.toLocalDateTime());
+
+		assertThat(tilgang.getTilgangBruker()).isNull();
+
+		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangGosysSak.class);
+		TilgangGosysSak tilgangSak = (TilgangGosysSak) tilgang.getTilgangSak();
+		assertThat(tilgangSak.getAktoerId()).isEqualTo(AktoerId.of(ARKIVSAK_AKTOER_ID));
+		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.GOSYS);
+		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
+		assertThat(tilgangSak.isFeilregistrert()).isTrue();
 	}
 
 	private static void assertHoveddokument(DokumentInfo hoveddokument, Journalpost journalpost) {
