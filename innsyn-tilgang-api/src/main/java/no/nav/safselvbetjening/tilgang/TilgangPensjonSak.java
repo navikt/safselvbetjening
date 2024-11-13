@@ -10,5 +10,5 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public final class TilgangPensjonSak extends TilgangSak {
 	private final TilgangFagsystem fagsystem = TilgangFagsystem.PENSJON;
-	Foedselsnummer foedselsnummer;
+	Ident foedselsnummer;
 }

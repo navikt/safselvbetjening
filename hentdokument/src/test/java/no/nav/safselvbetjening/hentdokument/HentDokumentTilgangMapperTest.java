@@ -5,8 +5,7 @@ import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Journalpost;
-import no.nav.safselvbetjening.tilgang.AktoerId;
-import no.nav.safselvbetjening.tilgang.Foedselsnummer;
+import no.nav.safselvbetjening.tilgang.Ident;
 import no.nav.safselvbetjening.tilgang.TilgangBruker;
 import no.nav.safselvbetjening.tilgang.TilgangDokument;
 import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
@@ -46,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class HentDokumentTilgangMapperTest {
 
-	private static final Foedselsnummer FOEDSELSNUMMER = Foedselsnummer.of(IDENT);
+	private static final Ident FOEDSELSNUMMER = Ident.of(IDENT);
 	private static final String ARKIV_VARIANT = VariantFormatCode.ARKIV.name();
 	private final HentDokumentTilgangMapper mapper = new HentDokumentTilgangMapper();
 
@@ -65,7 +64,7 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getTema()).isEqualTo(PEN.name());
 		assertThat(tilgang.getSkjerming().erSkjermet).isTrue();
 		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
-		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Foedselsnummer.of(AVSENDER_MOTTAKER_ID));
+		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Ident.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT.toLocalDateTime());
@@ -75,7 +74,7 @@ class HentDokumentTilgangMapperTest {
 
 		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangGosysSak.class);
 		TilgangGosysSak tilgangSak = (TilgangGosysSak) tilgang.getTilgangSak();
-		assertThat(tilgangSak.getAktoerId()).isEqualTo(AktoerId.of(AKTOER_ID));
+		assertThat(tilgangSak.getAktoerId()).isEqualTo(Ident.of(AKTOER_ID));
 		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.GOSYS);
 		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
 		assertThat(tilgangSak.isFeilregistrert()).isTrue();
@@ -105,7 +104,7 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getTema()).isEqualTo(PEN.name());
 		assertThat(tilgang.getSkjerming().erSkjermet).isTrue();
 		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
-		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Foedselsnummer.of(AVSENDER_MOTTAKER_ID));
+		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Ident.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT.toLocalDateTime());
@@ -115,7 +114,7 @@ class HentDokumentTilgangMapperTest {
 
 		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangGosysSak.class);
 		TilgangGosysSak tilgangSak = (TilgangGosysSak) tilgang.getTilgangSak();
-		assertThat(tilgangSak.getAktoerId()).isEqualTo(AktoerId.of(AKTOER_ID));
+		assertThat(tilgangSak.getAktoerId()).isEqualTo(Ident.of(AKTOER_ID));
 		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.GOSYS);
 		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
 		assertThat(tilgangSak.isFeilregistrert()).isTrue();
@@ -142,7 +141,7 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getTema()).isEqualTo(PEN.name());
 		assertThat(tilgang.getSkjerming().erSkjermet).isTrue();
 		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
-		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Foedselsnummer.of(AVSENDER_MOTTAKER_ID));
+		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Ident.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(DATO_JOURNALFOERT.toLocalDateTime());

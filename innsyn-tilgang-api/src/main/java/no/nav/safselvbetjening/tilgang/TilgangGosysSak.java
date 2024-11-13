@@ -12,5 +12,5 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public final class TilgangGosysSak extends TilgangSak {
 	private final TilgangFagsystem fagsystem = TilgangFagsystem.GOSYS;
-	AktoerId aktoerId;
+	Ident aktoerId;
 }
