@@ -105,7 +105,7 @@ class DokumentoversiktSelvbetjeningService {
 						return arkivJournalpostMapper.map(journalpost, brukerIdenter,
 								Optional.ofNullable(journalpost.saksrelasjon()).map(ArkivSaksrelasjon::sakId).map(pensjonsaker::get));
 					} catch (IllegalArgumentException e) {
-						log.error("Klarte ikke å mappe arkivJournalpost med id={} til tilgangsjournalpost. Tilgang blir avvist. Feilmelding={}", journalpost.journalpostId(), e.getMessage(), e);
+						log.warn("Klarte ikke å mappe arkivJournalpost med id={} til tilgangsjournalpost. Tilgang blir avvist. Feilmelding={}", journalpost.journalpostId(), e.getMessage(), e);
 						return null;
 					}
 				})
