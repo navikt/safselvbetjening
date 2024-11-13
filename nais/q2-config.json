@@ -57,6 +57,11 @@
       "cluster": "dev-gcp"
     },
     {
+      "app": "k9-sak-innsyn-api",
+      "namespace": "dusseldorf",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "mininnboks-api-q0",
       "namespace": "personoversikt",
       "cluster": "dev-sbs"
