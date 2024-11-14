@@ -13,8 +13,8 @@ import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.MOTTATT;
 
 public class UtledTilgangTestObjects {
 
-	static final Foedselsnummer IDENT = Foedselsnummer.of("12345678911");
-	static final Foedselsnummer ANNEN_PART = Foedselsnummer.of("23456789101");
+	static final Ident IDENT = Ident.of("12345678911");
+	static final Ident ANNEN_PART = Ident.of("23456789101");
 	static final String AKTOER_ID = "10000000000";
 	static final String ANNEN_AKTOER_ID = "12000000000";
 	public static final String TEMA_PENSJON = "PEN";
@@ -36,7 +36,7 @@ public class UtledTilgangTestObjects {
 				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
 				.innsyn(innsyn)
 				.tilgangSak(TilgangGosysSak.builder()
-						.aktoerId(AktoerId.of(AKTOER_ID))
+						.aktoerId(Ident.of(AKTOER_ID))
 						.feilregistrert(false)
 						.tema(tema)
 						.build());
@@ -69,6 +69,7 @@ public class UtledTilgangTestObjects {
 				.skjerming(TilgangSkjermingType.INGEN_SKJERMING)
 				.variantformat(TilgangVariantFormat.ARKIV);
 	}
+
 	static TilgangVariant tilgangVariant() {
 		return baseTilgangVariant().build();
 	}
@@ -83,6 +84,6 @@ public class UtledTilgangTestObjects {
 	}
 
 	static Set<Ident> defaultBrukerIdenter() {
-		return Set.of(AktoerId.of(AKTOER_ID), IDENT);
+		return Set.of(Ident.of(AKTOER_ID), IDENT);
 	}
 }

@@ -6,8 +6,7 @@ import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.RelevantDato;
-import no.nav.safselvbetjening.tilgang.AktoerId;
-import no.nav.safselvbetjening.tilgang.Foedselsnummer;
+import no.nav.safselvbetjening.tilgang.Ident;
 import no.nav.safselvbetjening.tilgang.TilgangBruker;
 import no.nav.safselvbetjening.tilgang.TilgangDokument;
 import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
@@ -89,7 +88,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
 class ArkivJournalpostMapperTest {
-	private final static Foedselsnummer BRUKER_FNR = Foedselsnummer.of(BRUKER_IDENT);
+	private final static Ident BRUKER_FNR = Ident.of(BRUKER_IDENT);
 
 	private final ArkivJournalpostMapper mapper = new ArkivJournalpostMapper(new ArkivAvsenderMottakerMapper(), new UtledTilgangService(safSelvbetjeningProperties().getTidligstInnsynDato()));
 
@@ -258,7 +257,7 @@ class ArkivJournalpostMapperTest {
 
 		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangGosysSak.class);
 		TilgangGosysSak tilgangSak = (TilgangGosysSak) tilgang.getTilgangSak();
-		assertThat(tilgangSak.getAktoerId()).isEqualTo(AktoerId.of(ARKIVSAK_AKTOER_ID));
+		assertThat(tilgangSak.getAktoerId()).isEqualTo(Ident.of(ARKIVSAK_AKTOER_ID));
 		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.GOSYS);
 		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
 		assertThat(tilgangSak.isFeilregistrert()).isTrue();
@@ -335,7 +334,7 @@ class ArkivJournalpostMapperTest {
 
 	private static void assertGsakJournalpostTilgang(TilgangJournalpost tilgang) {
 		assertThat(tilgang.getSkjerming()).isEqualTo(TilgangSkjermingType.POL);
-		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Foedselsnummer.of(AVSENDER_MOTTAKER_ID));
+		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Ident.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(ARKIVJOURNALPOST_DATO_OPPRETTET.toLocalDateTime());
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(ARKIVJOURNALPOST_DATO_JOURNALFOERT.toLocalDateTime());
@@ -345,7 +344,7 @@ class ArkivJournalpostMapperTest {
 
 		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangGosysSak.class);
 		TilgangGosysSak tilgangSak = (TilgangGosysSak) tilgang.getTilgangSak();
-		assertThat(tilgangSak.getAktoerId()).isEqualTo(AktoerId.of(ARKIVSAK_AKTOER_ID));
+		assertThat(tilgangSak.getAktoerId()).isEqualTo(Ident.of(ARKIVSAK_AKTOER_ID));
 		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.GOSYS);
 		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
 		assertThat(tilgangSak.isFeilregistrert()).isTrue();
@@ -353,7 +352,7 @@ class ArkivJournalpostMapperTest {
 
 	private static void assertPensjonJournalpostTilgang(TilgangJournalpost tilgang) {
 		assertThat(tilgang.getSkjerming()).isEqualTo(TilgangSkjermingType.POL);
-		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Foedselsnummer.of(AVSENDER_MOTTAKER_ID));
+		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Ident.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(ARKIVJOURNALPOST_DATO_OPPRETTET.toLocalDateTime());
 		assertThat(tilgang.getJournalfoertDato()).isEqualTo(ARKIVJOURNALPOST_DATO_JOURNALFOERT.toLocalDateTime());

@@ -73,7 +73,7 @@ public class JournalpostService {
 
 			return journalpost;
 		} catch (IllegalArgumentException e) {
-			log.error("Klarte ikke å mappe arkivJournalpost med id={} til tilgangsjournalpost. Tilgang blir avvist. Feilmelding={}", arkivJournalpost.journalpostId(), e.getMessage(), e);
+			log.warn("Klarte ikke å mappe arkivJournalpost med id={} til tilgangsjournalpost. Tilgang blir avvist. Feilmelding={}", arkivJournalpost.journalpostId(), e.getMessage(), e);
 			throw GraphQLException.of(FORBIDDEN, environment, FEILMELDING_INGEN_TILGANG_TIL_JOURNALPOST);
 		}
 	}

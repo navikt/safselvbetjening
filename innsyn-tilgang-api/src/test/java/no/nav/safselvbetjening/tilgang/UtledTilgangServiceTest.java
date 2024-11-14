@@ -26,8 +26,6 @@ import static no.nav.safselvbetjening.tilgang.TilgangSkjermingType.INGEN_SKJERMI
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.AKTOER_ID;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_AKTOER_ID;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_PART;
-import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ARKIVSAKSYSTEM_GOSYS;
-import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ARKIVSAKSYSTEM_PENSJON;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.IDENT;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_ARBEIDSRAADGIVNING_PSYKOLOGTESTER;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_ARBEIDSRAADGIVNING_SKJERMET;
@@ -240,7 +238,7 @@ class UtledTilgangServiceTest {
 				.tema(TEMA_DAGPENGER)
 				.journalfoertDato(LocalDateTime.now())
 				.tilgangSak(TilgangGosysSak.builder()
-						.aktoerId(AktoerId.of(ANNEN_AKTOER_ID))
+						.aktoerId(Ident.of(ANNEN_AKTOER_ID))
 						.feilregistrert(false)
 						.tema(TEMA_DAGPENGER)
 						.build())
@@ -384,7 +382,7 @@ class UtledTilgangServiceTest {
 				.mottakskanal(IKKE_SKANNING)
 				.tema(tema)
 				.tilgangSak(TilgangGosysSak.builder()
-						.aktoerId(AktoerId.of(AKTOER_ID))
+						.aktoerId(Ident.of(AKTOER_ID))
 						.feilregistrert(false)
 						.tema(tema)
 						.build())

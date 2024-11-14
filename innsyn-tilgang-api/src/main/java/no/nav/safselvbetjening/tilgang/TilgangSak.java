@@ -6,6 +6,7 @@ import lombok.experimental.SuperBuilder;
 /**
  * TilgangSak er en abstrakt representasjon av en Sak i et av fagsystemene. Ved mapping av data fra Dokarkiv må en av de
  * konkrete implementasjonene brukes.
+ *
  * @see TilgangGosysSak
  * @see TilgangPensjonSak
  */
