@@ -27,7 +27,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class FullmektigConsumer {
 	static final String HEADER_NAV_CALL_ID = "Nav-Call-Id";
 
-	private final SafSelvbetjeningProperties.TokenXEndpoint pdlfullmakt;
+	private final SafSelvbetjeningProperties.TokenXEndpoint reprApi;
 	private final TokendingsConsumer tokendingsConsumer;
 	private final WebClient webClient;
 
@@ -35,10 +35,10 @@ public class FullmektigConsumer {
 							  SafSelvbetjeningProperties safSelvbetjeningProperties,
 							  TokendingsConsumer tokendingsConsumer,
 							  ObjectMapper objectMapper) {
-		this.pdlfullmakt = safSelvbetjeningProperties.getEndpoints().getPdlfullmakt();
+		this.reprApi = safSelvbetjeningProperties.getEndpoints().getReprApi();
 		this.tokendingsConsumer = tokendingsConsumer;
 		this.webClient = webClient.mutate()
-				.baseUrl(pdlfullmakt.getUrl())
+				.baseUrl(reprApi.getUrl())
 				.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 				.exchangeStrategies(ExchangeStrategies.builder().codecs(clientCodecConfigurer ->
 								clientCodecConfigurer.customCodecs()
@@ -48,9 +48,9 @@ public class FullmektigConsumer {
 	}
 
 	public List<FullmektigTemaResponse> fullmektigTema(String fullmektigSubjectToken) {
-		TokenResponse exchange = tokendingsConsumer.exchange(fullmektigSubjectToken, pdlfullmakt.getScope());
+		TokenResponse exchange = tokendingsConsumer.exchange(fullmektigSubjectToken, reprApi.getScope());
 		return webClient.get()
-				.uri("/api/fullmektig/tema")
+				.uri("/api/eksternbruker/fullmakt/fullmektig/tema")
 				.headers(h -> {
 					h.setBearerAuth(exchange.accessToken());
 					h.set(HEADER_NAV_CALL_ID, getCallId());
@@ -59,11 +59,11 @@ public class FullmektigConsumer {
 				.bodyToMono(new ParameterizedTypeReference<List<FullmektigTemaResponse>>() {
 				})
 				.onErrorResume(DecodingException.class, throwable -> {
-					log.error("Klarte ikke dekode JSON payload fra /api/fullmektig/tema", throwable);
+					log.error("Klarte ikke dekode JSON payload fra repr-api fullmektig-oppslag", throwable);
 					return Mono.empty();
 				})
 				.onErrorResume(WebClientResponseException.class, throwable -> {
-					log.error("Kall feilet mot /api/fullmektig/tema, status={}", throwable.getStatusCode(), throwable);
+					log.error("Kall feilet mot repr-api fullmektig-oppslag, status={}", throwable.getStatusCode(), throwable);
 					return Mono.empty();
 				})
 				.defaultIfEmpty(new ArrayList<>())

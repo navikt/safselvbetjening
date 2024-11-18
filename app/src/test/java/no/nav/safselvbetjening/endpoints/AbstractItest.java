@@ -190,20 +190,20 @@ public abstract class AbstractItest {
 						.withBodyFile("dokarkiv/finnjournalposter/" + fil)));
 	}
 
-	protected void stubPdlFullmakt() {
-		stubPdlFullmakt("pdl-fullmakt-empty.json");
+	protected void stubReprApiFullmakt() {
+		stubReprApiFullmakt("repr-api-fullmakt-empty.json");
 	}
 
-	protected void stubPdlFullmakt(final String fil) {
-		stubFor(get("/pdlfullmakt/api/fullmektig/tema")
+	protected void stubReprApiFullmakt(final String fil) {
+		stubFor(get("/repr-api/api/eksternbruker/fullmakt/fullmektig/tema")
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("pdlfullmakt/" + fil)));
+						.withBodyFile("repr-api/" + fil)));
 	}
 
-	protected void stubPdlFullmakt(HttpStatus httpStatus) {
-		stubFor(get("/pdlfullmakt/api/fullmektig/tema")
+	protected void stubReprApiFullmakt(HttpStatus httpStatus) {
+		stubFor(get("/repr-api/api/eksternbruker/fullmakt/fullmektig/tema")
 				.willReturn(aResponse()
 						.withStatus(httpStatus.value())
 						.withBody("error " + httpStatus)));
