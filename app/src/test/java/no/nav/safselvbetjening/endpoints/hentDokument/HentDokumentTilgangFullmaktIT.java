@@ -173,7 +173,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 * Hvis pdl-fullmakt returnerer en 4xx feil så skal det returneres en Forbidden feil
 	 */
 	@Test
-	void skalGiForbiddenFeilHvisPdlFullmaktReturnerer4xxFeil() {
+	void skalGiForbiddenFeilHvisReprApiReturnerer4xxFeil() {
 		stubReprApiFullmakt(FORBIDDEN);
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -190,7 +190,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 * Hvis pdl-fullmakt returnerer en 5xx feil så skal det returneres en Forbidden feil
 	 */
 	@Test
-	void skalGiForbiddenFeilHvisPdlFullmaktReturnerer5xxFeil() {
+	void skalGiForbiddenFeilHvisReprApiReturnerer5xxFeil() {
 		stubReprApiFullmakt(INTERNAL_SERVER_ERROR);
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -207,7 +207,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 * Hvis pdl-fullmakt returnerer en ugyldig JSON så skal det returneres en Forbidden feil
 	 */
 	@Test
-	void skalGiForbiddenFeilHvisPdlFullmaktReturnererUgyldigJson() {
+	void skalGiForbiddenFeilHvisReprApiReturnererUgyldigJson() {
 		stubReprApiFullmakt("repr-api-fullmakt-invalid.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -224,7 +224,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 * Hvis pdl-fullmakt returnerer en JSON uten array så skal det returneres en Forbidden feil
 	 */
 	@Test
-	void skalGiForbiddenFeilHvisPdlFullmaktReturnererJsonUtenArray() {
+	void skalGiForbiddenFeilHvisReprApiReturnererJsonUtenArray() {
 		stubReprApiFullmakt("repr-api-fullmakt-invalid-no-array.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -241,7 +241,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 * Hvis pdl-fullmakt returnerer en fullmakt uten tema så skal det returneres en Forbidden feil
 	 */
 	@Test
-	void skalGiForbiddenFeilHvisPdlFullmaktReturnererJsonUtenTema() {
+	void skalGiForbiddenFeilHvisReprApiReturnererJsonUtenTema() {
 		stubReprApiFullmakt("repr-api-fullmakt-ingen-tema.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
