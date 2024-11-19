@@ -60,7 +60,7 @@ public class SafSelvbetjeningProperties {
         private AzureEndpoint pensjon;
 
         @NotNull
-        private TokenXEndpoint pdlfullmakt;
+        private TokenXEndpoint reprApi;
     }
 
     @Data

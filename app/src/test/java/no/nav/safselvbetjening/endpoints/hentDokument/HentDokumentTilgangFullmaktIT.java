@@ -36,7 +36,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalHenteDokumentHvisPaaloggetBrukerErFullmektigMedGyldigFullmakt() {
-		stubPdlFullmakt("pdl-fullmakt-tema-hje.json");
+		stubReprApiFullmakt("repr-api-fullmakt-tema-hje.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
@@ -56,7 +56,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalHenteUtgaaendeNavNoDokumentOgIkkeSendeHoveddokumentLestHendelseHvisPaaloggetBrukerErFullmektigMedGyldigFullmakt() {
-		stubPdlFullmakt("pdl-fullmakt-tema-hje.json");
+		stubReprApiFullmakt("repr-api-fullmakt-tema-hje.json");
 		stubDokarkivJournalpost("1c-hentdokument-utgaaende-ok.json");
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
@@ -76,7 +76,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalHenteDokumentHvisDokumentTilknyttetPensjonSakHarTemaMedGyldigFullmakt() {
-		stubPdlFullmakt("pdl-fullmakt-tema-ufo.json");
+		stubReprApiFullmakt("repr-api-fullmakt-tema-ufo.json");
 		stubDokarkivJournalpost("1c-hentdokument-pensjon-ok.json");
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
 		stubPensjonssaker("pensjon-sak-sammendrag-generell.json");
@@ -99,7 +99,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktDekkerJournalpostTemaOgIkkePensjonssakTema() {
-		stubPdlFullmakt("pdl-fullmakt-tema-pen.json");
+		stubReprApiFullmakt("repr-api-fullmakt-tema-pen.json");
 		stubDokarkivJournalpost("1c-hentdokument-pensjon-ok.json");
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
 		// UFO pensjonssak
@@ -121,7 +121,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktIkkeDekkerTemaDokumentetGjelder() {
-		stubPdlFullmakt("pdl-fullmakt-tema-pen.json");
+		stubReprApiFullmakt("repr-api-fullmakt-tema-pen.json");
 		// tema HJE fra dokarkiv
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -139,7 +139,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktIkkeFinnes() {
-		stubPdlFullmakt("pdl-fullmakt-empty.json");
+		stubReprApiFullmakt("repr-api-fullmakt-empty.json");
 
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
@@ -158,7 +158,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktGjelderEnAnnenBrukerEnnDetDokumentetGjelder() {
 		stubPdlGenerell();
-		stubPdlFullmakt("pdl-fullmakt-feil-bruker.json");
+		stubReprApiFullmakt("repr-api-fullmakt-feil-bruker.json");
 		stubDokarkivJournalpost();
 
 		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
@@ -173,8 +173,8 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 * Hvis pdl-fullmakt returnerer en 4xx feil så skal det returneres en Forbidden feil
 	 */
 	@Test
-	void skalGiForbiddenFeilHvisPdlFullmaktReturnerer4xxFeil() {
-		stubPdlFullmakt(FORBIDDEN);
+	void skalGiForbiddenFeilHvisReprApiReturnerer4xxFeil() {
+		stubReprApiFullmakt(FORBIDDEN);
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
@@ -190,8 +190,8 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 * Hvis pdl-fullmakt returnerer en 5xx feil så skal det returneres en Forbidden feil
 	 */
 	@Test
-	void skalGiForbiddenFeilHvisPdlFullmaktReturnerer5xxFeil() {
-		stubPdlFullmakt(INTERNAL_SERVER_ERROR);
+	void skalGiForbiddenFeilHvisReprApiReturnerer5xxFeil() {
+		stubReprApiFullmakt(INTERNAL_SERVER_ERROR);
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
@@ -207,8 +207,8 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 * Hvis pdl-fullmakt returnerer en ugyldig JSON så skal det returneres en Forbidden feil
 	 */
 	@Test
-	void skalGiForbiddenFeilHvisPdlFullmaktReturnererUgyldigJson() {
-		stubPdlFullmakt("pdl-fullmakt-invalid.json");
+	void skalGiForbiddenFeilHvisReprApiReturnererUgyldigJson() {
+		stubReprApiFullmakt("repr-api-fullmakt-invalid.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
@@ -224,8 +224,8 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 * Hvis pdl-fullmakt returnerer en JSON uten array så skal det returneres en Forbidden feil
 	 */
 	@Test
-	void skalGiForbiddenFeilHvisPdlFullmaktReturnererJsonUtenArray() {
-		stubPdlFullmakt("pdl-fullmakt-invalid-no-array.json");
+	void skalGiForbiddenFeilHvisReprApiReturnererJsonUtenArray() {
+		stubReprApiFullmakt("repr-api-fullmakt-invalid-no-array.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
@@ -241,8 +241,8 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 * Hvis pdl-fullmakt returnerer en fullmakt uten tema så skal det returneres en Forbidden feil
 	 */
 	@Test
-	void skalGiForbiddenFeilHvisPdlFullmaktReturnererJsonUtenTema() {
-		stubPdlFullmakt("pdl-fullmakt-ingen-tema.json");
+	void skalGiForbiddenFeilHvisReprApiReturnererJsonUtenTema() {
+		stubReprApiFullmakt("repr-api-fullmakt-ingen-tema.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
@@ -260,7 +260,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktDekkerJournalpostTemaOgIkkeSakTema() {
-		stubPdlFullmakt("pdl-fullmakt-tema-hje.json");
+		stubReprApiFullmakt("repr-api-fullmakt-tema-hje.json");
 		stubDokarkivJournalpost("ukj-hentdokument-journalpost-sak-forskjellig-tema-forbidden.json");
 		stubPdlGenerell();
 
