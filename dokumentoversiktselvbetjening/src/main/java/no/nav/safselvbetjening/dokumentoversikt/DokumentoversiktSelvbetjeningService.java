@@ -152,7 +152,6 @@ class DokumentoversiktSelvbetjeningService {
 	}
 
 	private FinnJournalposterRequest finnPensjonJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser, List<String> foedselsnummer) {
-		//TODO: Burde det vært en sjekk om det finnes pensjonssaker før vi lager en request?
 		return FinnJournalposterRequest.builder()
 				.psakSakIds(saker.pensjonsaker().stream().map(Pensjonsak::sakId).toList())
 				.fraDato(UtledTilgangService.TIDLIGST_INNSYN_DATO.format(DateTimeFormatter.ISO_LOCAL_DATE))
