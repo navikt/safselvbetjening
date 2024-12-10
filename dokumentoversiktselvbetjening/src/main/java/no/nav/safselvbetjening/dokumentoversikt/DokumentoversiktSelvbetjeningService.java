@@ -23,6 +23,8 @@ import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -81,18 +83,26 @@ class DokumentoversiktSelvbetjeningService {
 	Journalpostdata queryFiltrerAlleJournalposter(Basedata basedata, List<String> tema, Map<Long, Pensjonsak> pensjonsaker) {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
-		List<ArkivJournalpost> tilgangJournalposter = dokarkivConsumer.finnJournalposter(finnAlleJournalposterRequest(brukerIdenter, saker), emptySet()).journalposter();
-		List<ArkivJournalpost> pensjonsJournalposter = dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER, brukerIdenter.getFoedselsnummer()), emptySet()).journalposter();
-		tilgangJournalposter.addAll(pensjonsJournalposter);
+		List<ArkivJournalpost> tilgangJournalposter = new ArrayList<>();
+		if(!saker.arkivsaker().isEmpty()) {
+			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnAlleJournalposterRequest(brukerIdenter, saker), emptySet()).journalposter());
+		}
+		if(!saker.pensjonsaker().isEmpty()) {
+			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER, brukerIdenter.getFoedselsnummer()), emptySet()).journalposter());
+		}
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, tilgangJournalposter);
 	}
 
 	Journalpostdata queryFiltrerSakstilknyttedeJournalposter(Basedata basedata, List<String> tema, Map<Long, Pensjonsak> pensjonsaker) {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
-		List<ArkivJournalpost> tilgangJournalposter = dokarkivConsumer.finnJournalposter(finnFerdigstilteJournalposterRequest(saker), emptySet()).journalposter();
-		List<ArkivJournalpost> pensjonsJournalposter = dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, FERDIGSTILTE_JOURNALSTATUSER, brukerIdenter.getFoedselsnummer()), emptySet()).journalposter();
-		tilgangJournalposter.addAll(pensjonsJournalposter);
+		List<ArkivJournalpost> tilgangJournalposter = new ArrayList<>();
+		if(!saker.arkivsaker().isEmpty()) {
+			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnFerdigstilteJournalposterRequest(saker), emptySet()).journalposter());
+		}
+		if(!saker.pensjonsaker().isEmpty()) {
+			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, FERDIGSTILTE_JOURNALSTATUSER, brukerIdenter.getFoedselsnummer()), emptySet()).journalposter());
+		}
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, tilgangJournalposter);
 	}
 
@@ -154,7 +164,7 @@ class DokumentoversiktSelvbetjeningService {
 	private FinnJournalposterRequest finnPensjonJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser, List<String> foedselsnummer) {
 		return FinnJournalposterRequest.builder()
 				.psakSakIds(saker.pensjonsaker().stream().map(Pensjonsak::sakId).toList())
-				.fraDato(UtledTilgangService.TIDLIGST_INNSYN_DATO.format(DateTimeFormatter.ISO_LOCAL_DATE))
+				.fraDato(LocalDate.of(1900, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE))
 				.visFeilregistrerte(false)
 				.alleIdenter(foedselsnummer)
 				.journalstatuser(inkluderJournalstatuser)
