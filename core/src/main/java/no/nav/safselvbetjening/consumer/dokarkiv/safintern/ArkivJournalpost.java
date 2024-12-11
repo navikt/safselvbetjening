@@ -5,13 +5,11 @@ import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.tilgang.Ident;
 import no.nav.safselvbetjening.tilgang.TilgangBruker;
-import no.nav.safselvbetjening.tilgang.TilgangGosysSak;
 import no.nav.safselvbetjening.tilgang.TilgangInnsyn;
 import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 import no.nav.safselvbetjening.tilgang.TilgangJournalposttype;
 import no.nav.safselvbetjening.tilgang.TilgangJournalstatus;
 import no.nav.safselvbetjening.tilgang.TilgangMottakskanal;
-import no.nav.safselvbetjening.tilgang.TilgangPensjonSak;
 import no.nav.safselvbetjening.tilgang.TilgangSak;
 import no.nav.safselvbetjening.tilgang.TilgangSkjermingType;
 
@@ -89,17 +87,17 @@ public record ArkivJournalpost(Long journalpostId,
 		}
 
 		if (saksrelasjon.isPensjonsak()) {
-			return TilgangPensjonSak.builder()
+			return TilgangSak.builder()
 					.feilregistrert(saksrelasjon.feilregistrert() != null && saksrelasjon.feilregistrert())
 					.tema(pensjonsakOpt.map(Pensjonsak::arkivtema).orElse(null))
-					.foedselsnummer(Ident.of(brukerIdenter.getAktivFolkeregisterident()))
+					.ident(Ident.of(brukerIdenter.getAktivFolkeregisterident()))
 					.build();
 		} else {
 			ArkivSak arkivSak = saksrelasjon.sak();
-			return TilgangGosysSak.builder()
+			return TilgangSak.builder()
 					.feilregistrert(saksrelasjon.feilregistrert() != null && saksrelasjon.feilregistrert())
 					.tema(arkivSak.tema())
-					.aktoerId(Ident.ofNullable(arkivSak.aktoerId()))
+					.ident(Ident.ofNullable(arkivSak.aktoerId()))
 					.build();
 		}
 	}

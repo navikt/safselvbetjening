@@ -61,7 +61,7 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 
 	/**
 	 * Tilgangsregel: 1b
-	 * Selvbetjening viser ikke journalposter før en hardkodet dato, konfigurert som safselvbetjening.tidligst-innsyn-dato
+	 * Selvbetjening viser ikke journalposter før en hardkodet dato, se UtledTilgangService.TIDLIGST_INNSYN_DATO
 	 */
 	@Test
 	void skalGiForbiddenHvisJournalpostEldreEnnInnsynsdato() {
@@ -80,7 +80,7 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 
 	/**
 	 * Tilgangsregel: 1b
-	 * Selvbetjening viser ikke journalposter før en hardkodet dato, konfigurert som safselvbetjening.tidligst-innsyn-dato
+	 * Selvbetjening viser ikke journalposter før en hardkodet dato, se UtledTilgangService.TIDLIGST_INNSYN_DATO
 	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres journalposten
 	 */
 	@Test

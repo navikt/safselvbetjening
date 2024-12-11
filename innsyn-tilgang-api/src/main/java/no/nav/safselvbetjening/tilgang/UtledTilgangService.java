@@ -26,14 +26,9 @@ import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.MOTTATT;
  * Regler for tilgangskontroll for journalposter: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
  */
 public class UtledTilgangService {
+	public static final LocalDateTime TIDLIGST_INNSYN_DATO = LocalDate.of(2016, 6, 4).atStartOfDay();
 	private static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
 	private static final Set<String> GJELDENDE_TEMA_UNNTATT_INNSYN = Set.of("FAR", "KTR", "KTA", "ARS", "ARP");
-
-	private final LocalDateTime tidligstInnsynDateTime;
-
-	public UtledTilgangService(LocalDate tidligstInnsynDato) {
-		this.tidligstInnsynDateTime = tidligstInnsynDato.atStartOfDay();
-	}
 
 	/**
 	 * Sjekk om bruker har tilgang til å se en gitt journalpost. Merk: å få tilgang her indikerer ingenting om hvorvidt journalposten har dokumentvarianter brukeren faktisk kan se.
@@ -128,12 +123,9 @@ public class UtledTilgangService {
 		} else {
 			if (FERDIGSTILT == journalstatus) {
 				TilgangSak tilgangSak = tilgangJournalpost.getTilgangSak();
-				return switch (tilgangSak) {
-					case null -> false;
-					case TilgangGosysSak gSak -> identer.contains(gSak.getAktoerId());
-					case TilgangPensjonSak pensjonSak ->
-							pensjonSak.getFoedselsnummer() != null && identer.contains(pensjonSak.getFoedselsnummer());
-				};
+				if (tilgangSak != null) {
+					return tilgangSak.getIdent() != null && identer.contains(tilgangSak.getIdent());
+				}
 			}
 		}
 		return false;
@@ -145,16 +137,16 @@ public class UtledTilgangService {
 	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(TilgangJournalpost journalpost) {
 		if (journalpost.getJournalfoertDato() == null) {
 			if (BRUK_STANDARDREGLER == journalpost.getInnsyn()) {
-				return journalpost.getDatoOpprettet().isBefore(tidligstInnsynDateTime);
+				return journalpost.getDatoOpprettet().isBefore(TIDLIGST_INNSYN_DATO);
 			}
-			return journalpost.getDatoOpprettet().isBefore(tidligstInnsynDateTime) && !journalpost.innsynVises();
+			return journalpost.getDatoOpprettet().isBefore(TIDLIGST_INNSYN_DATO) && !journalpost.innsynVises();
 		} else {
 			if (BRUK_STANDARDREGLER == journalpost.getInnsyn()) {
-				return (journalpost.getJournalfoertDato().isBefore(tidligstInnsynDateTime) ||
-						journalpost.getDatoOpprettet().isBefore(tidligstInnsynDateTime));
+				return (journalpost.getJournalfoertDato().isBefore(TIDLIGST_INNSYN_DATO) ||
+						journalpost.getDatoOpprettet().isBefore(TIDLIGST_INNSYN_DATO));
 			}
-			return (journalpost.getJournalfoertDato().isBefore(tidligstInnsynDateTime) ||
-					journalpost.getDatoOpprettet().isBefore(tidligstInnsynDateTime)) && !journalpost.innsynVises();
+			return (journalpost.getJournalfoertDato().isBefore(TIDLIGST_INNSYN_DATO) ||
+					journalpost.getDatoOpprettet().isBefore(TIDLIGST_INNSYN_DATO)) && !journalpost.innsynVises();
 		}
 	}
 
