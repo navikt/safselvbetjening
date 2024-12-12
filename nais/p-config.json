@@ -78,6 +78,11 @@
       "cluster": "prod-gcp"
     },
     {
+      "app": "kabal-api",
+      "namespace": "klage",
+      "cluster": "prod-gcp"
+    },
+    {
       "app": "foreldrepengesoknad-api",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-gcp"
