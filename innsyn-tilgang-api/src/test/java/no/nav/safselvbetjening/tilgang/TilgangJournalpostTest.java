@@ -17,7 +17,7 @@ class TilgangJournalpostTest {
 				.datoOpprettet(LocalDateTime.now())
 				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
 				.tema("AAP")
-				.tilgangSak(TilgangGosysSak.builder()
+				.tilgangSak(TilgangSak.builder()
 						.tema("DAG")
 						.build())
 				.build();
@@ -43,7 +43,7 @@ class TilgangJournalpostTest {
 				.datoOpprettet(LocalDateTime.now())
 				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
 				.tema("AAP")
-				.tilgangSak(TilgangGosysSak.builder()
+				.tilgangSak(TilgangSak.builder()
 						.tema(null)
 						.build())
 				.build();

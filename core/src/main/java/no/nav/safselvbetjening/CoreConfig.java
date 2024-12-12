@@ -78,7 +78,7 @@ public class CoreConfig {
 	}
 
 	@Bean
-	UtledTilgangService utledTilgangService(SafSelvbetjeningProperties safSelvbetjeningProperties) {
-		return new UtledTilgangService(safSelvbetjeningProperties.getTidligstInnsynDato());
+	UtledTilgangService utledTilgangService() {
+		return new UtledTilgangService();
 	}
 }

@@ -5,7 +5,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -46,8 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UtledTilgangServiceTest {
 
-	private static final LocalDate TIDLIGSTE_INNSYNSDATO = LocalDate.of(2016, 6, 4);
-	private static final LocalDateTime FOER_TIDLIGSTE_INNSYNSDATO = TIDLIGSTE_INNSYNSDATO.atStartOfDay().minusMinutes(1);
+	private static final LocalDateTime FOER_TIDLIGSTE_INNSYNSDATO = UtledTilgangService.TIDLIGST_INNSYN_DATO.minusMinutes(1);
 	private static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
 	private static final String SKAN_IM = "SKAN_IM";
 	private static final String SKAN_NETS = "SKAN_NETS";
@@ -55,7 +53,7 @@ class UtledTilgangServiceTest {
 	private final UtledTilgangService utledTilgangService;
 
 	public UtledTilgangServiceTest() {
-		utledTilgangService = new UtledTilgangService(TIDLIGSTE_INNSYNSDATO);
+		utledTilgangService = new UtledTilgangService();
 	}
 
 	@Test
@@ -219,8 +217,8 @@ class UtledTilgangServiceTest {
 				.datoOpprettet(LocalDateTime.now())
 				.tema(TEMA_PENSJON)
 				.journalfoertDato(LocalDateTime.now())
-				.tilgangSak(TilgangPensjonSak.builder()
-						.foedselsnummer(IDENT)
+				.tilgangSak(TilgangSak.builder()
+						.ident(IDENT)
 						.feilregistrert(false)
 						.build())
 				.build();
@@ -237,8 +235,8 @@ class UtledTilgangServiceTest {
 				.datoOpprettet(LocalDateTime.now())
 				.tema(TEMA_DAGPENGER)
 				.journalfoertDato(LocalDateTime.now())
-				.tilgangSak(TilgangGosysSak.builder()
-						.aktoerId(Ident.of(ANNEN_AKTOER_ID))
+				.tilgangSak(TilgangSak.builder()
+						.ident(Ident.of(ANNEN_AKTOER_ID))
 						.feilregistrert(false)
 						.tema(TEMA_DAGPENGER)
 						.build())
@@ -257,7 +255,7 @@ class UtledTilgangServiceTest {
 				.tema(TEMA_PENSJON)
 				.journalfoertDato(LocalDateTime.now())
 				.mottakskanal(IKKE_SKANNING)
-				.tilgangSak(TilgangPensjonSak.builder()
+				.tilgangSak(TilgangSak.builder()
 						.feilregistrert(false)
 						.build())
 				.build();
@@ -339,7 +337,7 @@ class UtledTilgangServiceTest {
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
 				.mottakskanal(IKKE_SKANNING)
-				.tilgangSak(TilgangGosysSak.builder()
+				.tilgangSak(TilgangSak.builder()
 						.feilregistrert(true)
 						.build())
 				.build();
@@ -381,8 +379,8 @@ class UtledTilgangServiceTest {
 				.datoOpprettet(LocalDateTime.now())
 				.mottakskanal(IKKE_SKANNING)
 				.tema(tema)
-				.tilgangSak(TilgangGosysSak.builder()
-						.aktoerId(Ident.of(AKTOER_ID))
+				.tilgangSak(TilgangSak.builder()
+						.ident(Ident.of(AKTOER_ID))
 						.feilregistrert(false)
 						.tema(tema)
 						.build())
@@ -549,7 +547,7 @@ class UtledTilgangServiceTest {
 				.datoOpprettet(LocalDateTime.now())
 				.mottakskanal(IKKE_SKANNING)
 				.journalstatus(FERDIGSTILT)
-				.tilgangSak(TilgangGosysSak.builder()
+				.tilgangSak(TilgangSak.builder()
 						.tema("KTA")
 						.build())
 				.build();
@@ -564,7 +562,7 @@ class UtledTilgangServiceTest {
 				.datoOpprettet(LocalDateTime.now())
 				.mottakskanal(IKKE_SKANNING)
 				.journalstatus(FERDIGSTILT)
-				.tilgangSak(TilgangGosysSak.builder()
+				.tilgangSak(TilgangSak.builder()
 						.tema("DAG")
 						.build())
 				.build();

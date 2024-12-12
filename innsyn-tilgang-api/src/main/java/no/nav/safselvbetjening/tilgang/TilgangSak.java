@@ -4,18 +4,12 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
 /**
- * TilgangSak er en abstrakt representasjon av en Sak i et av fagsystemene. Ved mapping av data fra Dokarkiv må en av de
- * konkrete implementasjonene brukes.
- *
- * @see TilgangGosysSak
- * @see TilgangPensjonSak
+ * TilgangSak er en representasjon av en Sak i et av fagsystemene. Ident kan representere en AktørId, et fødselsnummer eller et organisasjonsnummer
  */
 @Getter
 @SuperBuilder
-public abstract sealed class TilgangSak permits TilgangGosysSak, TilgangPensjonSak {
+public class TilgangSak {
 	private final String tema;
 	private final boolean feilregistrert;
-
-	public abstract TilgangFagsystem getFagsystem();
+	private final Ident ident;
 }
-

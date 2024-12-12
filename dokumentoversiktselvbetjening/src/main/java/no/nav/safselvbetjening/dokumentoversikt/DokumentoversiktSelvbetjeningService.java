@@ -22,6 +22,7 @@ import no.nav.safselvbetjening.service.SakService;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.springframework.stereotype.Component;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -138,7 +139,7 @@ class DokumentoversiktSelvbetjeningService {
 		return FinnJournalposterRequest.builder()
 				.gsakSakIds(saker.arkivsaker().stream().map(Joarksak::getId).toList())
 				.psakSakIds(saker.pensjonsaker().stream().map(Pensjonsak::sakId).toList())
-				.fraDato(safSelvbetjeningProperties.getTidligstInnsynDato().toString())
+				.fraDato(UtledTilgangService.TIDLIGST_INNSYN_DATO.format(DateTimeFormatter.ISO_LOCAL_DATE))
 				.visFeilregistrerte(false)
 				.alleIdenter(foedselsnummer)
 				.journalstatuser(inkluderJournalstatuser)

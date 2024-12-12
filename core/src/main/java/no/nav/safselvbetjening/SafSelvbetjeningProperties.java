@@ -5,10 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
-
-import java.time.LocalDate;
 
 @Data
 @ConfigurationProperties("safselvbetjening")
@@ -18,13 +15,6 @@ public class SafSelvbetjeningProperties {
     private final Endpoints endpoints = new Endpoints();
     private final Serviceuser serviceuser = new Serviceuser();
     private final Topics topics = new Topics();
-
-    /**
-     * Cut-off dato for innsyn fra innbygger. Dokumenter før denne dato skal ikke hentes eller vises.
-     */
-    @NotNull
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDate tidligstInnsynDato;
 
     @Data
     @Validated

@@ -1,6 +1,5 @@
 package no.nav.safselvbetjening.consumer.dokarkiv.safintern;
 
-import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
@@ -9,19 +8,16 @@ import no.nav.safselvbetjening.domain.RelevantDato;
 import no.nav.safselvbetjening.tilgang.Ident;
 import no.nav.safselvbetjening.tilgang.TilgangBruker;
 import no.nav.safselvbetjening.tilgang.TilgangDokument;
-import no.nav.safselvbetjening.tilgang.TilgangFagsystem;
-import no.nav.safselvbetjening.tilgang.TilgangGosysSak;
 import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 import no.nav.safselvbetjening.tilgang.TilgangJournalstatus;
 import no.nav.safselvbetjening.tilgang.TilgangMottakskanal;
-import no.nav.safselvbetjening.tilgang.TilgangPensjonSak;
+import no.nav.safselvbetjening.tilgang.TilgangSak;
 import no.nav.safselvbetjening.tilgang.TilgangSkjermingType;
 import no.nav.safselvbetjening.tilgang.TilgangVariant;
 import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,7 +86,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 class ArkivJournalpostMapperTest {
 	private final static Ident BRUKER_FNR = Ident.of(BRUKER_IDENT);
 
-	private final ArkivJournalpostMapper mapper = new ArkivJournalpostMapper(new ArkivAvsenderMottakerMapper(), new UtledTilgangService(safSelvbetjeningProperties().getTidligstInnsynDato()));
+	private final ArkivJournalpostMapper mapper = new ArkivJournalpostMapper(new ArkivAvsenderMottakerMapper(), new UtledTilgangService());
 
 	@Test
 	void skalMappeInngaaendeJournalpost() {
@@ -255,10 +251,8 @@ class ArkivJournalpostMapperTest {
 
 		assertThat(tilgang.getTilgangBruker()).isNull();
 
-		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangGosysSak.class);
-		TilgangGosysSak tilgangSak = (TilgangGosysSak) tilgang.getTilgangSak();
-		assertThat(tilgangSak.getAktoerId()).isEqualTo(Ident.of(ARKIVSAK_AKTOER_ID));
-		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.GOSYS);
+		TilgangSak tilgangSak = tilgang.getTilgangSak();
+		assertThat(tilgangSak.getIdent()).isEqualTo(Ident.of(ARKIVSAK_AKTOER_ID));
 		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
 		assertThat(tilgangSak.isFeilregistrert()).isTrue();
 	}
@@ -342,10 +336,8 @@ class ArkivJournalpostMapperTest {
 		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
 		assertThat(tilgangBruker.brukerId()).isEqualTo(BRUKER_FNR);
 
-		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangGosysSak.class);
-		TilgangGosysSak tilgangSak = (TilgangGosysSak) tilgang.getTilgangSak();
-		assertThat(tilgangSak.getAktoerId()).isEqualTo(Ident.of(ARKIVSAK_AKTOER_ID));
-		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.GOSYS);
+		TilgangSak tilgangSak = tilgang.getTilgangSak();
+		assertThat(tilgangSak.getIdent()).isEqualTo(Ident.of(ARKIVSAK_AKTOER_ID));
 		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
 		assertThat(tilgangSak.isFeilregistrert()).isTrue();
 	}
@@ -360,17 +352,9 @@ class ArkivJournalpostMapperTest {
 		TilgangBruker tilgangBruker = tilgang.getTilgangBruker();
 		assertThat(tilgangBruker.brukerId()).isEqualTo(BRUKER_FNR);
 
-		assertThat(tilgang.getTilgangSak()).isInstanceOf(TilgangPensjonSak.class);
-		TilgangPensjonSak tilgangSak = (TilgangPensjonSak) tilgang.getTilgangSak();
-		assertThat(tilgangSak.getFoedselsnummer()).isEqualTo(BRUKER_FNR);
-		assertThat(tilgangSak.getFagsystem()).isEqualTo(TilgangFagsystem.PENSJON);
+		TilgangSak tilgangSak = tilgang.getTilgangSak();
+		assertThat(tilgangSak.getIdent()).isEqualTo(BRUKER_FNR);
 		assertThat(tilgangSak.getTema()).isEqualTo(TEMA_PENSJON_UFORETRYGD);
 		assertThat(tilgangSak.isFeilregistrert()).isTrue();
-	}
-
-	static SafSelvbetjeningProperties safSelvbetjeningProperties() {
-		SafSelvbetjeningProperties safSelvbetjeningProperties = new SafSelvbetjeningProperties();
-		safSelvbetjeningProperties.setTidligstInnsynDato(LocalDate.of(2016, 6, 4));
-		return safSelvbetjeningProperties;
 	}
 }

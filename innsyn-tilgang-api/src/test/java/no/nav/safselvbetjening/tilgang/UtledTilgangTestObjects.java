@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.GOSYS;
-import static no.nav.safselvbetjening.tilgang.TilgangFagsystem.PENSJON;
 import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.BRUK_STANDARDREGLER;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalposttype.ANNEN;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT;
@@ -24,8 +22,6 @@ public class UtledTilgangTestObjects {
 	public static final String TEMA_KONTROLL_ANMELDELSE = "KTA";
 	public static final String TEMA_ARBEIDSRAADGIVNING_SKJERMET = "ARS";
 	public static final String TEMA_ARBEIDSRAADGIVNING_PSYKOLOGTESTER = "ARP";
-	static final TilgangFagsystem ARKIVSAKSYSTEM_GOSYS = GOSYS;
-	static final TilgangFagsystem ARKIVSAKSYSTEM_PENSJON = PENSJON;
 
 	static TilgangJournalpost.TilgangJournalpostBuilder baseTilgangJournalpost(String tema, TilgangInnsyn innsyn) {
 		return TilgangJournalpost.builder()
@@ -35,8 +31,8 @@ public class UtledTilgangTestObjects {
 				.journalfoertDato(LocalDateTime.now())
 				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
 				.innsyn(innsyn)
-				.tilgangSak(TilgangGosysSak.builder()
-						.aktoerId(Ident.of(AKTOER_ID))
+				.tilgangSak(TilgangSak.builder()
+						.ident(Ident.of(AKTOER_ID))
 						.feilregistrert(false)
 						.tema(tema)
 						.build());
