@@ -43,8 +43,8 @@ import static no.nav.safselvbetjening.MDCUtils.MDC_FULLMAKT_TEMA;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
-import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_ANNEN_PART;
-import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_INNSYNSDATO;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
@@ -114,7 +114,7 @@ public class HentDokumentService {
 		validerRiktigJournalpost(hentdokumentRequest, arkivJournalpost);
 		final BrukerIdenter brukerIdenter = identService.hentIdenter(arkivJournalpost);
 		if (brukerIdenter.isEmpty()) {
-			throw new HentTilgangDokumentException(DENY_REASON_ANNEN_PART.reason, FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);
+			throw new HentTilgangDokumentException(DENY_REASON_IKKE_AVSENDER_MOTTAKER.reason, FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);
 		}
 
 		Optional<Fullmakt> fullmaktOpt = validerInnloggetBrukerOgFinnFullmakt(brukerIdenter, hentdokumentRequest);
@@ -150,7 +150,7 @@ public class HentDokumentService {
 		var dokumentErrors = utledTilgangService.utledTilgangDokument(journalpost, tilgangDokument.orElse(null),
 						dokumentvariant.orElse(null), brukerIdenter)
 				.stream()
-				.filter(not(DENY_REASON_INNSYNSDATO::equals))
+				.filter(not(DENY_REASON_FOER_INNSYNSDATO::equals))
 				.toList();
 		if (!dokumentErrors.isEmpty()) {
 			throw new HentTilgangDokumentException(dokumentErrors.getFirst().reason, lagFeilmeldingForDokument(dokumentErrors.getFirst()));

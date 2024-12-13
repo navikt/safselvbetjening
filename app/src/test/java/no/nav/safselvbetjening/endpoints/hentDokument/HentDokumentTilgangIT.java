@@ -13,10 +13,10 @@ import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_SKJULT;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_TEMAER_UNNTATT_INNSYN;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
-import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_ANNEN_PART;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FEILREGISTRERT;
-import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_GDPR;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_KASSERT;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_POL_GDPR;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKANNET_DOKUMENT;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKJULT_INNSYN;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_TEMAER_UNNTATT_INNSYN;
@@ -45,7 +45,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_ANNEN_PART.reason));
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_IKKE_AVSENDER_MOTTAKER.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);
 	}
 
@@ -147,7 +147,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_GDPR.reason));
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_POL_GDPR.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_GDPR);
 	}
 
@@ -179,7 +179,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		ResponseEntity<String> responseEntity = callHentDokument();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
-		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_ANNEN_PART.reason));
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_IKKE_AVSENDER_MOTTAKER.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_ANNEN_PART);
 	}
 

@@ -85,7 +85,7 @@ class UtledTilgangServiceTest {
 		var tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER)
 				.journalfoertDato(FOER_TIDLIGSTE_INNSYNSDATO)
 				.build(), defaultBrukerIdenter());
-		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_INNSYNSDATO);
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO);
 	}
 
 	@Test
@@ -110,21 +110,21 @@ class UtledTilgangServiceTest {
 	void shouldReturnInnsynsdatoWhenJournalpostDokumentFoerOpprettetDato() {
 		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).journalfoertDato(FOER_TIDLIGSTE_INNSYNSDATO).build(),
 				tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
-		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_INNSYNSDATO);
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO);
 	}
 
 	@Test
 	void shouldReturnGDPRWhenTilgangTilDokumentWithSkjermingPOL() {
 		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).build(),
 				baseTilgangDokument().skjerming(TilgangSkjermingType.POL).build(), tilgangVariant(), defaultBrukerIdenter());
-		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_GDPR);
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_POL_GDPR);
 	}
 
 	@Test
 	void shouldReturnGDPRWhenTilgangVariantWithSkjermingPOL() {
 		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).build(),
 				tilgangDokument(), baseTilgangVariant().skjerming(TilgangSkjermingType.POL).build(), defaultBrukerIdenter());
-		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_GDPR);
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_POL_GDPR);
 	}
 
 	@Test
@@ -161,7 +161,7 @@ class UtledTilgangServiceTest {
 						.avsenderMottakerId(ANNEN_PART)
 						.build(),
 				tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
-		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_ANNEN_PART);
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER);
 	}
 
 
