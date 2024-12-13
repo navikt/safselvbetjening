@@ -77,8 +77,8 @@ import static no.nav.safselvbetjening.domain.Kanal.SDP;
 import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
 import static no.nav.safselvbetjening.domain.Tema.HJE;
 import static no.nav.safselvbetjening.domain.Variantformat.ARKIV;
-import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_ANNEN_PART;
-import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_GDPR;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_POL_GDPR;
 import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.BRUK_STANDARDREGLER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -286,7 +286,7 @@ class ArkivJournalpostMapperTest {
 						HOVEDDOKUMENT_FIL_UUID,
 						FILTYPE_PDF,
 						parseInt(HOVEDDOKUMENT_FIL_STOERRELSE),
-						List.of(DENY_REASON_ANNEN_PART.reason, DENY_REASON_GDPR.reason, DENY_REASON_GDPR.reason),
+						List.of(DENY_REASON_IKKE_AVSENDER_MOTTAKER.reason, DENY_REASON_POL_GDPR.reason, DENY_REASON_POL_GDPR.reason),
 						false));
 	}
 
@@ -322,7 +322,7 @@ class ArkivJournalpostMapperTest {
 						VEDLEGG_FIL_UUID,
 						FILTYPE_PDF,
 						parseInt(VEDLEGG_FIL_STOERRELSE),
-						List.of(DENY_REASON_ANNEN_PART.reason, DENY_REASON_GDPR.reason, DENY_REASON_GDPR.reason),
+						List.of(DENY_REASON_IKKE_AVSENDER_MOTTAKER.reason, DENY_REASON_POL_GDPR.reason, DENY_REASON_POL_GDPR.reason),
 						false));
 	}
 

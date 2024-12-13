@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_ANNEN_PART;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FEILREGISTRERT;
-import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FORVALTNINGSNOTAT;
-import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_GDPR;
-import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_INNSYNSDATO;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_KASSERT;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_NOTAT;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_POL_GDPR;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKANNET_DOKUMENT;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKJULT_INNSYN;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_TEMAER_UNNTATT_INNSYN;
@@ -42,10 +42,10 @@ public class UtledTilgangService {
 
 		// Med referanse til tilgangsreglene lenket i javadoc.
 		if (!isBrukerPart(journalpost, brukerIdenter)) { // 1a
-			feilmeldinger.add(DENY_REASON_ANNEN_PART);
+			feilmeldinger.add(DENY_REASON_IKKE_AVSENDER_MOTTAKER);
 		}
 		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost)) { // 1b
-			feilmeldinger.add(DENY_REASON_INNSYNSDATO);
+			feilmeldinger.add(DENY_REASON_FOER_INNSYNSDATO);
 		}
 		if (!isJournalpostFerdigstiltOrMidlertidig(journalpost)) { // 1c
 			feilmeldinger.add(DENY_REASON_UGYLDIG_JOURNALSTATUS);
@@ -57,10 +57,10 @@ public class UtledTilgangService {
 			feilmeldinger.add(DENY_REASON_TEMAER_UNNTATT_INNSYN);
 		}
 		if (isJournalpostGDPRRestricted(journalpost)) { // 1f
-			feilmeldinger.add(DENY_REASON_GDPR);
+			feilmeldinger.add(DENY_REASON_POL_GDPR);
 		}
 		if (!isJournalpostNotatXNORForvaltningsnotat(journalpost)) { // 1g
-			feilmeldinger.add(DENY_REASON_FORVALTNINGSNOTAT);
+			feilmeldinger.add(DENY_REASON_NOTAT);
 		}
 		if (isJournalpostInnsynSkjules(journalpost)) { // 1i
 			feilmeldinger.add(DENY_REASON_SKJULT_INNSYN);
@@ -81,19 +81,19 @@ public class UtledTilgangService {
 		List<TilgangDenyReason> feilmeldinger = new ArrayList<>();
 
 		if (!isAvsenderMottakerPart(journalpost, brukerIdenter)) {
-			feilmeldinger.add(DENY_REASON_ANNEN_PART);
+			feilmeldinger.add(DENY_REASON_IKKE_AVSENDER_MOTTAKER);
 		}
 		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost)) {
-			feilmeldinger.add(DENY_REASON_INNSYNSDATO);
+			feilmeldinger.add(DENY_REASON_FOER_INNSYNSDATO);
 		}
 		if (isSkannetDokumentAndInnsynIsNotVises(journalpost)) {
 			feilmeldinger.add(DENY_REASON_SKANNET_DOKUMENT);
 		}
 		if (isDokumentGDPRRestricted(dokumentInfo)) {
-			feilmeldinger.add(DENY_REASON_GDPR);
+			feilmeldinger.add(DENY_REASON_POL_GDPR);
 		}
 		if (isDokumentvariantGDPRRestricted(tilgangVariant)) {
-			feilmeldinger.add(DENY_REASON_GDPR);
+			feilmeldinger.add(DENY_REASON_POL_GDPR);
 		}
 		if (isDokumentKassert(dokumentInfo)) {
 			feilmeldinger.add(DENY_REASON_KASSERT);
