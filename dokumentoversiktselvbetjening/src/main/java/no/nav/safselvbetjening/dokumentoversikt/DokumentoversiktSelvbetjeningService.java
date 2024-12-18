@@ -88,7 +88,7 @@ class DokumentoversiktSelvbetjeningService {
 			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnAlleJournalposterRequest(brukerIdenter, saker), emptySet()).journalposter());
 		}
 		if(!saker.pensjonsaker().isEmpty()) {
-			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER, brukerIdenter.getFoedselsnummer()), emptySet()).journalposter());
+			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER), emptySet()).journalposter());
 		}
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, tilgangJournalposter);
 	}
@@ -101,7 +101,7 @@ class DokumentoversiktSelvbetjeningService {
 			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnFerdigstilteJournalposterRequest(saker), emptySet()).journalposter());
 		}
 		if(!saker.pensjonsaker().isEmpty()) {
-			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, FERDIGSTILTE_JOURNALSTATUSER, brukerIdenter.getFoedselsnummer()), emptySet()).journalposter());
+			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, FERDIGSTILTE_JOURNALSTATUSER), emptySet()).journalposter());
 		}
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, tilgangJournalposter);
 	}
@@ -161,12 +161,11 @@ class DokumentoversiktSelvbetjeningService {
 				.build();
 	}
 
-	private FinnJournalposterRequest finnPensjonJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser, List<String> foedselsnummer) {
+	private FinnJournalposterRequest finnPensjonJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser) {
 		return FinnJournalposterRequest.builder()
 				.psakSakIds(saker.pensjonsaker().stream().map(Pensjonsak::sakId).toList())
 				.fraDato(LocalDate.of(1900, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE))
 				.visFeilregistrerte(false)
-				.alleIdenter(foedselsnummer)
 				.journalstatuser(inkluderJournalstatuser)
 				.journalposttyper(ALLE_JOURNALPOSTTYPER)
 				.antallRader(9999)
