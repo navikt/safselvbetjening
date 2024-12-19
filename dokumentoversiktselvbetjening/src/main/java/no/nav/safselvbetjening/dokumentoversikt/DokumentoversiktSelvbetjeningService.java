@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.E;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.FL;
@@ -81,27 +80,28 @@ class DokumentoversiktSelvbetjeningService {
 	}
 
 	Journalpostdata queryFiltrerAlleJournalposter(Basedata basedata, List<String> tema, Map<Long, Pensjonsak> pensjonsaker) {
-		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
-		final Saker saker = basedata.saker();
-		List<ArkivJournalpost> tilgangJournalposter = new ArrayList<>();
-		if(!saker.arkivsaker().isEmpty()) {
-			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnAlleJournalposterRequest(brukerIdenter, saker), emptySet()).journalposter());
-		}
-		if(!saker.pensjonsaker().isEmpty()) {
-			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER), emptySet()).journalposter());
-		}
-		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, tilgangJournalposter);
+		/*
+		 * 1c) Bruker får kun se midlertidige og ferdigstilte journalposter.
+		 */
+		return queryFilterJournalposter(basedata, tema, pensjonsaker, MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER);
 	}
 
 	Journalpostdata queryFiltrerSakstilknyttedeJournalposter(Basedata basedata, List<String> tema, Map<Long, Pensjonsak> pensjonsaker) {
+		/*
+		 * Modifikasjon av 1c - midlertidige journalposter vises ikke da de er uten sakstilknytning.
+		 */
+		return queryFilterJournalposter(basedata, tema, pensjonsaker, FERDIGSTILTE_JOURNALSTATUSER);
+	}
+
+	private Journalpostdata queryFilterJournalposter(Basedata basedata, List<String> tema, Map<Long, Pensjonsak> pensjonsaker, List<JournalStatusCode> journalStatusCodeList) {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
 		List<ArkivJournalpost> tilgangJournalposter = new ArrayList<>();
 		if(!saker.arkivsaker().isEmpty()) {
-			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnFerdigstilteJournalposterRequest(saker), emptySet()).journalposter());
+			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(baseFinnJournalposterRequest(saker, journalStatusCodeList, brukerIdenter.getFoedselsnummer()), emptySet()).journalposter());
 		}
 		if(!saker.pensjonsaker().isEmpty()) {
-			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, FERDIGSTILTE_JOURNALSTATUSER), emptySet()).journalposter());
+			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, journalStatusCodeList), emptySet()).journalposter());
 		}
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, tilgangJournalposter);
 	}
@@ -130,20 +130,6 @@ class DokumentoversiktSelvbetjeningService {
 				.filter(journalpost -> tema.contains(journalpost.getTema()))
 				.toList();
 		return new Journalpostdata(tilgangJournalposter.size(), filtrerteJournalposter);
-	}
-
-	/*
-	 * 1c) Bruker får kun se midlertidige og ferdigstilte journalposter.
-	 */
-	private FinnJournalposterRequest finnAlleJournalposterRequest(BrukerIdenter brukerIdenter, Saker saker) {
-		return baseFinnJournalposterRequest(saker, MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER, brukerIdenter.getFoedselsnummer());
-	}
-
-	/*
-	 * Modifikasjon av 1c - midlertidige journalposter vises ikke da de er uten sakstilknytning.
-	 */
-	private FinnJournalposterRequest finnFerdigstilteJournalposterRequest(Saker saker) {
-		return baseFinnJournalposterRequest(saker, FERDIGSTILTE_JOURNALSTATUSER, emptyList());
 	}
 
 	/*
