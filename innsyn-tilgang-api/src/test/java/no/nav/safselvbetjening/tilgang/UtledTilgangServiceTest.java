@@ -33,6 +33,7 @@ import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_FARSK
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_KONTROLL;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_KONTROLL_ANMELDELSE;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_PENSJON;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.TEMA_UFOR;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseJournalfoertJournalpost;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseMottattJournalpost;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.baseTilgangDokument;
@@ -321,6 +322,25 @@ class UtledTilgangServiceTest {
 		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
 		assertThat(actual).isTrue();
 	}
+
+	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
+	// 	Unntak når tema er PEN eller UFO
+	@ParameterizedTest
+	@ValueSource(strings = {TEMA_PENSJON, TEMA_UFOR})
+	void shouldReturnFalseWhenOpprettetBeforeInnsynsdatoAndTemaIsExceptFromDateRule(String tema){
+		final LocalDateTime journalfoertDato = LocalDateTime.of(2016, 5, 6, 0, 0);
+		TilgangJournalpost journalpost = TilgangJournalpost.builder()
+				.innsyn(BRUK_STANDARDREGLER)
+				.datoOpprettet(journalfoertDato)
+				.journalfoertDato(journalfoertDato)
+				.mottakskanal(IKKE_SKANNING)
+				.tema(tema)
+				.build();
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
+		assertThat(actual).isFalse();
+
+	}
+
 
 	//	1c - Bruker får kun se midlertidige og ferdigstilte journalposter
 	@Test

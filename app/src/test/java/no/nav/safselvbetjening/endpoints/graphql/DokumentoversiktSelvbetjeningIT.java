@@ -248,13 +248,14 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	@Test
 	void shouldGetDokumentoversiktWhenOnlyForeldrepengerTemaQueried() throws Exception {
-		happyStubs();
+		happyStubs("finnjournalposter_happy_gsak.json");
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_for.query");
 
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getData()).isNotNull();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertThat(data.getTema()).hasSize(1);
 		Sakstema foreldrepenger = data.getTema().get(0);
@@ -352,7 +353,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	@Test
 	void shouldGetDokumentoversiktWhenTokenNotMatchingQueryIdentAndFullmaktExistsForTema() throws Exception {
-		happyStubs();
+		happyStubs("finnjournalposter_happy_gsak.json");
 		stubReprApiFullmakt("repr-api-fullmakt-for.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);

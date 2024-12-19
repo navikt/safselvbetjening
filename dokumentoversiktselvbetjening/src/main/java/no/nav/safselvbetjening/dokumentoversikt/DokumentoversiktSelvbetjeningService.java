@@ -82,6 +82,8 @@ class DokumentoversiktSelvbetjeningService {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
 		List<ArkivJournalpost> tilgangJournalposter = dokarkivConsumer.finnJournalposter(finnAlleJournalposterRequest(brukerIdenter, saker), emptySet()).journalposter();
+		List<ArkivJournalpost> pensjonsJournalposter = dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER, brukerIdenter.getFoedselsnummer()), emptySet()).journalposter();
+		tilgangJournalposter.addAll(pensjonsJournalposter);
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, tilgangJournalposter);
 	}
 
@@ -89,6 +91,8 @@ class DokumentoversiktSelvbetjeningService {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
 		List<ArkivJournalpost> tilgangJournalposter = dokarkivConsumer.finnJournalposter(finnFerdigstilteJournalposterRequest(saker), emptySet()).journalposter();
+		List<ArkivJournalpost> pensjonsJournalposter = dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, FERDIGSTILTE_JOURNALSTATUSER, brukerIdenter.getFoedselsnummer()), emptySet()).journalposter();
+		tilgangJournalposter.addAll(pensjonsJournalposter);
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, tilgangJournalposter);
 	}
 
@@ -138,6 +142,18 @@ class DokumentoversiktSelvbetjeningService {
 	private FinnJournalposterRequest baseFinnJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser, List<String> foedselsnummer) {
 		return FinnJournalposterRequest.builder()
 				.gsakSakIds(saker.arkivsaker().stream().map(Joarksak::getId).toList())
+				.fraDato(UtledTilgangService.TIDLIGST_INNSYN_DATO.format(DateTimeFormatter.ISO_LOCAL_DATE))
+				.visFeilregistrerte(false)
+				.alleIdenter(foedselsnummer)
+				.journalstatuser(inkluderJournalstatuser)
+				.journalposttyper(ALLE_JOURNALPOSTTYPER)
+				.antallRader(9999)
+				.build();
+	}
+
+	private FinnJournalposterRequest finnPensjonJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser, List<String> foedselsnummer) {
+		//TODO: Burde det vært en sjekk om det finnes pensjonssaker før vi lager en request?
+		return FinnJournalposterRequest.builder()
 				.psakSakIds(saker.pensjonsaker().stream().map(Pensjonsak::sakId).toList())
 				.fraDato(UtledTilgangService.TIDLIGST_INNSYN_DATO.format(DateTimeFormatter.ISO_LOCAL_DATE))
 				.visFeilregistrerte(false)

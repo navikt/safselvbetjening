@@ -7,6 +7,7 @@ import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_ANNEN_PART;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FEILREGISTRERT;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_GDPR;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_INNSYNSDATO;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_KASSERT;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_SKANNET;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_SKJULT;
@@ -14,6 +15,7 @@ import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_TEMAER_UNNTA
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FEILREGISTRERT;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_KASSERT;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_POL_GDPR;
@@ -57,6 +59,30 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 	@Test
 	void skalHenteDokumentHvisInnsynVisesSelvOmEldreEnnInnsynsdato() {
 		stubDokarkivJournalpost("1b-hentdokument-innsyn-vises-ok.json");
+		stubPdlGenerell();
+		stubHentDokumentDokarkiv();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertOkArkivResponse(responseEntity);
+	}
+
+	@Test
+	void skalIkkeHenteDokumentNårEldreEnnInnsynsdato() {
+		stubDokarkivJournalpost("1b-hentdokument-eldre-enn-innsynsdato.json");
+		stubPdlGenerell();
+		stubHentDokumentDokarkiv();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FOER_INNSYNSDATO.reason));
+		assertThat(responseEntity.getBody()).contains(FEILMELDING_INNSYNSDATO);
+	}
+
+	@Test
+	void skalHentePensjonDokumentNårEldreEnnInnsynsdato() {
+		stubDokarkivJournalpost("1b-hentdokument-pensjon-eldre-enn-innsynsdato.json");
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
 

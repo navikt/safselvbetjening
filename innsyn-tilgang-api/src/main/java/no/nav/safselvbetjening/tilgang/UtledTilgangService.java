@@ -29,6 +29,7 @@ public class UtledTilgangService {
 	public static final LocalDateTime TIDLIGST_INNSYN_DATO = LocalDate.of(2016, 6, 4).atStartOfDay();
 	private static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
 	private static final Set<String> GJELDENDE_TEMA_UNNTATT_INNSYN = Set.of("FAR", "KTR", "KTA", "ARS", "ARP");
+	private static final Set<String> GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING = Set.of("PEN", "UFO");
 
 	/**
 	 * Sjekk om bruker har tilgang til å se en gitt journalpost. Merk: å få tilgang her indikerer ingenting om hvorvidt journalposten har dokumentvarianter brukeren faktisk kan se.
@@ -132,9 +133,13 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 1b) Bruker får ikke se journalposter som er journalført før 04.06.2016 med mindre innsyn begynner med VISES_*.
+	 * 1b) Bruker får ikke se journalposter som er journalført før 04.06.2016 med mindre innsyn begynner med VISES_* eller
+	 * de har tema PEN eller UFO.
 	 */
 	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(TilgangJournalpost journalpost) {
+		if (journalpost.getTema() != null && GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING.contains(journalpost.getTema())) {
+			return false;
+		}
 		if (journalpost.getJournalfoertDato() == null) {
 			if (BRUK_STANDARDREGLER == journalpost.getInnsyn()) {
 				return journalpost.getDatoOpprettet().isBefore(TIDLIGST_INNSYN_DATO);
