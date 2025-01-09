@@ -43,6 +43,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public abstract class AbstractItest {
 
 	protected static final String FULLMEKTIG_ID = "22222222222";
+	protected static final String HENT_PENSJONSSAKER_PATH = "/pensjon/api/sak/sammendrag";
+	protected static final String HENT_BRUKER_FOR_PENSJONSSAK_PATH = "/pensjon/api/pip/hentBrukerOgEnhetstilgangerForSak/v1";
 
 	@Autowired
 	private MockOAuth2Server server;
@@ -163,7 +165,7 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubPensjonssaker(final String fil) {
-		stubFor(get("/pensjon/pen/springapi/sak/sammendrag")
+		stubFor(get(HENT_PENSJONSSAKER_PATH)
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -171,7 +173,7 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubPensjonHentBrukerForSak(final String fil) {
-		stubFor(get("/pensjon/pen/api/pip/hentBrukerOgEnhetstilgangerForSak/v1")
+		stubFor(get(HENT_BRUKER_FOR_PENSJONSSAK_PATH)
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)

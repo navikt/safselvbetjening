@@ -54,7 +54,7 @@ public class PensjonSakRestConsumer {
 
 	public HentBrukerForSakResponseTo hentBrukerForSak(final String sakId) {
 		var result = webClient.get()
-				.uri("/pen/api/pip/hentBrukerOgEnhetstilgangerForSak/v1")
+				.uri("/pip/hentBrukerOgEnhetstilgangerForSak/v1")
 				.attributes(clientRegistrationId(CLIENT_REGISTRATION_PENSJON))
 				.header("sakId", sakId)
 				.retrieve()
@@ -88,7 +88,7 @@ public class PensjonSakRestConsumer {
 		}
 
 		return webClient.get()
-				.uri("/pen/springapi/sak/sammendrag")
+				.uri("/sak/sammendrag")
 				.attributes(clientRegistrationId(CLIENT_REGISTRATION_PENSJON))
 				.header("fnr", personident)
 				.retrieve()
