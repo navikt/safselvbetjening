@@ -9,7 +9,7 @@
   "SAFSELVBETJENING_ENDPOINTS_FAGARKIV": "http://dokarkiv-q1.teamdokumenthandtering.svc.nais.local/hentjournalsakinfo",
   "SAFSELVBETJENING_ENDPOINTS_DOKARKIV_URL": "http://dokarkiv-q1.teamdokumenthandtering.svc.nais.local/rest/internal/safintern",
   "SAFSELVBETJENING_ENDPOINTS_DOKARKIV_SCOPE": "api://dev-fss.teamdokumenthandtering.dokarkiv-q1/.default",
-  "SAFSELVBETJENING_ENDPOINTS_PENSJON_URL": "http://pensjon-pen-q1.pensjon-q1.svc.nais.local",
+  "SAFSELVBETJENING_ENDPOINTS_PENSJON_URL": "http://pensjon-pen-q1.pensjon-q1.svc.nais.local/api",
   "SAFSELVBETJENING_ENDPOINTS_PENSJON_SCOPE": "api://dev-fss.pensjon-q1.pensjon-pen-q1/.default",
   "SAFSELVBETJENING_ENDPOINTS_REPR_API_URL": "https://repr-api.intern.dev.nav.no",
   "SAFSELVBETJENING_ENDPOINTS_REPR_API_SCOPE": "dev-gcp:repr:repr-api",

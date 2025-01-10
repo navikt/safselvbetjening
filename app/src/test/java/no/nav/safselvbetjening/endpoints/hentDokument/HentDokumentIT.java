@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.springframework.http.HttpMethod.GET;
@@ -174,7 +174,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
-		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
+		verify(1, getRequestedFor(urlEqualTo(HENT_BRUKER_FOR_PENSJONSSAK_PATH)));
 		assertOkArkivResponse(responseEntity);
 		HoveddokumentLest hoveddokumentLest = readFromHoveddokumentLestTopic();
 		assertThat(hoveddokumentLest).isNull();
@@ -193,7 +193,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
-		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
+		verify(1, getRequestedFor(urlEqualTo(HENT_BRUKER_FOR_PENSJONSSAK_PATH)));
 		assertOkArkivResponse(responseEntity);
 		HoveddokumentLest hoveddokumentLest = readFromHoveddokumentLestTopic();
 		assertThat(hoveddokumentLest.getJournalpostId()).isEqualTo(JOURNALPOST_ID);
@@ -213,7 +213,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
-		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
+		verify(1, getRequestedFor(urlEqualTo(HENT_BRUKER_FOR_PENSJONSSAK_PATH)));
 		assertThat(responseEntity.getStatusCode()).isEqualTo(NOT_FOUND);
 		assertThat(responseEntity.getBody()).contains("hentBrukerForSak returnerte tomt fødselsnummer for sakId=2000000");
 	}

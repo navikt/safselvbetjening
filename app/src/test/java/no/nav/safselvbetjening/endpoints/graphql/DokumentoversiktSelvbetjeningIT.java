@@ -22,7 +22,6 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Objects.requireNonNull;
 import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
@@ -277,7 +276,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(data.getTema()).hasSize(1);
 		Sakstema foreldrepenger = data.getTema().get(0);
 
-		verify(1, getRequestedFor(urlMatching(".*/sammendrag")));
+		verify(1, getRequestedFor(urlEqualTo(HENT_PENSJONSSAKER_PATH)));
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
 	}
 
@@ -298,7 +297,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertEquals("PEN", sakstemaPensjon.getKode());
 		assertEquals("21998969", sakstemaPensjon.getJournalposter().get(0).getSak().getFagsakId());
 
-		verify(1, getRequestedFor(urlMatching(".*/sammendrag")));
+		verify(1, getRequestedFor(urlEqualTo(HENT_PENSJONSSAKER_PATH)));
 		assertThat(sakstemaPensjon.getJournalposter()).hasSize(1);
 	}
 
@@ -315,7 +314,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 
 		assertThat(data.getTema()).hasSize(2);
-		verify(1, getRequestedFor(urlMatching(".*/springapi/sak/sammendrag")));
+		verify(1, getRequestedFor(urlEqualTo(HENT_PENSJONSSAKER_PATH)));
 		verify(0, postRequestedFor(urlEqualTo("/fagarkiv")));
 	}
 

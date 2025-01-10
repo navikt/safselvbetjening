@@ -9,7 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.ResponseEntity;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Objects.requireNonNull;
 import static no.nav.safselvbetjening.domain.Tema.UFO;
@@ -150,7 +150,7 @@ public class JournalpostByIdIT extends AbstractJournalpostItest {
 		assertThat(requireNonNull(response.getBody()).getErrors())
 				.extracting(e -> e.getExtensions().getCode())
 				.contains(ErrorCode.NOT_FOUND.getText());
-		verify(1, getRequestedFor(urlMatching(".*/hentBrukerOgEnhetstilgangerForSak/v1")));
+		verify(1, getRequestedFor(urlEqualTo(HENT_BRUKER_FOR_PENSJONSSAK_PATH)));
 	}
 
 }
