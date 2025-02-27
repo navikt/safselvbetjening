@@ -53,8 +53,9 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 
 	/**
 	 * Tilgangsregel: 1b
-	 * Selvbetjening viser ikke dokumenter før en hardkodet dato, se UtledTilgangService.TIDLIGST_INNSYN_DATO
+	 * Selvbetjening viser ikke dokumenter før en hardkodet dato med mindre tema er PEN eller UFO
 	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
 	 */
 	@Test
 	void skalHenteDokumentHvisInnsynVisesSelvOmEldreEnnInnsynsdato() {
@@ -67,8 +68,14 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		assertOkArkivResponse(responseEntity);
 	}
 
+	/**
+	 * Tilgangsregel: 1b
+	 * Selvbetjening viser ikke dokumenter før en hardkodet dato med mindre tema er PEN eller UFO
+	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
+	 */
 	@Test
-	void skalIkkeHenteDokumentNårEldreEnnInnsynsdato() {
+	void skalIkkeHenteDokumentNaarEldreEnnInnsynsdato() {
 		stubDokarkivJournalpost("1b-hentdokument-eldre-enn-innsynsdato.json");
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
@@ -80,11 +87,38 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_INNSYNSDATO);
 	}
 
+	/**
+	 * Tilgangsregel: 1b
+	 * Selvbetjening viser ikke dokumenter før en hardkodet dato med mindre tema er PEN eller UFO
+	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
+	 */
 	@Test
-	void skalHentePensjonDokumentNårEldreEnnInnsynsdato() {
+	void skalHentePensjonDokumentAlderspensjonHvisEldreEnnInnsynsdato() {
 		stubDokarkivJournalpost("1b-hentdokument-pensjon-eldre-enn-innsynsdato.json");
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
+		stubPensjonssaker("hentpensjonssaker_alderspensjon_happy.json");
+		stubPensjonHentBrukerForSak();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertOkArkivResponse(responseEntity);
+	}
+
+	/**
+	 * Tilgangsregel: 1b
+	 * Selvbetjening viser ikke dokumenter før en hardkodet dato med mindre tema er PEN eller UFO
+	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
+	 */
+	@Test
+	void skalHentePensjonDokumentUforetrygdHvisEldreEnnInnsynsdato() {
+		stubDokarkivJournalpost("1b-hentdokument-pensjon-eldre-enn-innsynsdato.json");
+		stubPdlGenerell();
+		stubHentDokumentDokarkiv();
+		stubPensjonssaker();
+		stubPensjonHentBrukerForSak();
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 

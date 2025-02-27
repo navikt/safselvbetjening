@@ -1,6 +1,5 @@
 package no.nav.safselvbetjening.endpoints;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import no.nav.safselvbetjening.Application;
 import no.nav.security.mock.oauth2.MockOAuth2Server;
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback;
@@ -22,12 +21,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
@@ -39,8 +34,6 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static wiremock.com.google.common.base.Optional.absent;
-import static wiremock.org.hamcrest.core.IsNot.not;
 
 @SpringBootTest(
 		webEnvironment = RANDOM_PORT,
@@ -179,6 +172,10 @@ public abstract class AbstractItest {
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("psak/" + fil)));
+	}
+
+	protected void stubPensjonHentBrukerForSak() {
+		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
 	}
 
 	protected void stubPensjonHentBrukerForSak(final String fil) {

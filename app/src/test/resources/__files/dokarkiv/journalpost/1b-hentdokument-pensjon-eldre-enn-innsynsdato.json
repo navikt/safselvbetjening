@@ -4,12 +4,9 @@
   "fagomraade": "UFO",
   "status": "J",
   "saksrelasjon": {
-    "fagsystem": "FS22",
-    "sak": {
-      "aktoerId": "1012345678911",
-      "tema": "HJE"
-    },
-    "sakId": 140000000
+    "fagsystem": "PEN",
+    "sak": null,
+    "sakId": 2000000
   },
   "skjerming": null,
   "relevanteDatoer": {
