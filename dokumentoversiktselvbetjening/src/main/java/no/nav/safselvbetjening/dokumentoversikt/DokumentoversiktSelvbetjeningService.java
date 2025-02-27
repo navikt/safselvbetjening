@@ -94,14 +94,14 @@ class DokumentoversiktSelvbetjeningService {
 	private Journalpostdata queryFilterJournalposter(Basedata basedata, List<String> tema, Map<Long, Pensjonsak> pensjonsaker, List<JournalStatusCode> journalStatusCodeList) {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
-		List<ArkivJournalpost> tilgangJournalposter = new ArrayList<>();
+		List<ArkivJournalpost> arkivJournalposter = new ArrayList<>();
 		if(!saker.arkivsaker().isEmpty()) {
-			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(baseFinnJournalposterRequest(saker, journalStatusCodeList, brukerIdenter.getFoedselsnummer()), emptySet()).journalposter());
+			arkivJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnArkivsakJournalposterRequest(saker, journalStatusCodeList, brukerIdenter.getFoedselsnummer()), emptySet()).journalposter());
 		}
 		if(!saker.pensjonsaker().isEmpty()) {
-			tilgangJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, journalStatusCodeList), emptySet()).journalposter());
+			arkivJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, journalStatusCodeList), emptySet()).journalposter());
 		}
-		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, tilgangJournalposter);
+		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, arkivJournalposter);
 	}
 
 	/*
@@ -133,7 +133,7 @@ class DokumentoversiktSelvbetjeningService {
 	/*
 	 * 1d) Bruker får ikke se feilregistrerte journalposter.
 	 */
-	private FinnJournalposterRequest baseFinnJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser, List<String> foedselsnummer) {
+	private FinnJournalposterRequest finnArkivsakJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser, List<String> foedselsnummer) {
 		return FinnJournalposterRequest.builder()
 				.gsakSakIds(saker.arkivsaker().stream().map(Joarksak::getId).toList())
 				.fraDato(TIDLIGST_INNSYN_DATO.format(ISO_LOCAL_DATE))
