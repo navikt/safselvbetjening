@@ -2,7 +2,6 @@ package no.nav.safselvbetjening.dokumentoversikt;
 
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.dokarkiv.Basedata;
 import no.nav.safselvbetjening.consumer.dokarkiv.DokarkivConsumer;
 import no.nav.safselvbetjening.consumer.dokarkiv.Saker;
@@ -22,7 +21,6 @@ import no.nav.safselvbetjening.service.SakService;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.springframework.stereotype.Component;
 
-import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static java.util.Collections.emptySet;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.E;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.FL;
@@ -40,6 +39,7 @@ import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.MO;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_IKKE_FUNNET_I_PDL;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
+import static no.nav.safselvbetjening.tilgang.UtledTilgangService.TIDLIGST_INNSYN_DATO;
 
 @Slf4j
 @Component
@@ -48,21 +48,19 @@ class DokumentoversiktSelvbetjeningService {
 	private static final List<JournalStatusCode> MIDLERTIDIGE_OG_FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(MO, M, J, E, FL, FS);
 	private static final List<JournalStatusCode> FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(J, E, FL, FS);
 	private static final List<JournalpostTypeCode> ALLE_JOURNALPOSTTYPER = Arrays.asList(JournalpostTypeCode.values());
+	private static final String TIDLIGST_INNSYN_DATO_PEN_UFO = LocalDate.of(1900, 1, 1).toString();
 
-	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final IdentService identService;
 	private final SakService sakService;
 	private final DokarkivConsumer dokarkivConsumer;
 	private final ArkivJournalpostMapper arkivJournalpostMapper;
 	private final UtledTilgangService utledTilgangService;
 
-	public DokumentoversiktSelvbetjeningService(SafSelvbetjeningProperties safSelvbetjeningProperties,
-												IdentService identService,
+	public DokumentoversiktSelvbetjeningService(IdentService identService,
 												SakService sakService,
 												DokarkivConsumer dokarkivConsumer,
 												ArkivJournalpostMapper arkivJournalpostMapper,
 												UtledTilgangService utledTilgangService) {
-		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 		this.identService = identService;
 		this.sakService = sakService;
 		this.dokarkivConsumer = dokarkivConsumer;
@@ -138,7 +136,7 @@ class DokumentoversiktSelvbetjeningService {
 	private FinnJournalposterRequest baseFinnJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser, List<String> foedselsnummer) {
 		return FinnJournalposterRequest.builder()
 				.gsakSakIds(saker.arkivsaker().stream().map(Joarksak::getId).toList())
-				.fraDato(UtledTilgangService.TIDLIGST_INNSYN_DATO.format(DateTimeFormatter.ISO_LOCAL_DATE))
+				.fraDato(TIDLIGST_INNSYN_DATO.format(ISO_LOCAL_DATE))
 				.visFeilregistrerte(false)
 				.alleIdenter(foedselsnummer)
 				.journalstatuser(inkluderJournalstatuser)
@@ -147,10 +145,13 @@ class DokumentoversiktSelvbetjeningService {
 				.build();
 	}
 
+	/*
+	 * 1d) Bruker får ikke se feilregistrerte (alderspensjon/uføretrygd) journalposter.
+	 */
 	private FinnJournalposterRequest finnPensjonJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser) {
 		return FinnJournalposterRequest.builder()
 				.psakSakIds(saker.pensjonsaker().stream().map(Pensjonsak::sakId).toList())
-				.fraDato(LocalDate.of(1900, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE))
+				.fraDato(TIDLIGST_INNSYN_DATO_PEN_UFO)
 				.visFeilregistrerte(false)
 				.journalstatuser(inkluderJournalstatuser)
 				.journalposttyper(ALLE_JOURNALPOSTTYPER)
