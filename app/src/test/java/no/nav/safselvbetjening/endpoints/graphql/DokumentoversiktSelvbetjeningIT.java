@@ -193,10 +193,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(foreldrepenger.getKode()).isEqualTo("FOR");
 		assertThat(foreldrepenger.getNavn()).isEqualTo("Foreldre- og svangerskapspenger");
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
-		Sakstema alderspensjon = dokumentoversikt.getTema().get(1);
-		assertThat(alderspensjon.getKode()).isEqualTo("UFO");
-		assertThat(alderspensjon.getNavn()).isEqualTo("Uføretrygd");
-		assertThat(alderspensjon.getJournalposter()).hasSize(1);
+		Sakstema uforetrygd = dokumentoversikt.getTema().get(1);
+		assertThat(uforetrygd.getKode()).isEqualTo("UFO");
+		assertThat(uforetrygd.getNavn()).isEqualTo("Uføretrygd");
+		assertThat(uforetrygd.getJournalposter()).hasSize(1);
 	}
 
 	private void assertFagsakQuery(Dokumentoversikt dokumentoversikt) {
