@@ -9,6 +9,7 @@ import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper;
+import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalposter;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivSaksrelasjon;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.FinnJournalposterRequest;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
@@ -20,14 +21,16 @@ import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.service.SakService;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static java.util.Collections.emptySet;
@@ -94,13 +97,34 @@ class DokumentoversiktSelvbetjeningService {
 	private Journalpostdata queryFilterJournalposter(Basedata basedata, List<String> tema, Map<Long, Pensjonsak> pensjonsaker, List<JournalStatusCode> journalStatusCodeList) {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
-		List<ArkivJournalpost> arkivJournalposter = new ArrayList<>();
-		if(!saker.arkivsaker().isEmpty()) {
-			arkivJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnArkivsakJournalposterRequest(saker, journalStatusCodeList, brukerIdenter.getFoedselsnummer()), emptySet()).journalposter());
-		}
-		if(!saker.pensjonsaker().isEmpty()) {
-			arkivJournalposter.addAll(dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, journalStatusCodeList), emptySet()).journalposter());
-		}
+
+		Mono<List<ArkivJournalpost>> arkivsakJournalposter =
+				Mono.just(saker.arkivsaker().isEmpty())
+						.flatMap(emptyArkivsaker -> {
+							if(!emptyArkivsaker) {
+								return dokarkivConsumer.finnJournalposter(finnArkivsakJournalposterRequest(saker, journalStatusCodeList, brukerIdenter.getFoedselsnummer()), emptySet());
+							}
+							return Mono.empty();
+						})
+						.map(ArkivJournalposter::journalposter)
+						.switchIfEmpty(Mono.just(List.of()));
+
+		Mono<List<ArkivJournalpost>> psakJournalposter =
+				Mono.just(saker.pensjonsaker().isEmpty())
+						.flatMap(emptyPensjonsaker -> {
+							if(!emptyPensjonsaker) {
+								return dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, journalStatusCodeList), emptySet());
+							}
+							return Mono.empty();
+						})
+						.map(ArkivJournalposter::journalposter)
+						.switchIfEmpty(Mono.just(List.of()));
+
+		List<ArkivJournalpost> arkivJournalposter = Flux.merge(arkivsakJournalposter, psakJournalposter)
+				.flatMapIterable(Function.identity())
+				.collectList()
+				.blockOptional().orElse(List.of());
+
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, arkivJournalposter);
 	}
 

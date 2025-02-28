@@ -14,4 +14,5 @@ COPY --chown=apprunner:apprunner --chmod=0755 run-java.sh /
 ENV MAIN_CLASS="org.springframework.boot.loader.launch.JarLauncher"
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 \
                -Djava.security.egd=file:/dev/./urandom \
+               -Dreactor.schedulers.defaultBoundedElasticOnVirtualThreads=true \
                -Dspring.profiles.active=nais"
