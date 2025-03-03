@@ -336,9 +336,8 @@ class UtledTilgangServiceTest {
 				.mottakskanal(IKKE_SKANNING)
 				.tema(tema)
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
+		boolean actual = new UtledTilgangService(true).isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
 		assertThat(actual).isFalse();
-
 	}
 
 

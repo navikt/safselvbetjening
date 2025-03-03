@@ -15,6 +15,7 @@ public class SafSelvbetjeningProperties {
     private final Endpoints endpoints = new Endpoints();
     private final Serviceuser serviceuser = new Serviceuser();
     private final Topics topics = new Topics();
+    private final Feature feature = new Feature();
 
     @Data
     @Validated
@@ -109,5 +110,14 @@ public class SafSelvbetjeningProperties {
         @NotEmpty
         private String dokdistdittnav;
 
+    }
+
+    @Data
+    @Validated
+    public static class Feature {
+        /**
+         * Aktiverer innsyn for alle PEN og UFO journalposter
+         */
+        private boolean mma7514;
     }
 }

@@ -14,6 +14,7 @@
   "SAFSELVBETJENING_ENDPOINTS_REPR_API_URL": "https://repr-api.intern.dev.nav.no",
   "SAFSELVBETJENING_ENDPOINTS_REPR_API_SCOPE": "dev-gcp:repr:repr-api",
   "SAFSELVBETJENING_TOPICS_DOKDISTDITTNAV": "teamdokumenthandtering.privat-dokdistdittnav-lestavmottaker-q1",
+  "SAFSELVBETJENING_FEATURE_MMA7514": "true",
   "MIN_REPLICAS": 1,
   "MAX_REPLICAS": 2,
   "INGRESSES": [

@@ -2,6 +2,7 @@ package no.nav.safselvbetjening.dokumentoversikt;
 
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.dokarkiv.Basedata;
 import no.nav.safselvbetjening.consumer.dokarkiv.DokarkivConsumer;
 import no.nav.safselvbetjening.consumer.dokarkiv.Saker;
@@ -42,7 +43,6 @@ import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.MO;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_IKKE_FUNNET_I_PDL;
 import static no.nav.safselvbetjening.graphql.ErrorCode.NOT_FOUND;
-import static no.nav.safselvbetjening.tilgang.UtledTilgangService.TIDLIGST_INNSYN_DATO;
 
 @Slf4j
 @Component
@@ -52,23 +52,26 @@ class DokumentoversiktSelvbetjeningService {
 	private static final List<JournalStatusCode> FERDIGSTILTE_JOURNALSTATUSER = Arrays.asList(J, E, FL, FS);
 	private static final List<JournalpostTypeCode> ALLE_JOURNALPOSTTYPER = Arrays.asList(JournalpostTypeCode.values());
 	private static final String TIDLIGST_INNSYN_DATO_PEN_UFO = LocalDate.of(1900, 1, 1).toString();
+	private static final String TIDLIGST_INNSYN_DATO_GENERELL = UtledTilgangService.TIDLIGST_INNSYN_DATO.format(ISO_LOCAL_DATE);
 
 	private final IdentService identService;
 	private final SakService sakService;
 	private final DokarkivConsumer dokarkivConsumer;
 	private final ArkivJournalpostMapper arkivJournalpostMapper;
 	private final UtledTilgangService utledTilgangService;
+	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 
 	public DokumentoversiktSelvbetjeningService(IdentService identService,
 												SakService sakService,
 												DokarkivConsumer dokarkivConsumer,
 												ArkivJournalpostMapper arkivJournalpostMapper,
-												UtledTilgangService utledTilgangService) {
+												UtledTilgangService utledTilgangService, SafSelvbetjeningProperties safSelvbetjeningProperties) {
 		this.identService = identService;
 		this.sakService = sakService;
 		this.dokarkivConsumer = dokarkivConsumer;
 		this.arkivJournalpostMapper = arkivJournalpostMapper;
 		this.utledTilgangService = utledTilgangService;
+		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 	}
 
 	Basedata queryBasedata(final String ident, final List<String> tema, final DataFetchingEnvironment environment) {
@@ -101,10 +104,10 @@ class DokumentoversiktSelvbetjeningService {
 		Mono<List<ArkivJournalpost>> arkivsakJournalposter =
 				Mono.just(saker.arkivsaker().isEmpty())
 						.flatMap(emptyArkivsaker -> {
-							if(!emptyArkivsaker) {
-								return dokarkivConsumer.finnJournalposter(finnArkivsakJournalposterRequest(saker, journalStatusCodeList, brukerIdenter.getFoedselsnummer()), emptySet());
+							if (emptyArkivsaker) {
+								return Mono.empty();
 							}
-							return Mono.empty();
+							return dokarkivConsumer.finnJournalposter(finnArkivsakJournalposterRequest(saker, journalStatusCodeList, brukerIdenter.getFoedselsnummer()), emptySet());
 						})
 						.map(ArkivJournalposter::journalposter)
 						.switchIfEmpty(Mono.just(List.of()));
@@ -112,10 +115,10 @@ class DokumentoversiktSelvbetjeningService {
 		Mono<List<ArkivJournalpost>> psakJournalposter =
 				Mono.just(saker.pensjonsaker().isEmpty())
 						.flatMap(emptyPensjonsaker -> {
-							if(!emptyPensjonsaker) {
-								return dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, journalStatusCodeList), emptySet());
+							if (emptyPensjonsaker) {
+								return Mono.empty();
 							}
-							return Mono.empty();
+							return dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, journalStatusCodeList), emptySet());
 						})
 						.map(ArkivJournalposter::journalposter)
 						.switchIfEmpty(Mono.just(List.of()));
@@ -160,7 +163,7 @@ class DokumentoversiktSelvbetjeningService {
 	private FinnJournalposterRequest finnArkivsakJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser, List<String> foedselsnummer) {
 		return FinnJournalposterRequest.builder()
 				.gsakSakIds(saker.arkivsaker().stream().map(Joarksak::getId).toList())
-				.fraDato(TIDLIGST_INNSYN_DATO.format(ISO_LOCAL_DATE))
+				.fraDato(TIDLIGST_INNSYN_DATO_GENERELL)
 				.visFeilregistrerte(false)
 				.alleIdenter(foedselsnummer)
 				.journalstatuser(inkluderJournalstatuser)
@@ -175,7 +178,7 @@ class DokumentoversiktSelvbetjeningService {
 	private FinnJournalposterRequest finnPensjonJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser) {
 		return FinnJournalposterRequest.builder()
 				.psakSakIds(saker.pensjonsaker().stream().map(Pensjonsak::sakId).toList())
-				.fraDato(TIDLIGST_INNSYN_DATO_PEN_UFO)
+				.fraDato(safSelvbetjeningProperties.getFeature().isMma7514() ? TIDLIGST_INNSYN_DATO_PEN_UFO : TIDLIGST_INNSYN_DATO_GENERELL)
 				.visFeilregistrerte(false)
 				.journalstatuser(inkluderJournalstatuser)
 				.journalposttyper(ALLE_JOURNALPOSTTYPER)

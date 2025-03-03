@@ -31,6 +31,16 @@ public class UtledTilgangService {
 	private static final Set<String> GJELDENDE_TEMA_UNNTATT_INNSYN = Set.of("FAR", "KTR", "KTA", "ARS", "ARP");
 	private static final Set<String> GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING = Set.of("PEN", "UFO");
 
+	private final boolean mma7514;
+
+	public UtledTilgangService() {
+		this.mma7514 = false;
+	}
+
+	public UtledTilgangService(boolean mma7514) {
+		this.mma7514 = mma7514;
+	}
+
 	/**
 	 * Sjekk om bruker har tilgang til å se en gitt journalpost. Merk: å få tilgang her indikerer ingenting om hvorvidt journalposten har dokumentvarianter brukeren faktisk kan se.
 	 *
@@ -137,8 +147,10 @@ public class UtledTilgangService {
 	 * de har tema PEN eller UFO.
 	 */
 	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(TilgangJournalpost journalpost) {
-		if (journalpost.getTema() != null && GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING.contains(journalpost.getTema())) {
-			return false;
+		if(mma7514) {
+			if (journalpost.getTema() != null && GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING.contains(journalpost.getTema())) {
+				return false;
+			}
 		}
 		if (journalpost.getJournalfoertDato() == null) {
 			if (BRUK_STANDARDREGLER == journalpost.getInnsyn()) {
