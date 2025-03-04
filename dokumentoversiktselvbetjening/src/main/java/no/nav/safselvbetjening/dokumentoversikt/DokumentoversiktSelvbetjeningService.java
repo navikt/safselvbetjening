@@ -65,7 +65,8 @@ class DokumentoversiktSelvbetjeningService {
 												SakService sakService,
 												DokarkivConsumer dokarkivConsumer,
 												ArkivJournalpostMapper arkivJournalpostMapper,
-												UtledTilgangService utledTilgangService, SafSelvbetjeningProperties safSelvbetjeningProperties) {
+												UtledTilgangService utledTilgangService,
+												SafSelvbetjeningProperties safSelvbetjeningProperties) {
 		this.identService = identService;
 		this.sakService = sakService;
 		this.dokarkivConsumer = dokarkivConsumer;

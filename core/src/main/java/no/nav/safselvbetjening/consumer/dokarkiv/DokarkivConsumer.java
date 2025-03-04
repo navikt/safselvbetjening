@@ -94,7 +94,7 @@ public class DokarkivConsumer {
 				return new ConsumerFunctionalException(format("finnJournalposter feilet funksjonelt. status=%s, request=%s. Feilmelding=%s",
 						webException.getStatusCode(), request, webException.getMessage()));
 			} else {
-				return new ConsumerTechnicalException(String.format("finnJournalposter feilet teknisk. status=%s, request=%s. Feilmelding=%s",
+				return new ConsumerTechnicalException(format("finnJournalposter feilet teknisk. status=%s, request=%s. Feilmelding=%s",
 						webException.getStatusCode(), request, webException.getMessage()), webException);
 			}
 		} else {
@@ -132,7 +132,7 @@ public class DokarkivConsumer {
 					throw new ConsumerFunctionalException(format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
 							webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()));
 				} else {
-					throw new ConsumerTechnicalException(String.format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
+					throw new ConsumerTechnicalException(format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
 							webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()), webException);
 				}
 			}
@@ -169,7 +169,7 @@ public class DokarkivConsumer {
 					throw new ConsumerFunctionalException(format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%s. Feilmelding=%s",
 							webException.getStatusCode(), journalpostId, webException.getMessage()));
 				} else {
-					throw new ConsumerTechnicalException(String.format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s. Feilmelding=%s",
+					throw new ConsumerTechnicalException(format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s. Feilmelding=%s",
 							webException.getStatusCode(), journalpostId, webException.getMessage()), webException);
 				}
 			}

@@ -275,7 +275,7 @@ class UtledTilgangServiceTest {
 				.journalfoertDato(journalfoertDato)
 				.innsyn(VISES_MANUELT_GODKJENT)
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
 		assertThat(actual).isFalse();
 	}
 
@@ -290,7 +290,7 @@ class UtledTilgangServiceTest {
 				.mottakskanal(IKKE_SKANNING)
 				.innsyn(BRUK_STANDARDREGLER)
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
 		assertThat(actual).isTrue();
 	}
 
@@ -305,7 +305,7 @@ class UtledTilgangServiceTest {
 				.journalfoertDato(journalfoertDato)
 				.mottakskanal(IKKE_SKANNING)
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
 		assertThat(actual).isTrue();
 	}
 
@@ -319,7 +319,7 @@ class UtledTilgangServiceTest {
 				.innsyn(SKJULES_BRUKERS_ONSKE)
 				.mottakskanal(IKKE_SKANNING)
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
+		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
 		assertThat(actual).isTrue();
 	}
 
@@ -336,7 +336,7 @@ class UtledTilgangServiceTest {
 				.mottakskanal(IKKE_SKANNING)
 				.tema(tema)
 				.build();
-		boolean actual = new UtledTilgangService(true).isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost);
+		boolean actual = new UtledTilgangService(true).isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
 		assertThat(actual).isFalse();
 	}
 
