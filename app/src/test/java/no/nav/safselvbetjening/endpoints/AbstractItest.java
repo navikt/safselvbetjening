@@ -22,11 +22,13 @@ import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
+import static org.apache.zookeeper.common.StringUtils.isEmpty;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.OK;
@@ -172,6 +174,10 @@ public abstract class AbstractItest {
 						.withBodyFile("psak/" + fil)));
 	}
 
+	protected void stubPensjonHentBrukerForSak() {
+		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
+	}
+
 	protected void stubPensjonHentBrukerForSak(final String fil) {
 		stubFor(get(HENT_BRUKER_FOR_PENSJONSSAK_PATH)
 				.willReturn(aResponse()
@@ -181,15 +187,28 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubFagarkiv() {
-		stubFagarkiv("finnjournalposter_happy.json");
+		stubFagarkiv("finnjournalposter_happy_gsak.json", "finnjournalposter_happy_psak.json");
 	}
 
-	protected void stubFagarkiv(final String fil) {
+	protected void stubFagarkiv(final String gsakFil){
+		stubFagarkiv(gsakFil, "finnjournalposter_empty.json");
+	}
+
+	protected void stubFagarkiv(final String gsakFil, String psakFil) {
 		stubFor(post("/dokarkiv/finnjournalposter")
+				.withRequestBody(matchingJsonPath("$[?(@.gsakSakIds.size() != null )]"))
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("dokarkiv/finnjournalposter/" + fil)));
+						.withBodyFile("dokarkiv/finnjournalposter/" + gsakFil)));
+		if (!isEmpty(psakFil)) {
+			stubFor(post("/dokarkiv/finnjournalposter")
+					.withRequestBody(matchingJsonPath("$[?(@.psakSakIds.size() != null )]"))
+					.willReturn(aResponse()
+							.withStatus(OK.value())
+							.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+							.withBodyFile("dokarkiv/finnjournalposter/" + psakFil)));
+		}
 	}
 
 	protected void stubReprApiFullmakt() {

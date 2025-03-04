@@ -7,6 +7,7 @@ import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_ANNEN_PART;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FEILREGISTRERT;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_GDPR;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_INNSYNSDATO;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_KASSERT;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_SKANNET;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_SKJULT;
@@ -14,6 +15,7 @@ import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_TEMAER_UNNTA
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FEILREGISTRERT;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_KASSERT;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_POL_GDPR;
@@ -51,14 +53,72 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 
 	/**
 	 * Tilgangsregel: 1b
-	 * Selvbetjening viser ikke dokumenter før en hardkodet dato, se UtledTilgangService.TIDLIGST_INNSYN_DATO
+	 * Selvbetjening viser ikke dokumenter før en hardkodet dato med mindre tema er PEN eller UFO
 	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
 	 */
 	@Test
 	void skalHenteDokumentHvisInnsynVisesSelvOmEldreEnnInnsynsdato() {
 		stubDokarkivJournalpost("1b-hentdokument-innsyn-vises-ok.json");
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertOkArkivResponse(responseEntity);
+	}
+
+	/**
+	 * Tilgangsregel: 1b
+	 * Selvbetjening viser ikke dokumenter før en hardkodet dato med mindre tema er PEN eller UFO
+	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
+	 */
+	@Test
+	void skalIkkeHenteDokumentNaarEldreEnnInnsynsdato() {
+		stubDokarkivJournalpost("1b-hentdokument-eldre-enn-innsynsdato.json");
+		stubPdlGenerell();
+		stubHentDokumentDokarkiv();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FOER_INNSYNSDATO.reason));
+		assertThat(responseEntity.getBody()).contains(FEILMELDING_INNSYNSDATO);
+	}
+
+	/**
+	 * Tilgangsregel: 1b
+	 * Selvbetjening viser ikke dokumenter før en hardkodet dato med mindre tema er PEN eller UFO
+	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
+	 */
+	@Test
+	void skalHentePensjonDokumentAlderspensjonHvisEldreEnnInnsynsdato() {
+		stubDokarkivJournalpost("1b-hentdokument-pensjon-eldre-enn-innsynsdato.json");
+		stubPdlGenerell();
+		stubHentDokumentDokarkiv();
+		stubPensjonssaker("hentpensjonssaker_alderspensjon_happy.json");
+		stubPensjonHentBrukerForSak();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertOkArkivResponse(responseEntity);
+	}
+
+	/**
+	 * Tilgangsregel: 1b
+	 * Selvbetjening viser ikke dokumenter før en hardkodet dato med mindre tema er PEN eller UFO
+	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
+	 */
+	@Test
+	void skalHentePensjonDokumentUforetrygdHvisEldreEnnInnsynsdato() {
+		stubDokarkivJournalpost("1b-hentdokument-pensjon-eldre-enn-innsynsdato.json");
+		stubPdlGenerell();
+		stubHentDokumentDokarkiv();
+		stubPensjonssaker();
+		stubPensjonHentBrukerForSak();
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 

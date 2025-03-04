@@ -1,0 +1,68 @@
+{
+  "journalposter": [
+    {
+      "journalpostId": 429837329,
+      "type": "I",
+      "fagomraade": "UFO",
+      "fagomraadenavn": "Uføretrygd",
+      "status": "J",
+      "saksrelasjon": {
+        "fagsystem": "PEN",
+        "sakId": 21998969
+      },
+      "relevanteDatoer": {
+        "forsendelseMottatt": "2004-06-02T22:00:00.000+00:00",
+        "hoveddokument": "2004-06-03T14:45:02.015+00:00",
+        "journalfoert": "2004-06-04T08:34:43.308+00:00",
+        "opprettet": "2004-06-03T14:45:02.015+00:00"
+      },
+      "avsenderMottaker": {
+        "id": "12345678911",
+        "navn": "HARRY POTTER",
+        "type": "FNR"
+      },
+      "bruker": {
+        "id": "12345678911",
+        "type": "PERSON"
+      },
+      "dokumenter": [
+        {
+          "dokumentInfoId": 694581886,
+          "brevkode": "NAV 76-13.18",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "navn": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+              "stoerrelse": "240263",
+              "type": "PDFA",
+              "uuid": "d0ee5769-b148-4d04-964f-cf2e97f39029"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 663874521,
+          "tilknyttetSom": "HOVEDDOKUMENT",
+          "tittel": "MASKERT_FELT"
+        }
+      ],
+      "innhold": "Søknad om Uføretrygd",
+      "journalfoerendeEnhet": "0814",
+      "journalfoertAvNavn": "Lea, Hilde",
+      "kanalreferanseId": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+      "mottakskanal": "NAV_NO",
+      "opprettetAvNavn": "srvskanmotreferanse",
+      "tilleggsopplysninger": {
+        "antallSider": "3",
+        "endorsernr": "03.06.2024_R511804379_6_1067",
+        "strekkodePostboks": "1400",
+        "referansenr": "20240530057015",
+        "fysiskPostboks": "1400"
+      }
+    }
+  ],
+  "antallRader": 1,
+  "totaltAntallRader": 1,
+  "page": 1,
+  "totalPages": 1,
+  "nextPage": ""
+}

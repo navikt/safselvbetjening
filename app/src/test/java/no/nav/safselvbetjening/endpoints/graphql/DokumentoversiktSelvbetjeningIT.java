@@ -111,7 +111,6 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		doAssertJournalpost(journalposts.get(2), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, UKJENT_AVSENDER);
 	}
 
-
 	@Test
 	void shouldGetDokumentoversiktWhenTemaQueried() throws Exception {
 		happyStubs();
@@ -194,10 +193,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(foreldrepenger.getKode()).isEqualTo("FOR");
 		assertThat(foreldrepenger.getNavn()).isEqualTo("Foreldre- og svangerskapspenger");
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
-		Sakstema pensjon = dokumentoversikt.getTema().get(1);
-		assertThat(pensjon.getKode()).isEqualTo("UFO");
-		assertThat(pensjon.getNavn()).isEqualTo("Uføretrygd");
-		assertThat(pensjon.getJournalposter()).hasSize(1);
+		Sakstema uforetrygd = dokumentoversikt.getTema().get(1);
+		assertThat(uforetrygd.getKode()).isEqualTo("UFO");
+		assertThat(uforetrygd.getNavn()).isEqualTo("Uføretrygd");
+		assertThat(uforetrygd.getJournalposter()).hasSize(1);
 	}
 
 	private void assertFagsakQuery(Dokumentoversikt dokumentoversikt) {
@@ -207,11 +206,11 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(foreldrepenger.getFagsaksystem()).isEqualTo("FS38");
 		assertThat(foreldrepenger.getTema()).isEqualTo("FOR");
 		assertThat(foreldrepenger.getJournalposter()).hasSize(1);
-		Fagsak pensjon = dokumentoversikt.getFagsak().get(1);
-		assertThat(pensjon.getTema()).isEqualTo("UFO");
-		assertThat(pensjon.getFagsakId()).isEqualTo("21998969");
-		assertThat(pensjon.getFagsaksystem()).isEqualTo("PP01");
-		assertThat(pensjon.getJournalposter()).hasSize(1);
+		Fagsak uforetrygd = dokumentoversikt.getFagsak().get(1);
+		assertThat(uforetrygd.getTema()).isEqualTo("UFO");
+		assertThat(uforetrygd.getFagsakId()).isEqualTo("21998969");
+		assertThat(uforetrygd.getFagsaksystem()).isEqualTo("PP01");
+		assertThat(uforetrygd.getJournalposter()).hasSize(1);
 	}
 
 	private void assertJournalposterQuery(List<Journalpost> journalposts) {
@@ -221,7 +220,6 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		doAssertJournalpost(journalposts.get(1), "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK, BRUKER_NAVN);
 		doAssertJournalpost(journalposts.get(2), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, BRUKER_NAVN);
 	}
-
 
 	private void doAssertJournalpost(Journalpost jp, String tema, String tittel, String fagsakId, String fagsaksystem, Sakstype sakstype, String navn) {
 		assertThat(jp.getTema()).isEqualTo(tema);
@@ -245,16 +243,16 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		}
 	}
 
-
 	@Test
 	void shouldGetDokumentoversiktWhenOnlyForeldrepengerTemaQueried() throws Exception {
-		happyStubs();
+		happyStubs("finnjournalposter_happy_gsak.json");
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_for.query");
 
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getData()).isNotNull();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertThat(data.getTema()).hasSize(1);
 		Sakstema foreldrepenger = data.getTema().get(0);
@@ -352,7 +350,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	@Test
 	void shouldGetDokumentoversiktWhenTokenNotMatchingQueryIdentAndFullmaktExistsForTema() throws Exception {
-		happyStubs();
+		happyStubs("finnjournalposter_happy_gsak.json");
 		stubReprApiFullmakt("repr-api-fullmakt-for.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);

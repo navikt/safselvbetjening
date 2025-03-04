@@ -16,6 +16,7 @@ public class UtledTilgangTestObjects {
 	static final String AKTOER_ID = "10000000000";
 	static final String ANNEN_AKTOER_ID = "12000000000";
 	public static final String TEMA_PENSJON = "PEN";
+	public static final String TEMA_UFOR = "UFO";
 	public static final String TEMA_DAGPENGER = "DAG";
 	public static final String TEMA_FARSKAP = "FAR";
 	public static final String TEMA_KONTROLL = "KTR";
