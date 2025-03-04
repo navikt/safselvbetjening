@@ -3,6 +3,7 @@ package no.nav.safselvbetjening;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.config.MeterFilter;
 import io.micrometer.core.instrument.config.MeterFilterReply;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -26,6 +27,7 @@ import static io.micrometer.core.instrument.config.MeterFilterReply.ACCEPT;
 import static io.micrometer.core.instrument.config.MeterFilterReply.DENY;
 import static org.apache.hc.core5.util.Timeout.ofSeconds;
 
+@Slf4j
 @EnableRetry
 @EnableJwtTokenValidation
 @EnableAutoConfiguration(exclude = UserDetailsServiceAutoConfiguration.class)
@@ -78,7 +80,11 @@ public class CoreConfig {
 	}
 
 	@Bean
-	UtledTilgangService utledTilgangService() {
+	UtledTilgangService utledTilgangService(SafSelvbetjeningProperties safSelvbetjeningProperties) {
+		if(safSelvbetjeningProperties.getFeature().isMma7514()) {
+			log.info("safselvbetjening.feature.mma7514=true");
+			return new UtledTilgangService(true);
+		}
 		return new UtledTilgangService();
 	}
 }

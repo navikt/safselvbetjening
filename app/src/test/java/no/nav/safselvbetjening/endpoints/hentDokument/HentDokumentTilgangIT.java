@@ -53,8 +53,10 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 
 	/**
 	 * Tilgangsregel: 1b
-	 * Selvbetjening viser ikke dokumenter før en hardkodet dato med mindre tema er PEN eller UFO
-	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 * Selvbetjening viser ikke dokumenter som er enten opprettet før eller journalført før 04.06.2016.
+	 * Unntak:
+	 * - tema er PEN eller UFO
+	 * - innsynsflagget er satt til en VISES_-verdi
 	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
 	 */
 	@Test
@@ -70,8 +72,10 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 
 	/**
 	 * Tilgangsregel: 1b
-	 * Selvbetjening viser ikke dokumenter før en hardkodet dato med mindre tema er PEN eller UFO
-	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 * Selvbetjening viser ikke dokumenter som er enten opprettet før eller journalført før 04.06.2016.
+	 * Unntak:
+	 * - tema er PEN eller UFO
+	 * - innsynsflagget er satt til en VISES_-verdi
 	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
 	 */
 	@Test
@@ -89,8 +93,10 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 
 	/**
 	 * Tilgangsregel: 1b
-	 * Selvbetjening viser ikke dokumenter før en hardkodet dato med mindre tema er PEN eller UFO
-	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 * Selvbetjening viser ikke dokumenter som er enten opprettet før eller journalført før 04.06.2016.
+	 * Unntak:
+	 * - tema er PEN eller UFO
+	 * - innsynsflagget er satt til en VISES_-verdi
 	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
 	 */
 	@Test
@@ -108,8 +114,10 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 
 	/**
 	 * Tilgangsregel: 1b
-	 * Selvbetjening viser ikke dokumenter før en hardkodet dato med mindre tema er PEN eller UFO
-	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres dokumentet
+	 * Selvbetjening viser ikke dokumenter som er enten opprettet før eller journalført før 04.06.2016.
+	 * Unntak:
+	 * - tema er PEN eller UFO
+	 * - innsynsflagget er satt til en VISES_-verdi
 	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
 	 */
 	@Test

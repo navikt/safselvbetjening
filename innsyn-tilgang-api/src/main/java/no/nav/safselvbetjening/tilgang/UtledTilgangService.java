@@ -31,6 +31,16 @@ public class UtledTilgangService {
 	private static final Set<String> GJELDENDE_TEMA_UNNTATT_INNSYN = Set.of("FAR", "KTR", "KTA", "ARS", "ARP");
 	private static final Set<String> GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING = Set.of("PEN", "UFO");
 
+	private final boolean mma7514;
+
+	public UtledTilgangService() {
+		this.mma7514 = false;
+	}
+
+	public UtledTilgangService(boolean mma7514) {
+		this.mma7514 = mma7514;
+	}
+
 	/**
 	 * Sjekk om bruker har tilgang til å se en gitt journalpost. Merk: å få tilgang her indikerer ingenting om hvorvidt journalposten har dokumentvarianter brukeren faktisk kan se.
 	 *
@@ -45,7 +55,7 @@ public class UtledTilgangService {
 		if (!isBrukerPart(journalpost, brukerIdenter)) { // 1a
 			feilmeldinger.add(DENY_REASON_IKKE_AVSENDER_MOTTAKER);
 		}
-		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost)) { // 1b
+		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost)) { // 1b
 			feilmeldinger.add(DENY_REASON_FOER_INNSYNSDATO);
 		}
 		if (!isJournalpostFerdigstiltOrMidlertidig(journalpost)) { // 1c
@@ -84,7 +94,7 @@ public class UtledTilgangService {
 		if (!isAvsenderMottakerPart(journalpost, brukerIdenter)) {
 			feilmeldinger.add(DENY_REASON_IKKE_AVSENDER_MOTTAKER);
 		}
-		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(journalpost)) {
+		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost)) {
 			feilmeldinger.add(DENY_REASON_FOER_INNSYNSDATO);
 		}
 		if (isSkannetDokumentAndInnsynIsNotVises(journalpost)) {
@@ -136,9 +146,11 @@ public class UtledTilgangService {
 	 * 1b) Bruker får ikke se journalposter som er journalført før 04.06.2016 med mindre innsyn begynner med VISES_* eller
 	 * de har tema PEN eller UFO.
 	 */
-	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVises(TilgangJournalpost journalpost) {
-		if (journalpost.getTema() != null && GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING.contains(journalpost.getTema())) {
-			return false;
+	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(TilgangJournalpost journalpost) {
+		if(mma7514) {
+			if (journalpost.getTema() != null && GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING.contains(journalpost.getTema())) {
+				return false;
+			}
 		}
 		if (journalpost.getJournalfoertDato() == null) {
 			if (BRUK_STANDARDREGLER == journalpost.getInnsyn()) {

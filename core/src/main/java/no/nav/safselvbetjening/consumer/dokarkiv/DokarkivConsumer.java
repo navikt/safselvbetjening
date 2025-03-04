@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.util.Set;
 import java.util.function.Consumer;
@@ -68,7 +69,7 @@ public class DokarkivConsumer {
 		this.dokarkivMetadataRetry = retryRegistry.retry(DOKARKIV_METADATA);
 	}
 
-	public ArkivJournalposter finnJournalposter(FinnJournalposterRequest request, Set<String> fields) {
+	public Mono<ArkivJournalposter> finnJournalposter(FinnJournalposterRequest request, Set<String> fields) {
 		return webClient.post()
 				.uri(uriBuilder -> {
 					uriBuilder.path("/finnjournalposter");
@@ -82,24 +83,23 @@ public class DokarkivConsumer {
 				.accept(APPLICATION_JSON)
 				.retrieve()
 				.bodyToMono(ArkivJournalposter.class)
-				.doOnError(handleErrorFinnJournalposter(request))
+				.onErrorMap(error -> mapFinnJournalposterError(error, request))
 				.transformDeferred(CircuitBreakerOperator.of(dokarkivDokumentoversiktCircuitBreaker))
-				.transformDeferred(RetryOperator.of(dokarkivDokumentoversiktRetry))
-				.block();
+				.transformDeferred(RetryOperator.of(dokarkivDokumentoversiktRetry));
 	}
 
-	private Consumer<? super Throwable> handleErrorFinnJournalposter(FinnJournalposterRequest request) {
-		return error -> {
-			if (error instanceof WebClientResponseException webException) {
-				if (webException.getStatusCode().is4xxClientError()) {
-					throw new ConsumerFunctionalException(format("finnJournalposter feilet funksjonelt. status=%s, request=%s. Feilmelding=%s",
-							webException.getStatusCode(), request, webException.getMessage()));
-				} else {
-					throw new ConsumerTechnicalException(String.format("finnJournalposter feilet teknisk. status=%s, request=%s. Feilmelding=%s",
-							webException.getStatusCode(), request, webException.getMessage()), webException);
-				}
+	private Throwable mapFinnJournalposterError(Throwable error, FinnJournalposterRequest request) {
+		if (error instanceof WebClientResponseException webException) {
+			if (webException.getStatusCode().is4xxClientError()) {
+				return new ConsumerFunctionalException(format("finnJournalposter feilet funksjonelt. status=%s, request=%s. Feilmelding=%s",
+						webException.getStatusCode(), request, webException.getMessage()));
+			} else {
+				return new ConsumerTechnicalException(format("finnJournalposter feilet teknisk. status=%s, request=%s. Feilmelding=%s",
+						webException.getStatusCode(), request, webException.getMessage()), webException);
 			}
-		};
+		} else {
+			return new ConsumerTechnicalException("finnJournalposter feilet med ukjent teknisk feil", error);
+		}
 	}
 
 	public ArkivJournalpost journalpost(String journalpostId, String dokumentInfoId, Set<String> fields) {
@@ -132,7 +132,7 @@ public class DokarkivConsumer {
 					throw new ConsumerFunctionalException(format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
 							webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()));
 				} else {
-					throw new ConsumerTechnicalException(String.format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
+					throw new ConsumerTechnicalException(format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
 							webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()), webException);
 				}
 			}
@@ -169,7 +169,7 @@ public class DokarkivConsumer {
 					throw new ConsumerFunctionalException(format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%s. Feilmelding=%s",
 							webException.getStatusCode(), journalpostId, webException.getMessage()));
 				} else {
-					throw new ConsumerTechnicalException(String.format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s. Feilmelding=%s",
+					throw new ConsumerTechnicalException(format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s. Feilmelding=%s",
 							webException.getStatusCode(), journalpostId, webException.getMessage()), webException);
 				}
 			}
