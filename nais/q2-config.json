@@ -73,6 +73,11 @@
       "cluster": "dev-sbs"
     },
     {
+      "app": "pensjon-selvbetjening-saksoversikt-backend",
+      "namespace": "pensjonselvbetjening",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "pensjon-pselv-q2",
       "namespace": "teampensjon",
       "cluster": "dev-gcp"
