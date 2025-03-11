@@ -33,6 +33,11 @@
       "cluster": "dev-gcp"
     },
     {
+      "app": "tms-soknad-frontend",
+      "namespace": "min-side",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "dp-dagpenger",
       "namespace": "teamdagpenger",
       "cluster": "dev-gcp"
