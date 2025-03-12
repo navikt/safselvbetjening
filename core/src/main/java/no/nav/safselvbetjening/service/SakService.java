@@ -46,7 +46,7 @@ public class SakService {
 			log.warn("Henting av arkivsaker feilet.", e);
 			return emptyList();
 		} catch (ConsumerTechnicalException e) {
-			log.warn("Henting av arkivsaker feilet teknisk.", e);
+			log.error("Henting av arkivsaker feilet teknisk.", e);
 			return emptyList();
 		}
 	}
