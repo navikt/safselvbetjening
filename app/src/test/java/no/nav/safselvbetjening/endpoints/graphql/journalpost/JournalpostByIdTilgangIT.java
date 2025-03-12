@@ -1,11 +1,5 @@
 package no.nav.safselvbetjening.endpoints.graphql.journalpost;
 
-import no.nav.safselvbetjening.domain.Journalpost;
-import no.nav.safselvbetjening.endpoints.graphql.GraphQLResponse;
-import no.nav.safselvbetjening.graphql.ErrorCode;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.ResponseEntity;
-
 import static java.util.Objects.requireNonNull;
 import static no.nav.safselvbetjening.domain.Journalposttype.N;
 import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;
@@ -16,6 +10,12 @@ import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_POL_
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKANNET_DOKUMENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
+
+import no.nav.safselvbetjening.domain.Journalpost;
+import no.nav.safselvbetjening.endpoints.graphql.GraphQLResponse;
+import no.nav.safselvbetjening.graphql.ErrorCode;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.ResponseEntity;
 
 public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 

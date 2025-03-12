@@ -20,6 +20,7 @@ public class GraphQLResponse {
 	@Data
 	public static class Error {
 		private Extensions extensions;
+		private String message;
 	}
 
 	@Data
