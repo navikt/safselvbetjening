@@ -102,14 +102,10 @@ class DokumentoversiktSelvbetjeningService {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
 
+		// Kaller alltid finnJournalposter selv om bruker ikke har arkivsaker
+		// Dette i tilfelle bruker kun har innsendte søknader
 		Mono<List<ArkivJournalpost>> arkivsakJournalposter =
-				Mono.just(saker.arkivsaker().isEmpty())
-						.flatMap(emptyArkivsaker -> {
-							if (emptyArkivsaker) {
-								return Mono.empty();
-							}
-							return dokarkivConsumer.finnJournalposter(finnArkivsakJournalposterRequest(saker, journalStatusCodeList, brukerIdenter.getFoedselsnummer()), emptySet());
-						})
+				dokarkivConsumer.finnJournalposter(finnArkivsakJournalposterRequest(saker, journalStatusCodeList, brukerIdenter.getFoedselsnummer()), emptySet())
 						.map(ArkivJournalposter::journalposter)
 						.switchIfEmpty(Mono.just(List.of()));
 
