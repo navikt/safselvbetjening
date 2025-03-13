@@ -2,7 +2,6 @@ package no.nav.safselvbetjening.tilgang;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static no.nav.safselvbetjening.MDCUtils.MDC_FULLMAKT_TEMA;
@@ -28,8 +27,7 @@ public class AccessValidationUtil {
 
 	public Optional<Fullmakt> validerInnloggetBrukerOgFinnFullmakt(
 			BrukerIdenter brukerIdenter,
-			TokenValidationContext tokenValidationContext,
-			BiConsumer<String, List<String>> userNotPresentAndFullmaktInvalid
+			TokenValidationContext tokenValidationContext
 	) throws NoValidTokensException {
 		JwtToken subjectJwt = tokenValidationContext.getFirstValidToken();
 		if (subjectJwt == null) {
@@ -44,21 +42,18 @@ public class AccessValidationUtil {
 				MDC.put(MDC_FULLMAKT_TEMA, fullmakt.get().tema().toString());
 				return fullmakt;
 			} else {
-				userNotPresentAndFullmaktInvalid.accept(pidOrSub(pid, sub), identer);
+				throw new UserNotMatchingTokenException(pidOrSub(pid, sub), identer);
 			}
 		}
 		return Optional.empty();
 	}
 
-	public static void validerFullmakt(Optional<Fullmakt> fullmaktOpt, String gjeldendeTema,
-									   Consumer<Fullmakt> presentAndValid, Consumer<Fullmakt> presentAndInvalid) {
-		fullmaktOpt.ifPresent(fullmakt -> {
-			if (fullmakt.gjelderForTema(gjeldendeTema)) {
-				presentAndValid.accept(fullmakt);
-			} else {
-				presentAndInvalid.accept(fullmakt);
-			}
-		});
+	public static void validerFullmaktForTema(Fullmakt fullmakt, String gjeldendeTema, Consumer<Fullmakt> presentAndValid) {
+		if (fullmakt.gjelderForTema(gjeldendeTema)) {
+			presentAndValid.accept(fullmakt);
+		} else {
+			throw new FullmaktInvalidException(fullmakt, gjeldendeTema);
+		}
 	}
 
 	public String getPidOrSubFromRequest(TokenValidationContext tokenValidationContext) {
