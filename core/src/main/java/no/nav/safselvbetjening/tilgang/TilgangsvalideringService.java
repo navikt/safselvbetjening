@@ -1,13 +1,9 @@
 package no.nav.safselvbetjening.tilgang;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
-
-import static no.nav.safselvbetjening.MDCUtils.MDC_FULLMAKT_TEMA;
-import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
-import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import java.util.stream.Collectors;
 
 import no.nav.safselvbetjening.fullmektig.Fullmakt;
 import no.nav.safselvbetjening.fullmektig.FullmektigService;
@@ -17,11 +13,16 @@ import no.nav.security.token.support.core.jwt.JwtToken;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
+import static no.nav.safselvbetjening.MDCUtils.MDC_FULLMAKT_TEMA;
+import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
+import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 @Component
-public class AccessValidationUtil {
+public class TilgangsvalideringService {
 	private final FullmektigService fullmektigService;
 
-	public AccessValidationUtil(FullmektigService fullmektigService) {
+	public TilgangsvalideringService(FullmektigService fullmektigService) {
 		this.fullmektigService = fullmektigService;
 	}
 
@@ -33,7 +34,7 @@ public class AccessValidationUtil {
 		if (subjectJwt == null) {
 			throw new NoValidTokensException();
 		}
-		List<String> identer = brukerIdenter.getIdenter().stream().map(Ident::get).toList();
+		Set<String> identer = brukerIdenter.getIdenter().stream().map(Ident::get).collect(Collectors.toSet());
 		String pid = subjectJwt.getJwtTokenClaims().getStringClaim(CLAIM_PID);
 		String sub = subjectJwt.getJwtTokenClaims().getStringClaim(CLAIM_SUB);
 		if (!identer.contains(pid) && !identer.contains(sub)) {

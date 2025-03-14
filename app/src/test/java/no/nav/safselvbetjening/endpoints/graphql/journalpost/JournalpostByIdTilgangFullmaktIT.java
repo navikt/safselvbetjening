@@ -1,5 +1,11 @@
 package no.nav.safselvbetjening.endpoints.graphql.journalpost;
 
+import no.nav.safselvbetjening.domain.Journalpost;
+import no.nav.safselvbetjening.endpoints.graphql.GraphQLResponse;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.ResponseEntity;
+
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
 import static no.nav.safselvbetjening.domain.Journalposttype.I;
@@ -9,12 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
-
-import no.nav.safselvbetjening.domain.Journalpost;
-import no.nav.safselvbetjening.endpoints.graphql.GraphQLResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 

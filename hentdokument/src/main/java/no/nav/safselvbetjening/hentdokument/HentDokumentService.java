@@ -5,18 +5,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import static java.util.function.Predicate.not;
-import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
-import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
-import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
-import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_INGEN_GYLDIG_TOKEN;
-import static no.nav.safselvbetjening.DenyReasonFactory.lagFeilmeldingForDokument;
-import static no.nav.safselvbetjening.DenyReasonFactory.lagFeilmeldingForJournalpost;
-import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
-import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO;
-import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.dokarkiv.DokarkivConsumer;
@@ -30,7 +18,7 @@ import no.nav.safselvbetjening.hentdokument.audit.HentDokumentAudit;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
-import no.nav.safselvbetjening.tilgang.AccessValidationUtil;
+import no.nav.safselvbetjening.tilgang.TilgangsvalideringService;
 import no.nav.safselvbetjening.tilgang.FullmaktInvalidException;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.safselvbetjening.tilgang.Ident;
@@ -44,6 +32,18 @@ import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import static java.util.function.Predicate.not;
+import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_INGEN_GYLDIG_TOKEN;
+import static no.nav.safselvbetjening.DenyReasonFactory.lagFeilmeldingForDokument;
+import static no.nav.safselvbetjening.DenyReasonFactory.lagFeilmeldingForJournalpost;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
 @Component
@@ -65,12 +65,12 @@ public class HentDokumentService {
 	private final KafkaEventProducer kafkaProducer;
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final HentDokumentAudit audit;
-	private final AccessValidationUtil accessValidationUtil;
+	private final TilgangsvalideringService tilgangsvalideringService;
 
 	public HentDokumentService(
 			DokarkivConsumer dokarkivConsumer,
 			IdentService identService,
-			AccessValidationUtil accessValidationUtil,
+			TilgangsvalideringService tilgangsvalideringService,
 			UtledTilgangService utledTilgangService,
 			PensjonSakRestConsumer pensjonSakRestConsumer,
 			HentDokumentTilgangMapper hentDokumentTilgangMapper,
@@ -79,7 +79,7 @@ public class HentDokumentService {
 	) {
 		this.dokarkivConsumer = dokarkivConsumer;
 		this.identService = identService;
-		this.accessValidationUtil = accessValidationUtil;
+		this.tilgangsvalideringService = tilgangsvalideringService;
 		this.utledTilgangService = utledTilgangService;
 		this.pensjonSakRestConsumer = pensjonSakRestConsumer;
 		this.hentDokumentTilgangMapper = hentDokumentTilgangMapper;
@@ -116,14 +116,14 @@ public class HentDokumentService {
 		}
 
 		try {
-			Optional<Fullmakt> fullmaktOptional = accessValidationUtil.validerInnloggetBrukerOgFinnFullmakt(brukerIdenter,
+			Optional<Fullmakt> fullmaktOptional = tilgangsvalideringService.validerInnloggetBrukerOgFinnFullmakt(brukerIdenter,
 					hentdokumentRequest.getTokenValidationContext());
 			Optional<Pensjonsak> pensjonsakOpt = hentPensjonssak(brukerIdenter.getAktivFolkeregisterident(), arkivJournalpost, fullmaktOptional);
 			Journalpost journalpost = hentDokumentTilgangMapper.map(arkivJournalpost, Long.parseLong(hentdokumentRequest.getDokumentInfoId()),
 					hentdokumentRequest.getVariantFormat(), brukerIdenter, pensjonsakOpt);
 			String gjeldendeTema = journalpost.getTilgang().getGjeldendeTema();
 			fullmaktOptional.ifPresent(fullmakt -> {
-				AccessValidationUtil.validerFullmaktForTema(fullmakt, gjeldendeTema,
+				TilgangsvalideringService.validerFullmaktForTema(fullmakt, gjeldendeTema,
 						fullmaktPresentAndValidAuditLog(hentdokumentRequest, gjeldendeTema)
 				);
 			});
@@ -158,7 +158,7 @@ public class HentDokumentService {
 
 	public void recordFullmaktAuditLog(Optional<Fullmakt> fullmaktOpt, HentdokumentRequest hentdokumentRequest) {
 		fullmaktOpt.ifPresentOrElse(fullmakt -> audit.logSomFullmektig(fullmakt, hentdokumentRequest),
-				() -> audit.logSomBruker(hentdokumentRequest, accessValidationUtil.getPidOrSubFromRequest(hentdokumentRequest.getTokenValidationContext())));
+				() -> audit.logSomBruker(hentdokumentRequest, tilgangsvalideringService.getPidOrSubFromRequest(hentdokumentRequest.getTokenValidationContext())));
 	}
 
 	private void utledTilgangHentDokument(TilgangJournalpost journalpost, Set<Ident> brukerIdenter, long dokumentInfoId, TilgangVariantFormat variantFormat) {

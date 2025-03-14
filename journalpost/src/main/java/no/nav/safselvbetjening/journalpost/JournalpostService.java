@@ -4,14 +4,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
-import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
-import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_INGEN_GYLDIG_TOKEN;
-import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
-import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_INGEN_TILGANG_TIL_JOURNALPOST;
-import static no.nav.safselvbetjening.graphql.ErrorCode.FORBIDDEN;
-import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
-
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.dokarkiv.DokarkivConsumer;
@@ -25,7 +17,7 @@ import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.graphql.GraphQLRequestContext;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
-import no.nav.safselvbetjening.tilgang.AccessValidationUtil;
+import no.nav.safselvbetjening.tilgang.TilgangsvalideringService;
 import no.nav.safselvbetjening.tilgang.FullmaktInvalidException;
 import no.nav.safselvbetjening.tilgang.NoValidTokensException;
 import no.nav.safselvbetjening.tilgang.UserNotMatchingTokenException;
@@ -33,6 +25,14 @@ import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_INGEN_GYLDIG_TOKEN;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_INGEN_TILGANG_TIL_JOURNALPOST;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FORBIDDEN;
+import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
 
 @Slf4j
 @Component
@@ -44,20 +44,20 @@ public class JournalpostService {
 	private final PensjonSakRestConsumer pensjonSakRestConsumer;
 	private final ArkivJournalpostMapper arkivJournalpostMapper;
 	private final UtledTilgangService utledTilgangService;
-	private final AccessValidationUtil accessValidationUtil;
+	private final TilgangsvalideringService tilgangsvalideringService;
 
 	public JournalpostService(DokarkivConsumer dokarkivConsumer,
 							  IdentService identService,
 							  PensjonSakRestConsumer pensjonSakRestConsumer,
 							  ArkivJournalpostMapper arkivJournalpostMapper,
 							  UtledTilgangService utledTilgangService,
-							  AccessValidationUtil accessValidationUtil) {
+							  TilgangsvalideringService tilgangsvalideringService) {
 		this.dokarkivConsumer = dokarkivConsumer;
 		this.identService = identService;
 		this.pensjonSakRestConsumer = pensjonSakRestConsumer;
 		this.arkivJournalpostMapper = arkivJournalpostMapper;
 		this.utledTilgangService = utledTilgangService;
-		this.accessValidationUtil = accessValidationUtil;
+		this.tilgangsvalideringService = tilgangsvalideringService;
 	}
 
 	Journalpost queryJournalpost(final long journalpostId, final DataFetchingEnvironment environment, final GraphQLRequestContext graphQLRequestContext) {
@@ -69,13 +69,13 @@ public class JournalpostService {
 		}
 
 		try {
-			Optional<Fullmakt> fullmaktOptional = accessValidationUtil.validerInnloggetBrukerOgFinnFullmakt(brukerIdenter,
+			Optional<Fullmakt> fullmaktOptional = tilgangsvalideringService.validerInnloggetBrukerOgFinnFullmakt(brukerIdenter,
 					graphQLRequestContext.getTokenValidationContext());
 			Optional<Pensjonsak> pensjonsakOpt = hentPensjonssak(brukerIdenter.getAktivFolkeregisterident(), arkivJournalpost);
 			Journalpost journalpost = arkivJournalpostMapper.map(arkivJournalpost, brukerIdenter, pensjonsakOpt);
 			String gjeldendeTema = journalpost.getTilgang().getGjeldendeTema();
 			fullmaktOptional.ifPresent(fullmakt ->
-					AccessValidationUtil.validerFullmaktForTema(fullmakt, gjeldendeTema,
+					TilgangsvalideringService.validerFullmaktForTema(fullmakt, gjeldendeTema,
 							fullmaktPresentAndValidAuditLog(journalpostId, gjeldendeTema)
 					));
 
