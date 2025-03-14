@@ -1,10 +1,5 @@
 package no.nav.safselvbetjening.hentdokument;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.dokarkiv.DokarkivConsumer;
@@ -18,7 +13,6 @@ import no.nav.safselvbetjening.hentdokument.audit.HentDokumentAudit;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
-import no.nav.safselvbetjening.tilgang.TilgangsvalideringService;
 import no.nav.safselvbetjening.tilgang.FullmaktInvalidException;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.safselvbetjening.tilgang.Ident;
@@ -27,11 +21,17 @@ import no.nav.safselvbetjening.tilgang.TilgangDokument;
 import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 import no.nav.safselvbetjening.tilgang.TilgangVariant;
 import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
+import no.nav.safselvbetjening.tilgang.TilgangsvalideringService;
 import no.nav.safselvbetjening.tilgang.UserNotMatchingTokenException;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import static java.util.function.Predicate.not;
 import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;

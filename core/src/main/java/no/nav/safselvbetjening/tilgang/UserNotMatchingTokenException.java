@@ -1,8 +1,8 @@
 package no.nav.safselvbetjening.tilgang;
 
-import java.util.Set;
-
 import lombok.Getter;
+
+import java.util.Set;
 
 @Getter
 public class UserNotMatchingTokenException extends RuntimeException {

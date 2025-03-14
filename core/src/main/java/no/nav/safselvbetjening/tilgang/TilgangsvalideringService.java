@@ -1,10 +1,5 @@
 package no.nav.safselvbetjening.tilgang;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 import no.nav.safselvbetjening.fullmektig.Fullmakt;
 import no.nav.safselvbetjening.fullmektig.FullmektigService;
 import no.nav.safselvbetjening.service.BrukerIdenter;
@@ -12,6 +7,11 @@ import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static no.nav.safselvbetjening.MDCUtils.MDC_FULLMAKT_TEMA;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;

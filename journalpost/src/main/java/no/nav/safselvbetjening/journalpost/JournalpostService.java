@@ -1,9 +1,5 @@
 package no.nav.safselvbetjening.journalpost;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.dokarkiv.DokarkivConsumer;
@@ -17,14 +13,18 @@ import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.graphql.GraphQLRequestContext;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
-import no.nav.safselvbetjening.tilgang.TilgangsvalideringService;
 import no.nav.safselvbetjening.tilgang.FullmaktInvalidException;
 import no.nav.safselvbetjening.tilgang.NoValidTokensException;
+import no.nav.safselvbetjening.tilgang.TilgangsvalideringService;
 import no.nav.safselvbetjening.tilgang.UserNotMatchingTokenException;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
