@@ -9,28 +9,29 @@ import no.nav.safselvbetjening.consumer.pensjon.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.fullmektig.Fullmakt;
-import no.nav.safselvbetjening.fullmektig.FullmektigService;
 import no.nav.safselvbetjening.hentdokument.audit.HentDokumentAudit;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
+import no.nav.safselvbetjening.tilgang.FullmaktInvalidException;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.safselvbetjening.tilgang.Ident;
+import no.nav.safselvbetjening.tilgang.NoValidTokensException;
 import no.nav.safselvbetjening.tilgang.TilgangDokument;
 import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 import no.nav.safselvbetjening.tilgang.TilgangVariant;
 import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
+import no.nav.safselvbetjening.tilgang.TilgangsvalideringService;
+import no.nav.safselvbetjening.tilgang.UserNotMatchingTokenException;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
-import no.nav.security.token.support.core.jwt.JwtToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static java.util.function.Predicate.not;
 import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
@@ -39,9 +40,6 @@ import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FULLMAKT_GJE
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_INGEN_GYLDIG_TOKEN;
 import static no.nav.safselvbetjening.DenyReasonFactory.lagFeilmeldingForDokument;
 import static no.nav.safselvbetjening.DenyReasonFactory.lagFeilmeldingForJournalpost;
-import static no.nav.safselvbetjening.MDCUtils.MDC_FULLMAKT_TEMA;
-import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
-import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER;
@@ -61,18 +59,18 @@ public class HentDokumentService {
 
 	private final DokarkivConsumer dokarkivConsumer;
 	private final IdentService identService;
-	private final FullmektigService fullmektigService;
 	private final UtledTilgangService utledTilgangService;
 	private final PensjonSakRestConsumer pensjonSakRestConsumer;
 	private final HentDokumentTilgangMapper hentDokumentTilgangMapper;
 	private final KafkaEventProducer kafkaProducer;
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final HentDokumentAudit audit;
+	private final TilgangsvalideringService tilgangsvalideringService;
 
 	public HentDokumentService(
 			DokarkivConsumer dokarkivConsumer,
 			IdentService identService,
-			FullmektigService fullmektigService,
+			TilgangsvalideringService tilgangsvalideringService,
 			UtledTilgangService utledTilgangService,
 			PensjonSakRestConsumer pensjonSakRestConsumer,
 			HentDokumentTilgangMapper hentDokumentTilgangMapper,
@@ -81,7 +79,7 @@ public class HentDokumentService {
 	) {
 		this.dokarkivConsumer = dokarkivConsumer;
 		this.identService = identService;
-		this.fullmektigService = fullmektigService;
+		this.tilgangsvalideringService = tilgangsvalideringService;
 		this.utledTilgangService = utledTilgangService;
 		this.pensjonSakRestConsumer = pensjonSakRestConsumer;
 		this.hentDokumentTilgangMapper = hentDokumentTilgangMapper;
@@ -117,17 +115,50 @@ public class HentDokumentService {
 			throw new HentTilgangDokumentException(DENY_REASON_IKKE_AVSENDER_MOTTAKER.reason, FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);
 		}
 
-		Optional<Fullmakt> fullmaktOpt = validerInnloggetBrukerOgFinnFullmakt(brukerIdenter, hentdokumentRequest);
-		Optional<Pensjonsak> pensjonsakOpt = hentPensjonssak(brukerIdenter.getAktivFolkeregisterident(), arkivJournalpost, fullmaktOpt);
-		Journalpost journalpost = hentDokumentTilgangMapper.map(arkivJournalpost, Long.parseLong(hentdokumentRequest.getDokumentInfoId()),
-				hentdokumentRequest.getVariantFormat(), brukerIdenter, pensjonsakOpt);
-		validerFullmakt(hentdokumentRequest, fullmaktOpt, journalpost);
+		try {
+			Optional<Fullmakt> fullmaktOptional = tilgangsvalideringService.validerInnloggetBrukerOgFinnFullmakt(brukerIdenter,
+					hentdokumentRequest.getTokenValidationContext());
+			Optional<Pensjonsak> pensjonsakOpt = hentPensjonssak(brukerIdenter.getAktivFolkeregisterident(), arkivJournalpost, fullmaktOptional);
+			Journalpost journalpost = hentDokumentTilgangMapper.map(arkivJournalpost, Long.parseLong(hentdokumentRequest.getDokumentInfoId()),
+					hentdokumentRequest.getVariantFormat(), brukerIdenter, pensjonsakOpt);
+			String gjeldendeTema = journalpost.getTilgang().getGjeldendeTema();
+			fullmaktOptional.ifPresent(fullmakt -> {
+				TilgangsvalideringService.validerFullmaktForTema(fullmakt, gjeldendeTema,
+						fullmaktPresentAndValidAuditLog(hentdokumentRequest, gjeldendeTema)
+				);
+			});
 
-		TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
-		utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), Long.parseLong(hentdokumentRequest.getDokumentInfoId()), TilgangVariantFormat.from(hentdokumentRequest.getVariantFormat()));
-		recordFullmaktAuditLog(fullmaktOpt, hentdokumentRequest);
+			TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
+			utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), Long.parseLong(hentdokumentRequest.getDokumentInfoId()), TilgangVariantFormat.from(hentdokumentRequest.getVariantFormat()));
+			recordFullmaktAuditLog(fullmaktOptional, hentdokumentRequest);
 
-		return new Tilgangskontroll(journalpost, fullmaktOpt);
+			return new Tilgangskontroll(journalpost, fullmaktOptional);
+		} catch (NoValidTokensException e) {
+			throw new HentTilgangDokumentException(DENY_REASON_INGEN_GYLDIG_TOKEN, FEILMELDING_INGEN_GYLDIG_TOKEN);
+		} catch (UserNotMatchingTokenException e) {
+			secureLog.warn("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}) Innlogget bruker med ident={} matcher ikke bruker på journalpost og har ingen fullmakt. brukerIdenter={}",
+					hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(),
+					e.getIdent(), e.getIdenter());
+			throw new HentTilgangDokumentException(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
+		} catch (FullmaktInvalidException e) {
+			secureLog.warn("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}, tema={}) Innlogget bruker med ident={} har fullmakt som ikke dekker tema for dokument tilhørende bruker={}. Tilgang er avvist",
+					hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), e.getGjeldendeTema(),
+					e.getFullmakt().fullmektig(), e.getFullmakt().fullmaktsgiver());
+			throw new HentTilgangDokumentException(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
+		}
+	}
+
+	private static Consumer<Fullmakt> fullmaktPresentAndValidAuditLog(HentdokumentRequest hentdokumentRequest, String gjeldendeTema) {
+		return fullmakt -> {
+			secureLog.info("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}, tema={}) Innlogget bruker med ident={} bruker fullmakt med tema={} for dokument tilhørende bruker={}",
+					hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), gjeldendeTema,
+					fullmakt.fullmektig(), fullmakt.tema(), fullmakt.fullmaktsgiver());
+		};
+	}
+
+	public void recordFullmaktAuditLog(Optional<Fullmakt> fullmaktOpt, HentdokumentRequest hentdokumentRequest) {
+		fullmaktOpt.ifPresentOrElse(fullmakt -> audit.logSomFullmektig(fullmakt, hentdokumentRequest),
+				() -> audit.logSomBruker(hentdokumentRequest, tilgangsvalideringService.getPidOrSubFromRequest(hentdokumentRequest.getTokenValidationContext())));
 	}
 
 	private void utledTilgangHentDokument(TilgangJournalpost journalpost, Set<Ident> brukerIdenter, long dokumentInfoId, TilgangVariantFormat variantFormat) {
@@ -165,63 +196,16 @@ public class HentDokumentService {
 		}
 	}
 
-	private static void validerFullmakt(HentdokumentRequest hentdokumentRequest, Optional<Fullmakt> fullmaktOpt, Journalpost journalpost) {
-		if (fullmaktOpt.isPresent()) {
-			Fullmakt fullmakt = fullmaktOpt.get();
-			String gjeldendeTema = journalpost.getTilgang().getGjeldendeTema();
-			if (fullmakt.gjelderForTema(gjeldendeTema)) {
-				secureLog.info("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}, tema={}) Innlogget bruker med ident={} bruker fullmakt med tema={} for dokument tilhørende bruker={}",
-						hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), gjeldendeTema,
-						fullmakt.fullmektig(), fullmakt.tema(), fullmakt.fullmaktsgiver());
-			} else {
-				secureLog.warn("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}, tema={}) Innlogget bruker med ident={} har fullmakt som ikke dekker tema for dokument tilhørende bruker={}. Tilgang er avvist",
-						hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), gjeldendeTema,
-						fullmakt.fullmektig(), fullmakt.fullmaktsgiver());
-				throw new HentTilgangDokumentException(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
-			}
-		}
-	}
-
-	private void recordFullmaktAuditLog(Optional<Fullmakt> fullmaktOpt, HentdokumentRequest hentdokumentRequest) {
-		fullmaktOpt.ifPresentOrElse(fullmakt -> audit.logSomFullmektig(fullmakt, hentdokumentRequest),
-				() -> audit.logSomBruker(hentdokumentRequest, getPidOrSubFromRequest(hentdokumentRequest)));
-	}
-
 	private void sendHoveddokumentLestHendelse(final HentdokumentRequest hentdokumentRequest) {
 		if (isNotBlank(hentdokumentRequest.getJournalpostId()) && isNotBlank(hentdokumentRequest.getDokumentInfoId())) {
 			try {
 				HoveddokumentLest hoveddokumentLest = new HoveddokumentLest(hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId());
 				kafkaProducer.publish(hoveddokumentLest);
 			} catch (Exception e) {
-				log.error("Kunne ikke sende events til kafka topic={}, feilmelding={}", safSelvbetjeningProperties.getTopics().getDokdistdittnav(), e.getMessage(), e);
+				log.error("Kunne ikke sende events til kafka topic={}, feilmelding={}",
+						safSelvbetjeningProperties.getTopics().getDokdistdittnav(), e.getMessage(), e);
 			}
 		}
-	}
-
-	private Optional<Fullmakt> validerInnloggetBrukerOgFinnFullmakt(
-			BrukerIdenter brukerIdenter,
-			HentdokumentRequest hentdokumentRequest
-	) {
-		JwtToken subjectJwt = hentdokumentRequest.getTokenValidationContext().getFirstValidToken();
-		if (subjectJwt == null) {
-			throw new HentTilgangDokumentException(DENY_REASON_INGEN_GYLDIG_TOKEN, FEILMELDING_INGEN_GYLDIG_TOKEN);
-		}
-		List<String> identer = brukerIdenter.getIdenter().stream().map(Ident::get).toList();
-		String pid = subjectJwt.getJwtTokenClaims().getStringClaim(CLAIM_PID);
-		String sub = subjectJwt.getJwtTokenClaims().getStringClaim(CLAIM_SUB);
-		if (!identer.contains(pid) && !identer.contains(sub)) {
-			Optional<Fullmakt> fullmakt = fullmektigService.finnFullmakt(subjectJwt, brukerIdenter.getAktivFolkeregisterident());
-			if (fullmakt.isPresent()) {
-				MDC.put(MDC_FULLMAKT_TEMA, fullmakt.get().tema().toString());
-				return fullmakt;
-			} else {
-				secureLog.warn("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}) Innlogget bruker med ident={} matcher ikke bruker på journalpost og har ingen fullmakt. brukerIdenter={}",
-						hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(),
-						pidOrSub(pid, sub), identer);
-				throw new HentTilgangDokumentException(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
-			}
-		}
-		return Optional.empty();
 	}
 
 	private Optional<Pensjonsak> hentPensjonssak(String bruker, ArkivJournalpost arkivJournalpost, Optional<Fullmakt> fullmaktOpt) {
@@ -234,24 +218,5 @@ public class HentDokumentService {
 			return Optional.empty();
 		}
 		return Optional.empty();
-	}
-
-	private String getPidOrSubFromRequest(HentdokumentRequest hentdokumentRequest) {
-		var jwtToken = hentdokumentRequest.getTokenValidationContext().getFirstValidToken();
-		if (jwtToken != null) {
-			var jwtTokenClaims = jwtToken.getJwtTokenClaims();
-			return pidOrSub(jwtTokenClaims.getStringClaim("pid"), jwtTokenClaims.getStringClaim("sub"));
-		}
-		return null;
-	}
-
-	private String pidOrSub(String pid, String sub) {
-		if (isNotBlank(pid)) {
-			return pid;
-		}
-		if (isNotBlank(sub)) {
-			return sub;
-		}
-		return null;
 	}
 }
