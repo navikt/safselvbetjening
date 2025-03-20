@@ -27,10 +27,4 @@ public enum JournalpostTypeCode {
 		return safJournalposttype;
 	}
 
-	public static Journalposttype mapToJournalpostType(JournalpostTypeCode journalpostTypeCode) {
-		if (journalpostTypeCode == null) {
-			return null;
-		}
-		return Journalposttype.valueOf(journalpostTypeCode.name());
-	}
 }

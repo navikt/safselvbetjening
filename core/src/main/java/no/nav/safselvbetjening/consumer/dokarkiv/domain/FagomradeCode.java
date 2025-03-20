@@ -1,7 +1,5 @@
 package no.nav.safselvbetjening.consumer.dokarkiv.domain;
 
-import no.nav.safselvbetjening.domain.Tema;
-
 public enum FagomradeCode {
 	/**
 	 * Bidrag
@@ -262,10 +260,5 @@ public enum FagomradeCode {
 	/**
 	 * Arbeidsrådgivning psykologtester
 	 */
-	ARP;
-
-	public static Tema toTema(FagomradeCode joarkFagomradeCode) {
-		// Hvis tema er null så faller man tilbake til UKJ
-		return joarkFagomradeCode == null ? Tema.UKJ : Tema.valueOf(joarkFagomradeCode.name());
-	}
+	ARP
 }
