@@ -17,7 +17,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -62,22 +61,17 @@ public class JoarksakConsumer {
 				.retrieve()
 				.bodyToMono(new ParameterizedTypeReference<List<Joarksak>>() {
 				})
-				.doOnError(handleErrorSak())
+				.onErrorMap(this::mapSakerError)
 				.transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
 				.transformDeferred(RetryOperator.of(retry))
 				.block();
 	}
 
-	private Consumer<Throwable> handleErrorSak() {
-		return error -> {
-			if (error instanceof WebClientResponseException webException) {
-				if (webException.getStatusCode().is4xxClientError()) {
-					throw new ConsumerFunctionalException("Funksjonell feil. Kunne ikke hente saker for bruker fra sak.", error);
-				} else {
-					throw new ConsumerTechnicalException("Teknisk feil. Kunne ikke hente saker for bruker fra sak.", error);
-				}
-			}
-		};
+	private Throwable mapSakerError(Throwable error) {
+		if (error instanceof WebClientResponseException webException && webException.getStatusCode().is4xxClientError()) {
+			return new ConsumerFunctionalException("Funksjonell feil. Kunne ikke hente saker for bruker fra sak.", error);
+		}
+		return new ConsumerTechnicalException("Teknisk feil. Kunne ikke hente saker for bruker fra sak.", error);
 	}
 
 }

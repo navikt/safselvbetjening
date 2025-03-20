@@ -1,5 +1,6 @@
 package no.nav.safselvbetjening.consumer.dokarkiv;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
 import io.github.resilience4j.reactor.retry.RetryOperator;
@@ -21,7 +22,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
-import java.util.function.Consumer;
 
 import static java.lang.String.format;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
@@ -38,9 +38,9 @@ public class DokarkivConsumer {
 	private static final String DOKARKIV_DOKUMENTOVERSIKT = "dokarkivdokumentoversikt";
 	private static final String DOKARKIV_HENTDOKUMENT = "dokarkivhentdokument";
 	private final WebClient webClient;
-	private final io.github.resilience4j.circuitbreaker.CircuitBreaker dokarkivDokumentoversiktCircuitBreaker;
-	private final io.github.resilience4j.circuitbreaker.CircuitBreaker dokarkivHentdokumentCircuitBreaker;
-	private final io.github.resilience4j.circuitbreaker.CircuitBreaker dokarkivMetadataCircuitBreaker;
+	private final CircuitBreaker dokarkivDokumentoversiktCircuitBreaker;
+	private final CircuitBreaker dokarkivHentdokumentCircuitBreaker;
+	private final CircuitBreaker dokarkivMetadataCircuitBreaker;
 	private final Retry dokarkivDokumentoversiktRetry;
 	private final Retry dokarkivHentdokumentRetry;
 	private final Retry dokarkivMetadataRetry;
@@ -115,28 +115,28 @@ public class DokarkivConsumer {
 				.accept(APPLICATION_JSON)
 				.retrieve()
 				.bodyToMono(ArkivJournalpost.class)
-				.doOnError(handleErrorJournalpostDokumentInfo(journalpostId, dokumentInfoId))
+				.onErrorMap(error -> mapHentJournalpostError(error, journalpostId, dokumentInfoId))
 				.transformDeferred(CircuitBreakerOperator.of(dokarkivMetadataCircuitBreaker))
 				.transformDeferred(RetryOperator.of(dokarkivMetadataRetry))
 				.block();
 	}
 
-	private Consumer<Throwable> handleErrorJournalpostDokumentInfo(String journalpostId, String dokumentInfoId) {
-		return error -> {
-			if (error instanceof WebClientResponseException.NotFound notFound) {
-				throw new JournalpostIkkeFunnetException(format("Journalpost med journalpostId=%s, dokumentInfoId=%s ikke funnet i Joark.",
-						journalpostId, dokumentInfoId), notFound);
+	private Throwable mapHentJournalpostError(Throwable error, String journalpostId, String dokumentInfoId) {
+		if (error instanceof WebClientResponseException.NotFound notFound) {
+			return new JournalpostIkkeFunnetException(format("Journalpost med journalpostId=%s, dokumentInfoId=%s ikke funnet i Joark.",
+					journalpostId, dokumentInfoId), notFound);
+		}
+		if (error instanceof WebClientResponseException webException) {
+			if (webException.getStatusCode().is4xxClientError()) {
+				return new ConsumerFunctionalException(format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
+						webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()));
+			} else {
+				return new ConsumerTechnicalException(format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
+						webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()), webException);
 			}
-			if (error instanceof WebClientResponseException webException) {
-				if (webException.getStatusCode().is4xxClientError()) {
-					throw new ConsumerFunctionalException(format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
-							webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()));
-				} else {
-					throw new ConsumerTechnicalException(format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
-							webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()), webException);
-				}
-			}
-		};
+		}
+		return new ConsumerTechnicalException(format("hentJournalpost feilet med ukjent teknisk feil. journalpostId=%s, dokumentInfoId=%s",
+				journalpostId, dokumentInfoId), error);
 	}
 
 	public ArkivJournalpost journalpost(long journalpostId, Set<String> fields) {
@@ -152,28 +152,26 @@ public class DokarkivConsumer {
 				.accept(APPLICATION_JSON)
 				.retrieve()
 				.bodyToMono(ArkivJournalpost.class)
-				.doOnError(handleErrorJournalpost(journalpostId))
+				.onErrorMap(error -> handleErrorJournalpost(error, journalpostId))
 				.transformDeferred(CircuitBreakerOperator.of(dokarkivMetadataCircuitBreaker))
 				.transformDeferred(RetryOperator.of(dokarkivMetadataRetry))
 				.block();
 	}
 
-	private Consumer<Throwable> handleErrorJournalpost(long journalpostId) {
-		return error -> {
-			if (error instanceof WebClientResponseException.NotFound notFound) {
-				throw new JournalpostIkkeFunnetException(format("Journalpost med journalpostId=%s ikke funnet i Joark.",
-						journalpostId), notFound);
+	private Throwable handleErrorJournalpost(Throwable error, long journalpostId) {
+		if (error instanceof WebClientResponseException.NotFound notFound) {
+			return new JournalpostIkkeFunnetException(format("Journalpost med journalpostId=%d ikke funnet i Joark.", journalpostId), notFound);
+		}
+		if (error instanceof WebClientResponseException webException) {
+			if (webException.getStatusCode().is4xxClientError()) {
+				return new ConsumerFunctionalException(format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%d. Feilmelding=%s",
+						webException.getStatusCode(), journalpostId, webException.getMessage()));
+			} else {
+				return new ConsumerTechnicalException(format("hentJournalpost feilet teknisk. status=%s, journalpostId=%d. Feilmelding=%s",
+						webException.getStatusCode(), journalpostId, webException.getMessage()), webException);
 			}
-			if (error instanceof WebClientResponseException webException) {
-				if (webException.getStatusCode().is4xxClientError()) {
-					throw new ConsumerFunctionalException(format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%s. Feilmelding=%s",
-							webException.getStatusCode(), journalpostId, webException.getMessage()));
-				} else {
-					throw new ConsumerTechnicalException(format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s. Feilmelding=%s",
-							webException.getStatusCode(), journalpostId, webException.getMessage()), webException);
-				}
-			}
-		};
+		}
+		return new ConsumerTechnicalException(format("hentJournalpost feilet med ukjent teknisk feil. journalpostId=%d", journalpostId), error);
 	}
 
 	public HentDokumentResponseTo hentDokument(final String dokumentInfoId, final String variantFormat) {
@@ -193,22 +191,20 @@ public class DokarkivConsumer {
 						return clientResponse.createError();
 					}
 				})
-				.doOnError(handleErrorHentDokument(dokumentInfoId, variantFormat))
+				.onErrorMap(error -> handleErrorHentDokument(error, dokumentInfoId, variantFormat))
 				.transformDeferred(CircuitBreakerOperator.of(dokarkivHentdokumentCircuitBreaker))
 				.transformDeferred(RetryOperator.of(dokarkivHentdokumentRetry))
 				.block();
 	}
 
-	private Consumer<Throwable> handleErrorHentDokument(String dokumentInfoId, String variantFormat) {
-		return error -> {
-			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-				if (error instanceof WebClientResponseException.NotFound) {
-					throw new DokumentIkkeFunnetException("Fant ikke dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
-				}
-				throw new ConsumerFunctionalException("Funksjonell feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
-			} else {
-				throw new ConsumerTechnicalException("Teknisk feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
+	private Throwable handleErrorHentDokument(Throwable error, String dokumentInfoId, String variantFormat) {
+		if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
+			if (error instanceof WebClientResponseException.NotFound) {
+				return new DokumentIkkeFunnetException("Fant ikke dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
 			}
-		};
+			return new ConsumerFunctionalException("Funksjonell feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
+		} else {
+			return new ConsumerTechnicalException("Teknisk feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
+		}
 	}
 }

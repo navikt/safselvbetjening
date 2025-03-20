@@ -16,7 +16,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_PDL;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -58,7 +57,7 @@ class PdlIdentConsumer implements IdentConsumer {
 				.bodyValue(mapHentIdenterQuery(ident))
 				.retrieve()
 				.bodyToMono(PdlResponse.class)
-				.doOnError(handleErrorPdl())
+				.onErrorMap(this::mapPdlError)
 				.transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
 				.transformDeferred(RetryOperator.of(retry))
 				.block();
@@ -81,13 +80,11 @@ class PdlIdentConsumer implements IdentConsumer {
 		return new PdlRequest(query, variables);
 	}
 
-	private Consumer<Throwable> handleErrorPdl() {
-		return error -> {
-			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-				throw new PdlFunctionalException("Kall mot pdl feilet funksjonelt.", error);
-			} else {
-				throw new ConsumerTechnicalException("Kall mot pdl feilet teknisk", error);
-			}
-		};
+	private Throwable mapPdlError(Throwable error) {
+		if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
+			return new PdlFunctionalException("Kall mot pdl feilet funksjonelt.", error);
+		} else {
+			return new ConsumerTechnicalException("Kall mot pdl feilet teknisk", error);
+		}
 	}
 }

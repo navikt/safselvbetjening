@@ -17,7 +17,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
@@ -59,7 +58,7 @@ public class PensjonSakRestConsumer {
 				.header("sakId", sakId)
 				.retrieve()
 				.bodyToMono(HentBrukerForSakResponseTo.class)
-				.doOnError(handleErrorBrukerForSak())
+				.onErrorMap(this::mapHentBrukerForSakError)
 				.transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
 				.transformDeferred(RetryOperator.of(retry))
 				.block();
@@ -72,14 +71,12 @@ public class PensjonSakRestConsumer {
 		}
 	}
 
-	private Consumer<Throwable> handleErrorBrukerForSak() {
-		return error -> {
-			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-				throw new ConsumerFunctionalException(format("hentBrukerForSak feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), response.getMessage()), error);
-			} else {
-				throw new ConsumerTechnicalException(format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
-			}
-		};
+	private Throwable mapHentBrukerForSakError(Throwable error) {
+		if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
+			return new ConsumerFunctionalException(format("hentBrukerForSak feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), response.getMessage()), error);
+		} else {
+			return new ConsumerTechnicalException(format("hentBrukerForSak feilet teknisk. Feilmelding=%s", error.getMessage()), error);
+		}
 	}
 
 	public List<Pensjonsak> hentPensjonssaker(final String personident) {
@@ -94,25 +91,23 @@ public class PensjonSakRestConsumer {
 				.retrieve()
 				.bodyToMono(new ParameterizedTypeReference<List<Pensjonsak>>() {
 				})
-				.doOnError(handleErrorPensjonssaker())
+				.onErrorMap(this::mapHentPensjonssakerError)
 				.transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
 				.transformDeferred(RetryOperator.of(retry))
 				.block();
 	}
 
-	private Consumer<Throwable> handleErrorPensjonssaker() {
-		return error -> {
-			if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-				if (error instanceof WebClientResponseException.NotFound) {
-					throw new ConsumerFunctionalException(
-							format("hentPensjonssaker feilet funksjonelt (person ikke funnet). Statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error);
-				}
-				throw new ConsumerFunctionalException(
-						format("hentPensjonssaker feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error);
-			} else {
-				throw new ConsumerTechnicalException(format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
+	private Throwable mapHentPensjonssakerError(Throwable error) {
+		if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
+			if (error instanceof WebClientResponseException.NotFound) {
+				return new ConsumerFunctionalException(
+						format("hentPensjonssaker feilet funksjonelt (person ikke funnet). Statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error);
 			}
-		};
+			return new ConsumerFunctionalException(
+					format("hentPensjonssaker feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error);
+		} else {
+			return new ConsumerTechnicalException(format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
+		}
 	}
 
 }
