@@ -38,17 +38,17 @@ For tilgang, ta kontakt med teamet eller oppdater `ACCESS_POLICY_INBOUND_RULES` 
   POST /graphql
 ```
 
-For oppbygging av query, se spec. Bruk en GraphQL klient som f.eks [Altair](https://altair.sirmuel.design/) for å gjøre introspeksjon. Typer og felt skal ha dokumentasjon. 
+For oppbygging av query, se spec. Bruk en GraphQL klient som f.eks [Altair](https://github.com/altair-graphql/altair) eller [Insomnia](https://github.com/Kong/insomnia) for å gjøre introspeksjon. Typer og felt skal ha dokumentasjon. 
 
 Public graphql spec (tilgjengelig fra internett) på `gh-pages` branchen: `https://navikt.github.io/safselvbetjening/schema.graphqls`
 
 ##### Spesielt om digital fullmakt
 
-`dokumentoversiktSelvbetjening` query støtter [digital fullmakt](https://www.nav.no/fullmakt) fra `pdl-fullmakt` løsningen. Hvis dere ønsker å slå opp dokumentoversikten til en fullmaktsgiver der fullmektig er logget inn på nav.no:
+`dokumentoversiktSelvbetjening` og `journalpostById` query støtter [digital fullmakt](https://www.nav.no/fullmakt) fra `repr-fullmakt` løsningen. Hvis dere ønsker å slå opp dokumentoversikten til en fullmaktsgiver der fullmektig er logget inn på nav.no:
 * `Authorization` settes til innlogget brukers ID-porten-Bearertoken.
 * `ident` argumentet i query settes til fullmaktsgiver.
 
-Safselvbetjening vil slå opp i `pdl-fullmakt`og slå opp fullmaktene til innlogget bruker.
+Safselvbetjening vil slå opp i `repr-fullmakt`og slå opp fullmaktene til innlogget bruker.
 Hvis det finnes en gyldig fullmakt med minst ett gyldig tema så vil dokumentene til fullmaktsgiver returneres, ikke innlogget brukers dokumenter.
 
 ##### Suksess
