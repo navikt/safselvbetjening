@@ -35,7 +35,9 @@ public class TokendingsConsumer {
 	private final TokendingsProperties tokendingsProperties;
 	private final ObjectMapper objectMapper;
 
-	public TokendingsConsumer(WebClient webClient, TokendingsProperties tokendingsProperties, ObjectMapper objectMapper) {
+	public TokendingsConsumer(WebClient webClient,
+							  TokendingsProperties tokendingsProperties,
+							  ObjectMapper objectMapper) {
 		this.webClient = webClient.mutate()
 				.baseUrl(tokendingsProperties.getTokenEndpoint())
 				.defaultHeader(CONTENT_TYPE, APPLICATION_FORM_URLENCODED_VALUE)
@@ -58,7 +60,7 @@ public class TokendingsConsumer {
 				.body(BodyInserters.fromFormData(formMultiValueData))
 				.retrieve()
 				.bodyToMono(String.class)
-				.doOnError(this::handleError)
+				.onErrorMap(this::mapError)
 				.block();
 
 		try {
@@ -68,15 +70,15 @@ public class TokendingsConsumer {
 		}
 	}
 
-	private void handleError(Throwable error) {
-		if (error instanceof WebClientResponseException response && ((WebClientResponseException) error).getStatusCode().is4xxClientError()) {
-			throw new TokenException(
+	private Throwable mapError(Throwable error) {
+		if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
+			return new TokenException(
 					format("Klarte ikke hente token fra Tokendings. Feilet med statuskode=%s Feilmelding=%s",
 							response.getStatusCode().value(),
 							response.getMessage()),
 					error);
 		} else {
-			throw new TokenTechnicalException(
+			return new TokenTechnicalException(
 					format("Kall mot Tokendings feilet med feilmelding=%s", error.getMessage()),
 					error);
 		}
@@ -105,6 +107,7 @@ public class TokendingsConsumer {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public static String hashedCacheKey(String token, String scope) {
 		return sha256Hex(token + scope);
 	}
