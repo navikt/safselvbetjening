@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.E;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode.I;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper.TILKNYTTET_SOM_HOVEDDOKUMENT;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper.TILKNYTTET_SOM_VEDLEGG;
 
@@ -66,7 +67,7 @@ final class ArkivJournalpostTestObjects {
 		return ArkivJournalpost.builder()
 				.journalpostId(Long.valueOf(JOURNALPOST_ID))
 				.avsenderMottaker(new ArkivAvsenderMottaker(AVSENDER_MOTTAKER_ID, AVSENDER_MOTTAKER_ID_TYPE, AVSENDER_MOTTAKER_NAVN))
-				.type(JournalpostTypeCode.I.name())
+				.type(I.name())
 				.status(JournalStatusCode.M.name())
 				.mottakskanal(MottaksKanalCode.NAV_NO.name())
 				.relevanteDatoer(new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, ARKIVJOURNALPOST_DATO_EKSPEDERT, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, ARKIVJOURNALPOST_DATO_SENDT_PRINT))
@@ -136,6 +137,22 @@ final class ArkivJournalpostTestObjects {
 						.fagsystem(ARKIVSAKSYSTEM_PENSJON)
 						.feilregistrert(true)
 						.sak(null)
+						.build())
+				.dokumenter(List.of(hoveddokumentArkivDokumentinfo(), vedleggArkivDokumentinfo()))
+				.build();
+	}
+
+	static ArkivJournalpost sortertDatoArkivJournalpost(JournalpostTypeCode journalpostTypeCode, ArkivRelevanteDatoer arkivRelevanteDatoer) {
+		return baseArkivJournalpost()
+				.type(journalpostTypeCode.name())
+				.relevanteDatoer(arkivRelevanteDatoer)
+				.bruker(new ArkivBruker(BRUKER_IDENT, "PERSON"))
+				.innsyn(InnsynCode.BRUK_STANDARDREGLER.name())
+				.saksrelasjon(ArkivSaksrelasjon.builder()
+						.sakId(ARKIVSAK_ID)
+						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
+						.feilregistrert(true)
+						.sak(new ArkivSak(TEMA, ARKIVSAK_AKTOER_ID, null, FAGSAKNR, APPLIKASJON))
 						.build())
 				.dokumenter(List.of(hoveddokumentArkivDokumentinfo(), vedleggArkivDokumentinfo()))
 				.build();

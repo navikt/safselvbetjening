@@ -70,6 +70,7 @@
         navn
       }
       kanal
+      sorteringsDato
       relevanteDatoer {
         dato
         datotype

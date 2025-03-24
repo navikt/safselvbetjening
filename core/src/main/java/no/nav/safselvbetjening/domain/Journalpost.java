@@ -5,6 +5,7 @@ import lombok.ToString;
 import lombok.Value;
 import no.nav.safselvbetjening.tilgang.TilgangJournalpost;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class Journalpost {
 	AvsenderMottaker mottaker;
 	Kanal kanal;
 	String eksternReferanseId;
+	LocalDateTime sorteringsDato;
 	@Builder.Default
 	List<RelevantDato> relevanteDatoer = new ArrayList<>();
 	@Builder.Default

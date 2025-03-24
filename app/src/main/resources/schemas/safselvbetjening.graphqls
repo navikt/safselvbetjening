@@ -91,6 +91,9 @@ type Journalpost {
     # Eksempler på eksternReferanseId kan være sykmeldingsId for sykmeldinger, Altinn ArchiveReference for Altinn-skjema eller SEDid for SED.
     eksternReferanseId: String
 
+    # Brukes for sortering av journalposter og for å få riktig rekkefølge på dokumenter.
+    sorteringsDato: DateTime
+
     # Liste over datoer som kan være relevante for denne journalposten, f.eks. DATO_EKSPEDERT. Hvilke relevante datoer som returneres, avhenger av journalposttypen.
     relevanteDatoer: [RelevantDato]!
 

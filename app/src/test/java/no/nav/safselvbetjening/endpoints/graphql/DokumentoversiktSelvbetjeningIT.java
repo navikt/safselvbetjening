@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
@@ -58,6 +59,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertTemaQuery(dokumentoversikt);
 		assertFagsakQuery(dokumentoversikt);
 		assertJournalposterQuery(dokumentoversikt.getJournalposter());
+		assertJournalposterSorteringsDato(dokumentoversikt.getJournalposter());
 	}
 
 	@Test
@@ -255,6 +257,13 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 			assertThat(jp.getKanal()).isEqualTo(NAV_NO);
 			assertThat(jp.getAvsender()).isNull();
 		}
+	}
+
+	private void assertJournalposterSorteringsDato(List<Journalpost> journalposts) {
+		assertThat(journalposts).hasSize(3);
+		assertThat(journalposts.get(0).getSorteringsDato()).isEqualTo(LocalDateTime.parse("2024-02-08T12:49:15"));
+		assertThat(journalposts.get(1).getSorteringsDato()).isEqualTo(LocalDateTime.parse("2004-06-02T22:00"));
+		assertThat(journalposts.get(2).getSorteringsDato()).isEqualTo(LocalDateTime.parse("2024-07-11T10:52:24"));
 	}
 
 	@Test

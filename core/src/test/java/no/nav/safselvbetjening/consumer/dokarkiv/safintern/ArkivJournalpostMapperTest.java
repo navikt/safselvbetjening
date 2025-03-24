@@ -1,5 +1,6 @@
 package no.nav.safselvbetjening.consumer.dokarkiv.safintern;
 
+import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentvariant;
@@ -17,9 +18,14 @@ import no.nav.safselvbetjening.tilgang.TilgangVariant;
 import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static java.lang.Integer.parseInt;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper.FAGSYSTEM_PENSJON;
@@ -59,6 +65,7 @@ import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpo
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.inngaaendeArkivJournalpost;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.inngaaendeArkivJournalpostMedHulleteData;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.pensjonArkivJournalpost;
+import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.sortertDatoArkivJournalpost;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.utgaaendeArkivJournalpost;
 import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
@@ -74,6 +81,7 @@ import static no.nav.safselvbetjening.domain.Journalstatus.EKSPEDERT;
 import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;
 import static no.nav.safselvbetjening.domain.Kanal.NAV_NO;
 import static no.nav.safselvbetjening.domain.Kanal.SDP;
+import static no.nav.safselvbetjening.domain.RelevantDato.TIDSSONE_NORGE;
 import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
 import static no.nav.safselvbetjening.domain.Tema.HJE;
 import static no.nav.safselvbetjening.domain.Variantformat.ARKIV;
@@ -256,6 +264,31 @@ class ArkivJournalpostMapperTest {
 		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
 		assertThat(tilgangSak.isFeilregistrert()).isTrue();
 	}
+
+	@ParameterizedTest
+	@MethodSource("sorteringsdatoData")
+	void skalMappeSorteringsdato(JournalpostTypeCode journalpostTypeCode, LocalDateTime sortertDato, ArkivRelevanteDatoer jornalpostensDatoer) {
+		Journalpost journalpost = mapper.map(sortertDatoArkivJournalpost(journalpostTypeCode, jornalpostensDatoer), createBrukerIdenter(), Optional.empty());
+
+		assertThat(journalpost.getSorteringsDato()).isEqualTo(sortertDato);
+	}
+
+	private static Stream<Arguments> sorteringsdatoData() {
+		ArkivRelevanteDatoer alleDatoer = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, ARKIVJOURNALPOST_DATO_EKSPEDERT, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, ARKIVJOURNALPOST_DATO_SENDT_PRINT);
+		ArkivRelevanteDatoer utenEkspedert = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, null, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, ARKIVJOURNALPOST_DATO_SENDT_PRINT);
+		ArkivRelevanteDatoer utenEkspedertOgSendtPrint = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, null, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, null);
+		ArkivRelevanteDatoer utenEkspedertSendtPrintOgJournalfoert = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, null, null, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, null);
+
+		return Stream.of(
+				Arguments.of(JournalpostTypeCode.I, ARKIVJOURNALPOST_DATO_MOTTATT.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime(), alleDatoer),
+				Arguments.of(JournalpostTypeCode.N, ARKIVJOURNALPOST_DATO_JOURNALFOERT.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime(), alleDatoer),
+				Arguments.of(JournalpostTypeCode.U, ARKIVJOURNALPOST_DATO_EKSPEDERT.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime(), alleDatoer),
+				Arguments.of(JournalpostTypeCode.U, ARKIVJOURNALPOST_DATO_SENDT_PRINT.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime(), utenEkspedert),
+				Arguments.of(JournalpostTypeCode.U, ARKIVJOURNALPOST_DATO_JOURNALFOERT.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime(), utenEkspedertOgSendtPrint),
+				Arguments.of(JournalpostTypeCode.U, ARKIVJOURNALPOST_DATO_DOKUMENT.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime(), utenEkspedertSendtPrintOgJournalfoert)
+		);
+	}
+
 
 	private static void assertHoveddokument(DokumentInfo hoveddokument, Journalpost journalpost) {
 		assertThat(hoveddokument.getDokumentInfoId()).isEqualTo(String.valueOf(HOVEDDOKUMENT_DOKUMENT_INFO_ID));
