@@ -25,6 +25,8 @@ import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +40,7 @@ import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.domain.DomainConstants.DOKUMENT_TILGANG_STATUS_OK;
 import static no.nav.safselvbetjening.domain.Kanal.INGEN_DISTRIBUSJON;
 import static no.nav.safselvbetjening.domain.Kanal.UKJENT;
+import static no.nav.safselvbetjening.domain.RelevantDato.TIDSSONE_NORGE;
 import static no.nav.safselvbetjening.domain.Sakstype.FAGSAK;
 import static no.nav.safselvbetjening.domain.Sakstype.fromApplikasjon;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -86,6 +89,7 @@ public class ArkivJournalpostMapper {
 				.sak(mapSak(arkivJournalpost.saksrelasjon()))
 				.avsender(Journalposttype.I == journalposttype ? avsenderMottaker : null)
 				.mottaker(Journalposttype.U == journalposttype ? avsenderMottaker : null)
+				.sorteringsDato(mapSorteringsDato(arkivJournalpost))
 				.relevanteDatoer(mapRelevanteDatoer(arkivJournalpost))
 				.dokumenter(mapDokumenter(arkivJournalpost.dokumenter(), dokumentTilganger))
 				.tilgang(tilgang)
@@ -188,6 +192,41 @@ public class ArkivJournalpostMapper {
 				return relevanteDatoer;
 		}
 		return relevanteDatoer;
+	}
+
+	private static LocalDateTime mapSorteringsDato(ArkivJournalpost arkivJournalpost) {
+		ArkivRelevanteDatoer relevanteDatoer = arkivJournalpost.relevanteDatoer();
+		OffsetDateTime valgtDato = switch (arkivJournalpost.type()) {
+			case "I" -> {
+				if (relevanteDatoer.forsendelseMottatt() != null) {
+					yield relevanteDatoer.forsendelseMottatt();
+				}
+				yield relevanteDatoer.opprettet();
+			}
+			case "N" -> {
+				if (relevanteDatoer.journalfoert() != null) {
+					yield relevanteDatoer.journalfoert();
+				}
+				yield relevanteDatoer.opprettet();
+			}
+			case "U" -> {
+				if (relevanteDatoer.ekspedert() != null) {
+					yield relevanteDatoer.ekspedert();
+				}
+				if (relevanteDatoer.sendtPrint() != null) {
+					yield relevanteDatoer.sendtPrint();
+				}
+				if (relevanteDatoer.journalfoert() != null) {
+					yield relevanteDatoer.journalfoert();
+				}
+				if (relevanteDatoer.hoveddokument() != null) {
+					yield relevanteDatoer.hoveddokument();
+				}
+				yield relevanteDatoer.opprettet();
+			}
+			default -> relevanteDatoer.opprettet();
+		};
+		return valgtDato.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime();
 	}
 
 	private List<DokumentInfo> mapDokumenter(List<ArkivDokumentinfo> arkivDokumentinfos, Map<Long, Map<TilgangVariantFormat, List<TilgangDenyReason>>> dokumentTilganger) {
