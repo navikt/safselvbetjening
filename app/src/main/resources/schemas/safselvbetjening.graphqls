@@ -92,7 +92,7 @@ type Journalpost {
     eksternReferanseId: String
 
     # Brukes for sortering av journalposter og for å få riktig rekkefølge på dokumenter.
-    sorteringsDato: DateTime
+    sorteringsDato: DateTime!
 
     # Liste over datoer som kan være relevante for denne journalposten, f.eks. DATO_EKSPEDERT. Hvilke relevante datoer som returneres, avhenger av journalposttypen.
     relevanteDatoer: [RelevantDato]!

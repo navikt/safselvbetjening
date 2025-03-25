@@ -195,39 +195,35 @@ public class ArkivJournalpostMapper {
 	}
 
 	private static LocalDateTime mapSorteringsDato(ArkivJournalpost arkivJournalpost) {
-		OffsetDateTime valgtDato = velgSorteringsDato(arkivJournalpost);
-		if (valgtDato != null) {
-			return valgtDato.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime();
-		}
-		return null;
-	}
-
-	private static OffsetDateTime velgSorteringsDato(ArkivJournalpost arkivJournalpost) {
-		var relevanteDatoer = arkivJournalpost.relevanteDatoer();
-		switch (JournalpostTypeCode.valueOf(arkivJournalpost.type())) {
-			case I:
+		ArkivRelevanteDatoer relevanteDatoer = arkivJournalpost.relevanteDatoer();
+		OffsetDateTime valgtDato = switch (arkivJournalpost.type()) {
+			case "I" -> {
 				if (relevanteDatoer.forsendelseMottatt() != null) {
-					return relevanteDatoer.forsendelseMottatt();
+					yield relevanteDatoer.forsendelseMottatt();
 				}
-				break;
-			case N:
+				yield relevanteDatoer.opprettet();
+			}
+			case "N" -> {
 				if (relevanteDatoer.journalfoert() != null) {
-					return relevanteDatoer.journalfoert();
+					yield relevanteDatoer.journalfoert();
 				}
-				break;
-			case U:
+				yield relevanteDatoer.opprettet();
+			}
+			case "U" -> {
 				if (relevanteDatoer.ekspedert() != null) {
-					return relevanteDatoer.ekspedert();
+					yield relevanteDatoer.ekspedert();
 				}
 				if (relevanteDatoer.sendtPrint() != null) {
-					return relevanteDatoer.sendtPrint();
+					yield relevanteDatoer.sendtPrint();
 				}
 				if (relevanteDatoer.journalfoert() != null) {
-					return relevanteDatoer.journalfoert();
+					yield relevanteDatoer.journalfoert();
 				}
-				return relevanteDatoer.hoveddokument();
-		}
-		return null;
+				yield relevanteDatoer.hoveddokument();
+			}
+			default -> relevanteDatoer.opprettet();
+		};
+		return valgtDato.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime();
 	}
 
 	private List<DokumentInfo> mapDokumenter(List<ArkivDokumentinfo> arkivDokumentinfos, Map<Long, Map<TilgangVariantFormat, List<TilgangDenyReason>>> dokumentTilganger) {
