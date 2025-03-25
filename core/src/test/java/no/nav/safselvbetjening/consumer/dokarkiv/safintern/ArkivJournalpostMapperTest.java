@@ -281,7 +281,7 @@ class ArkivJournalpostMapperTest {
 		ArkivRelevanteDatoer utenEkspedert = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, null, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, ARKIVJOURNALPOST_DATO_SENDT_PRINT);
 		ArkivRelevanteDatoer utenEkspedertOgSendtPrint = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, null, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, null);
 		ArkivRelevanteDatoer utenEkspedertSendtPrintOgJournalfoert = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, null, null, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, null);
-		ArkivRelevanteDatoer bareDatoOpprettet = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, null, null, null, null,null, null);
+		ArkivRelevanteDatoer bareDatoOpprettet = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, null, null, null, null, null, null);
 
 		return Stream.of(
 				Arguments.of(ARKIVJOURNALPOST_DATO_MOTTATT, JournalpostTypeCode.I, alleDatoer),
