@@ -219,7 +219,10 @@ public class ArkivJournalpostMapper {
 				if (relevanteDatoer.journalfoert() != null) {
 					yield relevanteDatoer.journalfoert();
 				}
-				yield relevanteDatoer.hoveddokument();
+				if (relevanteDatoer.hoveddokument() != null) {
+					yield relevanteDatoer.hoveddokument();
+				}
+				yield relevanteDatoer.opprettet();
 			}
 			default -> relevanteDatoer.opprettet();
 		};

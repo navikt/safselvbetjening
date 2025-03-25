@@ -23,6 +23,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -267,25 +268,31 @@ class ArkivJournalpostMapperTest {
 
 	@ParameterizedTest
 	@MethodSource("sorteringsdatoData")
-	void skalMappeSorteringsdato(JournalpostTypeCode journalpostTypeCode, LocalDateTime sortertDato, ArkivRelevanteDatoer jornalpostensDatoer) {
+	void skalMappeSorteringsdato(OffsetDateTime onsketSorteringsDato, JournalpostTypeCode journalpostTypeCode, ArkivRelevanteDatoer jornalpostensDatoer) {
 		Journalpost journalpost = mapper.map(sortertDatoArkivJournalpost(journalpostTypeCode, jornalpostensDatoer), createBrukerIdenter(), Optional.empty());
+		LocalDateTime sorteringsDato = onsketSorteringsDato.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime();
 
-		assertThat(journalpost.getSorteringsDato()).isEqualTo(sortertDato);
+		assertThat(journalpost.getSorteringsDato()).isEqualTo(sorteringsDato);
 	}
 
 	private static Stream<Arguments> sorteringsdatoData() {
 		ArkivRelevanteDatoer alleDatoer = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, ARKIVJOURNALPOST_DATO_EKSPEDERT, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, ARKIVJOURNALPOST_DATO_SENDT_PRINT);
+		ArkivRelevanteDatoer utenForsendelseMottatt = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, ARKIVJOURNALPOST_DATO_EKSPEDERT, null, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, ARKIVJOURNALPOST_DATO_SENDT_PRINT);
 		ArkivRelevanteDatoer utenEkspedert = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, null, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, ARKIVJOURNALPOST_DATO_SENDT_PRINT);
 		ArkivRelevanteDatoer utenEkspedertOgSendtPrint = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, null, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, null);
 		ArkivRelevanteDatoer utenEkspedertSendtPrintOgJournalfoert = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, null, null, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, null);
+		ArkivRelevanteDatoer bareDatoOpprettet = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, null, null, null, null,null, null);
 
 		return Stream.of(
-				Arguments.of(JournalpostTypeCode.I, ARKIVJOURNALPOST_DATO_MOTTATT.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime(), alleDatoer),
-				Arguments.of(JournalpostTypeCode.N, ARKIVJOURNALPOST_DATO_JOURNALFOERT.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime(), alleDatoer),
-				Arguments.of(JournalpostTypeCode.U, ARKIVJOURNALPOST_DATO_EKSPEDERT.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime(), alleDatoer),
-				Arguments.of(JournalpostTypeCode.U, ARKIVJOURNALPOST_DATO_SENDT_PRINT.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime(), utenEkspedert),
-				Arguments.of(JournalpostTypeCode.U, ARKIVJOURNALPOST_DATO_JOURNALFOERT.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime(), utenEkspedertOgSendtPrint),
-				Arguments.of(JournalpostTypeCode.U, ARKIVJOURNALPOST_DATO_DOKUMENT.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime(), utenEkspedertSendtPrintOgJournalfoert)
+				Arguments.of(ARKIVJOURNALPOST_DATO_MOTTATT, JournalpostTypeCode.I, alleDatoer),
+				Arguments.of(ARKIVJOURNALPOST_DATO_OPPRETTET, JournalpostTypeCode.I, utenForsendelseMottatt),
+				Arguments.of(ARKIVJOURNALPOST_DATO_JOURNALFOERT, JournalpostTypeCode.N, alleDatoer),
+				Arguments.of(ARKIVJOURNALPOST_DATO_OPPRETTET, JournalpostTypeCode.N, utenEkspedertSendtPrintOgJournalfoert),
+				Arguments.of(ARKIVJOURNALPOST_DATO_EKSPEDERT, JournalpostTypeCode.U, alleDatoer),
+				Arguments.of(ARKIVJOURNALPOST_DATO_SENDT_PRINT, JournalpostTypeCode.U, utenEkspedert),
+				Arguments.of(ARKIVJOURNALPOST_DATO_JOURNALFOERT, JournalpostTypeCode.U, utenEkspedertOgSendtPrint),
+				Arguments.of(ARKIVJOURNALPOST_DATO_DOKUMENT, JournalpostTypeCode.U, utenEkspedertSendtPrintOgJournalfoert),
+				Arguments.of(ARKIVJOURNALPOST_DATO_OPPRETTET, JournalpostTypeCode.U, bareDatoOpprettet)
 		);
 	}
 
