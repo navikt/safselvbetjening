@@ -24,7 +24,7 @@ public class Journalpost {
 	AvsenderMottaker mottaker;
 	Kanal kanal;
 	String eksternReferanseId;
-	LocalDateTime sorteringsDato;
+	LocalDateTime datoSortering;
 	@Builder.Default
 	List<RelevantDato> relevanteDatoer = new ArrayList<>();
 	@Builder.Default
