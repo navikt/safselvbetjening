@@ -89,7 +89,7 @@ public class ArkivJournalpostMapper {
 				.sak(mapSak(arkivJournalpost.saksrelasjon()))
 				.avsender(Journalposttype.I == journalposttype ? avsenderMottaker : null)
 				.mottaker(Journalposttype.U == journalposttype ? avsenderMottaker : null)
-				.sorteringsDato(mapSorteringsDato(arkivJournalpost))
+				.datoSortering(mapDatoSortering(arkivJournalpost))
 				.relevanteDatoer(mapRelevanteDatoer(arkivJournalpost))
 				.dokumenter(mapDokumenter(arkivJournalpost.dokumenter(), dokumentTilganger))
 				.tilgang(tilgang)
@@ -194,7 +194,7 @@ public class ArkivJournalpostMapper {
 		return relevanteDatoer;
 	}
 
-	private static LocalDateTime mapSorteringsDato(ArkivJournalpost arkivJournalpost) {
+	private static LocalDateTime mapDatoSortering(ArkivJournalpost arkivJournalpost) {
 		ArkivRelevanteDatoer relevanteDatoer = arkivJournalpost.relevanteDatoer();
 		OffsetDateTime valgtDato = switch (arkivJournalpost.type()) {
 			case "I" -> {

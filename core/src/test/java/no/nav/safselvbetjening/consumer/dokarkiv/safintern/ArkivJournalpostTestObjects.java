@@ -142,7 +142,7 @@ final class ArkivJournalpostTestObjects {
 				.build();
 	}
 
-	static ArkivJournalpost sortertDatoArkivJournalpost(JournalpostTypeCode journalpostTypeCode, ArkivRelevanteDatoer arkivRelevanteDatoer) {
+	static ArkivJournalpost datoSorteringArkivJournalpost(JournalpostTypeCode journalpostTypeCode, ArkivRelevanteDatoer arkivRelevanteDatoer) {
 		return baseArkivJournalpost()
 				.type(journalpostTypeCode.name())
 				.relevanteDatoer(arkivRelevanteDatoer)

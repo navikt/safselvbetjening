@@ -66,7 +66,7 @@ import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpo
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.inngaaendeArkivJournalpost;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.inngaaendeArkivJournalpostMedHulleteData;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.pensjonArkivJournalpost;
-import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.sortertDatoArkivJournalpost;
+import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.datoSorteringArkivJournalpost;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.utgaaendeArkivJournalpost;
 import static no.nav.safselvbetjening.domain.AvsenderMottakerIdType.FNR;
 import static no.nav.safselvbetjening.domain.Datotype.DATO_AVS_RETUR;
@@ -267,15 +267,15 @@ class ArkivJournalpostMapperTest {
 	}
 
 	@ParameterizedTest
-	@MethodSource("sorteringsdatoData")
-	void skalMappeSorteringsdato(OffsetDateTime onsketSorteringsDato, JournalpostTypeCode journalpostTypeCode, ArkivRelevanteDatoer jornalpostensDatoer) {
-		Journalpost journalpost = mapper.map(sortertDatoArkivJournalpost(journalpostTypeCode, jornalpostensDatoer), createBrukerIdenter(), Optional.empty());
-		LocalDateTime sorteringsDato = onsketSorteringsDato.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime();
+	@MethodSource("datoSorteringData")
+	void skalMappeDatoSortering(OffsetDateTime onsketDatoSortering, JournalpostTypeCode journalpostTypeCode, ArkivRelevanteDatoer jornalpostensDatoer) {
+		Journalpost journalpost = mapper.map(datoSorteringArkivJournalpost(journalpostTypeCode, jornalpostensDatoer), createBrukerIdenter(), Optional.empty());
+		LocalDateTime datoSortering = onsketDatoSortering.atZoneSameInstant(TIDSSONE_NORGE).toLocalDateTime();
 
-		assertThat(journalpost.getSorteringsDato()).isEqualTo(sorteringsDato);
+		assertThat(journalpost.getDatoSortering()).isEqualTo(datoSortering);
 	}
 
-	private static Stream<Arguments> sorteringsdatoData() {
+	private static Stream<Arguments> datoSorteringData() {
 		ArkivRelevanteDatoer alleDatoer = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, ARKIVJOURNALPOST_DATO_EKSPEDERT, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, ARKIVJOURNALPOST_DATO_SENDT_PRINT);
 		ArkivRelevanteDatoer utenForsendelseMottatt = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, ARKIVJOURNALPOST_DATO_EKSPEDERT, null, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, ARKIVJOURNALPOST_DATO_SENDT_PRINT);
 		ArkivRelevanteDatoer utenEkspedert = new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, null, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, ARKIVJOURNALPOST_DATO_SENDT_PRINT);
