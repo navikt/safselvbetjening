@@ -61,7 +61,7 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.MOTTATT);
 		assertThat(tilgang.getTema()).isEqualTo(PEN.name());
 		assertThat(tilgang.getSkjerming().erSkjermet).isTrue();
-		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
+		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK);
 		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Ident.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
@@ -99,7 +99,7 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.FERDIGSTILT);
 		assertThat(tilgang.getTema()).isEqualTo(PEN.name());
 		assertThat(tilgang.getSkjerming().erSkjermet).isTrue();
-		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
+		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK);
 		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Ident.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());
@@ -134,7 +134,7 @@ class HentDokumentTilgangMapperTest {
 		assertThat(tilgang.getJournalstatus()).isEqualTo(TilgangJournalstatus.MOTTATT);
 		assertThat(tilgang.getTema()).isEqualTo(PEN.name());
 		assertThat(tilgang.getSkjerming().erSkjermet).isTrue();
-		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING);
+		assertThat(tilgang.getMottakskanal()).isEqualTo(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK);
 		assertThat(tilgang.getAvsenderMottakerId()).isEqualTo(Ident.of(AVSENDER_MOTTAKER_ID));
 		assertThat(tilgang.getInnsyn()).isEqualTo(BRUK_STANDARDREGLER);
 		assertThat(tilgang.getDatoOpprettet()).isEqualTo(DATO_OPPRETTET.toLocalDateTime());

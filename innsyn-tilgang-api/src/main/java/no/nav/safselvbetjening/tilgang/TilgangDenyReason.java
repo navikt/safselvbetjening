@@ -14,6 +14,7 @@ public enum TilgangDenyReason {
 	DENY_REASON_NOTAT("notat"),
 	DENY_REASON_SKJULT_INNSYN("skjult_innsyn"),
 	DENY_REASON_SKANNET_DOKUMENT("skannet_dokument"),
+	DENY_REASON_TEKNISK_DOKUMENT("teknisk_dokument"),
 	DENY_REASON_UGYLDIG_VARIANTFORMAT("ugyldig_variantformat"),
 	DENY_REASON_KASSERT("kassert_dokument");
 

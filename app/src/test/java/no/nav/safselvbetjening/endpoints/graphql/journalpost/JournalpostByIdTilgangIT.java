@@ -14,6 +14,7 @@ import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_KASSERT;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_POL_GDPR;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKANNET_DOKUMENT;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_TEKNISK_DOKUMENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -325,6 +326,60 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 				.getJournalpostById().getDokumenter().stream()
 				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
 				.flatExtracting("code").containsExactly(DENY_REASON_SKANNET_DOKUMENT.reason, DENY_REASON_SKANNET_DOKUMENT.reason);
+	}
+
+	/**
+	 * Tilgangsregel: 2c
+	 * Nav mottar dokumenter fra tekniske kanaler. De har som oftest en annen part enn bruker som mottaker.
+	 * Noen ganger skjer det feil og bruker settes som mottaker. Denne regelen hindrer at brukerne får se disse dokumentene.
+	 * Disse har da journalposttype inngående og en teknisk mottakskanal.
+	 * Hvis dokumentet er mottatt fra en teknisk kanal så skal det returneres en Forbidden feil
+	 */
+	@Test
+	void skalGiBrukerHarTilgangFalseHvisMottakskanalTeknisk() {
+		stubDokarkivJournalpost("2c-journalpost-teknisk-mottakskanal-forbidden.json");
+		stubPdlGenerell();
+
+		ResponseEntity<GraphQLResponse> response = queryJournalpostById();
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getData()
+				.getJournalpostById().getDokumenter().stream()
+				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
+				.extracting("brukerHarTilgang").containsExactly(false, false);
+		assertThat(graphQLResponse.getData()
+				.getJournalpostById().getDokumenter().stream()
+				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
+				.flatExtracting("code").containsExactly(DENY_REASON_TEKNISK_DOKUMENT.reason, DENY_REASON_TEKNISK_DOKUMENT.reason);
+	}
+
+	/**
+	 * Tilgangsregel: 2c
+	 * Nav sender dokumenter til tekniske kanaler. De har som oftest en annen part enn bruker som mottaker.
+	 * Noen ganger skjer det feil og bruker settes som avsender. Denne regelen hindrer at brukerne får se disse dokumentene.
+	 * Disse har da journalposttype utgående og en teknisk utsendingskanal.
+	 * Hvis dokumentet er sendt til en teknisk kanal så skal det returneres en Forbidden feil
+	 */
+	@Test
+	void skalGiBrukerHarTilgangFalseHvisUtsendingskanalTeknisk() {
+		stubDokarkivJournalpost("2c-journalpost-teknisk-utsendingskanal-forbidden.json");
+		stubPdlGenerell();
+
+		ResponseEntity<GraphQLResponse> response = queryJournalpostById();
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		assertThat(graphQLResponse.getData()
+				.getJournalpostById().getDokumenter().stream()
+				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
+				.extracting("brukerHarTilgang").containsExactly(false, false);
+		assertThat(graphQLResponse.getData()
+				.getJournalpostById().getDokumenter().stream()
+				.flatMap(dokumentInfo -> dokumentInfo.getDokumentvarianter().stream()))
+				.flatExtracting("code").containsExactly(DENY_REASON_TEKNISK_DOKUMENT.reason, DENY_REASON_TEKNISK_DOKUMENT.reason);
 	}
 
 	/**
