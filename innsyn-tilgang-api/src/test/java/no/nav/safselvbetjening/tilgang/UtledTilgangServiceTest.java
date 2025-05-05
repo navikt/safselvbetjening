@@ -646,11 +646,11 @@ class UtledTilgangServiceTest {
 		return utledTilgangService.isTekniskDokumentKanal(journalpost);
 	}
 
-	private boolean isTekniskUtsendingskanal(String kanal) {
+	private boolean isTekniskUtsendingskanal(String utsendingskanal) {
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
 				.innsyn(BRUK_STANDARDREGLER)
 				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
-				.utsendingskanal(TilgangUtsendingskanal.from(kanal))
+				.utsendingskanal(TilgangUtsendingskanal.from(utsendingskanal))
 				.datoOpprettet(LocalDateTime.now())
 				.build();
 		return utledTilgangService.isTekniskDokumentKanal(journalpost);
