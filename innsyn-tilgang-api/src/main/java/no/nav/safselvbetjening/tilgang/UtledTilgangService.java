@@ -101,7 +101,7 @@ public class UtledTilgangService {
 		if (isSkannetDokumentAndInnsynIsNotVises(journalpost)) {
 			feilmeldinger.add(DENY_REASON_SKANNET_DOKUMENT);
 		}
-		if(isTekniskDokumentKanal(journalpost)) {
+		if (isTekniskDokumentKanal(journalpost)) {
 			feilmeldinger.add(DENY_REASON_TEKNISK_DOKUMENT);
 		}
 		if (isDokumentGDPRRestricted(dokumentInfo)) {
@@ -151,7 +151,7 @@ public class UtledTilgangService {
 	 * de har tema PEN eller UFO.
 	 */
 	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(TilgangJournalpost journalpost) {
-		if(mma7514) {
+		if (mma7514) {
 			if (journalpost.getTema() != null && GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING.contains(journalpost.getTema())) {
 				return false;
 			}
