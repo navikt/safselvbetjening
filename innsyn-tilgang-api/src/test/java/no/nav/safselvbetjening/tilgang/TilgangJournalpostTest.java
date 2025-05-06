@@ -15,7 +15,8 @@ class TilgangJournalpostTest {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.tema("AAP")
 				.tilgangSak(TilgangSak.builder()
 						.tema("DAG")
@@ -29,7 +30,8 @@ class TilgangJournalpostTest {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.tema("AAP")
 				.tilgangSak(null)
 				.build();
@@ -41,7 +43,8 @@ class TilgangJournalpostTest {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.tema("AAP")
 				.tilgangSak(TilgangSak.builder()
 						.tema(null)
@@ -54,7 +57,8 @@ class TilgangJournalpostTest {
 	void shouldReturnFalseForInnsynSkjulesWhenStandardregler() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.innsyn(BRUK_STANDARDREGLER)
 				.build();
 		assertThat(tilgangJournalpost.innsynSkjules()).isFalse();
@@ -64,7 +68,8 @@ class TilgangJournalpostTest {
 	void shouldReturnFalseForInnsynVisesWhenStandardregler() {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.innsyn(BRUK_STANDARDREGLER)
 				.build();
 		assertThat(tilgangJournalpost.innsynVises()).isFalse();
@@ -77,7 +82,8 @@ class TilgangJournalpostTest {
 	void shouldReturnTrueForInnsynSkjulesWhenSkjules(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.innsyn(innsyn)
 				.build();
 		assertThat(tilgangJournalpost.innsynSkjules()).isTrue();
@@ -90,7 +96,8 @@ class TilgangJournalpostTest {
 	void shouldReturnFalseForInnsynSkjulesWhenVises(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.innsyn(innsyn)
 				.build();
 		assertThat(tilgangJournalpost.innsynVises()).isFalse();
@@ -101,7 +108,8 @@ class TilgangJournalpostTest {
 	void shouldReturnTrueForInnsynVisesWhenVises(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.innsyn(innsyn)
 				.build();
 		assertThat(tilgangJournalpost.innsynVises()).isTrue();
@@ -112,7 +120,8 @@ class TilgangJournalpostTest {
 	void shouldReturnFalseForInnsynVisesWhenSkjules(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING)
+				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.innsyn(innsyn)
 				.build();
 		assertThat(tilgangJournalpost.innsynSkjules()).isFalse();

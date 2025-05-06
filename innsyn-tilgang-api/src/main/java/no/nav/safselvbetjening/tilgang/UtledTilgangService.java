@@ -15,6 +15,7 @@ import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_NOTA
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_POL_GDPR;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKANNET_DOKUMENT;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKJULT_INNSYN;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_TEKNISK_DOKUMENT;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_TEMAER_UNNTATT_INNSYN;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_UGYLDIG_JOURNALSTATUS;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_UGYLDIG_VARIANTFORMAT;
@@ -100,6 +101,9 @@ public class UtledTilgangService {
 		if (isSkannetDokumentAndInnsynIsNotVises(journalpost)) {
 			feilmeldinger.add(DENY_REASON_SKANNET_DOKUMENT);
 		}
+		if (isTekniskDokumentKanal(journalpost)) {
+			feilmeldinger.add(DENY_REASON_TEKNISK_DOKUMENT);
+		}
 		if (isDokumentGDPRRestricted(dokumentInfo)) {
 			feilmeldinger.add(DENY_REASON_POL_GDPR);
 		}
@@ -147,7 +151,7 @@ public class UtledTilgangService {
 	 * de har tema PEN eller UFO.
 	 */
 	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(TilgangJournalpost journalpost) {
-		if(mma7514) {
+		if (mma7514) {
 			if (journalpost.getTema() != null && GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING.contains(journalpost.getTema())) {
 				return false;
 			}
@@ -252,6 +256,14 @@ public class UtledTilgangService {
 	 */
 	boolean isSkannetDokumentAndInnsynIsNotVises(TilgangJournalpost tilgangJournalpost) {
 		return tilgangJournalpost.getMottakskanal() == TilgangMottakskanal.SKANNING && !tilgangJournalpost.innsynVises();
+	}
+
+	/**
+	 * 2c) Pålogget bruker får ikke se dokumenter som er sendt til eller mottatt fra tekniske kanaler.
+	 */
+	boolean isTekniskDokumentKanal(TilgangJournalpost tilgangJournalpost) {
+		return tilgangJournalpost.getMottakskanal() == TilgangMottakskanal.TEKNISK ||
+			   tilgangJournalpost.getUtsendingskanal() == TilgangUtsendingskanal.TEKNISK;
 	}
 
 	/**

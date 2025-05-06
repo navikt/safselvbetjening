@@ -12,6 +12,7 @@ import no.nav.safselvbetjening.tilgang.TilgangJournalstatus;
 import no.nav.safselvbetjening.tilgang.TilgangMottakskanal;
 import no.nav.safselvbetjening.tilgang.TilgangSak;
 import no.nav.safselvbetjening.tilgang.TilgangSkjermingType;
+import no.nav.safselvbetjening.tilgang.TilgangUtsendingskanal;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,6 +48,7 @@ public record ArkivJournalpost(Long journalpostId,
 				.journalstatus(TilgangJournalstatus.from(status))
 				.journalposttype(TilgangJournalposttype.from(type))
 				.mottakskanal(TilgangMottakskanal.from(mottakskanal))
+				.utsendingskanal(TilgangUtsendingskanal.from(utsendingskanal))
 				.tema(fagomraade)
 				.avsenderMottakerId(mapAvsenderMottakerId())
 				.datoOpprettet(relevanteDatoer == null ? LocalDateTime.MIN : relevanteDatoer.opprettet().toLocalDateTime())

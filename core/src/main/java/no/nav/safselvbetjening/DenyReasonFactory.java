@@ -18,6 +18,7 @@ public class DenyReasonFactory {
 	public static final String FEILMELDING_FORVALTNINGSNOTAT = "fordi journalposten er et notat, men hoveddokumentet er ikke et forvaltningsnotat.";
 	public static final String FEILMELDING_SKJULT = "fordi journalposten er skjult.";
 	public static final String FEILMELDING_SKANNET = "fordi dokumentet er skannet.";
+	public static final String FEILMELDING_TEKNISK_DOKUMENT = "fordi dokumentet er mottatt fra/sendt til en teknisk kanal.";
 	public static final String FEILMELDING_KASSERT = "fordi dokumentet er kassert.";
 	public static final String FEILMELDING_UGYLDIG_VARIANT = "Variantformat må være enten SLADDET eller ARKIV.";
 
@@ -45,6 +46,7 @@ public class DenyReasonFactory {
 			case DENY_REASON_NOTAT -> FEILMELDING_FORVALTNINGSNOTAT;
 			case DENY_REASON_SKJULT_INNSYN -> FEILMELDING_SKJULT;
 			case DENY_REASON_SKANNET_DOKUMENT -> FEILMELDING_SKANNET;
+			case DENY_REASON_TEKNISK_DOKUMENT -> FEILMELDING_TEKNISK_DOKUMENT;
 			case DENY_REASON_UGYLDIG_VARIANTFORMAT -> FEILMELDING_UGYLDIG_VARIANT;
 			case DENY_REASON_KASSERT -> FEILMELDING_KASSERT;
 		};

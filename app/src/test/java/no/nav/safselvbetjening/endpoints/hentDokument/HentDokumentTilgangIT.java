@@ -11,6 +11,7 @@ import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_INNSYNSDATO;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_KASSERT;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_SKANNET;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_SKJULT;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_TEKNISK_DOKUMENT;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_TEMAER_UNNTATT_INNSYN;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
@@ -21,6 +22,7 @@ import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_KASS
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_POL_GDPR;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKANNET_DOKUMENT;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_SKJULT_INNSYN;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_TEKNISK_DOKUMENT;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_TEMAER_UNNTATT_INNSYN;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -267,6 +269,44 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_SKANNET_DOKUMENT.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_SKANNET);
+	}
+
+	/**
+	 * Tilgangsregel: 2c
+	 * Nav mottar dokumenter fra tekniske kanaler. De har som oftest en annen part enn bruker som mottaker.
+	 * Noen ganger skjer det feil og bruker settes som mottaker. Denne regelen hindrer at brukerne får se disse dokumentene.
+	 * Disse har da journalposttype inngående og en teknisk mottakskanal.
+	 * Hvis dokumentet er mottatt fra en teknisk kanal så skal det returneres en Forbidden feil
+	 */
+	@Test
+	void skalGiForbiddenHvisMottakskanalTeknisk() {
+		stubDokarkivJournalpost("2c-hentdokument-teknisk-mottakskanal-forbidden.json");
+		stubPdlGenerell();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_TEKNISK_DOKUMENT.reason));
+		assertThat(responseEntity.getBody()).contains(FEILMELDING_TEKNISK_DOKUMENT);
+	}
+
+	/**
+	 * Tilgangsregel: 2c
+	 * Nav sender dokumenter til tekniske kanaler. De har som oftest en annen part enn bruker som mottaker.
+	 * Noen ganger skjer det feil og bruker settes som avsender. Denne regelen hindrer at brukerne får se disse dokumentene.
+	 * Disse har da journalposttype utgående og en teknisk utsendingskanal.
+	 * Hvis dokumentet er sendt til en teknisk kanal så skal det returneres en Forbidden feil
+	 */
+	@Test
+	void skalGiForbiddenHvisUtsendingskanalTeknisk() {
+		stubDokarkivJournalpost("2c-hentdokument-teknisk-utsendingskanal-forbidden.json");
+		stubPdlGenerell();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_TEKNISK_DOKUMENT.reason));
+		assertThat(responseEntity.getBody()).contains(FEILMELDING_TEKNISK_DOKUMENT);
 	}
 
 	/**

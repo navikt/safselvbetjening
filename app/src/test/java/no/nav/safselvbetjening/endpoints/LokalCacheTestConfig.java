@@ -27,9 +27,11 @@ public class LokalCacheTestConfig {
 		manager.setCaches(List.of(
 				new CaffeineCache(GRAPHQL_QUERY_CACHE, Caffeine.newBuilder()
 						.maximumSize(10)
+						.recordStats()
 						.build()),
 				new CaffeineCache(TOKENDINGS_CACHE, Caffeine.newBuilder()
 						.maximumSize(500)
+						.recordStats()
 						.expireAfter(new Expiry<>() {
 							@Override
 							public long expireAfterCreate(Object key, Object value, long currentTime) {

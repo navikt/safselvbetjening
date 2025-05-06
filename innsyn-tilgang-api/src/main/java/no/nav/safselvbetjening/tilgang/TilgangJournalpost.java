@@ -31,6 +31,8 @@ public class TilgangJournalpost {
 	String tema;
 	@NonNull
 	TilgangMottakskanal mottakskanal;
+	@NonNull
+	TilgangUtsendingskanal utsendingskanal;
 	@ToString.Exclude
 	Ident avsenderMottakerId;
 	TilgangSkjermingType skjerming;

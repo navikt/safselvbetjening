@@ -19,8 +19,9 @@ import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.VISES_MASKINELT_GODK
 import static no.nav.safselvbetjening.tilgang.TilgangJournalposttype.ANNEN;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalposttype.NOTAT;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT;
-import static no.nav.safselvbetjening.tilgang.TilgangMottakskanal.IKKE_SKANNING;
+import static no.nav.safselvbetjening.tilgang.TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK;
 import static no.nav.safselvbetjening.tilgang.TilgangMottakskanal.SKANNING;
+import static no.nav.safselvbetjening.tilgang.TilgangMottakskanal.TEKNISK;
 import static no.nav.safselvbetjening.tilgang.TilgangSkjermingType.INGEN_SKJERMING;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.AKTOER_ID;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.ANNEN_AKTOER_ID;
@@ -143,6 +144,20 @@ class UtledTilgangServiceTest {
 	}
 
 	@Test
+	void shouldReturnDenyTekniskWhenMottakskanalDokumentTeknisk() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).mottakskanal(TEKNISK).build(),
+				tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_TEKNISK_DOKUMENT);
+	}
+
+	@Test
+	void shouldReturnDenyTekniskWhenUtsendingskanalDokumentTeknisk() {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).utsendingskanal(TilgangUtsendingskanal.TEKNISK).build(),
+				tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
+		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_TEKNISK_DOKUMENT);
+	}
+
+	@Test
 	void shouldReturnEmptyListWhenDokumentSkannetAndInnsynVises() {
 		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).mottakskanal(SKANNING).innsyn(VISES_MANUELT_GODKJENT).build(),
 				tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
@@ -255,7 +270,7 @@ class UtledTilgangServiceTest {
 				.datoOpprettet(LocalDateTime.now())
 				.tema(TEMA_PENSJON)
 				.journalfoertDato(LocalDateTime.now())
-				.mottakskanal(IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
 				.tilgangSak(TilgangSak.builder()
 						.feilregistrert(false)
 						.build())
@@ -271,7 +286,8 @@ class UtledTilgangServiceTest {
 		final LocalDateTime journalfoertDato = LocalDateTime.of(2016, 5, 6, 0, 0);
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
 				.datoOpprettet(journalfoertDato)
-				.mottakskanal(IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.journalfoertDato(journalfoertDato)
 				.innsyn(VISES_MANUELT_GODKJENT)
 				.build();
@@ -287,7 +303,8 @@ class UtledTilgangServiceTest {
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
 				.datoOpprettet(journalfoertDato)
 				.journalfoertDato(journalfoertDato)
-				.mottakskanal(IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.innsyn(BRUK_STANDARDREGLER)
 				.build();
 		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
@@ -303,7 +320,8 @@ class UtledTilgangServiceTest {
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(journalfoertDato)
 				.journalfoertDato(journalfoertDato)
-				.mottakskanal(IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.build();
 		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
 		assertThat(actual).isTrue();
@@ -317,7 +335,8 @@ class UtledTilgangServiceTest {
 				.journalfoertDato(LocalDateTime.of(2017, 5, 6, 0, 0))
 				.datoOpprettet(LocalDateTime.of(2015, 5, 6, 0, 0))
 				.innsyn(SKJULES_BRUKERS_ONSKE)
-				.mottakskanal(IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.build();
 		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
 		assertThat(actual).isTrue();
@@ -327,13 +346,14 @@ class UtledTilgangServiceTest {
 	// 	Unntak når tema er PEN eller UFO
 	@ParameterizedTest
 	@ValueSource(strings = {TEMA_PENSJON, TEMA_UFOR})
-	void shouldReturnFalseWhenOpprettetBeforeInnsynsdatoAndTemaIsExceptFromDateRule(String tema){
+	void shouldReturnFalseWhenOpprettetBeforeInnsynsdatoAndTemaIsExceptFromDateRule(String tema) {
 		final LocalDateTime journalfoertDato = LocalDateTime.of(2016, 5, 6, 0, 0);
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(journalfoertDato)
 				.journalfoertDato(journalfoertDato)
-				.mottakskanal(IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.tema(tema)
 				.build();
 		boolean actual = new UtledTilgangService(true).isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
@@ -355,7 +375,8 @@ class UtledTilgangServiceTest {
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.tilgangSak(TilgangSak.builder()
 						.feilregistrert(true)
 						.build())
@@ -377,7 +398,7 @@ class UtledTilgangServiceTest {
 	void shouldReturnFalseWhenMottattAndKontrollsakOrFarskapssak(String tema) {
 		TilgangJournalpost journalpost = baseMottattJournalpost()
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
 				.tema(tema)
 				.build();
 		assertThat(utledTilgangService.isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(journalpost)).isFalse();
@@ -396,7 +417,7 @@ class UtledTilgangServiceTest {
 	void shouldReturnFalseWhenJournalfoertAndSakTemaIkkeInnsynForBruker(String tema) {
 		TilgangJournalpost journalpost = baseJournalfoertJournalpost(tema, SKJULES_BRUKERS_ONSKE)
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
 				.tema(tema)
 				.tilgangSak(TilgangSak.builder()
 						.ident(Ident.of(AKTOER_ID))
@@ -522,6 +543,20 @@ class UtledTilgangServiceTest {
 		assertThat(penSkannetDokument).isFalse();
 	}
 
+	//	2c - Bruker får ikke se dokumenter som er mottatt i tekniske kanaler.
+	@ParameterizedTest
+	@ValueSource(strings = {"ALTINN", "ALTINN_INNBOKS", "EESSI", "EIA", "EKST_OPPS", "HELSENETTET"})
+	void shouldReturnTrueWhenTekniskMottakskanal(String mottakskanal) {
+		assertThat(isTekniskMottakskanal(mottakskanal)).isTrue();
+	}
+
+	//	2c - Bruker får ikke se dokumenter som er sendt fra tekniske kanaler.
+	@ParameterizedTest
+	@ValueSource(strings = {"ALTINN", "EESSI", "EIA", "HELSENETTET", "TRYGDERETTEN"})
+	void shouldReturnTrueWhenTekniskUtsendingskanal(String utsendingskanal) {
+		assertThat(isTekniskUtsendingskanal(utsendingskanal)).isTrue();
+	}
+
 	//	2e - Dokumenter som er begrenset ihht. gdpr
 	@Test
 	void shouldReturnTrueWhenDokumentvariantIsPolSkjermet() {
@@ -564,7 +599,8 @@ class UtledTilgangServiceTest {
 				.tema("KTA")
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.journalstatus(FERDIGSTILT)
 				.tilgangSak(TilgangSak.builder()
 						.tema("KTA")
@@ -579,7 +615,8 @@ class UtledTilgangServiceTest {
 				.tema("DAG")
 				.innsyn(BRUK_STANDARDREGLER)
 				.datoOpprettet(LocalDateTime.now())
-				.mottakskanal(IKKE_SKANNING)
+				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.journalstatus(FERDIGSTILT)
 				.tilgangSak(TilgangSak.builder()
 						.tema("DAG")
@@ -588,14 +625,35 @@ class UtledTilgangServiceTest {
 		assertThat(utledTilgangService.isJournalpostNotUnntattInnsynOrInnsynVistForTemaUnntattInnsyn(tilgangJournalpost)).isTrue();
 	}
 
-	private boolean isSkannetDokument(String kanal, TilgangInnsyn innsyn) {
+	private boolean isSkannetDokument(String mottakskanal, TilgangInnsyn innsyn) {
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
 				.innsyn(BRUK_STANDARDREGLER)
-				.mottakskanal(TilgangMottakskanal.from(kanal))
+				.mottakskanal(TilgangMottakskanal.from(mottakskanal))
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.datoOpprettet(LocalDateTime.now())
 				.innsyn(innsyn)
 				.build();
 		return utledTilgangService.isSkannetDokumentAndInnsynIsNotVises(journalpost);
+	}
+
+	private boolean isTekniskMottakskanal(String mottakskanal) {
+		TilgangJournalpost journalpost = TilgangJournalpost.builder()
+				.innsyn(BRUK_STANDARDREGLER)
+				.mottakskanal(TilgangMottakskanal.from(mottakskanal))
+				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
+				.datoOpprettet(LocalDateTime.now())
+				.build();
+		return utledTilgangService.isTekniskDokumentKanal(journalpost);
+	}
+
+	private boolean isTekniskUtsendingskanal(String utsendingskanal) {
+		TilgangJournalpost journalpost = TilgangJournalpost.builder()
+				.innsyn(BRUK_STANDARDREGLER)
+				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
+				.utsendingskanal(TilgangUtsendingskanal.from(utsendingskanal))
+				.datoOpprettet(LocalDateTime.now())
+				.build();
+		return utledTilgangService.isTekniskDokumentKanal(journalpost);
 	}
 
 	private void assertSkannetDokumentLokalUtskrift(String kanal, TilgangInnsyn innsyn) {
