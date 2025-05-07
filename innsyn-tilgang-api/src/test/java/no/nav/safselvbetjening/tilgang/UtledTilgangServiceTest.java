@@ -543,18 +543,34 @@ class UtledTilgangServiceTest {
 		assertThat(penSkannetDokument).isFalse();
 	}
 
-	//	2c - Bruker får ikke se dokumenter som er mottatt i tekniske kanaler.
+	//	2c - Bruker får ikke se dokumenter som er mottatt i tekniske kanaler med mindre K_INNSYN = VISES_*
 	@ParameterizedTest
-	@ValueSource(strings = {"ALTINN", "ALTINN_INNBOKS", "EESSI", "EIA", "EKST_OPPS", "HELSENETTET"})
+	@ValueSource(strings = {"ALTINN", "ALTINN_INNBOKS", "EESSI", "EIA", "EKST_OPPS", "HELSENETTET", "HR_SYSTEM_API"})
 	void shouldReturnTrueWhenTekniskMottakskanal(String mottakskanal) {
-		assertThat(isTekniskMottakskanal(mottakskanal)).isTrue();
+		assertThat(isTekniskMottakskanal(mottakskanal, BRUK_STANDARDREGLER)).isTrue();
 	}
 
-	//	2c - Bruker får ikke se dokumenter som er sendt fra tekniske kanaler.
+	//	2c - Bruker får ikke se dokumenter som er mottatt i tekniske kanaler med mindre K_INNSYN = VISES_*
+	@ParameterizedTest
+	@ValueSource(strings = {"ALTINN", "ALTINN_INNBOKS", "EESSI", "EIA", "EKST_OPPS", "HELSENETTET", "HR_SYSTEM_API"})
+	void shouldReturnTrueWhenTekniskMottakskanalAndInnsynVises(String mottakskanal) {
+		TilgangInnsyn.VISES.forEach(tilgangInnsyn ->
+				assertThat(isTekniskMottakskanal(mottakskanal, tilgangInnsyn)).isFalse());
+	}
+
+	//	2c - Bruker får ikke se dokumenter som er sendt fra tekniske kanaler med mindre K_INNSYN = VISES_*
 	@ParameterizedTest
 	@ValueSource(strings = {"ALTINN", "EESSI", "EIA", "HELSENETTET", "TRYGDERETTEN"})
 	void shouldReturnTrueWhenTekniskUtsendingskanal(String utsendingskanal) {
-		assertThat(isTekniskUtsendingskanal(utsendingskanal)).isTrue();
+		assertThat(isTekniskUtsendingskanal(utsendingskanal, BRUK_STANDARDREGLER)).isTrue();
+	}
+
+	//	2c - Bruker får ikke se dokumenter som er sendt fra tekniske kanaler med mindre K_INNSYN = VISES_*
+	@ParameterizedTest
+	@ValueSource(strings = {"ALTINN", "EESSI", "EIA", "HELSENETTET", "TRYGDERETTEN"})
+	void shouldReturnTrueWhenTekniskUtsendingskanalAndInnsynVises(String utsendingskanal) {
+		TilgangInnsyn.VISES.forEach(tilgangInnsyn ->
+				assertThat(isTekniskUtsendingskanal(utsendingskanal, tilgangInnsyn)).isFalse());
 	}
 
 	//	2e - Dokumenter som er begrenset ihht. gdpr
@@ -636,22 +652,24 @@ class UtledTilgangServiceTest {
 		return utledTilgangService.isSkannetDokumentAndInnsynIsNotVises(journalpost);
 	}
 
-	private boolean isTekniskMottakskanal(String mottakskanal) {
+	private boolean isTekniskMottakskanal(String mottakskanal, TilgangInnsyn innsyn) {
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
 				.innsyn(BRUK_STANDARDREGLER)
 				.mottakskanal(TilgangMottakskanal.from(mottakskanal))
 				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.datoOpprettet(LocalDateTime.now())
+				.innsyn(innsyn)
 				.build();
 		return utledTilgangService.isTekniskDokumentKanal(journalpost);
 	}
 
-	private boolean isTekniskUtsendingskanal(String utsendingskanal) {
+	private boolean isTekniskUtsendingskanal(String utsendingskanal, TilgangInnsyn innsyn) {
 		TilgangJournalpost journalpost = TilgangJournalpost.builder()
 				.innsyn(BRUK_STANDARDREGLER)
 				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
 				.utsendingskanal(TilgangUtsendingskanal.from(utsendingskanal))
 				.datoOpprettet(LocalDateTime.now())
+				.innsyn(innsyn)
 				.build();
 		return utledTilgangService.isTekniskDokumentKanal(journalpost);
 	}
