@@ -332,6 +332,10 @@ enum Kanal {
     # * Brukes for inngående journalposter.
     ALTINN_INNBOKS
 
+    # Forsendelsen er sendt fra et HR-system med integrasjon mot Nav.
+    # * Brukes for inngående journalposter.
+    HR_SYSTEM_API
+
     # Forsendelsen har ingen kjent kanal.
     UKJENT
 }
@@ -574,6 +578,18 @@ enum Tema {
 
     # Omstillingsstønad
     EYO
+
+    # Aktivitetsplan med dialoger
+    AKT
+
+    # Ungdomsprogramytelsen
+    UNG
+
+    # Innsyn
+    PAI
+
+    # Innsyn etter personopplysningsloven
+    POI
 }
 
 # Sier hvorvidt saken inngår i et fagsystem (FAGSAK) eller ikke (GENERELL_SAK).
