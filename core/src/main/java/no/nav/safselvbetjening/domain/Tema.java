@@ -62,6 +62,10 @@ public enum Tema {
 	KLL("Klage – lønnsgaranti"),
 	EYB("Barnepensjon"),
 	EYO("Omstillingsstønad"),
+	AKT("Aktivitetsplan med dialoger"),
+	UNG("Ungdomsprogramytelsen"),
+	PAI("Innsyn"),
+	POI("Innsyn etter personopplysningsloven"),
 	// Listen under skal ikke vises til brukere
 	FAR("Foreldreskap"),
 	KTR("Kontroll"),
