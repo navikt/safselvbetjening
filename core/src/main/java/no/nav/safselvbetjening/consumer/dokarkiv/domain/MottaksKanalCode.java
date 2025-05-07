@@ -16,7 +16,8 @@ public enum MottaksKanalCode {
 	INNSENDT_NAV_ANSATT(Kanal.INNSENDT_NAV_ANSATT),
 	NAV_NO_CHAT(Kanal.NAV_NO_CHAT),
 	E_POST(Kanal.E_POST),
-	ALTINN_INNBOKS(Kanal.ALTINN_INNBOKS);
+	ALTINN_INNBOKS(Kanal.ALTINN_INNBOKS),
+	HR_SYSTEM_API(Kanal.HR_SYSTEM_API);
 
 	private final Kanal safKanal;
 
