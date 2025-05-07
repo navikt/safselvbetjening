@@ -574,6 +574,18 @@ enum Tema {
 
     # Omstillingsstønad
     EYO
+
+    # Aktivitetsplan med dialoger
+    AKT
+
+    # Ungdomsprogramytelsen
+    UNG
+
+    # Innsyn
+    PAI
+
+    # Innsyn etter personopplysningsloven
+    POI
 }
 
 # Sier hvorvidt saken inngår i et fagsystem (FAGSAK) eller ikke (GENERELL_SAK).

@@ -260,5 +260,21 @@ public enum FagomradeCode {
 	/**
 	 * Arbeidsrådgivning psykologtester
 	 */
-	ARP
+	ARP,
+	/**
+	 * Aktivitetsplan med dialoger
+	 */
+	AKT,
+	/**
+	 * Ungdomsprogramytelsen
+	 */
+	UNG,
+	/**
+	 * Innsyn
+	 */
+	PAI,
+	/**
+	 * Innsyn etter personopplysningsloven
+	 */
+	POI
 }
