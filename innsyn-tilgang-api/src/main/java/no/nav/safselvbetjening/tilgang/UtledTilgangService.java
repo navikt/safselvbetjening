@@ -259,11 +259,11 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 2c) Pålogget bruker får ikke se dokumenter som er sendt til eller mottatt fra tekniske kanaler.
+	 * 2c) Pålogget bruker får ikke se dokumenter som er sendt til eller mottatt fra tekniske kanaler med mindre innsyn begynner med VISES_*
 	 */
 	boolean isTekniskDokumentKanal(TilgangJournalpost tilgangJournalpost) {
-		return tilgangJournalpost.getMottakskanal() == TilgangMottakskanal.TEKNISK ||
-			   tilgangJournalpost.getUtsendingskanal() == TilgangUtsendingskanal.TEKNISK;
+		return (tilgangJournalpost.getMottakskanal() == TilgangMottakskanal.TEKNISK && !tilgangJournalpost.innsynVises()) ||
+			   (tilgangJournalpost.getUtsendingskanal() == TilgangUtsendingskanal.TEKNISK && !tilgangJournalpost.innsynVises());
 	}
 
 	/**

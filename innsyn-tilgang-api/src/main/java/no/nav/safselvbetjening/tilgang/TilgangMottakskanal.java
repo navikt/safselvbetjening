@@ -13,7 +13,7 @@ public enum TilgangMottakskanal {
 	SKANNING, TEKNISK, IKKE_SKANNING_IKKE_TEKNISK;
 
 	private static final Set<String> KANAL_SKANNING = Set.of("SKAN_IM", "SKAN_NETS", "SKAN_PEN");
-	private static final Set<String> KANAL_TEKNISK = Set.of("ALTINN", "ALTINN_INNBOKS", "EESSI", "EIA", "EKST_OPPS", "HELSENETTET");
+	private static final Set<String> KANAL_TEKNISK = Set.of("ALTINN", "ALTINN_INNBOKS", "EESSI", "EIA", "EKST_OPPS", "HELSENETTET", "HR_SYSTEM_API");
 
 	/**
 	 * Map til TilgangMottakskanal fra verdi for kanal fra dokarkiv sitt api
