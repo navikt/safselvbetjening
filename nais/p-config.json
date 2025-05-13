@@ -74,6 +74,11 @@
       "cluster": "prod-gcp"
     },
     {
+      "app": "pensjon-selvbetjening-saksoversikt-backend",
+      "namespace": "pensjonselvbetjening",
+      "cluster": "prod-gcp"
+    },
+    {
       "app": "klage-dittnav-api",
       "namespace": "klage",
       "cluster": "prod-gcp"
