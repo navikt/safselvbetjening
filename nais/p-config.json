@@ -117,6 +117,11 @@
       "app": "dp-mine-dagpenger-frontend",
       "namespace": "teamdagpenger",
       "cluster": "prod-gcp"
+    },
+    {
+      "app": "familie-integrasjoner",
+      "namespace": "teamfamilie",
+      "cluster": "prod-gcp"
     }
   ]
 }
