@@ -121,7 +121,7 @@
     {
       "app": "familie-integrasjoner",
       "namespace": "teamfamilie",
-      "cluster": "prod-gcp"
+      "cluster": "prod-fss"
     }
   ]
 }

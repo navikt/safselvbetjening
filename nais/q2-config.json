@@ -135,7 +135,7 @@
     {
       "app": "familie-integrasjoner",
       "namespace": "teamfamilie",
-      "cluster": "dev-gcp"
+      "cluster": "dev-fss"
     }
   ]
 }
