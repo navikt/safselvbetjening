@@ -131,6 +131,11 @@
       "app": "tms-mikrofrontend-selector",
       "namespace": "min-side",
       "cluster": "dev-gcp"
+    },
+    {
+      "app": "familie-integrasjoner",
+      "namespace": "teamfamilie",
+      "cluster": "dev-fss"
     }
   ]
 }
