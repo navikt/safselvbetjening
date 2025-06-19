@@ -216,15 +216,15 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubReprApiFullmakt(final String fil) {
-		stubFor(get("/repr-api/api/eksternbruker/fullmakt/fullmektig/tema")
+		stubFor(get("/repr-api/api/v2/eksternbruker/fullmakt/kan-representere")
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("repr-api/" + fil)));
+						.withBodyFile("repr-api-v2/" + fil)));
 	}
 
 	protected void stubReprApiFullmakt(HttpStatus httpStatus) {
-		stubFor(get("/repr-api/api/eksternbruker/fullmakt/fullmektig/tema")
+		stubFor(get("/repr-api/api/v2/eksternbruker/fullmakt/kan-representere")
 				.willReturn(aResponse()
 						.withStatus(httpStatus.value())
 						.withBody("error " + httpStatus)));
