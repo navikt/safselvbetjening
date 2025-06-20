@@ -24,17 +24,17 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @Component
-public class FullmektigConsumer {
+public class FullmektigV2Consumer {
 	static final String HEADER_NAV_CALL_ID = "Nav-Call-Id";
 
 	private final SafSelvbetjeningProperties.TokenXEndpoint reprApi;
 	private final TokendingsConsumer tokendingsConsumer;
 	private final WebClient webClient;
 
-	public FullmektigConsumer(WebClient webClient,
-							  SafSelvbetjeningProperties safSelvbetjeningProperties,
-							  TokendingsConsumer tokendingsConsumer,
-							  ObjectMapper objectMapper) {
+	public FullmektigV2Consumer(WebClient webClient,
+								SafSelvbetjeningProperties safSelvbetjeningProperties,
+								TokendingsConsumer tokendingsConsumer,
+								ObjectMapper objectMapper) {
 		this.reprApi = safSelvbetjeningProperties.getEndpoints().getReprApi();
 		this.tokendingsConsumer = tokendingsConsumer;
 		this.webClient = webClient.mutate()
@@ -47,16 +47,16 @@ public class FullmektigConsumer {
 				.build();
 	}
 
-	public List<FullmektigTemaResponse> fullmektigTema(String fullmektigSubjectToken) {
+	public List<KanRepresentereDetaljertTemaResponse> fullmektigTema(String fullmektigSubjectToken) {
 		TokenResponse exchange = tokendingsConsumer.exchange(fullmektigSubjectToken, reprApi.getScope());
 		return webClient.get()
-				.uri("/api/eksternbruker/fullmakt/fullmektig/tema")
+				.uri("/api/v2/eksternbruker/fullmakt/kan-representere")
 				.headers(h -> {
 					h.setBearerAuth(exchange.accessToken());
 					h.set(HEADER_NAV_CALL_ID, getCallId());
 				})
 				.retrieve()
-				.bodyToMono(new ParameterizedTypeReference<List<FullmektigTemaResponse>>() {
+				.bodyToMono(new ParameterizedTypeReference<List<KanRepresentereDetaljertTemaResponse>>() {
 				})
 				.onErrorResume(DecodingException.class, throwable -> {
 					log.error("Klarte ikke dekode JSON payload fra repr-api fullmektig-oppslag", throwable);

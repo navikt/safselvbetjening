@@ -16,9 +16,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Component
 public class FullmektigService {
 	private static final Logger secureLog = LoggerFactory.getLogger("secureLog");
-	private final FullmektigConsumer fullmektigConsumer;
+	private final FullmektigV2Consumer fullmektigConsumer;
 
-	public FullmektigService(FullmektigConsumer fullmektigConsumer) {
+	public FullmektigService(FullmektigV2Consumer fullmektigConsumer) {
 		this.fullmektigConsumer = fullmektigConsumer;
 	}
 
@@ -36,15 +36,15 @@ public class FullmektigService {
 	}
 
 	private Optional<Fullmakt> utledFullmakt(JwtToken subjectJwt, String fullmektigIdent, String fullmaktsgiverIdent) {
-		List<FullmektigTemaResponse> fullmektigTema = fullmektigConsumer.fullmektigTema(subjectJwt.getEncodedToken());
+		List<KanRepresentereDetaljertTemaResponse> fullmaktPaaTema = fullmektigConsumer.fullmektigTema(subjectJwt.getEncodedToken());
 
-		if (fullmektigTema.isEmpty()) {
+		if (fullmaktPaaTema.isEmpty()) {
 			return Optional.empty();
 		}
-		return fullmektigTema.stream()
+		return fullmaktPaaTema.stream()
 				.filter(ft -> fullmaktsgiverIdent.equals(ft.fullmaktsgiver()))
 				.filter(ft -> !ft.tema().isEmpty())
-				.map(ft -> new Fullmakt(fullmektigIdent, ft.fullmaktsgiver(), new ArrayList<>(ft.tema()))).findAny();
+				.map(ft -> new Fullmakt(ft.fullmektig(), ft.fullmaktsgiver(), new ArrayList<>(ft.tema()))).findAny();
 	}
 
 	String extractFullmektigIdent(JwtToken jwtToken) {
