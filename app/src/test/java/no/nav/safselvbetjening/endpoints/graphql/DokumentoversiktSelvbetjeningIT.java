@@ -383,14 +383,13 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
-		GraphQLResponse.DataWrapper data1 = graphQLResponse.getData();
-		Dokumentoversikt data = data1.getDokumentoversiktSelvbetjening();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 
-		assertThat(data.getTema()).hasSize(1);
+		assertThat(dokumentoversikt.getTema()).hasSize(1);
 		// fullmakt FOR
-		assertThat(data.getTema().get(0).getKode()).isEqualTo("FOR");
-		assertThat(data.getFagsak().get(0).getTema()).isEqualTo("FOR");
-		assertThat(data.getJournalposter().get(0).getTema()).isEqualTo("FOR");
+		assertThat(dokumentoversikt.getTema().get(0).getKode()).isEqualTo("FOR");
+		assertThat(dokumentoversikt.getFagsak().get(0).getTema()).isEqualTo("FOR");
+		assertThat(dokumentoversikt.getJournalposter().get(0).getTema()).isEqualTo("FOR");
 	}
 
 	@Test
