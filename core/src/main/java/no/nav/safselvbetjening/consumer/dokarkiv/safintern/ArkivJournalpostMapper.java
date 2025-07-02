@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ public class ArkivJournalpostMapper {
 	static final String TILKNYTTET_SOM_HOVEDDOKUMENT = "HOVEDDOKUMENT";
 	static final String TILKNYTTET_SOM_VEDLEGG = "VEDLEGG";
 	static final Set<String> GYLDIGE_VARIANTER = Set.of("ARKIV", "SLADDET");
+	static final Comparator<ArkivDokumentinfo> ARKIV_DOKUMENTINFO_COMPARATOR = new ArkivDokumentinfoComparator();
 
 	private final ArkivAvsenderMottakerMapper arkivAvsenderMottakerMapper;
 	private final UtledTilgangService utledTilgangService;
@@ -235,6 +237,7 @@ public class ArkivJournalpostMapper {
 		}
 
 		return arkivDokumentinfos.stream()
+				.sorted(ARKIV_DOKUMENTINFO_COMPARATOR)
 				.map(arkivDokumentinfo -> DokumentInfo.builder()
 						.dokumentInfoId(String.valueOf(arkivDokumentinfo.dokumentInfoId()))
 						.brevkode(arkivDokumentinfo.brevkode())

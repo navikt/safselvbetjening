@@ -98,6 +98,11 @@ abstract class AbstractJournalpostItest extends AbstractItest {
 		assertVedlegg(dokumenter.get(1));
 	}
 
+	protected static void assertDokumenterInRekkefoelge(List<DokumentInfo> dokumenter) {
+		assertThat(dokumenter).extracting(DokumentInfo::getDokumentInfoId)
+				.containsExactly("410000000", "450000000", "440000000", "460000000", "420000000", "430000000");
+	}
+
 	private static void assertHoveddokument(DokumentInfo hoveddokument) {
 		assertThat(hoveddokument.getDokumentInfoId()).isEqualTo("410000000");
 		assertThat(hoveddokument.getBrevkode()).isEqualTo("NAV 10-07.53");

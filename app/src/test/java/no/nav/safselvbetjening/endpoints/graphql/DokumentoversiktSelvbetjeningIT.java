@@ -1,5 +1,6 @@
 package no.nav.safselvbetjening.endpoints.graphql;
 
+import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
 import no.nav.safselvbetjening.domain.Fagsak;
 import no.nav.safselvbetjening.domain.Journalpost;
@@ -264,6 +265,62 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(journalposts.get(0).getDatoSortering()).isEqualTo(LocalDateTime.parse("2024-02-08T12:49:15"));
 		assertThat(journalposts.get(1).getDatoSortering()).isEqualTo(LocalDateTime.parse("2004-06-02T22:00"));
 		assertThat(journalposts.get(2).getDatoSortering()).isEqualTo(LocalDateTime.parse("2024-07-11T10:52:24"));
+	}
+
+	@Test
+	void shouldGetDokumentoversiktWhenAllQueriedWithRekkefoelgeInOrder() throws Exception {
+		happyStubs("finnjournalposter_happy_gsak_rekkefoelge.json");
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertTemaQueryDokumenter(dokumentoversikt);
+		assertFagsakQueryDokumenter(dokumentoversikt);
+		assertJournalposterQueryDokumenter(dokumentoversikt.getJournalposter());
+	}
+
+	private void assertTemaQueryDokumenter(Dokumentoversikt dokumentoversikt) {
+		assertThat(dokumentoversikt.getTema()).hasSize(1);
+		Sakstema foreldrepenger = dokumentoversikt.getTema().get(0);
+		assertThat(foreldrepenger.getKode()).isEqualTo("FOR");
+		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
+		Journalpost journalpost1 = foreldrepenger.getJournalposter().get(0);
+		assertThat(journalpost1.getJournalpostId()).isEqualTo("400000000");
+		assertThat(journalpost1.getDokumenter()).extracting(DokumentInfo::getDokumentInfoId)
+				.containsExactly("700000000", "700000002", "700000001");
+		Journalpost journalpost2 = foreldrepenger.getJournalposter().get(1);
+		assertThat(journalpost2.getJournalpostId()).isEqualTo("400000001");
+		assertThat(journalpost2.getDokumenter()).extracting(DokumentInfo::getDokumentInfoId)
+				.containsExactly("600000000", "600000002", "600000001");
+	}
+
+	private void assertFagsakQueryDokumenter(Dokumentoversikt dokumentoversikt) {
+		assertThat(dokumentoversikt.getFagsak()).hasSize(1);
+		Fagsak foreldrepenger = dokumentoversikt.getFagsak().get(0);
+		assertThat(foreldrepenger.getFagsakId()).isEqualTo("fp-12345");
+		assertThat(foreldrepenger.getFagsaksystem()).isEqualTo("FS38");
+		assertThat(foreldrepenger.getTema()).isEqualTo("FOR");
+		assertThat(foreldrepenger.getJournalposter()).hasSize(1);
+		Journalpost journalpost = foreldrepenger.getJournalposter().get(0);
+		assertThat(journalpost.getJournalpostId()).isEqualTo("400000001");
+		assertThat(journalpost.getDokumenter()).extracting(DokumentInfo::getDokumentInfoId)
+				.containsExactly("600000000", "600000002", "600000001");
+
+	}
+
+	private void assertJournalposterQueryDokumenter(List<Journalpost> journalposts) {
+		assertThat(journalposts).hasSize(2);
+		Journalpost journalpost2 = journalposts.getFirst();
+		assertThat(journalpost2.getJournalpostId()).isEqualTo("400000001");
+		assertThat(journalpost2.getDokumenter()).extracting(DokumentInfo::getDokumentInfoId)
+				.containsExactly("600000000", "600000002", "600000001");
+		Journalpost journalpost1 = journalposts.get(1);
+		assertThat(journalpost1.getJournalpostId()).isEqualTo("400000000");
+		assertThat(journalpost1.getDokumenter()).extracting(DokumentInfo::getDokumentInfoId)
+				.containsExactly("700000000", "700000002", "700000001");
 	}
 
 	@Test
