@@ -23,6 +23,11 @@
   ],
   "ACCESS_POLICY_INBOUND_RULES": [
     {
+      "app": "bidrag-bidragskalkulator-api",
+      "namespace": "bidrag",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "soknad-api",
       "namespace": "aap",
       "cluster": "dev-gcp"
