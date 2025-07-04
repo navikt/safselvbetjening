@@ -1,0 +1,197 @@
+{
+  "journalposter": [
+    {
+      "journalpostId": 400000000,
+      "type": "U",
+      "fagomraade": "FOR",
+      "fagomraadenavn": "Foreldre- og svangerskapspenger",
+      "status": "J",
+      "saksrelasjon": {
+        "fagsystem": "FS22",
+        "sak": {
+          "opprettetTid": "2023-08-14T11:45:20.922931",
+          "aktoerId": "1012345678911",
+          "tema": "FOR"
+        },
+        "sakId": 135738496
+      },
+      "relevanteDatoer": {
+        "ekspedert": "2024-07-11T08:52:24.365+00:00",
+        "hoveddokument": "2024-07-12T10:52:24.365+00:00",
+        "journalfoert": "2024-07-13T12:52:24.391+00:00",
+        "opprettet": "2024-07-14T14:52:24.365+00:00"
+      },
+      "avsenderMottaker": {
+        "id": "12345678911",
+        "navn": "HARRY POTTER",
+        "type": "FNR"
+      },
+      "bruker": {
+        "id": "919914149  ",
+        "type": "ORGANISASJON"
+      },
+      "dokumenter": [
+        {
+          "dokumentInfoId": 700000000,
+          "brevkode": "arena-tilskudd-enk-fagyrk",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "stoerrelse": "50145",
+              "type": "PDFA",
+              "uuid": "5a20a2ba-b242-45f9-9553-7dd0585437ef"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 400000000,
+          "status": "FERDIGSTILT",
+          "tilknyttetSom": "HOVEDDOKUMENT",
+          "tittel": "Søknad"
+        },
+        {
+          "dokumentInfoId": 700000001,
+          "brevkode": "arena-tilskudd-enk-fagyrk",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "stoerrelse": "50145",
+              "type": "PDFA",
+              "uuid": "5a20a2ba-b242-45f9-9553-7dd0585437ef"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 400000000,
+          "status": "FERDIGSTILT",
+          "tilknyttetSom": "VEDLEGG",
+          "tittel": "Dokumentasjon"
+        },
+        {
+          "dokumentInfoId": 700000002,
+          "brevkode": "arena-tilskudd-enk-fagyrk",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "stoerrelse": "50145",
+              "type": "PDFA",
+              "uuid": "5a20a2ba-b242-45f9-9553-7dd0585437ef"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 400000000,
+          "rekkefoelge": 1,
+          "status": "FERDIGSTILT",
+          "tilknyttetSom": "VEDLEGG",
+          "tittel": "Dokumentasjon"
+        }
+      ],
+      "innhold": "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger",
+      "journalfoerendeEnhet": "9999",
+      "journalfoertAvNavn": "srvtiltak-tilsagns",
+      "kanalreferanseId": "393380-tilsagnsbrev",
+      "opprettetAvNavn": "srvtiltak-tilsagns",
+      "tilleggsopplysninger": {},
+      "utsendingskanal": "NAV_NO"
+    },
+    {
+      "journalpostId": 400000001,
+      "type": "U",
+      "fagomraade": "FOR",
+      "fagomraadenavn": "Foreldre- og svangerskapspenger",
+      "status": "J",
+      "saksrelasjon": {
+        "fagsystem": "FS22",
+        "sak": {
+          "applikasjon": "FS38",
+          "fagsakNr": "fp-12345",
+          "opprettetTid": "2023-10-18T19:08:22.146458",
+          "aktoerId": "1012345678911",
+          "tema": "FOR"
+        },
+        "sakId": 180998628
+      },
+      "relevanteDatoer": {
+        "hoveddokument": "2024-02-08T08:49:15.356+00:00",
+        "journalfoert": "2024-02-08T11:49:15.377+00:00",
+        "opprettet": "2024-02-08T14:49:15.356+00:00"
+      },
+      "avsenderMottaker": {
+        "id": "12345678911",
+        "navn": "HARRY POTTER",
+        "type": "FNR"
+      },
+      "dokumenter": [
+        {
+          "dokumentInfoId": 600000000,
+          "brevkode": "arena-tilskudd-forsok-enk-amo",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "stoerrelse": "17326",
+              "type": "PDFA",
+              "uuid": "afe9318f-5b32-4c2a-8b84-33cb8c490777"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 400000001,
+          "status": "FERDIGSTILT",
+          "tilknyttetSom": "HOVEDDOKUMENT",
+          "tittel": "Informasjon"
+        },
+        {
+          "dokumentInfoId": 600000001,
+          "brevkode": "arena-tilskudd-forsok-enk-amo",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "stoerrelse": "17326",
+              "type": "PDFA",
+              "uuid": "afe9318f-5b32-4c2a-8b84-33cb8c490777"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "rekkefoelge": 2,
+          "originalJournalpostId": 400000001,
+          "status": "FERDIGSTILT",
+          "tilknyttetSom": "VEDLEGG",
+          "tittel": "Dokumentasjon 2"
+        },
+        {
+          "dokumentInfoId": 600000002,
+          "brevkode": "arena-tilskudd-forsok-enk-amo",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "stoerrelse": "17326",
+              "type": "PDFA",
+              "uuid": "afe9318f-5b32-4c2a-8b84-33cb8c490777"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "rekkefoelge": 1,
+          "originalJournalpostId": 400000001,
+          "status": "FERDIGSTILT",
+          "tilknyttetSom": "VEDLEGG",
+          "tittel": "Dokumentasjon 1"
+        }
+      ],
+      "innhold": "Vedtak om foreldrepenger",
+      "journalfoerendeEnhet": "9999",
+      "journalfoertAvNavn": "srvtiltak-tilsagns",
+      "kanalreferanseId": "368449-tilsagnsbrev",
+      "opprettetAvNavn": "srvtiltak-tilsagns",
+      "tilleggsopplysninger": {},
+      "utsendingskanal": "NAV_NO"
+    }
+  ],
+  "antallRader": 2,
+  "totaltAntallRader": 2,
+  "page": 1,
+  "totalPages": 1,
+  "nextPage": ""
+}

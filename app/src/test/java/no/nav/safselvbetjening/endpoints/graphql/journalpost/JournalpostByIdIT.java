@@ -83,6 +83,25 @@ public class JournalpostByIdIT extends AbstractJournalpostItest {
 	}
 
 	/**
+	 * Alt i orden
+	 */
+	@Test
+	void skalQueryJournalpostByIdWithRekkefoelge() {
+		stubPdlGenerell();
+		stubDokarkivJournalpost("1c-journalpost-rekkefoelge-vedlegg-ok.json");
+
+		ResponseEntity<GraphQLResponse> response = queryJournalpostById();
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Journalpost journalpost = graphQLResponse.getData().getJournalpostById();
+
+		assertInngaaendeJournalpost(journalpost);
+		assertDokumenterInRekkefoelge(journalpost.getDokumenter());
+	}
+
+	/**
 	 * Hvis journalpostId ikke er siffer eller er blank så skal det returneres errors med extensions.code = bad_request
 	 */
 	@ParameterizedTest

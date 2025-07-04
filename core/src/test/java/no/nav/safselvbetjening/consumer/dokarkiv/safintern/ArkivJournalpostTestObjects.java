@@ -159,12 +159,12 @@ final class ArkivJournalpostTestObjects {
 	}
 
 	static ArkivDokumentinfo hoveddokumentArkivDokumentinfo() {
-		return new ArkivDokumentinfo(HOVEDDOKUMENT_DOKUMENT_INFO_ID, TILKNYTTET_SOM_HOVEDDOKUMENT, SkjermingTypeCode.FEIL.name(), KATEGORI_FORVALTNINGSNOTAT, false,
+		return new ArkivDokumentinfo(HOVEDDOKUMENT_DOKUMENT_INFO_ID, TILKNYTTET_SOM_HOVEDDOKUMENT, SkjermingTypeCode.FEIL.name(), KATEGORI_FORVALTNINGSNOTAT, false, null,
 				List.of(new ArkivFildetaljer(SkjermingTypeCode.FEIL.name(), VariantFormatCode.ARKIV.name(), HOVEDDOKUMENT_FIL_STOERRELSE, HOVEDDOKUMENT_FILTYPE, HOVEDDOKUMENT_FIL_UUID)), HOVEDDOKUMENT_TITTEL, HOVEDDOKUMENT_BREVKODE, true);
 	}
 
 	static ArkivDokumentinfo vedleggArkivDokumentinfo() {
-		return new ArkivDokumentinfo(VEDLEGG_DOKUMENT_INFO_ID, TILKNYTTET_SOM_VEDLEGG, SkjermingTypeCode.FEIL.name(), KATEGORI_FORVALTNINGSNOTAT, null,
+		return new ArkivDokumentinfo(VEDLEGG_DOKUMENT_INFO_ID, TILKNYTTET_SOM_VEDLEGG, SkjermingTypeCode.FEIL.name(), KATEGORI_FORVALTNINGSNOTAT, null, null,
 				List.of(new ArkivFildetaljer(SkjermingTypeCode.FEIL.name(), VariantFormatCode.ARKIV.name(), VEDLEGG_FIL_STOERRELSE, VEDLEGG_FIL_TYPE, VEDLEGG_FIL_UUID)), VEDLEGG_TITTEL, VEDLEGG_BREVKODE, null);
 	}
 
