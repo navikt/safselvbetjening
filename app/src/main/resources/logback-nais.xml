@@ -28,17 +28,12 @@
  	Timestamp blir generert av appenderen.
  	Eksempel: 2019-06-07T07:21:20+02:00 <pod_navn> safselvbetjening_audit: message
  	-->
-	<appender name="auditLog" class="com.papertrailapp.logback.Syslog4jAppender">
-		<layout class="ch.qos.logback.classic.PatternLayout">
-			<pattern>%m%n</pattern>
-		</layout>
-
-		<syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
-			<host>audit.nais</host>
-			<port>6514</port>
-			<ident>safselvbetjening_audit</ident>
-			<maxMessageLength>128000</maxMessageLength>
-		</syslogConfig>
+	<appender name="auditLog" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+		<destination>audit.nais:6514</destination>
+		<writeBufferSize>128000</writeBufferSize>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>${HOSTNAME} safselvbetjening_audit: %m%n</pattern>
+		</encoder>
 	</appender>
 
 	<logger level="INFO" name="auditLog" additivity="false">
