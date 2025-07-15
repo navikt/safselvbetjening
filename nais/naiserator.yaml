@@ -62,6 +62,7 @@ spec:
       memory: 4000Mi
     requests:
       memory: 1200Mi
+      cpu: 100m
   vault:
     enabled: true
     paths:
