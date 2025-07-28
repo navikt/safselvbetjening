@@ -34,7 +34,7 @@
 	<properties>
 		<java.version>21</java.version>
 
-		<graphql-java.version>24.1</graphql-java.version>
+		<graphql-java.version>24.2</graphql-java.version>
 		<logstash-logback-encoder.version>8.1</logstash-logback-encoder.version>
 		<token-support.version>5.0.30</token-support.version>
 		<resilience4j.version>2.3.0</resilience4j.version>
