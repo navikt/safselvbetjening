@@ -3,7 +3,6 @@ package no.nav.safselvbetjening;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -13,7 +12,6 @@ import org.springframework.validation.annotation.Validated;
 public class SafSelvbetjeningProperties {
 
     private final Endpoints endpoints = new Endpoints();
-    private final Serviceuser serviceuser = new Serviceuser();
     private final Topics topics = new Topics();
     private final Feature feature = new Feature();
 
@@ -29,8 +27,8 @@ public class SafSelvbetjeningProperties {
         /**
          * URL til sak API.
          */
-        @NotEmpty
-        private String sak;
+        @NotNull
+        private AzureEndpoint sak;
 
         /**
          * URL til oppslagstjenesten i fagarkivet.
@@ -82,23 +80,6 @@ public class SafSelvbetjeningProperties {
          */
         @NotEmpty
         private String scope;
-    }
-
-    @Data
-    @Validated
-    public static class Serviceuser {
-        /**
-         * Brukernavn til onprem AD servicebruker.
-         */
-        @NotEmpty
-        @ToString.Exclude
-        private String username;
-        /**
-         * Passord til onprem AD servicebruker.
-         */
-        @NotEmpty
-        @ToString.Exclude
-        private String password;
     }
 
     @Data

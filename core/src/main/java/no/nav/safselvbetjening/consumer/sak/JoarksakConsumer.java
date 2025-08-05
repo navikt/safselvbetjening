@@ -18,7 +18,9 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.util.ArrayList;
 import java.util.List;
 
+import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_SAK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
 /**
  * Henter arkivsaker fra sak applikasjonen.
@@ -38,11 +40,9 @@ public class JoarksakConsumer {
 							final WebClient webClient,
 							final CircuitBreakerRegistry circuitBreakerRegistry,
 							final RetryRegistry retryRegistry) {
-		SafSelvbetjeningProperties.Serviceuser serviceuser = safSelvbetjeningProperties.getServiceuser();
 		this.webClient = webClient.mutate()
-				.baseUrl(safSelvbetjeningProperties.getEndpoints().getSak())
+				.baseUrl(safSelvbetjeningProperties.getEndpoints().getSak().getUrl())
 				.filter(new CallIdExchangeFilterFunction(HEADER_SAK_CORRELATION_ID))
-				.defaultHeaders(httpHeaders -> httpHeaders.setBasicAuth(serviceuser.getUsername(), serviceuser.getPassword()))
 				.build();
 		this.circuitBreaker = circuitBreakerRegistry.circuitBreaker(ARKIVSAK_INSTANCE);
 		this.retry = retryRegistry.retry(ARKIVSAK_INSTANCE);
@@ -52,11 +52,13 @@ public class JoarksakConsumer {
 		if (tema.isEmpty()) {
 			return new ArrayList<>();
 		}
+
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder
 						.queryParam("aktoerId", aktoerId)
 						.queryParam("tema", tema)
 						.build())
+				.attributes(clientRegistrationId(CLIENT_REGISTRATION_SAK))
 				.accept(APPLICATION_JSON)
 				.retrieve()
 				.bodyToMono(new ParameterizedTypeReference<List<Joarksak>>() {

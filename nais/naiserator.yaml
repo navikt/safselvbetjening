@@ -13,8 +13,10 @@ spec:
       value: {{SAFSELVBETJENING_ENDPOINTS_PDL_URL}}
     - name: SAFSELVBETJENING_ENDPOINTS_PDL_SCOPE
       value: {{SAFSELVBETJENING_ENDPOINTS_PDL_SCOPE}}
-    - name: SAFSELVBETJENING_ENDPOINTS_SAK
-      value: {{SAFSELVBETJENING_ENDPOINTS_SAK}}
+    - name: SAFSELVBETJENING_ENDPOINTS_SAK_URL
+      value: {{SAFSELVBETJENING_ENDPOINTS_SAK_URL}}
+    - name: SAFSELVBETJENING_ENDPOINTS_SAK_SCOPE
+      value: {{SAFSELVBETJENING_ENDPOINTS_SAK_SCOPE}}
     - name: SAFSELVBETJENING_ENDPOINTS_FAGARKIV
       value: {{SAFSELVBETJENING_ENDPOINTS_FAGARKIV}}
     - name: SAFSELVBETJENING_ENDPOINTS_DOKARKIV_URL
@@ -63,11 +65,6 @@ spec:
     requests:
       memory: 1200Mi
       cpu: 100m
-  vault:
-    enabled: true
-    paths:
-      - kvPath: {{SERVICEUSER_VAULT_PATH}}
-        mountPath: "/secrets/serviceuser/srvsafselvbetjening"
   webproxy: true
   azure:
     application:
