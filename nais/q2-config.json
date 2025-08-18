@@ -19,6 +19,8 @@
   "MAX_REPLICAS": 2,
   "INGRESSES": [
     "https://safselvbetjening.dev.intern.nav.no",
+    "https://safselvbetjening.intern.dev.nav.no",
+    "https://safselvbetjening-q2.intern.dev.nav.no",
     "https://safselvbetjening.dev-fss-pub.nais.io"
   ],
   "ACCESS_POLICY_INBOUND_RULES": [
