@@ -90,6 +90,11 @@
       "cluster": "dev-gcp"
     },
     {
+      "app": "uforetrygd-backend",
+      "namespace": "pensjonselvbetjening",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "pensjon-pselv-q2",
       "namespace": "teampensjon",
       "cluster": "dev-gcp"
