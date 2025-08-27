@@ -35,7 +35,7 @@ public class HentDokumentValidator {
 	}
 
 	private void validateVariantFormat(String variantFormat) {
-		if (!ALLOWED_VARIANTFORMAT.contains(variantFormat)) {
+		if (variantFormat != null && !ALLOWED_VARIANTFORMAT.contains(variantFormat)) {
 			throw new HentdokumentRequestException("variantFormat må være en av [" + VARIANTFORMAT_ERRORMSG + "]. variantFormat=" + variantFormat);
 		}
 	}
