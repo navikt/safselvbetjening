@@ -46,6 +46,7 @@ import static no.nav.safselvbetjening.DenyReasonFactory.lagFeilmeldingForJournal
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_UGYLDIG_VARIANTFORMAT;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
@@ -186,11 +187,15 @@ public class HentDokumentService {
 		if (!dokumentErrors.isEmpty()) {
 			throw new HentTilgangDokumentException(dokumentErrors.getFirst().reason, lagFeilmeldingForDokument(dokumentErrors.getFirst()));
 		}
-		return dokumentvariant.map(TilgangVariant::variantformat).orElse(null);
+		return dokumentvariant.map(TilgangVariant::variantformat)
+				.orElseThrow(() ->
+						// Merk: dette sjekkes egentlig inne i utledTilgangService.utledTilgangDokument
+						new HentTilgangDokumentException(DENY_REASON_UGYLDIG_VARIANTFORMAT.reason,
+								lagFeilmeldingForDokument(DENY_REASON_UGYLDIG_VARIANTFORMAT)));
 	}
 
 	private static Optional<TilgangVariant> determineAndFindDokumentVariant(Optional<TilgangDokument> tilgangDokument, String variantFormat) {
-		Map<TilgangVariantFormat,TilgangVariant> dokumentvariant = tilgangDokument.stream()
+		Map<TilgangVariantFormat, TilgangVariant> dokumentvariant = tilgangDokument.stream()
 				.map(TilgangDokument::dokumentvarianter)
 				.flatMap(Collection::stream)
 				.collect(Collectors.toMap(TilgangVariant::variantformat, Function.identity()));
