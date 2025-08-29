@@ -33,12 +33,28 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 	}
 
 	/**
-	 * Skal hente dokument gitt at den passerer alle tilgangsregler og ident ligger i pid claim i tokenet
+	 * Skal hente dokument gitt at den passerer alle tilgangsregler og ident ligger i pid claim i tokenet og variantformat ikke satt
 	 */
 	@Test
 	void skalHenteDokumentVariantformatNotSet() {
 		stubPdlGenerell();
 		stubDokarkivJournalpostSladdetOgArkiv();
+		stubHentDokumentDokarkiv(SLADDET);
+
+		String uri = createHentDokumentUri(JOURNALPOST_ID, DOKUMENT_ID, null);
+		ResponseEntity<String> responseEntity = this.restTemplate.exchange(uri, GET, createHttpEntityHeaders(BRUKER_ID), String.class);
+
+		assertOkSladdetResponse(responseEntity);
+	}
+
+	/**
+	 * Skal hente dokument gitt at den passerer alle tilgangsregler og ident ligger i pid claim i tokenet og
+	 * variantformat ikke satt, og mange varianter som er ugyldig for innsyn
+	 */
+	@Test
+	void skalHenteDokumentVariantformatNotSetAndManyAvailableVariants() {
+		stubPdlGenerell();
+		stubDokarkivJournalpostMangeEsoteriskeVarianterInklSladdetOgArkiv();
 		stubHentDokumentDokarkiv(SLADDET);
 
 		String uri = createHentDokumentUri(JOURNALPOST_ID, DOKUMENT_ID, null);

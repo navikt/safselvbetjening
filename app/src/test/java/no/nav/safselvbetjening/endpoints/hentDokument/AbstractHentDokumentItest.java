@@ -106,6 +106,10 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 		stubDokarkivJournalpost("1c-hentdokument-ok.json");
 	}
 
+	protected static void stubDokarkivJournalpostMangeEsoteriskeVarianterInklSladdetOgArkiv() {
+		stubDokarkivJournalpost("1c-hentdokument-ok-mange-esoteriske-varianter.json");
+	}
+
 	protected static void stubDokarkivJournalpostSladdetOgArkiv() {
 		stubDokarkivJournalpost("1c-hentdokument-ok-sladdet-og-arkiv.json");
 	}
