@@ -47,6 +47,8 @@ import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_I
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_UGYLDIG_VARIANTFORMAT;
+import static no.nav.safselvbetjening.tilgang.TilgangVariantFormat.ARKIV;
+import static no.nav.safselvbetjening.tilgang.TilgangVariantFormat.SLADDET;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
@@ -198,12 +200,12 @@ public class HentDokumentService {
 		Map<TilgangVariantFormat, TilgangVariant> dokumentvariant = tilgangDokument.stream()
 				.map(TilgangDokument::dokumentvarianter)
 				.flatMap(Collection::stream)
-				.collect(Collectors.toMap(TilgangVariant::variantformat, Function.identity()));
+				.collect(Collectors.toMap(TilgangVariant::variantformat, Function.identity(), (a, b) -> a));
 		if (variantFormat == null) {
-			if (dokumentvariant.containsKey(TilgangVariantFormat.SLADDET)) {
-				return Optional.of(dokumentvariant.get(TilgangVariantFormat.SLADDET));
+			if (dokumentvariant.containsKey(SLADDET)) {
+				return Optional.of(dokumentvariant.get(SLADDET));
 			} else {
-				return Optional.ofNullable(dokumentvariant.get(TilgangVariantFormat.ARKIV));
+				return Optional.ofNullable(dokumentvariant.get(ARKIV));
 			}
 		}
 		TilgangVariantFormat tilgangVariantFormat = TilgangVariantFormat.from(variantFormat);
