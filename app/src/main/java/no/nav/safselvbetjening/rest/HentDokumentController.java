@@ -57,11 +57,11 @@ public class HentDokumentController {
 		this.tokenValidationContextHolder = tokenValidationContextHolder;
 	}
 
-	@GetMapping(value = "hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}")
+	@GetMapping(value = { "hentdokument/{journalpostId}/{dokumentInfoId}", "hentdokument/{journalpostId}/{dokumentInfoId}/", "hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}" })
 	public ResponseEntity<byte[]> hentDokument(
 			@PathVariable String journalpostId,
 			@PathVariable String dokumentInfoId,
-			@PathVariable String variantFormat,
+			@PathVariable(required = false) String variantFormat,
 			@RequestHeader(value = NAV_CALLID, required = false) String navCallid) {
 		try {
 			final TokenValidationContext tokenValidationContext = tokenValidationContextHolder.getTokenValidationContext();
@@ -82,7 +82,7 @@ public class HentDokumentController {
 
 			return ResponseEntity.ok()
 					.contentType(response.getMediaType())
-					.header(CONTENT_DISPOSITION, "inline; filename=" + dokumentInfoId + "_" + variantFormat + response.getExtension())
+					.header(CONTENT_DISPOSITION, "inline; filename=" + dokumentInfoId + "_" + response.getVariantformat() + response.getExtension())
 					.body(response.getDokument());
 		} catch (HentTilgangDokumentException e) {
 			String message = format("Tilgang til dokument avvist. journalpostId=%s, dokumentInfoId=%s, variantFormat=%s. reason=%s", journalpostId, dokumentInfoId, variantFormat, e.getMessage());

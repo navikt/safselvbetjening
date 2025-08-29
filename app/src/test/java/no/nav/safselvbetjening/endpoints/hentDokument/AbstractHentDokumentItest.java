@@ -25,6 +25,7 @@ import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonList;
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode.ARKIV;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode.SLADDET;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentService.HENTDOKUMENT_TILGANG_FIELDS;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_POL_GDPR;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_INSTANCE_ID_CONFIG;
@@ -86,7 +87,11 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 	}
 
 	protected static void stubHentDokumentDokarkiv() {
-		stubFor(get("/dokarkiv/hentdokument/" + DOKUMENT_ID + "/" + VARIANTFORMAT)
+		stubHentDokumentDokarkiv(VARIANTFORMAT);
+	}
+
+	protected static void stubHentDokumentDokarkiv(VariantFormatCode variantformat) {
+		stubFor(get("/dokarkiv/hentdokument/" + DOKUMENT_ID + "/" + variantformat)
 				.willReturn(aResponse().withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_PDF_VALUE)
 						.withBody(TEST_FILE_BYTES)));
@@ -99,6 +104,10 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 
 	protected static void stubDokarkivJournalpost() {
 		stubDokarkivJournalpost("1c-hentdokument-ok.json");
+	}
+
+	protected static void stubDokarkivJournalpostSladdetOgArkiv() {
+		stubDokarkivJournalpost("1c-hentdokument-ok-sladdet-og-arkiv.json");
 	}
 
 	protected static void stubDokarkivJournalpostWithSkjermDokument() {
@@ -125,6 +134,14 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 		assertThat(responseEntity.getHeaders().getContentDisposition().getType()).isEqualTo("inline");
 		assertThat(responseEntity.getBody()).isEqualTo(new String(TEST_FILE_BYTES));
 		assertThat(responseEntity.getHeaders().getContentDisposition().getFilename()).isEqualTo(DOKUMENT_ID + "_" + VARIANTFORMAT + ".pdf");
+	}
+
+	protected void assertOkSladdetResponse(ResponseEntity<String> responseEntity) {
+		assertThat(responseEntity.getStatusCode()).isEqualTo(OK);
+		assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(APPLICATION_PDF);
+		assertThat(responseEntity.getHeaders().getContentDisposition().getType()).isEqualTo("inline");
+		assertThat(responseEntity.getBody()).isEqualTo(new String(TEST_FILE_BYTES));
+		assertThat(responseEntity.getHeaders().getContentDisposition().getFilename()).isEqualTo(DOKUMENT_ID + "_" + SLADDET + ".pdf");
 	}
 
 	protected void assertForbiddenArkivResponse(ResponseEntity<String> responseEntity) {

@@ -10,4 +10,5 @@ public class HentDokument {
 	byte[] dokument;
 	MediaType mediaType;
 	String extension;
+	String variantformat;
 }

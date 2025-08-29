@@ -29,9 +29,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.function.Predicate.not;
 import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
@@ -43,6 +46,7 @@ import static no.nav.safselvbetjening.DenyReasonFactory.lagFeilmeldingForJournal
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE_AVSENDER_MOTTAKER;
+import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_UGYLDIG_VARIANTFORMAT;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
@@ -93,7 +97,7 @@ public class HentDokumentService {
 
 		final HentDokumentResponseTo hentDokumentResponseTo = dokarkivConsumer.hentDokument(
 				hentdokumentRequest.getDokumentInfoId(),
-				hentdokumentRequest.getVariantFormat()
+				tilgangskontroll.determinedVariantFormat()
 		);
 
 		if (tilgangskontroll.genererHoveddokumentLestHendelse()) {
@@ -103,6 +107,7 @@ public class HentDokumentService {
 		return HentDokument.builder()
 				.dokument(hentDokumentResponseTo.getDokument())
 				.mediaType(hentDokumentResponseTo.getMediaType())
+				.variantformat(tilgangskontroll.determinedVariantFormat().name())
 				.extension(MimetypeFileextensionMapper.toFileextension(hentDokumentResponseTo.getMediaType()))
 				.build();
 	}
@@ -129,10 +134,10 @@ public class HentDokumentService {
 			});
 
 			TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
-			utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), Long.parseLong(hentdokumentRequest.getDokumentInfoId()), TilgangVariantFormat.from(hentdokumentRequest.getVariantFormat()));
+			TilgangVariantFormat variantFormat = utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), Long.parseLong(hentdokumentRequest.getDokumentInfoId()), hentdokumentRequest.getVariantFormat());
 			recordFullmaktAuditLog(fullmaktOptional, hentdokumentRequest);
 
-			return new Tilgangskontroll(journalpost, fullmaktOptional);
+			return new Tilgangskontroll(journalpost, variantFormat, fullmaktOptional);
 		} catch (NoValidTokensException e) {
 			throw new HentTilgangDokumentException(DENY_REASON_INGEN_GYLDIG_TOKEN, FEILMELDING_INGEN_GYLDIG_TOKEN);
 		} catch (UserNotMatchingTokenException e) {
@@ -161,7 +166,7 @@ public class HentDokumentService {
 				() -> audit.logSomBruker(hentdokumentRequest, tilgangsvalideringService.getPidOrSubFromRequest(hentdokumentRequest.getTokenValidationContext())));
 	}
 
-	private void utledTilgangHentDokument(TilgangJournalpost journalpost, Set<Ident> brukerIdenter, long dokumentInfoId, TilgangVariantFormat variantFormat) {
+	private TilgangVariantFormat utledTilgangHentDokument(TilgangJournalpost journalpost, Set<Ident> brukerIdenter, long dokumentInfoId, String variantFormat) {
 
 		// Tilgang for journalpost
 		var journalpostErrors = utledTilgangService.utledTilgangJournalpost(journalpost, brukerIdenter);
@@ -173,11 +178,7 @@ public class HentDokumentService {
 		Optional<TilgangDokument> tilgangDokument = journalpost.getDokumenter().stream()
 				.filter(dokument -> dokument.id() == dokumentInfoId)
 				.findFirst();
-		Optional<TilgangVariant> dokumentvariant = tilgangDokument.stream()
-				.map(TilgangDokument::dokumentvarianter)
-				.flatMap(Collection::stream)
-				.filter(tilgangVariant -> tilgangVariant.variantformat() == variantFormat)
-				.findFirst();
+		Optional<TilgangVariant> dokumentvariant = determineAndFindDokumentVariant(tilgangDokument, variantFormat);
 		var dokumentErrors = utledTilgangService.utledTilgangDokument(journalpost, tilgangDokument.orElse(null),
 						dokumentvariant.orElse(null), brukerIdenter)
 				.stream()
@@ -186,6 +187,30 @@ public class HentDokumentService {
 		if (!dokumentErrors.isEmpty()) {
 			throw new HentTilgangDokumentException(dokumentErrors.getFirst().reason, lagFeilmeldingForDokument(dokumentErrors.getFirst()));
 		}
+		return dokumentvariant.map(TilgangVariant::variantformat)
+				.orElseThrow(() ->
+						// Merk: dette sjekkes egentlig inne i utledTilgangService.utledTilgangDokument
+						new HentTilgangDokumentException(DENY_REASON_UGYLDIG_VARIANTFORMAT.reason,
+								lagFeilmeldingForDokument(DENY_REASON_UGYLDIG_VARIANTFORMAT)));
+	}
+
+	private static Optional<TilgangVariant> determineAndFindDokumentVariant(Optional<TilgangDokument> tilgangDokument, String variantFormat) {
+		Map<TilgangVariantFormat, TilgangVariant> dokumentvariant = tilgangDokument.stream()
+				.map(TilgangDokument::dokumentvarianter)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toMap(TilgangVariant::variantformat, Function.identity()));
+		if (variantFormat == null) {
+			if (dokumentvariant.containsKey(TilgangVariantFormat.SLADDET)) {
+				return Optional.of(dokumentvariant.get(TilgangVariantFormat.SLADDET));
+			} else {
+				return Optional.ofNullable(dokumentvariant.get(TilgangVariantFormat.ARKIV));
+			}
+		}
+		TilgangVariantFormat tilgangVariantFormat = TilgangVariantFormat.from(variantFormat);
+		if (dokumentvariant.containsKey(tilgangVariantFormat)) {
+			return Optional.of(dokumentvariant.get(tilgangVariantFormat));
+		}
+		return Optional.empty();
 	}
 
 	private static void validerRiktigJournalpost(HentdokumentRequest hentdokumentRequest, ArkivJournalpost arkivJournalpost) {

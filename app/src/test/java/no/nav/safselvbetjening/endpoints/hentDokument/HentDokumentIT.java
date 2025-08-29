@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode.SLADDET;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -27,6 +28,36 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		stubHentDokumentDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertOkArkivResponse(responseEntity);
+	}
+
+	/**
+	 * Skal hente dokument gitt at den passerer alle tilgangsregler og ident ligger i pid claim i tokenet
+	 */
+	@Test
+	void skalHenteDokumentVariantformatNotSet() {
+		stubPdlGenerell();
+		stubDokarkivJournalpostSladdetOgArkiv();
+		stubHentDokumentDokarkiv(SLADDET);
+
+		String uri = createHentDokumentUri(JOURNALPOST_ID, DOKUMENT_ID, "");
+		ResponseEntity<String> responseEntity = this.restTemplate.exchange(uri, GET, createHttpEntityHeaders(BRUKER_ID), String.class);
+
+		assertOkSladdetResponse(responseEntity);
+	}
+
+	/**
+	 * Skal hente dokument gitt at den passerer alle tilgangsregler og ident ligger i pid claim i tokenet
+	 */
+	@Test
+	void skalHenteDokumentVariantformatNotSetOnlyArkiv() {
+		stubPdlGenerell();
+		stubDokarkivJournalpost();
+		stubHentDokumentDokarkiv();
+
+		String uri = createHentDokumentUri(JOURNALPOST_ID, DOKUMENT_ID, "");
+		ResponseEntity<String> responseEntity = this.restTemplate.exchange(uri, GET, createHttpEntityHeaders(BRUKER_ID), String.class);
 
 		assertOkArkivResponse(responseEntity);
 	}

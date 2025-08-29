@@ -14,6 +14,7 @@ import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalposter;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.FinnJournalposterRequest;
+import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
 import org.springframework.boot.autoconfigure.codec.CodecProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -174,7 +175,7 @@ public class DokarkivConsumer {
 		return new ConsumerTechnicalException(format("hentJournalpost feilet med ukjent teknisk feil. journalpostId=%d", journalpostId), error);
 	}
 
-	public HentDokumentResponseTo hentDokument(final String dokumentInfoId, final String variantFormat) {
+	public HentDokumentResponseTo hentDokument(final String dokumentInfoId, final TilgangVariantFormat variantFormat) {
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder.path("/hentdokument/{dokumentInfoId}/{variantFormat}")
 						.build(dokumentInfoId, variantFormat))
@@ -197,7 +198,7 @@ public class DokarkivConsumer {
 				.block();
 	}
 
-	private Throwable handleErrorHentDokument(Throwable error, String dokumentInfoId, String variantFormat) {
+	private Throwable handleErrorHentDokument(Throwable error, String dokumentInfoId, TilgangVariantFormat variantFormat) {
 		if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
 			if (error instanceof WebClientResponseException.NotFound) {
 				return new DokumentIkkeFunnetException("Fant ikke dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);

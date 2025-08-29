@@ -240,11 +240,11 @@ Eksempel:
   GET /rest_hentdokument/${journalpostId}/${dokumentInfoId}/${variantFormat}
 ```
 
-| Parameter        | Type     | Beskrivelse                                           |
-|:-----------------|:---------|:------------------------------------------------------|
-| `journalpostId`  | `string` | **Påkrevd**. JournalpostId til dokumentet.            |
-| `dokumentInfoId` | `string` | **Påkrevd**. DokumentInfoId til dokumentet.           |
-| `variantFormat`  | `string` | **Påkrevd**. VariantFormat. Gyldige verdier: `ARKIV`. |
+| Parameter        | Type     | Beskrivelse                                         |
+|:-----------------|:---------|:----------------------------------------------------|
+| `journalpostId`  | `string` | **Påkrevd**. JournalpostId til dokumentet.          |
+| `dokumentInfoId` | `string` | **Påkrevd**. DokumentInfoId til dokumentet.         |
+| `variantFormat`  | `string` | VariantFormat. Gyldige verdier: `SLADDET`, `ARKIV`. |
 
 ##### Spesielt om digital fullmakt
 
