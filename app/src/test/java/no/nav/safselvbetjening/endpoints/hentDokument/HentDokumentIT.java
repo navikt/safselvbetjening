@@ -41,7 +41,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		stubDokarkivJournalpostSladdetOgArkiv();
 		stubHentDokumentDokarkiv(SLADDET);
 
-		String uri = createHentDokumentUri(JOURNALPOST_ID, DOKUMENT_ID, "");
+		String uri = createHentDokumentUri(JOURNALPOST_ID, DOKUMENT_ID, null);
 		ResponseEntity<String> responseEntity = this.restTemplate.exchange(uri, GET, createHttpEntityHeaders(BRUKER_ID), String.class);
 
 		assertOkSladdetResponse(responseEntity);
@@ -56,7 +56,7 @@ class HentDokumentIT extends AbstractHentDokumentItest {
 		stubDokarkivJournalpost();
 		stubHentDokumentDokarkiv();
 
-		String uri = createHentDokumentUri(JOURNALPOST_ID, DOKUMENT_ID, "");
+		String uri = createHentDokumentUri(JOURNALPOST_ID, DOKUMENT_ID, null);
 		ResponseEntity<String> responseEntity = this.restTemplate.exchange(uri, GET, createHttpEntityHeaders(BRUKER_ID), String.class);
 
 		assertOkArkivResponse(responseEntity);
