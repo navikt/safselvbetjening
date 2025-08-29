@@ -170,6 +170,9 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 	}
 
 	protected String createHentDokumentUri(String journalpostId, String dokumentInfoId, String variantFormat) {
+		if (variantFormat == null) {
+			return "/rest/hentdokument/%s/%s".formatted(journalpostId, dokumentInfoId);
+		}
 		return "/rest/hentdokument/%s/%s/%s".formatted(journalpostId, dokumentInfoId, variantFormat);
 	}
 }

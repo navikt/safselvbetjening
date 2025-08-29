@@ -178,7 +178,7 @@ public class DokarkivConsumer {
 	public HentDokumentResponseTo hentDokument(final String dokumentInfoId, final TilgangVariantFormat variantFormat) {
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder.path("/hentdokument/{dokumentInfoId}/{variantFormat}")
-						.build(dokumentInfoId, variantFormat))
+						.build(dokumentInfoId, variantFormat.name()))
 				.attributes(clientRegistrationId(CLIENT_REGISTRATION_DOKARKIV))
 				.accept(APPLICATION_PDF)
 				.exchangeToMono(clientResponse -> {
