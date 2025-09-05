@@ -15,7 +15,6 @@ import org.springframework.web.client.RestClient;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.String.format;
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.consumer.token.NaisTexasRequestInterceptor.TARGET_SCOPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -60,13 +59,15 @@ public class JoarksakConsumer {
 				.attribute(TARGET_SCOPE, sakScope)
 				.accept(APPLICATION_JSON)
 				.retrieve()
-				.onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+				.onStatus(HttpStatusCode::isError, (request, response) -> {
+					String feilmelding = "Henting av saker for bruker feilet %s med statuskode=%s og feilmelding=%s.";
 					ProblemDetail problemDetail = objectMapper.readValue(response.getBody(), ProblemDetail.class);
-					throw new ConsumerFunctionalException(format("Henting av saker for bruker fra sak feilet funksjonelt med statuskode=%s og feilmelding=%s.", response.getStatusCode(), problemDetail));
-				})
-				.onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
-					ProblemDetail problemDetail = objectMapper.readValue(response.getBody(), ProblemDetail.class);
-					throw new ConsumerTechnicalException(format("Henting av saker for bruker fra sak feilet teknisk med statuskode=%s og feilmelding=%s.", response.getStatusCode(), problemDetail));
+
+					if (response.getStatusCode().is4xxClientError()) {
+						throw new ConsumerFunctionalException(feilmelding.formatted("funksjonelt", response.getStatusCode(), problemDetail));
+					} else {
+						throw new ConsumerTechnicalException(feilmelding.formatted("teknisk", response.getStatusCode(), problemDetail));
+					}
 				})
 				.body(new ParameterizedTypeReference<>() {
 				});
