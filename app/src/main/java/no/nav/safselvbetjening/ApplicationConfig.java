@@ -10,7 +10,8 @@ import org.springframework.context.annotation.Import;
 @EnableConfigurationProperties(value = {
 		SafSelvbetjeningProperties.class,
 		AzureProperties.class,
-		TokendingsProperties.class
+		TokendingsProperties.class,
+		NaisProperties.class
 })
 @Import(CoreConfig.class)
 public class ApplicationConfig {

@@ -15,7 +15,6 @@ public record AzureProperties(
 		@NotEmpty String openidConfigTokenEndpoint
 ) {
 	public static final String CLIENT_REGISTRATION_DOKARKIV = "azure-dokarkiv";
-	public static final String CLIENT_REGISTRATION_SAK = "azure-sak";
 	public static final String CLIENT_REGISTRATION_PDL = "azure-pdl";
 	public static final String CLIENT_REGISTRATION_PENSJON = "azure-pensjon";
 

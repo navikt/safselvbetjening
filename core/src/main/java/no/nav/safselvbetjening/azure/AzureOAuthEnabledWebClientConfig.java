@@ -24,7 +24,6 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_DOKARKIV;
 import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_PDL;
 import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_PENSJON;
-import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_SAK;
 import static org.springframework.security.oauth2.core.AuthorizationGrantType.CLIENT_CREDENTIALS;
 import static org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 
@@ -90,14 +89,6 @@ public class AzureOAuthEnabledWebClientConfig {
 						.clientAuthenticationMethod(CLIENT_SECRET_BASIC)
 						.authorizationGrantType(CLIENT_CREDENTIALS)
 						.scope(safSelvbetjeningProperties.getEndpoints().getDokarkiv().getScope())
-						.build(),
-				ClientRegistration.withRegistrationId(CLIENT_REGISTRATION_SAK)
-						.tokenUri(azureProperties.openidConfigTokenEndpoint())
-						.clientId(azureProperties.appClientId())
-						.clientSecret(azureProperties.appClientSecret())
-						.clientAuthenticationMethod(CLIENT_SECRET_BASIC)
-						.authorizationGrantType(CLIENT_CREDENTIALS)
-						.scope(safSelvbetjeningProperties.getEndpoints().getSak().getScope())
 						.build(),
 				ClientRegistration.withRegistrationId(CLIENT_REGISTRATION_PDL)
 						.tokenUri(azureProperties.openidConfigTokenEndpoint())
