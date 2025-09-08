@@ -29,18 +29,8 @@
       "cluster": "prod-gcp"
     },
     {
-      "app": "soknad-api",
-      "namespace": "aap",
-      "cluster": "prod-gcp"
-    },
-    {
       "app": "mine-saker-api",
       "namespace": "min-side",
-      "cluster": "prod-gcp"
-    },
-    {
-      "app": "dp-dagpenger",
-      "namespace": "teamdagpenger",
       "cluster": "prod-gcp"
     },
     {
@@ -57,11 +47,6 @@
       "app": "k9-sak-innsyn-api",
       "namespace": "dusseldorf",
       "cluster": "prod-gcp"
-    },
-    {
-      "app": "mininnboks-api",
-      "namespace": "personoversikt",
-      "cluster": "prod-sbs"
     },
     {
       "app": "innsending-api",

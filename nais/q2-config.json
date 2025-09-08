@@ -30,11 +30,6 @@
       "cluster": "dev-gcp"
     },
     {
-      "app": "soknad-api",
-      "namespace": "aap",
-      "cluster": "dev-gcp"
-    },
-    {
       "app": "dokumenter",
       "namespace": "aap",
       "cluster": "dev-gcp"
@@ -47,11 +42,6 @@
     {
       "app": "tms-soknad-frontend",
       "namespace": "min-side",
-      "cluster": "dev-gcp"
-    },  
-    {
-      "app": "dp-dagpenger",
-      "namespace": "teamdagpenger",
       "cluster": "dev-gcp"
     },
     {
@@ -73,16 +63,6 @@
       "app": "k9-sak-innsyn-api",
       "namespace": "dusseldorf",
       "cluster": "dev-gcp"
-    },
-    {
-      "app": "mininnboks-api-q0",
-      "namespace": "personoversikt",
-      "cluster": "dev-sbs"
-    },
-    {
-      "app": "mininnboks-api-q1",
-      "namespace": "personoversikt",
-      "cluster": "dev-sbs"
     },
     {
       "app": "pensjon-selvbetjening-saksoversikt-backend",
