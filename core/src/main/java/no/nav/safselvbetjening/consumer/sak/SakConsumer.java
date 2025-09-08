@@ -24,7 +24,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
  * Master for data er SAK tabellen i joark databasen.
  */
 @Component
-public class JoarksakConsumer {
+public class SakConsumer {
 
 	private static final String ARKIVSAK_INSTANCE = "arkivsak";
 	private static final String HEADER_SAK_CORRELATION_ID = "X-Correlation-ID";
@@ -33,9 +33,9 @@ public class JoarksakConsumer {
 	private final ObjectMapper objectMapper;
 	private final String sakScope;
 
-	public JoarksakConsumer(SafSelvbetjeningProperties safSelvbetjeningProperties,
-							RestClient restClientTexas,
-							ObjectMapper objectMapper) {
+	public SakConsumer(SafSelvbetjeningProperties safSelvbetjeningProperties,
+					   RestClient restClientTexas,
+					   ObjectMapper objectMapper) {
 		this.restClientTexas = restClientTexas.mutate()
 				.baseUrl(safSelvbetjeningProperties.getEndpoints().getSak().getUrl())
 				.build();
