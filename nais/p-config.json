@@ -84,11 +84,6 @@
       "cluster": "prod-gcp"
     },
     {
-      "app": "foreldrepengesoknad-api",
-      "namespace": "teamforeldrepenger",
-      "cluster": "prod-gcp"
-    },
-    {
       "app": "fpoversikt",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-gcp"
