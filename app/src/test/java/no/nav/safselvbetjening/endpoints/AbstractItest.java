@@ -138,6 +138,14 @@ public abstract class AbstractItest {
 						.withBodyFile("azure/token_response.json")));
 	}
 
+	protected void stubNaisTexasToken() {
+		stubFor(post("/nais-texas")
+				.willReturn(aResponse()
+						.withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("nais-texas/token_response.json")));
+	}
+
 	protected void stubPdlGenerell() {
 		stubPdl("pdl-generell.json");
 	}

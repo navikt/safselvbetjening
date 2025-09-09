@@ -617,6 +617,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private void happyStubs() {
 		stubAzure();
 		stubTokenx();
+		stubNaisTexasToken();
 		stubPdlGenerell();
 		stubSak();
 		stubPensjonssaker();
@@ -627,6 +628,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private void happyStubs(String fileName) {
 		stubAzure();
 		stubTokenx();
+		stubNaisTexasToken();
 		stubPdlGenerell();
 		stubSak();
 		stubPensjonssaker();
@@ -637,6 +639,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private void happyStubWithInnsyn(String fileName) {
 		stubAzure();
 		stubTokenx();
+		stubNaisTexasToken();
 		stubPdlGenerell();
 		stubSak();
 		stubPensjonssaker();
@@ -644,13 +647,13 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubReprApiFullmakt();
 	}
 
-	private ResponseEntity<GraphQLResponse> callDokumentoversikt(final String queryfile) throws IOException, URISyntaxException {
+	private ResponseEntity<GraphQLResponse> callDokumentoversikt(final String queryfile) throws URISyntaxException {
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/" + queryfile), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(BRUKER_ID), POST, new URI("/graphql"));
 		return restTemplate.exchange(requestEntity, GraphQLResponse.class);
 	}
 
-	private ResponseEntity<GraphQLResponse> callDokumentoversiktSubToken(final String queryfile) throws IOException, URISyntaxException {
+	private ResponseEntity<GraphQLResponse> callDokumentoversiktSubToken(final String queryfile) throws URISyntaxException {
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/" + queryfile), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeadersSubToken(BRUKER_ID), POST, new URI("/graphql"));
 		return restTemplate.exchange(requestEntity, GraphQLResponse.class);

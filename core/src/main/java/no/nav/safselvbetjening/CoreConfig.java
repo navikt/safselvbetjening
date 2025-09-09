@@ -70,8 +70,8 @@ public class CoreConfig {
 			public MeterFilterReply accept(Meter.Id id) {
 				// Hindre sak metrikker fra å registreres i prometheus
 				if (id.getName().startsWith("http.client.requests")
-						&& id.getTag("clientName") != null
-						&& id.getTag("clientName").startsWith(URI.create(safSelvbetjeningProperties.getEndpoints().getSak()).getHost())) {
+					&& id.getTag("clientName") != null
+					&& id.getTag("clientName").startsWith(URI.create(safSelvbetjeningProperties.getEndpoints().getSak().getUrl()).getHost())) {
 					return DENY;
 				}
 				return ACCEPT;
@@ -81,7 +81,7 @@ public class CoreConfig {
 
 	@Bean
 	UtledTilgangService utledTilgangService(SafSelvbetjeningProperties safSelvbetjeningProperties) {
-		if(safSelvbetjeningProperties.getFeature().isMma7514()) {
+		if (safSelvbetjeningProperties.getFeature().isMma7514()) {
 			log.info("safselvbetjening.feature.mma7514=true");
 			return new UtledTilgangService(true);
 		}

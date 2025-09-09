@@ -8,7 +8,6 @@ COPY --from=builder --chown=apprunner:apprunner /build/extracted/dependencies/ .
 COPY --from=builder --chown=apprunner:apprunner /build/extracted/snapshot-dependencies/ ./
 COPY --from=builder --chown=apprunner:apprunner /build/extracted/spring-boot-loader/ ./
 COPY --from=builder --chown=apprunner:apprunner /build/extracted/application/ ./
-COPY export-vault-secrets.sh /init-scripts/10-export-vault-secrets.sh
 COPY --chown=apprunner:apprunner --chmod=0755 run-java.sh /
 
 ENV MAIN_CLASS="org.springframework.boot.loader.launch.JarLauncher"

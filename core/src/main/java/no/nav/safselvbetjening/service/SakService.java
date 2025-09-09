@@ -7,7 +7,7 @@ import no.nav.safselvbetjening.consumer.dokarkiv.Saker;
 import no.nav.safselvbetjening.consumer.pensjon.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.consumer.sak.Joarksak;
-import no.nav.safselvbetjening.consumer.sak.JoarksakConsumer;
+import no.nav.safselvbetjening.consumer.sak.SakConsumer;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -26,11 +26,11 @@ public class SakService {
 
 	private static final List<String> TEMA_PENSJON = Arrays.asList("UFO", "PEN");
 	private final PensjonSakRestConsumer pensjonSakRestConsumer;
-	private final JoarksakConsumer joarksakConsumer;
+	private final SakConsumer sakConsumer;
 
-	public SakService(PensjonSakRestConsumer pensjonSakRestConsumer, JoarksakConsumer joarksakConsumer) {
+	public SakService(PensjonSakRestConsumer pensjonSakRestConsumer, SakConsumer sakConsumer) {
 		this.pensjonSakRestConsumer = pensjonSakRestConsumer;
-		this.joarksakConsumer = joarksakConsumer;
+		this.sakConsumer = sakConsumer;
 	}
 
 	public Saker hentSaker(BrukerIdenter brukerIdenter, List<String> tema) {
@@ -41,7 +41,7 @@ public class SakService {
 
 	private List<Joarksak> hentArkivsaker(List<String> aktoerIds, List<String> tema) {
 		try {
-			return joarksakConsumer.hentSaker(aktoerIds, tema);
+			return sakConsumer.hentSaker(aktoerIds, tema);
 		} catch (ConsumerFunctionalException e) {
 			log.warn("Henting av arkivsaker feilet.", e);
 			return emptyList();
