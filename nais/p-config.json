@@ -54,16 +54,6 @@
       "cluster": "prod-gcp"
     },
     {
-      "app": "pensjon-pselv",
-      "namespace": "pensjondeployer",
-      "cluster": "prod-gcp"
-    },
-    {
-      "app": "pensjon-pselv-borger",
-      "namespace": "pensjondeployer",
-      "cluster": "prod-gcp"
-    },
-    {
       "app": "pensjon-selvbetjening-saksoversikt-backend",
       "namespace": "pensjonselvbetjening",
       "cluster": "prod-gcp"

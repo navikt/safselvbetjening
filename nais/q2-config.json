@@ -75,16 +75,6 @@
       "cluster": "dev-gcp"
     },
     {
-      "app": "pensjon-pselv-q2",
-      "namespace": "teampensjon",
-      "cluster": "dev-gcp"
-    },
-    {
-      "app": "pensjon-pselv-borger-q2",
-      "namespace": "pensjon-q2",
-      "cluster": "dev-gcp"
-    },
-    {
       "app": "klage-dittnav-api",
       "namespace": "klage",
       "cluster": "dev-gcp"
