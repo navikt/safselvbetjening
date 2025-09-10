@@ -49,6 +49,7 @@ import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_UGYLDIG_VARIANTFORMAT;
 import static no.nav.safselvbetjening.tilgang.TilgangVariantFormat.ARKIV;
 import static no.nav.safselvbetjening.tilgang.TilgangVariantFormat.SLADDET;
+import static no.nav.safselvbetjening.tilgang.TilgangsvalideringService.validerFullmaktForTema;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
@@ -130,9 +131,7 @@ public class HentDokumentService {
 					hentdokumentRequest.getVariantFormat(), brukerIdenter, pensjonsakOpt);
 			String gjeldendeTema = journalpost.getTilgang().getGjeldendeTema();
 			fullmaktOptional.ifPresent(fullmakt -> {
-				TilgangsvalideringService.validerFullmaktForTema(fullmakt, gjeldendeTema,
-						fullmaktPresentAndValidAuditLog(hentdokumentRequest, gjeldendeTema)
-				);
+				validerFullmaktForTema(fullmakt, gjeldendeTema, fullmaktPresentAndValidAuditLog(hentdokumentRequest, gjeldendeTema));
 			});
 
 			TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
@@ -219,7 +218,7 @@ public class HentDokumentService {
 		Long arkivJournalpostId = arkivJournalpost.journalpostId();
 		if (!hentdokumentRequest.getJournalpostId().equals(arkivJournalpostId.toString())) {
 			throw new IllegalStateException("Journalpost som er returnert fra dokarkiv matcher ikke journalpost fra fagarkivet. " +
-					"request.journalpostId=" + hentdokumentRequest.getJournalpostId() + ", arkivJournalpost.journalpostId=" + arkivJournalpostId);
+											"request.journalpostId=" + hentdokumentRequest.getJournalpostId() + ", arkivJournalpost.journalpostId=" + arkivJournalpostId);
 		}
 	}
 

@@ -53,7 +53,7 @@ public class JournalpostByIdDataFetcher implements DataFetcher<DataFetcherResult
 			Journalpost journalpost = journalpostService.queryJournalpost(journalpostId, environment, graphQLRequestContext);
 			return DataFetcherResult.<Journalpost>newResult().data(journalpost).build();
 		} catch (GraphQLException e) {
-			log.warn("journalpostById feilet: " + e.getError().getMessage());
+			log.warn("journalpostById feilet: {}", e.getError().getMessage());
 			return e.toDataFetcherResult();
 		} catch (PensjonsakIkkeFunnetException e) {
 			return GraphQLException.of(NOT_FOUND, environment, FEILMELDING_INGEN_PENSJONSSAK).toDataFetcherResult();

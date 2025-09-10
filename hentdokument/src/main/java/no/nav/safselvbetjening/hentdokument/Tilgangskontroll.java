@@ -25,10 +25,10 @@ record Tilgangskontroll(Journalposttype journalpostType, Kanal kanal, boolean is
 	}
 
 	private static boolean isHoveddokument(List<DokumentInfo> dokumenter) {
-		if(dokumenter.isEmpty()) {
+		if (dokumenter.isEmpty()) {
 			return false;
 		}
-		return dokumenter.get(0).isHoveddokument();
+		return dokumenter.getFirst().isHoveddokument();
 	}
 
 	boolean genererHoveddokumentLestHendelse() {

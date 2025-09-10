@@ -12,20 +12,24 @@ import java.text.ParseException;
 @Validated
 @ConfigurationProperties(prefix = "token.x")
 public class TokendingsProperties {
+
 	@NotEmpty
 	@Getter
-	private String clientId;
+	private final String clientId;
+
 	@NotNull
 	@Getter
-	private RSAKey rsaKey;
+	private final RSAKey rsaKey;
+
 	@NotEmpty
 	@Getter
-	private String tokenEndpoint;
+	private final String tokenEndpoint;
 
 	public TokendingsProperties(String clientId, String privateJwk, String tokenEndpoint) throws ParseException {
-		if(privateJwk == null) {
+		if (privateJwk == null) {
 			throw new IllegalArgumentException("token.x.private.jwk er null");
 		}
+
 		this.clientId = clientId;
 		this.rsaKey = RSAKey.parse(privateJwk);
 		this.tokenEndpoint = tokenEndpoint;

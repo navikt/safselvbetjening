@@ -65,7 +65,7 @@ class PdlIdentConsumer implements IdentConsumer {
 		if (pdlResponse.getErrors() == null || pdlResponse.getErrors().isEmpty()) {
 			return pdlResponse.getData().getHentIdenter().getIdenter();
 		} else {
-			if (PERSON_IKKE_FUNNET_CODE.equals(pdlResponse.getErrors().get(0).getExtensions().getCode())) {
+			if (PERSON_IKKE_FUNNET_CODE.equals(pdlResponse.getErrors().getFirst().getExtensions().getCode())) {
 				throw new PersonIkkeFunnetException("Fant ikke aktørid for person i pdl.");
 			}
 			throw new PdlFunctionalException("Kunne ikke hente aktørid for folkeregisterident i pdl. " + pdlResponse.getErrors());

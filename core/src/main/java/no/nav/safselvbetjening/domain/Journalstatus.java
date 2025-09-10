@@ -12,5 +12,5 @@ public enum Journalstatus {
 	UKJENT_BRUKER,
 	RESERVERT,
 	OPPLASTING_DOKUMENT,
-	UKJENT;
+	UKJENT
 }

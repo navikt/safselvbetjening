@@ -43,11 +43,11 @@ import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 
 @EmbeddedKafka(
 		topics = {"test-ut-topic"},
-		bootstrapServersProperty = "spring.kafka.bootstrap-servers",
 		partitions = 1
 )
 public abstract class AbstractHentDokumentItest extends AbstractItest {
-	protected static String PRIVAT_DOKDISTDITTNAV_LESTAVMOTTAKER_TOPIC = "privat-dokdistdittnav-lestavmottaker";
+
+	protected static final String PRIVAT_DOKDISTDITTNAV_LESTAVMOTTAKER_TOPIC = "privat-dokdistdittnav-lestavmottaker";
 	protected static final String JOURNALPOST_ID = "400000000";
 	protected static final String DOKUMENT_ID = "410000000";
 	protected static final VariantFormatCode VARIANTFORMAT = ARKIV;

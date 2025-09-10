@@ -11,8 +11,7 @@ import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FULLMAKT_GJE
 import static no.nav.safselvbetjening.NavHeaders.NAV_REASON_CODE;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentService.DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentService.DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
