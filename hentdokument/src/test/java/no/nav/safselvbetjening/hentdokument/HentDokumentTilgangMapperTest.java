@@ -163,7 +163,7 @@ class HentDokumentTilgangMapperTest {
 		ArkivJournalpost arkivJournalpost = arkivJournalpost();
 		Journalpost journalpost = mapper.map(arkivJournalpost, arkivJournalpost.dokumenter().getFirst().dokumentInfoId(), SLADDET.name(), createBrukerIdenter(), Optional.empty());
 
-		assertThat(journalpost.getDokumenter().get(0).getDokumentvarianter()).hasSize(0);
+		assertThat(journalpost.getDokumenter().getFirst().getDokumentvarianter()).hasSize(0);
 	}
 
 	@Test

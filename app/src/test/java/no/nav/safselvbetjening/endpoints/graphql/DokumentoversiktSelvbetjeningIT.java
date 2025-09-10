@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
@@ -162,7 +161,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		List<Journalpost> journalposts = dokumentoversikt.getFagsak().getFirst().getJournalposter();
 		assertThat(journalposts).hasSize(1);
 		journalposts.sort(Comparator.comparing(Journalpost::getJournalpostId));
-		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
+		doAssertJournalpost(journalposts.getFirst(), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
 	}
 
 	@Test
@@ -206,7 +205,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	private void assertTemaQuery(Dokumentoversikt dokumentoversikt) {
 		assertThat(dokumentoversikt.getTema()).hasSize(2);
-		Sakstema foreldrepenger = dokumentoversikt.getTema().get(0);
+		Sakstema foreldrepenger = dokumentoversikt.getTema().getFirst();
 		assertThat(foreldrepenger.getKode()).isEqualTo("FOR");
 		assertThat(foreldrepenger.getNavn()).isEqualTo("Foreldre- og svangerskapspenger");
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
@@ -218,7 +217,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	private void assertFagsakQuery(Dokumentoversikt dokumentoversikt) {
 		assertThat(dokumentoversikt.getFagsak()).hasSize(2);
-		Fagsak foreldrepenger = dokumentoversikt.getFagsak().get(0);
+		Fagsak foreldrepenger = dokumentoversikt.getFagsak().getFirst();
 		assertThat(foreldrepenger.getFagsakId()).isEqualTo("fp-12345");
 		assertThat(foreldrepenger.getFagsaksystem()).isEqualTo("FS38");
 		assertThat(foreldrepenger.getTema()).isEqualTo("FOR");
@@ -284,10 +283,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	private void assertTemaQueryDokumenter(Dokumentoversikt dokumentoversikt) {
 		assertThat(dokumentoversikt.getTema()).hasSize(1);
-		Sakstema foreldrepenger = dokumentoversikt.getTema().get(0);
+		Sakstema foreldrepenger = dokumentoversikt.getTema().getFirst();
 		assertThat(foreldrepenger.getKode()).isEqualTo("FOR");
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
-		Journalpost journalpost1 = foreldrepenger.getJournalposter().get(0);
+		Journalpost journalpost1 = foreldrepenger.getJournalposter().getFirst();
 		assertThat(journalpost1.getJournalpostId()).isEqualTo("400000000");
 		assertThat(journalpost1.getDokumenter()).extracting(DokumentInfo::getDokumentInfoId)
 				.containsExactly("700000000", "700000002", "700000001");
@@ -299,12 +298,12 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 	private void assertFagsakQueryDokumenter(Dokumentoversikt dokumentoversikt) {
 		assertThat(dokumentoversikt.getFagsak()).hasSize(1);
-		Fagsak foreldrepenger = dokumentoversikt.getFagsak().get(0);
+		Fagsak foreldrepenger = dokumentoversikt.getFagsak().getFirst();
 		assertThat(foreldrepenger.getFagsakId()).isEqualTo("fp-12345");
 		assertThat(foreldrepenger.getFagsaksystem()).isEqualTo("FS38");
 		assertThat(foreldrepenger.getTema()).isEqualTo("FOR");
 		assertThat(foreldrepenger.getJournalposter()).hasSize(1);
-		Journalpost journalpost = foreldrepenger.getJournalposter().get(0);
+		Journalpost journalpost = foreldrepenger.getJournalposter().getFirst();
 		assertThat(journalpost.getJournalpostId()).isEqualTo("400000001");
 		assertThat(journalpost.getDokumenter()).extracting(DokumentInfo::getDokumentInfoId)
 				.containsExactly("600000000", "600000002", "600000001");
@@ -335,7 +334,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(graphQLResponse.getData()).isNotNull();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertThat(data.getTema()).hasSize(1);
-		Sakstema foreldrepenger = data.getTema().get(0);
+		Sakstema foreldrepenger = data.getTema().getFirst();
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
 	}
 
@@ -352,7 +351,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt data = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
 		assertThat(data.getTema()).hasSize(1);
-		Sakstema foreldrepenger = data.getTema().get(0);
+		Sakstema foreldrepenger = data.getTema().getFirst();
 
 		verify(1, getRequestedFor(urlEqualTo(HENT_PENSJONSSAKER_PATH)));
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
@@ -373,7 +372,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		Sakstema sakstemaPensjon = data.getTema().get(1);
 		assertEquals("PEN", sakstemaPensjon.getKode());
-		assertEquals("21998969", sakstemaPensjon.getJournalposter().get(0).getSak().getFagsakId());
+		assertEquals("21998969", sakstemaPensjon.getJournalposter().getFirst().getSak().getFagsakId());
 
 		verify(1, getRequestedFor(urlEqualTo(HENT_PENSJONSSAKER_PATH)));
 		assertThat(sakstemaPensjon.getJournalposter()).hasSize(1);
@@ -412,7 +411,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		assertThat(data.getTema()).hasSize(1);
 		// fra pensjonssaker
-		assertThat(data.getTema().get(0).getKode()).isEqualTo("UFO");
+		assertThat(data.getTema().getFirst().getKode()).isEqualTo("UFO");
 	}
 
 	@Test
@@ -444,9 +443,9 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		assertThat(dokumentoversikt.getTema()).hasSize(1);
 		// fullmakt FOR
-		assertThat(dokumentoversikt.getTema().get(0).getKode()).isEqualTo("FOR");
-		assertThat(dokumentoversikt.getFagsak().get(0).getTema()).isEqualTo("FOR");
-		assertThat(dokumentoversikt.getJournalposter().get(0).getTema()).isEqualTo("FOR");
+		assertThat(dokumentoversikt.getTema().getFirst().getKode()).isEqualTo("FOR");
+		assertThat(dokumentoversikt.getFagsak().getFirst().getTema()).isEqualTo("FOR");
+		assertThat(dokumentoversikt.getJournalposter().getFirst().getTema()).isEqualTo("FOR");
 	}
 
 	@Test
@@ -467,8 +466,8 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 
 		assertThat(data.getTema()).hasSize(1);
 		// fullmakt FOR,AAP men kun tema FOR i filter
-		assertThat(data.getTema().get(0).getKode()).isEqualTo("FOR");
-		assertThat(data.getTema().get(0).getJournalposter()).hasSize(1);
+		assertThat(data.getTema().getFirst().getKode()).isEqualTo("FOR");
+		assertThat(data.getTema().getFirst().getJournalposter()).hasSize(1);
 	}
 
 	@Test

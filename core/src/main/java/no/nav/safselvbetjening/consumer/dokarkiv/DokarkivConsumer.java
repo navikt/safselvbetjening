@@ -15,7 +15,7 @@ import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalposter;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.FinnJournalposterRequest;
 import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
-import org.springframework.boot.autoconfigure.codec.CodecProperties;
+import org.springframework.boot.autoconfigure.http.codec.HttpCodecsProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -47,7 +47,7 @@ public class DokarkivConsumer {
 	private final Retry dokarkivMetadataRetry;
 
 	public DokarkivConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
-							final CodecProperties codecProperties,
+							final HttpCodecsProperties httpCodecsProperties,
 							final WebClient webClient,
 							final CircuitBreakerRegistry circuitBreakerRegistry,
 							final RetryRegistry retryRegistry) {
@@ -58,7 +58,7 @@ public class DokarkivConsumer {
 				.exchangeStrategies(ExchangeStrategies.builder()
 						.codecs(clientCodecConfigurer ->
 								clientCodecConfigurer.defaultCodecs()
-										.maxInMemorySize((int) codecProperties.getMaxInMemorySize().toBytes())
+										.maxInMemorySize((int) httpCodecsProperties.getMaxInMemorySize().toBytes())
 						)
 						.build())
 				.build();

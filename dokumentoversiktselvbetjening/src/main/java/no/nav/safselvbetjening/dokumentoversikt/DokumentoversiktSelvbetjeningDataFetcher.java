@@ -101,7 +101,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			}
 			return DataFetcherResult.newResult().data(Dokumentoversikt.empty()).build();
 		} catch (GraphQLException e) {
-			log.warn("dokumentoversiktSelvbetjening feilet: " + e.getError().getMessage());
+			log.warn("dokumentoversiktSelvbetjening feilet: {}", e.getError().getMessage());
 			return e.toDataFetcherResult();
 		} catch (CallNotPermittedException e) {
 			log.error("dokumentoversiktSelvbetjening circuitbreaker={} er åpen.", e.getCausingCircuitBreakerName(), e);
