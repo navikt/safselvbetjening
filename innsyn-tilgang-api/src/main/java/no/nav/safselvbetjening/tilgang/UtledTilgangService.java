@@ -32,14 +32,7 @@ public class UtledTilgangService {
 	private static final Set<String> GJELDENDE_TEMA_UNNTATT_INNSYN = Set.of("FAR", "KTR", "KTA", "ARS", "ARP");
 	private static final Set<String> GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING = Set.of("PEN", "UFO");
 
-	private final boolean mma7514;
-
 	public UtledTilgangService() {
-		this.mma7514 = false;
-	}
-
-	public UtledTilgangService(boolean mma7514) {
-		this.mma7514 = mma7514;
 	}
 
 	/**
@@ -151,11 +144,10 @@ public class UtledTilgangService {
 	 * de har tema PEN eller UFO.
 	 */
 	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(TilgangJournalpost journalpost) {
-		if (mma7514) {
-			if (journalpost.getTema() != null && GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING.contains(journalpost.getTema())) {
-				return false;
-			}
+		if (journalpost.getTema() != null && GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING.contains(journalpost.getTema())) {
+			return false;
 		}
+
 		if (journalpost.getJournalfoertDato() == null) {
 			if (BRUK_STANDARDREGLER == journalpost.getInnsyn()) {
 				return journalpost.getDatoOpprettet().isBefore(TIDLIGST_INNSYN_DATO);

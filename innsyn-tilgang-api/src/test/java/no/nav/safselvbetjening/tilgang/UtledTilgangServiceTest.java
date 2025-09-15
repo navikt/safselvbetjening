@@ -356,7 +356,7 @@ class UtledTilgangServiceTest {
 				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.tema(tema)
 				.build();
-		boolean actual = new UtledTilgangService(true).isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
+		boolean actual = new UtledTilgangService().isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
 		assertThat(actual).isFalse();
 	}
 

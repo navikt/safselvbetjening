@@ -175,7 +175,7 @@ class DokumentoversiktSelvbetjeningService {
 	private FinnJournalposterRequest finnPensjonJournalposterRequest(Saker saker, List<JournalStatusCode> inkluderJournalstatuser) {
 		return FinnJournalposterRequest.builder()
 				.psakSakIds(saker.pensjonsaker().stream().map(Pensjonsak::sakId).toList())
-				.fraDato(safSelvbetjeningProperties.getFeature().isMma7514() ? TIDLIGST_INNSYN_DATO_PEN_UFO : TIDLIGST_INNSYN_DATO_GENERELL)
+				.fraDato(TIDLIGST_INNSYN_DATO_PEN_UFO)
 				.visFeilregistrerte(false)
 				.journalstatuser(inkluderJournalstatuser)
 				.journalposttyper(ALLE_JOURNALPOSTTYPER)
