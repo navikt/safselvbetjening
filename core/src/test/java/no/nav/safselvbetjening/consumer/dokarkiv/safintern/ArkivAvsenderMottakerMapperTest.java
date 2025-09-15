@@ -7,10 +7,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import java.util.stream.Stream;
 
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.AVSENDER_MOTTAKER_ID;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.AVSENDER_MOTTAKER_ID_TYPE;
@@ -25,28 +23,33 @@ class ArkivAvsenderMottakerMapperTest {
 	private final String UKJENT_AVSENDER = "Ukjent avsender";
 	private final ArkivAvsenderMottakerMapper mapper = new ArkivAvsenderMottakerMapper();
 
-	@ParameterizedTest
-	@MethodSource("blankStrings")
-	void shouldMapToNullWhenInputNullOrBlankAndIdTypeNull(final String id) {
-		ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker(id, null, null);
-
-		AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
-
-		assertThat(avsenderMottaker).isNull();
-	}
-
-	@SuppressWarnings("unused")
-	static Stream<String> blankStrings() {
-		return Stream.of("", "   ", null);
-	}
-
 	@Test
-	void shouldMapToNullWhenIdBlank() {
-		ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker("", null, null);
+	void shouldMapNullWhenArkivAvsenderMottakerNull() {
+		AvsenderMottaker avsenderMottaker = mapper.map(null, Journalposttype.U.name());
+
+		assertThat(avsenderMottaker).isNull();
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"", "   "})
+	@NullSource
+	void shouldMapNullWhenIdAndTypeNullAndNavnNullOrBlank(String navn) {
+		ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker(null, null, navn);
 
 		AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
 
 		assertThat(avsenderMottaker).isNull();
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"", "   "})
+	@NullSource
+	void shouldMapNavnWhenIdNullOrBlank(String id) {
+		ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker(id, null, AVSENDER_MOTTAKER_NAVN);
+
+		AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
+
+		assertAvsenderMottaker(avsenderMottaker, null, null, AVSENDER_MOTTAKER_NAVN);
 	}
 
 	@Test
@@ -56,6 +59,25 @@ class ArkivAvsenderMottakerMapperTest {
 		AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
 
 		assertAvsenderMottaker(avsenderMottaker, FNR, AVSENDER_MOTTAKER_ID, AVSENDER_MOTTAKER_NAVN);
+	}
+
+	@Test
+	void shouldMapAvsenderMottakerNullWhenNotat() {
+		// Uansett om metadata er populert
+		ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker(AVSENDER_MOTTAKER_ID, AVSENDER_MOTTAKER_ID_TYPE, AVSENDER_MOTTAKER_NAVN);
+
+		AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.N.name());
+
+		assertThat(avsenderMottaker).isNull();
+	}
+
+	@Test
+	void shouldMapAvsenderMottakerNullWhenOnlyTypeProvided() {
+		ArkivAvsenderMottaker arkivAvsenderMottaker = new ArkivAvsenderMottaker(null, AVSENDER_MOTTAKER_ID_TYPE, null);
+
+		AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.I.name());
+
+		assertThat(avsenderMottaker).isNull();
 	}
 
 	@Nested
@@ -69,8 +91,6 @@ class ArkivAvsenderMottakerMapperTest {
 			AvsenderMottaker avsenderMottaker = mapper.map(arkivAvsenderMottaker, Journalposttype.U.name());
 
 			assertAvsenderMottaker(avsenderMottaker, ORGNR, "123456789", UKJENT_MOTTAKER);
-
-
 		}
 
 		@Test
@@ -127,9 +147,8 @@ class ArkivAvsenderMottakerMapperTest {
 
 	}
 
-
-	private void assertAvsenderMottaker(AvsenderMottaker avsenderMottaker, AvsenderMottakerIdType code, String id, String navn) {
-		assertThat(avsenderMottaker.getType()).isEqualTo(code);
+	private void assertAvsenderMottaker(AvsenderMottaker avsenderMottaker, AvsenderMottakerIdType type, String id, String navn) {
+		assertThat(avsenderMottaker.getType()).isEqualTo(type);
 		assertThat(avsenderMottaker.getId()).isEqualTo(id);
 		assertThat(avsenderMottaker.getNavn()).isEqualTo(navn);
 	}

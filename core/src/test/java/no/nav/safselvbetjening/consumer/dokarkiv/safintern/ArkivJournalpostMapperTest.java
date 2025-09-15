@@ -232,7 +232,9 @@ class ArkivJournalpostMapperTest {
 		assertThat(journalpost.getSak().getFagsakId()).isEqualTo(FAGSAKNR);
 		assertThat(journalpost.getSak().getFagsaksystem()).isEqualTo(APPLIKASJON);
 		assertThat(journalpost.getSak().getSakstype()).isEqualTo(FAGSAK);
-		assertThat(journalpost.getAvsender()).isNull();
+		assertThat(journalpost.getAvsender().getId()).isNull();
+		assertThat(journalpost.getAvsender().getType()).isNull();
+		assertThat(journalpost.getAvsender().getNavn()).isEqualTo(AVSENDER_MOTTAKER_NAVN);
 		assertThat(journalpost.getRelevanteDatoer())
 				.hasSize(4)
 				.contains(

@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
+import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode.N;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
 public class ArkivAvsenderMottakerMapper {
@@ -18,25 +18,38 @@ public class ArkivAvsenderMottakerMapper {
 		if (arkivAvsenderMottaker == null) {
 			return null;
 		}
-		if (isBlank(arkivAvsenderMottaker.id())) {
+
+		if (isNotat(journalposttype)) {
 			return null;
 		}
+
+		if (isBlank(arkivAvsenderMottaker.id()) && isBlank(arkivAvsenderMottaker.navn())) {
+			return null;
+		}
+
 		return AvsenderMottaker.builder()
-				.id(arkivAvsenderMottaker.id())
+				.id(mapAvsenderMottakerId(arkivAvsenderMottaker))
 				.type(mapAvsenderMottakerIdType(arkivAvsenderMottaker.id(), arkivAvsenderMottaker.type()))
 				.navn(mapAvsenderMottakerNavn(arkivAvsenderMottaker.navn(), journalposttype))
 				.build();
 	}
 
-	private String mapAvsenderMottakerNavn(String navn, String journalposttype) {
-		return switch (journalposttype) {
-			case "I" -> isEmpty(navn) ? "Ukjent avsender" : navn;
-			case "U" -> isEmpty(navn) ? "Ukjent mottaker" : navn;
-			default -> isEmpty(navn) ? "Ukjent avsender/mottaker" : navn;
-		};
+	private static boolean isNotat(String journalposttype) {
+		return N.name().equals(journalposttype);
 	}
 
-	private AvsenderMottakerIdType mapAvsenderMottakerIdType(String avsenderMottakerId, String avsenderMottakerIdType) {
+	private static String mapAvsenderMottakerId(ArkivAvsenderMottaker arkivAvsenderMottaker) {
+		if (isBlank(arkivAvsenderMottaker.id())) {
+			return null;
+		}
+		return arkivAvsenderMottaker.id();
+	}
+
+	private static AvsenderMottakerIdType mapAvsenderMottakerIdType(String avsenderMottakerId, String avsenderMottakerIdType) {
+		if (isBlank(avsenderMottakerId)) {
+			return null;
+		}
+
 		if (avsenderMottakerIdType != null) {
 			return switch (avsenderMottakerIdType) {
 				case "FNR" -> AvsenderMottakerIdType.FNR;
@@ -45,24 +58,29 @@ public class ArkivAvsenderMottakerMapper {
 				case "UTL_ORG" -> AvsenderMottakerIdType.UTL_ORG;
 				default -> AvsenderMottakerIdType.UKJENT;
 			};
-
 		} else {
-			if (avsenderMottakerId == null) {
-				return AvsenderMottakerIdType.NULL;
-			} else {
-				switch (avsenderMottakerId.length()) {
-					case 11:
-						if (FNR_SIMPLE_REGEX.matcher(avsenderMottakerId).matches()) {
-							return AvsenderMottakerIdType.FNR;
-						} else {
-							return AvsenderMottakerIdType.UKJENT;
-						}
-					case 9:
-						return AvsenderMottakerIdType.ORGNR;
-					default:
-						return AvsenderMottakerIdType.UKJENT;
-				}
-			}
+			return switch (avsenderMottakerId.length()) {
+				case 11:
+					if (FNR_SIMPLE_REGEX.matcher(avsenderMottakerId).matches()) {
+						yield AvsenderMottakerIdType.FNR;
+					} else {
+						yield AvsenderMottakerIdType.UKJENT;
+					}
+				case 9:
+					yield AvsenderMottakerIdType.ORGNR;
+				default:
+					yield AvsenderMottakerIdType.UKJENT;
+			};
 		}
+	}
+
+	private static String mapAvsenderMottakerNavn(String navn, String journalposttype) {
+		boolean isBlankNavn = isBlank(navn);
+
+		return switch (journalposttype) {
+			case "I" -> isBlankNavn ? "Ukjent avsender" : navn;
+			case "U" -> isBlankNavn ? "Ukjent mottaker" : navn;
+			default -> null;
+		};
 	}
 }
