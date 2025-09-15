@@ -12,7 +12,6 @@ import graphql.schema.idl.TypeDefinitionRegistry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.token.support.core.api.Protected;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
-import org.springframework.boot.actuate.metrics.cache.CacheMetricsRegistrar;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,8 +49,7 @@ public class GraphQLController {
 	@SuppressWarnings("unchecked")
 	public GraphQLController(GraphQLWiring graphQLWiring,
 							 TokenValidationContextHolder tokenValidationContextHolder,
-							 CacheManager cacheManager,
-							 CacheMetricsRegistrar cacheMetricsRegistrar) throws IOException {
+							 CacheManager cacheManager) throws IOException {
 		this.tokenValidationContextHolder = tokenValidationContextHolder;
 		SchemaParser schemaParser = new SchemaParser();
 		TypeDefinitionRegistry typeRegistry;
@@ -61,7 +59,6 @@ public class GraphQLController {
 		SchemaGenerator schemaGenerator = new SchemaGenerator();
 		this.graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, graphQLWiring.createRuntimeWiring());
 		org.springframework.cache.Cache cache = cacheManager.getCache(GRAPHQL_QUERY_CACHE);
-		cacheMetricsRegistrar.bindCacheToRegistry(cache);
 		this.cache = (Cache<String, PreparsedDocumentEntry>) requireNonNull(cache).getNativeCache();
 	}
 

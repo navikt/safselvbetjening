@@ -81,10 +81,6 @@ public class CoreConfig {
 
 	@Bean
 	UtledTilgangService utledTilgangService(SafSelvbetjeningProperties safSelvbetjeningProperties) {
-		if (safSelvbetjeningProperties.getFeature().isMma7514()) {
-			log.info("safselvbetjening.feature.mma7514=true");
-			return new UtledTilgangService(true);
-		}
 		return new UtledTilgangService();
 	}
 }
