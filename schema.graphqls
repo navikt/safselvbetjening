@@ -130,10 +130,10 @@ type RelevantDato {
 type AvsenderMottaker {
     # Identifikatoren til parten som er avsender eller mottaker av dokumentene på journalposten.
     # * Normalt et fødselsnummer eller organisasjonsnummer.
-    id: String!
+    id: String
 
     # Identifikatortypen til parten som er avsender eller mottaker av dokumentene på journalposten.
-    type: AvsenderMottakerIdType!
+    type: AvsenderMottakerIdType
 
     # Navnet til parten som er avsender eller mottaker av dokumentene på journalposten.
     navn: String!
