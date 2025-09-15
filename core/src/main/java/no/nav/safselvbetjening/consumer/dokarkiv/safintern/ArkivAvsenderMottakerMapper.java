@@ -80,7 +80,7 @@ public class ArkivAvsenderMottakerMapper {
 		return switch (journalposttype) {
 			case "I" -> isBlankNavn ? "Ukjent avsender" : navn;
 			case "U" -> isBlankNavn ? "Ukjent mottaker" : navn;
-			default -> null;
+			default -> "Ukjent";
 		};
 	}
 }
