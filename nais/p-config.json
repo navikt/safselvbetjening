@@ -38,6 +38,11 @@
       "cluster": "prod-gcp"
     },
     {
+      "app": "hm-soknadsbehandling-db",
+      "namespace": "teamdigihot",
+      "cluster": "prod-gcp"
+    },
+    {
       "app": "sif-innsyn-api",
       "namespace": "dusseldorf",
       "cluster": "prod-gcp"
