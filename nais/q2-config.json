@@ -54,6 +54,11 @@
       "cluster": "dev-gcp"
     },
     {
+      "app": "hm-soknadsbehandling-db",
+      "namespace": "teamdigihot",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "sif-innsyn-api",
       "namespace": "dusseldorf",
       "cluster": "dev-gcp"
