@@ -43,11 +43,6 @@
       "cluster": "dev-gcp"
     },
     {
-      "app": "hm-dinehjelpemidler",
-      "namespace": "teamdigihot",
-      "cluster": "dev-gcp"
-    },
-    {
       "app": "hm-soknadsbehandling-db",
       "namespace": "teamdigihot",
       "cluster": "dev-gcp"
