@@ -63,6 +63,11 @@
       "cluster": "prod-gcp"
     },
     {
+      "app": "din-uforetrygd-backend",
+      "namespace": "ufore",
+      "cluster": "prod-gcp"
+    },
+    {
       "app": "klage-dittnav-api",
       "namespace": "klage",
       "cluster": "prod-gcp"
