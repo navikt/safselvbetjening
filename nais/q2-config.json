@@ -74,6 +74,11 @@
       "cluster": "dev-gcp"
     },
     {
+      "app": "din-uforetrygd-backend",
+      "namespace": "ufore",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "klage-dittnav-api",
       "namespace": "klage",
       "cluster": "dev-gcp"
