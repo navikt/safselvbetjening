@@ -400,7 +400,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		happyStubs();
 		stubSak("saker_ingen_innsyn.json");
 		// testen over oppdateres hvis flere (eller færre) tema skal filtreres bort
-		assertThat(Tema.unntattInnsynNavNo()).hasSize(5);
+		assertThat(Tema.unntattInnsynNavNo()).hasSize(6);
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_tema_only.query");
 
