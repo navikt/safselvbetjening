@@ -30,6 +30,7 @@ public enum Tema {
 	KON("Kontantstøtte"),
 	MED("Medlemskap"),
 	MOB("Mobilitetsfremmende stønad"),
+	OLJ("Oljepionerene"),
 	OMS("Omsorgspenger, pleiepenger og opplæringspenger"),
 	OPA("Oppfølging – arbeidsgiver"),
 	OPP("Oppfølging"),
@@ -71,7 +72,8 @@ public enum Tema {
 	KTR("Kontroll"),
 	KTA("Kontroll – anmeldelse"),
 	ARS("Arbeidsrådgivning – skjermet"),
-	ARP("Arbeidsrådgivning – psykologtester");
+	ARP("Arbeidsrådgivning – psykologtester"),
+	BBF("Barnebortføring");
 
 	private final String temanavn;
 
@@ -89,7 +91,7 @@ public enum Tema {
 	 * @return EnumSet med tema som ikke skal vises til bruker
 	 */
 	public static EnumSet<Tema> unntattInnsynNavNo() {
-		return EnumSet.of(FAR, KTR, KTA, ARS, ARP);
+		return EnumSet.of(FAR, KTR, KTA, ARS, ARP, BBF);
 	}
 
 	public static Set<String> unntattInnsynNavNoString() {
