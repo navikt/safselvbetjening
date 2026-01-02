@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.5</version>
+		<version>3.5.8</version>
 	</parent>
 
 	<groupId>no.nav.safselvbetjening</groupId>
@@ -24,6 +24,12 @@
 		<module>innsyn-tilgang-api</module>
 	</modules>
 
+	<repositories>
+		<repository>
+			<id>confluent</id>
+			<url>https://packages.confluent.io/maven</url>
+		</repository>
+	</repositories>
 	<distributionManagement>
 		<repository>
 			<id>ghcr</id>
@@ -34,16 +40,16 @@
 	<properties>
 		<java.version>21</java.version>
 
-		<graphql-java.version>24.2</graphql-java.version>
+		<graphql-java.version>25.0</graphql-java.version>
 		<logstash-logback-encoder.version>8.1</logstash-logback-encoder.version>
-		<token-support.version>5.0.36</token-support.version>
+		<token-support.version>5.0.37</token-support.version>
 		<resilience4j-bom.version>2.3.0</resilience4j-bom.version>
 		<context-propagation.version>1.2.0</context-propagation.version>
-		<kafka-avro-serializer.version>7.9.2</kafka-avro-serializer.version>
+		<kafka-avro-serializer.version>7.9.5</kafka-avro-serializer.version>
 		<teamdokumenthandtering-avro-schemas.version>1.1.6</teamdokumenthandtering-avro-schemas.version>
 
 		<!-- test -->
-		<spring-cloud-starter-contract-stub-runner.version>4.3.0</spring-cloud-starter-contract-stub-runner.version>
+		<spring-cloud-starter-contract-stub-runner.version>4.3.1</spring-cloud-starter-contract-stub-runner.version>
 
 		<!-- plugins -->
 		<maven-toolchains-plugin.version>3.2.0</maven-toolchains-plugin.version>
