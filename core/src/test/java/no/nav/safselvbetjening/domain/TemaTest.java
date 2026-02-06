@@ -2,6 +2,7 @@ package no.nav.safselvbetjening.domain;
 
 import org.junit.jupiter.api.Test;
 
+import static no.nav.safselvbetjening.tilgang.UtledTilgangService.GJELDENDE_TEMA_UNNTATT_INNSYN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TemaTest {
@@ -25,5 +26,11 @@ class TemaTest {
 	@Test
 	void shouldVerifyBrukerHarIkkeInnsynAsString() {
 		assertThat(Tema.unntattInnsynNavNoString()).hasSize(6);
+	}
+
+	@Test
+	void shouldVerifyUnntattInnsynParity() {
+		assertThat(Tema.unntattInnsynNavNo().stream().map(Enum::name))
+				.containsExactlyInAnyOrder(GJELDENDE_TEMA_UNNTATT_INNSYN.toArray(new String[]{}));
 	}
 }
