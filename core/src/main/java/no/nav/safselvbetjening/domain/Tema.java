@@ -1,9 +1,13 @@
 package no.nav.safselvbetjening.domain;
 
+import no.nav.safselvbetjening.tilgang.UtledTilgangService;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static no.nav.safselvbetjening.tilgang.UtledTilgangService.GJELDENDE_TEMA_UNNTATT_INNSYN;
 
 public enum Tema {
 	AAP("Arbeidsavklaringspenger"),
@@ -85,13 +89,16 @@ public enum Tema {
 		return temanavn;
 	}
 
-	/**
-	 * Tema som ikke skal vises til bruker
-	 *
-	 * @return EnumSet med tema som ikke skal vises til bruker
-	 */
+	private static final EnumSet<Tema> TEMA_UNNTATT_INNSYN = EnumSet.copyOf(GJELDENDE_TEMA_UNNTATT_INNSYN.stream()
+			.map(Tema::valueOf)
+			.toList());
+
+	/// Tema som ikke skal vises til bruker
+	///
+	/// @return EnumSet med tema som ikke skal vises til bruker
+	/// @see UtledTilgangService
 	public static EnumSet<Tema> unntattInnsynNavNo() {
-		return EnumSet.of(FAR, KTR, KTA, ARS, ARP, BBF);
+		return TEMA_UNNTATT_INNSYN;
 	}
 
 	public static Set<String> unntattInnsynNavNoString() {
