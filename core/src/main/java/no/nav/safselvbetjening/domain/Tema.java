@@ -91,7 +91,7 @@ public enum Tema {
 
 	private static final EnumSet<Tema> TEMA_UNNTATT_INNSYN = EnumSet.copyOf(GJELDENDE_TEMA_UNNTATT_INNSYN.stream()
 			.map(Tema::valueOf)
-			.collect(Collectors.toList()));
+			.toList());
 
 	/// Tema som ikke skal vises til bruker
 	///
