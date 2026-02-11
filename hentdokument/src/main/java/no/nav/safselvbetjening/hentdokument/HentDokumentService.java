@@ -10,6 +10,7 @@ import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.fullmektig.Fullmakt;
 import no.nav.safselvbetjening.hentdokument.audit.HentDokumentAudit;
+import no.nav.safselvbetjening.metrics.DokumentCounter;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
@@ -28,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -73,6 +76,7 @@ public class HentDokumentService {
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final HentDokumentAudit audit;
 	private final TilgangsvalideringService tilgangsvalideringService;
+	private final DokumentCounter dokumentCounter;
 
 	public HentDokumentService(
 			DokarkivConsumer dokarkivConsumer,
@@ -82,7 +86,8 @@ public class HentDokumentService {
 			PensjonSakRestConsumer pensjonSakRestConsumer,
 			HentDokumentTilgangMapper hentDokumentTilgangMapper,
 			KafkaEventProducer kafkaProducer,
-			SafSelvbetjeningProperties safSelvbetjeningProperties
+			SafSelvbetjeningProperties safSelvbetjeningProperties,
+			DokumentCounter dokumentCounter
 	) {
 		this.dokarkivConsumer = dokarkivConsumer;
 		this.identService = identService;
@@ -92,6 +97,7 @@ public class HentDokumentService {
 		this.hentDokumentTilgangMapper = hentDokumentTilgangMapper;
 		this.kafkaProducer = kafkaProducer;
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
+		this.dokumentCounter = dokumentCounter;
 		this.audit = new HentDokumentAudit(SYSTEM_CLOCK);
 	}
 
@@ -123,6 +129,7 @@ public class HentDokumentService {
 			throw new HentTilgangDokumentException(DENY_REASON_IKKE_AVSENDER_MOTTAKER.reason, FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);
 		}
 
+
 		try {
 			Optional<Fullmakt> fullmaktOptional = tilgangsvalideringService.validerInnloggetBrukerOgFinnFullmakt(brukerIdenter,
 					hentdokumentRequest.getTokenValidationContext());
@@ -138,6 +145,8 @@ public class HentDokumentService {
 			TilgangVariantFormat variantFormat = utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), Long.parseLong(hentdokumentRequest.getDokumentInfoId()), hentdokumentRequest.getVariantFormat());
 			recordFullmaktAuditLog(fullmaktOptional, hentdokumentRequest);
 
+			loggMetrikkAlderDokument(arkivJournalpost);
+
 			return new Tilgangskontroll(journalpost, variantFormat, fullmaktOptional);
 		} catch (NoValidTokensException e) {
 			throw new HentTilgangDokumentException(DENY_REASON_INGEN_GYLDIG_TOKEN, FEILMELDING_INGEN_GYLDIG_TOKEN);
@@ -152,6 +161,11 @@ public class HentDokumentService {
 					e.getFullmakt().fullmektig(), e.getFullmakt().fullmaktsgiver());
 			throw new HentTilgangDokumentException(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
 		}
+	}
+
+	private void loggMetrikkAlderDokument(ArkivJournalpost arkivJournalpost) {
+		long dagerGammel = ChronoUnit.DAYS.between(OffsetDateTime.now(), arkivJournalpost.relevanteDatoer().opprettet());
+		dokumentCounter.increment(Long.toString(dagerGammel));
 	}
 
 	private static Consumer<Fullmakt> fullmaktPresentAndValidAuditLog(HentdokumentRequest hentdokumentRequest, String gjeldendeTema) {
