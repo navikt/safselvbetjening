@@ -15,7 +15,7 @@ public class DokumentCounter {
 	public DokumentCounter(MeterRegistry meterRegistry) { this.meterRegistry = meterRegistry; }
 
 	public void increment(String alder){
-		log.info("Logger dokumentaldermetrikk")
+		log.info("Logger dokumentaldermetrikk");
 		Counter.builder("dok_safselvbetjening_dokument_alder")
 				.tags("alder", alder)
 				.register(meterRegistry)
