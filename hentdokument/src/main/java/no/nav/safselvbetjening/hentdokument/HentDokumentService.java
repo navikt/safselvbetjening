@@ -169,6 +169,7 @@ public class HentDokumentService {
 		log.info("Logger dokumentaldermetrikk");
 		long dagerGammel = ChronoUnit.DAYS.between(OffsetDateTime.now(), arkivJournalpost.relevanteDatoer().opprettet());
 		dokumentCounter.increment(Long.toString(dagerGammel));
+		dokumentCounter.registerAlder(dagerGammel);
 	}
 
 	private static Consumer<Fullmakt> fullmaktPresentAndValidAuditLog(HentdokumentRequest hentdokumentRequest, String gjeldendeTema) {
