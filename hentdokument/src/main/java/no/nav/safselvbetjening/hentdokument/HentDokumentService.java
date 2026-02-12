@@ -140,12 +140,14 @@ public class HentDokumentService {
 			fullmaktOptional.ifPresent(fullmakt -> {
 				validerFullmaktForTema(fullmakt, gjeldendeTema, fullmaktPresentAndValidAuditLog(hentdokumentRequest, gjeldendeTema));
 			});
+			log.info("Starter tilgangskontroll");
 
 			TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 			TilgangVariantFormat variantFormat = utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), Long.parseLong(hentdokumentRequest.getDokumentInfoId()), hentdokumentRequest.getVariantFormat());
 			recordFullmaktAuditLog(fullmaktOptional, hentdokumentRequest);
 
 			loggMetrikkAlderDokument(arkivJournalpost);
+			log.info("ferdig tilgangskontroll");
 
 			return new Tilgangskontroll(journalpost, variantFormat, fullmaktOptional);
 		} catch (NoValidTokensException e) {
@@ -164,6 +166,7 @@ public class HentDokumentService {
 	}
 
 	private void loggMetrikkAlderDokument(ArkivJournalpost arkivJournalpost) {
+		log.info("Logger dokumentaldermetrikk");
 		long dagerGammel = ChronoUnit.DAYS.between(OffsetDateTime.now(), arkivJournalpost.relevanteDatoer().opprettet());
 		dokumentCounter.increment(Long.toString(dagerGammel));
 	}
