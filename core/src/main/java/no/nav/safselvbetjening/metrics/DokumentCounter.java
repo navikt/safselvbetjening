@@ -11,16 +11,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class DokumentCounter {
 	private final MeterRegistry meterRegistry;
-	private final DistributionSummary alderSummary;
 
 	@Autowired
-	public DokumentCounter(MeterRegistry meterRegistry, DistributionSummary alderSummary) { this.meterRegistry = meterRegistry;
-		this.alderSummary = DistributionSummary.builder("dok_safselvbetjening_dokument_alder2")
-				.description("Alder på dokumenter i dager")
-				.serviceLevelObjectives(
-						30,180,365,730,1825
-				)
-				.register(meterRegistry);;
+	public DokumentCounter(MeterRegistry meterRegistry) { this.meterRegistry = meterRegistry;
 	}
 
 	public void increment(String alder){
@@ -33,6 +26,12 @@ public class DokumentCounter {
 
 	public void registerAlder(double alder){
 		log.info("Logger dokumentaldermetrikk for dokument med alder: {}", alder);
+		DistributionSummary alderSummary = DistributionSummary.builder("dok_safselvbetjening_dokument_alder2")
+				.description("Alder på dokumenter i dager")
+				.serviceLevelObjectives(
+						30,180,365,730,1825
+				)
+				.register(meterRegistry);
 		alderSummary.record(alder);
 	}
 }
