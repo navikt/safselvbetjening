@@ -138,14 +138,12 @@ public class HentDokumentService {
 			fullmaktOptional.ifPresent(fullmakt -> {
 				validerFullmaktForTema(fullmakt, gjeldendeTema, fullmaktPresentAndValidAuditLog(hentdokumentRequest, gjeldendeTema));
 			});
-			log.info("Starter tilgangskontroll");
 
 			TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 			TilgangVariantFormat variantFormat = utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), Long.parseLong(hentdokumentRequest.getDokumentInfoId()), hentdokumentRequest.getVariantFormat());
 			recordFullmaktAuditLog(fullmaktOptional, hentdokumentRequest);
 
 			dokumentCounter.loggAlderDokumentMetrikk(arkivJournalpost.relevanteDatoer().opprettet());
-			log.info("ferdig tilgangskontroll");
 
 			return new Tilgangskontroll(journalpost, variantFormat, fullmaktOptional);
 		} catch (NoValidTokensException e) {

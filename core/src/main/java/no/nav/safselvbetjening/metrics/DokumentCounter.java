@@ -36,7 +36,5 @@ public class DokumentCounter {
 		else if (maanederGammel <= 24) bucket13_24.increment();
 		else if (maanederGammel <= 60) bucket25_60.increment();
 		else bucket60plus.increment();
-
-		log.info("Logget dokumentaldermetrikk for dokument med alder: {}", maanederGammel);
 	}
 }
