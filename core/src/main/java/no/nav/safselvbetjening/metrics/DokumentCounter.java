@@ -12,34 +12,31 @@ import java.time.temporal.ChronoUnit;
 @Slf4j
 @Component
 public class DokumentCounter {
-	private final Counter bucket0_30;
-	private final Counter bucket31_180;
-	private final Counter bucket181_365;
-	private final Counter bucket366_730;
-	private final Counter bucket731_1825;
-	private final Counter bucket1826plus;
+	private final Counter bucket0_6;
+	private final Counter bucket7_12;
+	private final Counter bucket13_24;
+	private final Counter bucket25_60;
+	private final Counter bucket60plus;
 
 	@Autowired
 	public DokumentCounter(MeterRegistry meterRegistry) {
-		bucket0_30      = meterRegistry.counter("dok_alder_bucket", "range", "0_30");
-		bucket31_180    = meterRegistry.counter("dok_alder_bucket", "range", "31_180");
-		bucket181_365   = meterRegistry.counter("dok_alder_bucket", "range", "181_365");
-		bucket366_730   = meterRegistry.counter("dok_alder_bucket", "range", "366_730");
-		bucket731_1825  = meterRegistry.counter("dok_alder_bucket", "range", "731_1825");
-		bucket1826plus  = meterRegistry.counter("dok_alder_bucket", "range", "1826_plus");
+		bucket0_6 = meterRegistry.counter("dok_alder_bucket", "range", "0-6");
+		bucket7_12 = meterRegistry.counter("dok_alder_bucket", "range", "712");
+		bucket13_24 = meterRegistry.counter("dok_alder_bucket", "range", "13_24");
+		bucket25_60 = meterRegistry.counter("dok_alder_bucket", "range", "25_60");
+		bucket60plus = meterRegistry.counter("dok_alder_bucket", "range", "60plus");
 
 	}
 
 	public void loggAlderDokumentMetrikk(OffsetDateTime datoOpprettet){
-		long dagerGammel = ChronoUnit.DAYS.between(datoOpprettet, OffsetDateTime.now());
+		long maanederGammel = ChronoUnit.MONTHS.between(datoOpprettet, OffsetDateTime.now());
 
-		if (dagerGammel <= 30) bucket0_30.increment();
-		else if (dagerGammel <= 180) bucket31_180.increment();
-		else if (dagerGammel <= 365) bucket181_365.increment();
-		else if (dagerGammel <= 730) bucket366_730.increment();
-		else if (dagerGammel <= 1825) bucket731_1825.increment();
-		else bucket1826plus.increment();
+		if (maanederGammel <= 6) bucket0_6.increment();
+		else if (maanederGammel <= 12) bucket7_12.increment();
+		else if (maanederGammel <= 24) bucket13_24.increment();
+		else if (maanederGammel <= 60) bucket25_60.increment();
+		else bucket60plus.increment();
 
-		log.info("Logget dokumentaldermetrikk for dokument med alder: {}", dagerGammel);
+		log.info("Logget dokumentaldermetrikk for dokument med alder: {}", maanederGammel);
 	}
 }
