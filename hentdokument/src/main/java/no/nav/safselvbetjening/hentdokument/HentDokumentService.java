@@ -168,7 +168,6 @@ public class HentDokumentService {
 	private void loggMetrikkAlderDokument(ArkivJournalpost arkivJournalpost) {
 		log.info("Logger dokumentaldermetrikk");
 		long dagerGammel = ChronoUnit.DAYS.between(OffsetDateTime.now(), arkivJournalpost.relevanteDatoer().opprettet());
-		dokumentCounter.increment(Long.toString(dagerGammel));
 		dokumentCounter.registerAlder(dagerGammel);
 	}
 
