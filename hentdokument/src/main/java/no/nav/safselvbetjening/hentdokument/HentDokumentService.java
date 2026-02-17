@@ -29,8 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -146,7 +144,7 @@ public class HentDokumentService {
 			TilgangVariantFormat variantFormat = utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), Long.parseLong(hentdokumentRequest.getDokumentInfoId()), hentdokumentRequest.getVariantFormat());
 			recordFullmaktAuditLog(fullmaktOptional, hentdokumentRequest);
 
-			loggMetrikkAlderDokument(arkivJournalpost);
+			dokumentCounter.loggAlderDokumentMetrikk(arkivJournalpost.relevanteDatoer().opprettet());
 			log.info("ferdig tilgangskontroll");
 
 			return new Tilgangskontroll(journalpost, variantFormat, fullmaktOptional);
@@ -163,12 +161,6 @@ public class HentDokumentService {
 					e.getFullmakt().fullmektig(), e.getFullmakt().fullmaktsgiver());
 			throw new HentTilgangDokumentException(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
 		}
-	}
-
-	private void loggMetrikkAlderDokument(ArkivJournalpost arkivJournalpost) {
-		log.info("Logger dokumentaldermetrikk");
-		long dagerGammel = ChronoUnit.DAYS.between(arkivJournalpost.relevanteDatoer().opprettet(), OffsetDateTime.now());
-		dokumentCounter.registerAlder(dagerGammel);
 	}
 
 	private static Consumer<Fullmakt> fullmaktPresentAndValidAuditLog(HentdokumentRequest hentdokumentRequest, String gjeldendeTema) {
