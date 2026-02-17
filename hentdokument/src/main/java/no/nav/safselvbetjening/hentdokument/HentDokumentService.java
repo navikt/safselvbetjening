@@ -127,7 +127,6 @@ public class HentDokumentService {
 			throw new HentTilgangDokumentException(DENY_REASON_IKKE_AVSENDER_MOTTAKER.reason, FEILMELDING_BRUKER_KAN_IKKE_UTLEDES);
 		}
 
-
 		try {
 			Optional<Fullmakt> fullmaktOptional = tilgangsvalideringService.validerInnloggetBrukerOgFinnFullmakt(brukerIdenter,
 					hentdokumentRequest.getTokenValidationContext());
