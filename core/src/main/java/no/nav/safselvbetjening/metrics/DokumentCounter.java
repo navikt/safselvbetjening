@@ -21,7 +21,7 @@ public class DokumentCounter {
 	@Autowired
 	public DokumentCounter(MeterRegistry meterRegistry) {
 		bucket0_6 = meterRegistry.counter("dok_alder_months_bucket", "range", "0-6");
-		bucket7_12 = meterRegistry.counter("dok_alder_months_bucket", "range", "712");
+		bucket7_12 = meterRegistry.counter("dok_alder_months_bucket", "range", "7_12");
 		bucket13_24 = meterRegistry.counter("dok_alder_months_bucket", "range", "13_24");
 		bucket25_60 = meterRegistry.counter("dok_alder_months_bucket", "range", "25_60");
 		bucket60plus = meterRegistry.counter("dok_alder_months_bucket", "range", "60plus");
