@@ -141,7 +141,7 @@ public class HentDokumentService {
 			TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 			TilgangVariantFormat variantFormat = utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), Long.parseLong(hentdokumentRequest.getDokumentInfoId()), hentdokumentRequest.getVariantFormat());
 			recordFullmaktAuditLog(fullmaktOptional, hentdokumentRequest);
-			dokumentCounter.loggAlderDokumentMetrikk(arkivJournalpost.relevanteDatoer().opprettet());
+			dokumentCounter.registrerAlderDokumentMetrikk(arkivJournalpost.relevanteDatoer().opprettet());
 
 			return new Tilgangskontroll(journalpost, variantFormat, fullmaktOptional);
 		} catch (NoValidTokensException e) {

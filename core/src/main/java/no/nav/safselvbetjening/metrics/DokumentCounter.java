@@ -18,7 +18,6 @@ public class DokumentCounter {
 	private final Counter bucket25_60;
 	private final Counter bucket60plus;
 
-	@Autowired
 	public DokumentCounter(MeterRegistry meterRegistry) {
 		bucket0_6 = meterRegistry.counter("dok_alder_months_bucket", "range", "A:0-6");
 		bucket7_12 = meterRegistry.counter("dok_alder_months_bucket", "range", "B:7-12");
@@ -28,7 +27,7 @@ public class DokumentCounter {
 
 	}
 
-	public void loggAlderDokumentMetrikk(OffsetDateTime datoOpprettet){
+	public void registrerAlderDokumentMetrikk(OffsetDateTime datoOpprettet){
 		long maanederGammel = ChronoUnit.MONTHS.between(datoOpprettet, OffsetDateTime.now());
 
 		if (maanederGammel <= 6) bucket0_6.increment();
