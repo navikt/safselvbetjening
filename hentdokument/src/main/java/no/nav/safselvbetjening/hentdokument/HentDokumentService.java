@@ -10,6 +10,7 @@ import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.fullmektig.Fullmakt;
 import no.nav.safselvbetjening.hentdokument.audit.HentDokumentAudit;
+import no.nav.safselvbetjening.metrics.DokumentCounter;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
@@ -73,6 +74,7 @@ public class HentDokumentService {
 	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 	private final HentDokumentAudit audit;
 	private final TilgangsvalideringService tilgangsvalideringService;
+	private final DokumentCounter dokumentCounter;
 
 	public HentDokumentService(
 			DokarkivConsumer dokarkivConsumer,
@@ -82,7 +84,8 @@ public class HentDokumentService {
 			PensjonSakRestConsumer pensjonSakRestConsumer,
 			HentDokumentTilgangMapper hentDokumentTilgangMapper,
 			KafkaEventProducer kafkaProducer,
-			SafSelvbetjeningProperties safSelvbetjeningProperties
+			SafSelvbetjeningProperties safSelvbetjeningProperties,
+			DokumentCounter dokumentCounter
 	) {
 		this.dokarkivConsumer = dokarkivConsumer;
 		this.identService = identService;
@@ -92,6 +95,7 @@ public class HentDokumentService {
 		this.hentDokumentTilgangMapper = hentDokumentTilgangMapper;
 		this.kafkaProducer = kafkaProducer;
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
+		this.dokumentCounter = dokumentCounter;
 		this.audit = new HentDokumentAudit(SYSTEM_CLOCK);
 	}
 
@@ -137,6 +141,7 @@ public class HentDokumentService {
 			TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 			TilgangVariantFormat variantFormat = utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), Long.parseLong(hentdokumentRequest.getDokumentInfoId()), hentdokumentRequest.getVariantFormat());
 			recordFullmaktAuditLog(fullmaktOptional, hentdokumentRequest);
+			dokumentCounter.registrerAlderDokumentMetrikk(arkivJournalpost.relevanteDatoer().opprettet());
 
 			return new Tilgangskontroll(journalpost, variantFormat, fullmaktOptional);
 		} catch (NoValidTokensException e) {
