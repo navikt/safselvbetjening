@@ -21,6 +21,7 @@ public enum Kanal {
 	NAV_NO_CHAT("Innlogget samtale"),
 	NAV_NO_UTEN_VARSLING("Presentert direkte på nav.no for innlogget bruker"),
 	DPV("Taushetsbelagt Post via Altinn"),
+	DPO("eFormidling Digital post offentlig"),
 	E_POST("E-post"),
 	ALTINN_INNBOKS("Altinn Innboks"),
 	HR_SYSTEM_API("HR-system med integrasjon mot Nav");
