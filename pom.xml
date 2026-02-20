@@ -44,7 +44,7 @@
 		<logstash-logback-encoder.version>8.1</logstash-logback-encoder.version>
 		<token-support.version>5.0.37</token-support.version>
 		<resilience4j-bom.version>2.3.0</resilience4j-bom.version>
-		<context-propagation.version>1.2.0</context-propagation.version>
+		<context-propagation.version>1.2.1</context-propagation.version>
 		<kafka-avro-serializer.version>7.9.5</kafka-avro-serializer.version>
 		<teamdokumenthandtering-avro-schemas.version>1.1.6</teamdokumenthandtering-avro-schemas.version>
 
