@@ -5,14 +5,14 @@ import no.nav.security.mock.oauth2.MockOAuth2Server;
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
-import wiremock.org.apache.commons.io.IOUtils;
+import org.wiremock.spring.EnableWireMock;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,7 +28,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
-import static org.apache.zookeeper.common.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.OK;
@@ -41,7 +41,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 )
 @EnableMockOAuth2Server
 @ActiveProfiles("itest")
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock
+@AutoConfigureTestRestTemplate
 public abstract class AbstractItest {
 
 	protected static final String FULLMEKTIG_ID = "22222222222";
@@ -116,7 +117,7 @@ public abstract class AbstractItest {
 
 	protected String stringFromClasspath(String resourcename) {
 		try {
-			return IOUtils.toString(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(resourcename)), UTF_8);
+			return new String(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(resourcename)).readAllBytes(), UTF_8);
 		} catch (IOException e) {
 			throw new IllegalStateException("Klarte ikke lese fil=" + resourcename + " fra classpath til string", e);
 		}
@@ -163,7 +164,7 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubSak(final String fil) {
-		stubFor(get(urlMatching("/sak\\?aktoerId=1012345678911\\&tema=.*"))
+		stubFor(get(urlMatching("/sak\\?aktoerId=1012345678911&tema=.*"))
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)

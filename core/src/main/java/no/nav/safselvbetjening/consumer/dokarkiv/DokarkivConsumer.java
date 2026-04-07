@@ -15,7 +15,7 @@ import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalposter;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.FinnJournalposterRequest;
 import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
-import org.springframework.boot.autoconfigure.http.codec.HttpCodecsProperties;
+import org.springframework.boot.http.codec.autoconfigure.HttpCodecsProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;

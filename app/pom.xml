@@ -35,25 +35,20 @@
 			<groupId>no.nav.security</groupId>
 			<artifactId>token-validation-spring-test</artifactId>
 			<scope>test</scope>
-			<exclusions>
-				<!--
-				 Ekskluderer denne pga runtime konflikt med spring-boot-starter-webflux
-				 Runtime feil: java.lang.NoClassDefFoundError: io/netty/handler/codec/dns/DatagramDnsResponseDecoder
-				 -->
-				<exclusion>
-					<groupId>io.netty</groupId>
-					<artifactId>netty-all</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+			<groupId>org.wiremock.integrations</groupId>
+			<artifactId>wiremock-spring-boot</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.kafka</groupId>
-			<artifactId>spring-kafka-test</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-resttestclient</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-kafka-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
