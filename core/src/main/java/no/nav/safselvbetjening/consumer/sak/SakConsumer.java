@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -44,7 +45,7 @@ public class SakConsumer {
 	}
 
 	@CircuitBreaker(name = ARKIVSAK_INSTANCE)
-	@Retryable(includes = ConsumerTechnicalException.class, excludes = ConsumerFunctionalException.class, delay = 500, multiplier = 2)
+	@Retryable(includes = {ConsumerTechnicalException.class, ResourceAccessException.class}, excludes = ConsumerFunctionalException.class, delay = 500, multiplier = 2)
 	public List<Joarksak> hentSaker(final List<String> aktoerId, final List<String> tema) {
 		if (tema.isEmpty()) {
 			return new ArrayList<>();
