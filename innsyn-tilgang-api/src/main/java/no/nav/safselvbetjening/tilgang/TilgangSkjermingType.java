@@ -9,6 +9,7 @@ import static no.nav.safselvbetjening.tilgang.UtledTilgangService.isBlank;
 public enum TilgangSkjermingType {
 	POL(true),
 	FEIL(true),
+	ARK(true),
 	UKJENT(true),
 	INGEN_SKJERMING(false);
 
@@ -30,7 +31,7 @@ public enum TilgangSkjermingType {
 		}
 		return switch (skjermingtype) {
 			case "POL" -> POL;
-			case "FEIL" -> FEIL;
+			case "ARK", "FEIL" -> ARK;
 			default -> UKJENT;
 		};
 	}

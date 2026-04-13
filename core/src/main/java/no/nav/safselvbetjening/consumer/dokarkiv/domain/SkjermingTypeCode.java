@@ -5,5 +5,6 @@ package no.nav.safselvbetjening.consumer.dokarkiv.domain;
  */
 public enum SkjermingTypeCode {
 	POL,
+	ARK,
 	FEIL
 }
