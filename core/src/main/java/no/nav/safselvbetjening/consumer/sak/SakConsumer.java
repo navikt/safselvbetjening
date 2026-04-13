@@ -1,16 +1,17 @@
 package no.nav.safselvbetjening.consumer.sak;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,21 +31,21 @@ public class SakConsumer {
 	private static final String HEADER_SAK_CORRELATION_ID = "X-Correlation-ID";
 
 	private final RestClient restClientTexas;
-	private final ObjectMapper objectMapper;
+	private final JsonMapper jsonMapper;
 	private final String sakScope;
 
 	public SakConsumer(SafSelvbetjeningProperties safSelvbetjeningProperties,
 					   RestClient restClientTexas,
-					   ObjectMapper objectMapper) {
+					   JsonMapper jsonMapper) {
 		this.restClientTexas = restClientTexas.mutate()
 				.baseUrl(safSelvbetjeningProperties.getEndpoints().getSak().getUrl())
 				.build();
 		this.sakScope = safSelvbetjeningProperties.getEndpoints().getSak().getScope();
-		this.objectMapper = objectMapper;
+		this.jsonMapper = jsonMapper;
 	}
 
 	@CircuitBreaker(name = ARKIVSAK_INSTANCE)
-	@Retry(name = ARKIVSAK_INSTANCE)
+	@Retryable(includes = {ConsumerTechnicalException.class, ResourceAccessException.class}, excludes = ConsumerFunctionalException.class, delay = 500, multiplier = 2)
 	public List<Joarksak> hentSaker(final List<String> aktoerId, final List<String> tema) {
 		if (tema.isEmpty()) {
 			return new ArrayList<>();
@@ -61,7 +62,7 @@ public class SakConsumer {
 				.retrieve()
 				.onStatus(HttpStatusCode::isError, (request, response) -> {
 					String feilmelding = "Henting av saker for bruker feilet %s med statuskode=%s og feilmelding=%s.";
-					ProblemDetail problemDetail = objectMapper.readValue(response.getBody(), ProblemDetail.class);
+					ProblemDetail problemDetail = jsonMapper.readValue(response.getBody(), ProblemDetail.class);
 
 					if (response.getStatusCode().is4xxClientError()) {
 						throw new ConsumerFunctionalException(feilmelding.formatted("funksjonelt", response.getStatusCode(), problemDetail));

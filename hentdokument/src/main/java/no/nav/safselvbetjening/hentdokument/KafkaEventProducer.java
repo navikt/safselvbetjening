@@ -1,7 +1,6 @@
 package no.nav.safselvbetjening.hentdokument;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
@@ -10,6 +9,7 @@ import org.apache.kafka.common.errors.TopicAuthorizationException;
 import org.springframework.kafka.core.KafkaProducerException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -35,10 +35,9 @@ public class KafkaEventProducer {
 		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 	}
 
-	@Retry(name = KAFKA_INSTANCE)
 	@CircuitBreaker(name = KAFKA_INSTANCE)
+	@Retryable(includes = KafkaTechnicalException.class, delay = 500, multiplier = 2)
 	public void publish(HoveddokumentLest event) {
-
 		ProducerRecord<String, Object> producerRecord = new ProducerRecord<>(
 				safSelvbetjeningProperties.getTopics().getDokdistdittnav(),
 				null,

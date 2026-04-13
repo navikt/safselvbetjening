@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.8</version>
+		<version>4.0.5</version>
 	</parent>
 
 	<groupId>no.nav.safselvbetjening</groupId>
@@ -41,15 +41,14 @@
 		<java.version>25</java.version>
 
 		<graphql-java.version>25.0</graphql-java.version>
-		<logstash-logback-encoder.version>8.1</logstash-logback-encoder.version>
-		<token-support.version>5.0.37</token-support.version>
-		<resilience4j-bom.version>2.3.0</resilience4j-bom.version>
+		<logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
+		<token-support.version>6.0.4</token-support.version>
+		<resilience4j.version>2.4.0</resilience4j.version>
 		<context-propagation.version>1.2.0</context-propagation.version>
 		<kafka-avro-serializer.version>7.9.5</kafka-avro-serializer.version>
 		<teamdokumenthandtering-avro-schemas.version>1.1.6</teamdokumenthandtering-avro-schemas.version>
 
-		<!-- test -->
-		<spring-cloud-starter-contract-stub-runner.version>4.3.1</spring-cloud-starter-contract-stub-runner.version>
+		<wiremock-spring-boot.version>4.2.1</wiremock-spring-boot.version>
 
 		<!-- plugins -->
 		<maven-toolchains-plugin.version>3.2.0</maven-toolchains-plugin.version>
@@ -110,10 +109,18 @@
 			</dependency>
 			<dependency>
 				<groupId>io.github.resilience4j</groupId>
-				<artifactId>resilience4j-bom</artifactId>
-				<version>${resilience4j-bom.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
+				<artifactId>resilience4j-spring-boot4</artifactId>
+				<version>${resilience4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.resilience4j</groupId>
+				<artifactId>resilience4j-reactor</artifactId>
+				<version>${resilience4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.resilience4j</groupId>
+				<artifactId>resilience4j-micrometer</artifactId>
+				<version>${resilience4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.micrometer</groupId>
@@ -139,9 +146,9 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
-				<version>${spring-cloud-starter-contract-stub-runner.version}</version>
+				<groupId>org.wiremock.integrations</groupId>
+				<artifactId>wiremock-spring-boot</artifactId>
+				<version>${wiremock-spring-boot.version}</version>
 				<scope>test</scope>
 			</dependency>
 		</dependencies>

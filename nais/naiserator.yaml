@@ -77,8 +77,6 @@ spec:
       enabled: true
   tokenx:
     enabled: true
-  secureLogs:
-    enabled: true
   accessPolicy:
     inbound:
       rules:

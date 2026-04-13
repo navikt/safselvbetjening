@@ -7,17 +7,18 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.resilience.annotation.EnableResilientMethods;
 
 import java.net.URI;
 import java.time.Clock;
@@ -28,7 +29,7 @@ import static io.micrometer.core.instrument.config.MeterFilterReply.DENY;
 import static org.apache.hc.core5.util.Timeout.ofSeconds;
 
 @Slf4j
-@EnableRetry
+@EnableResilientMethods
 @EnableJwtTokenValidation
 @EnableAutoConfiguration(exclude = UserDetailsServiceAutoConfiguration.class)
 @Configuration
@@ -38,10 +39,7 @@ public class CoreConfig {
 
 	@Bean
 	ClientHttpRequestFactory requestFactory(HttpClient httpClient) {
-		var requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-		requestFactory.setConnectTimeout(5_000);
-
-		return requestFactory;
+		return new HttpComponentsClientHttpRequestFactory(httpClient);
 	}
 
 	@Bean
@@ -57,6 +55,9 @@ public class CoreConfig {
 
 		var readTimeout = SocketConfig.custom().setSoTimeout(ofSeconds(60)).build();
 		connectionManager.setDefaultSocketConfig(readTimeout);
+		connectionManager.setDefaultConnectionConfig(ConnectionConfig.custom()
+				.setConnectTimeout(ofSeconds(5))
+				.build());
 		connectionManager.setMaxTotal(400);
 		connectionManager.setDefaultMaxPerRoute(100);
 

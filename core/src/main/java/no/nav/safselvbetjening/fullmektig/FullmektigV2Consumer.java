@@ -1,13 +1,13 @@
 package no.nav.safselvbetjening.fullmektig;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.tokendings.TokenResponse;
 import no.nav.safselvbetjening.tokendings.TokendingsConsumer;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.codec.DecodingException;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
+import org.springframework.http.codec.json.JacksonJsonDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -34,7 +34,7 @@ public class FullmektigV2Consumer {
 	public FullmektigV2Consumer(WebClient webClient,
 								SafSelvbetjeningProperties safSelvbetjeningProperties,
 								TokendingsConsumer tokendingsConsumer,
-								ObjectMapper objectMapper) {
+								JsonMapper jsonMapper) {
 		this.reprApi = safSelvbetjeningProperties.getEndpoints().getReprApi();
 		this.tokendingsConsumer = tokendingsConsumer;
 		this.webClient = webClient.mutate()
@@ -42,7 +42,7 @@ public class FullmektigV2Consumer {
 				.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 				.exchangeStrategies(ExchangeStrategies.builder().codecs(clientCodecConfigurer ->
 								clientCodecConfigurer.customCodecs()
-										.register(new Jackson2JsonDecoder(objectMapper, MimeTypeUtils.APPLICATION_JSON)))
+										.register(new JacksonJsonDecoder(jsonMapper, MimeTypeUtils.APPLICATION_JSON)))
 						.build())
 				.build();
 	}

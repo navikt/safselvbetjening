@@ -491,7 +491,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndWrongFullmakt() throws Exception {
 		stubTokenx();
-		stubReprApiFullmakt("pdl_fullmakt_feil_bruker.json");
+		stubReprApiFullmakt("repr-api-fullmakt-feil-bruker.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
@@ -533,7 +533,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturnsInvalidJson() throws Exception {
 		stubTokenx();
-		stubReprApiFullmakt("pdl_fullmakt_invalid_json.json");
+		stubReprApiFullmakt("repr-api-fullmakt-invalid.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
@@ -547,7 +547,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturnsInvalidJsonNoArray() throws Exception {
 		stubTokenx();
-		stubReprApiFullmakt("pdl_fullmakt_invalid_json_no_array.json");
+		stubReprApiFullmakt("repr-api-fullmakt-invalid-no-array.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
@@ -585,7 +585,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndIngenFullmaktOmraader() throws Exception {
 		stubTokenx();
-		stubReprApiFullmakt("pdl_fullmakt_ingen_omraader.json");
+		stubReprApiFullmakt("repr-api-fullmakt-empty.json");
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);

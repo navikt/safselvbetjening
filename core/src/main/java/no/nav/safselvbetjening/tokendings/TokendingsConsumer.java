@@ -1,7 +1,7 @@
 package no.nav.safselvbetjening.tokendings;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
@@ -33,17 +33,17 @@ public class TokendingsConsumer {
 
 	private final WebClient webClient;
 	private final TokendingsProperties tokendingsProperties;
-	private final ObjectMapper objectMapper;
+	private final JsonMapper jsonMapper;
 
 	public TokendingsConsumer(WebClient webClient,
 							  TokendingsProperties tokendingsProperties,
-							  ObjectMapper objectMapper) {
+							  JsonMapper jsonMapper) {
 		this.webClient = webClient.mutate()
 				.baseUrl(tokendingsProperties.getTokenEndpoint())
 				.defaultHeader(CONTENT_TYPE, APPLICATION_FORM_URLENCODED_VALUE)
 				.build();
 		this.tokendingsProperties = tokendingsProperties;
-		this.objectMapper = objectMapper;
+		this.jsonMapper = jsonMapper;
 	}
 
 	@Cacheable(value = TOKENDINGS_CACHE, key = "T(no.nav.safselvbetjening.tokendings.TokendingsConsumer).hashedCacheKey(#subjectToken, #scope)")
@@ -64,8 +64,8 @@ public class TokendingsConsumer {
 				.block();
 
 		try {
-			return objectMapper.readValue(responseJson, TokenResponse.class);
-		} catch (JsonProcessingException e) {
+			return jsonMapper.readValue(responseJson, TokenResponse.class);
+		} catch (JacksonException e) {
 			throw new TokenException(format("Klarte ikke parse token fra Azure. Feilmelding=%s", e.getMessage()), e);
 		}
 	}
