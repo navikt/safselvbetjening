@@ -337,7 +337,7 @@ class ArkivJournalpostMapperTest {
 
 		assertThat(dokumentvarianter)
 				.containsExactly(TilgangVariant.builder()
-						.skjerming(TilgangSkjermingType.FEIL)
+						.skjerming(TilgangSkjermingType.ARK)
 						.variantformat(TilgangVariantFormat.ARKIV)
 						.build());
 	}
