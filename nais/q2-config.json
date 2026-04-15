@@ -69,11 +69,6 @@
       "cluster": "dev-gcp"
     },
     {
-      "app": "uforetrygd-backend",
-      "namespace": "pensjonselvbetjening",
-      "cluster": "dev-gcp"
-    },
-    {
       "app": "din-uforetrygd-backend",
       "namespace": "ufore",
       "cluster": "dev-gcp"
