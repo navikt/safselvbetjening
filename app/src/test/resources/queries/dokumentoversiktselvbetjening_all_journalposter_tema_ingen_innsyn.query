@@ -1,0 +1,25 @@
+{
+  dokumentoversiktSelvbetjening(ident: "12345678911", tema: [FAR, BBF]) {
+    tema {
+      journalposter {
+        journalpostId
+        tittel
+      }
+      kode
+      navn
+    }
+    journalposter {
+      journalpostId
+      tittel
+    }
+    fagsak {
+      journalposter {
+        journalpostId
+        tittel
+      }
+      fagsakId
+      fagsaksystem
+      tema
+    }
+  }
+}

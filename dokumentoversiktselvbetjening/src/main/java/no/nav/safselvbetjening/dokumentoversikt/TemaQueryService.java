@@ -23,6 +23,7 @@ public class TemaQueryService {
 		final Saker saker = basedata.saker();
 		List<Sakstema> sakstema = saker.getArkivsakerTemaer()
 				.distinct()
+				.filter(this::filterTemaUnntattInnsyn)
 				.map(TemaQueryService::mapSakstema)
 				.filter(Objects::nonNull)
 				.sorted(Comparator.comparing(Sakstema::getKode))
@@ -31,11 +32,12 @@ public class TemaQueryService {
 		return sakstema;
 	}
 
+	private boolean filterTemaUnntattInnsyn(String tema) {
+		return !Tema.unntattInnsynNavNoString().contains(tema);
+	}
+
 	private static Sakstema mapSakstema(String arkivsakTema) {
 		final Tema tema = determineTema(arkivsakTema);
-		if (Tema.unntattInnsynNavNo().contains(tema)) {
-			return null;
-		}
 		return Sakstema.builder()
 				.kode(tema.name())
 				.navn(tema.getTemanavn())
