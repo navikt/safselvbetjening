@@ -1,0 +1,13 @@
+{
+  dokumentoversiktSelvbetjening(ident: "12345678911", tema: [FAR, BBF]) {
+    tema {
+      kode
+      navn
+    }
+    fagsak {
+      fagsakId
+      fagsaksystem
+      tema
+    }
+  }
+}

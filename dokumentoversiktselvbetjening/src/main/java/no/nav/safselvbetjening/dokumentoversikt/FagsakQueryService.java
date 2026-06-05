@@ -3,6 +3,7 @@ package no.nav.safselvbetjening.dokumentoversikt;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.consumer.dokarkiv.Basedata;
 import no.nav.safselvbetjening.domain.Fagsak;
+import no.nav.safselvbetjening.domain.Tema;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
@@ -21,11 +22,16 @@ public class FagsakQueryService {
 		log.info("dokumentoversiktSelvbetjening henter /fagsak.");
 		List<Fagsak> fagsaker = basedata.saker()
 				.getFagsaker()
+				.filter(this::filterTemaUnntattInnsyn)
 				.filter(distinctByKey(Fagsak::getFagSakIdAndFagsaksystem))
 				.sorted(Comparator.comparing(Fagsak::getFagsaksystem))
 				.toList();
 		log.info("dokumentoversiktSelvbetjening hentet /fagsak. antall_fagsaker={}.", fagsaker.size());
 		return fagsaker;
+	}
+
+	private boolean filterTemaUnntattInnsyn(Fagsak fagsak) {
+		return !Tema.unntattInnsynNavNoString().contains(fagsak.getTema());
 	}
 
 	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {

@@ -200,7 +200,37 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		GraphQLResponse graphQLResponse = response.getBody();
 		assertThat(graphQLResponse).isNotNull();
 		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
-		assertThat(dokumentoversikt.getJournalposter()).hasSize(0);
+		assertThat(dokumentoversikt.getJournalposter()).isEmpty();
+	}
+
+	@Test
+	void shouldGetEmptyDokumentoversiktWhenQueriedWithTemaUnntattInnsyn() throws Exception {
+		happyStubs("finnjournalposter_tema_ingen_innsyn.json", "saker_ingen_innsyn.json");
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all_tema_ingen_innsyn.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertThat(dokumentoversikt.getTema()).isEmpty();
+		assertThat(dokumentoversikt.getJournalposter()).isNull();
+		assertThat(dokumentoversikt.getFagsak()).isEmpty();
+	}
+
+	@Test
+	void shouldGetEmptyDokumentoversiktJournalposterWhenQueriedWithTemaUnntattInnsyn() throws Exception {
+		happyStubs("finnjournalposter_tema_ingen_innsyn.json", "saker_ingen_innsyn.json");
+
+		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all_journalposter_tema_ingen_innsyn.query");
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+		Dokumentoversikt dokumentoversikt = graphQLResponse.getData().getDokumentoversiktSelvbetjening();
+		assertThat(dokumentoversikt.getTema()).isEmpty();
+		assertThat(dokumentoversikt.getJournalposter()).isEmpty();
+		assertThat(dokumentoversikt.getFagsak()).isEmpty();
 	}
 
 	private void assertTemaQuery(Dokumentoversikt dokumentoversikt) {
@@ -624,14 +654,25 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		stubReprApiFullmakt();
 	}
 
-	private void happyStubs(String fileName) {
+	private void happyStubs(String fagarkivFilename) {
 		stubAzure();
 		stubTokenx();
 		stubNaisTexasToken();
 		stubPdlGenerell();
 		stubSak();
 		stubPensjonssaker();
-		stubFagarkiv(fileName);
+		stubFagarkiv(fagarkivFilename);
+		stubReprApiFullmakt();
+	}
+
+	private void happyStubs(String fagarkivFilename, String sakFilename) {
+		stubAzure();
+		stubTokenx();
+		stubNaisTexasToken();
+		stubPdlGenerell();
+		stubSak(sakFilename);
+		stubPensjonssaker();
+		stubFagarkiv(fagarkivFilename);
 		stubReprApiFullmakt();
 	}
 

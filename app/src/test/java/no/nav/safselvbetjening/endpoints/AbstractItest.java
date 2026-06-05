@@ -199,7 +199,7 @@ public abstract class AbstractItest {
 		stubFagarkiv("finnjournalposter_happy_gsak.json", "finnjournalposter_happy_psak.json");
 	}
 
-	protected void stubFagarkiv(final String gsakFil){
+	protected void stubFagarkiv(final String gsakFil) {
 		stubFagarkiv(gsakFil, "finnjournalposter_empty.json");
 	}
 

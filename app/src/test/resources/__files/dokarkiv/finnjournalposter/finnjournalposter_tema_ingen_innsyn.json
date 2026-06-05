@@ -1,0 +1,393 @@
+{
+  "journalposter": [
+    {
+      "journalpostId": 400000001,
+      "type": "I",
+      "fagomraade": "FAR",
+      "fagomraadenavn": "Foreldreskap",
+      "status": "J",
+      "saksrelasjon": {
+        "fagsystem": "FS22",
+        "sak": {
+          "applikasjon": "FS22",
+          "opprettetTid": "2018-02-02T09:51:44.213",
+          "tema": "FAR"
+        },
+        "sakId": 1
+      },
+      "relevanteDatoer": {
+        "forsendelseMottatt": "2024-06-02T22:00:00.000+00:00",
+        "hoveddokument": "2024-06-03T14:45:02.015+00:00",
+        "journalfoert": "2024-06-04T08:34:43.308+00:00",
+        "opprettet": "2024-06-03T14:45:02.015+00:00"
+      },
+      "avsenderMottaker": {
+        "id": "12345678911",
+        "navn": "ÅPENBAR GYNGEHEST",
+        "type": "FNR"
+      },
+      "bruker": {
+        "id": "12345678911",
+        "type": "PERSON"
+      },
+      "dokumenter": [
+        {
+          "dokumentInfoId": 400000001,
+          "brevkode": "NAV 76-13.18",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "navn": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+              "stoerrelse": "240263",
+              "type": "PDFA",
+              "uuid": "d0ee5769-b148-4d04-964f-cf2e97f39029"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 400000001,
+          "tilknyttetSom": "HOVEDDOKUMENT",
+          "tittel": "Foreldreskap dokument"
+        }
+      ],
+      "innhold": "Foreldreskap dokument",
+      "journalfoerendeEnhet": "0814",
+      "journalfoertAvNavn": "Sak Saksbehandlersen",
+      "kanalreferanseId": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+      "mottakskanal": "NAV_NO",
+      "opprettetAvNavn": "srvskanmotreferanse",
+      "tilleggsopplysninger": {
+        "antallSider": "3",
+        "endorsernr": "03.06.2024_R511804379_6_1067",
+        "strekkodePostboks": "1400",
+        "referansenr": "20240530057015",
+        "fysiskPostboks": "1400"
+      }
+    },
+    {
+      "journalpostId": 400000002,
+      "type": "I",
+      "fagomraade": "KTR",
+      "fagomraadenavn": "Kontroll",
+      "status": "J",
+      "saksrelasjon": {
+        "fagsystem": "FS22",
+        "sak": {
+          "applikasjon": "FS22",
+          "opprettetTid": "2018-02-02T09:51:44.213",
+          "tema": "KTR"
+        },
+        "sakId": 2
+      },
+      "relevanteDatoer": {
+        "forsendelseMottatt": "2024-06-02T22:00:00.000+00:00",
+        "hoveddokument": "2024-06-03T14:45:02.015+00:00",
+        "journalfoert": "2024-06-04T08:34:43.308+00:00",
+        "opprettet": "2024-06-03T14:45:02.015+00:00"
+      },
+      "avsenderMottaker": {
+        "id": "12345678911",
+        "navn": "ÅPENBAR GYNGEHEST",
+        "type": "FNR"
+      },
+      "bruker": {
+        "id": "12345678911",
+        "type": "PERSON"
+      },
+      "dokumenter": [
+        {
+          "dokumentInfoId": 400000002,
+          "brevkode": "NAV 76-13.18",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "navn": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+              "stoerrelse": "240263",
+              "type": "PDFA",
+              "uuid": "d0ee5769-b148-4d04-964f-cf2e97f39029"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 400000002,
+          "tilknyttetSom": "HOVEDDOKUMENT",
+          "tittel": "Kontroll dokument"
+        }
+      ],
+      "innhold": "Kontroll dokument",
+      "journalfoerendeEnhet": "0814",
+      "journalfoertAvNavn": "Sak Saksbehandlersen",
+      "kanalreferanseId": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+      "mottakskanal": "NAV_NO",
+      "opprettetAvNavn": "srvskanmotreferanse",
+      "tilleggsopplysninger": {
+        "antallSider": "3",
+        "endorsernr": "03.06.2024_R511804379_6_1067",
+        "strekkodePostboks": "1400",
+        "referansenr": "20240530057015",
+        "fysiskPostboks": "1400"
+      }
+    },
+    {
+      "journalpostId": 400000003,
+      "type": "I",
+      "fagomraade": "KTA",
+      "fagomraadenavn": "Kontroll – anmeldelse",
+      "status": "J",
+      "saksrelasjon": {
+        "fagsystem": "FS22",
+        "sak": {
+          "applikasjon": "FS22",
+          "opprettetTid": "2018-02-02T09:51:44.213",
+          "tema": "KTR"
+        },
+        "sakId": 3
+      },
+      "relevanteDatoer": {
+        "forsendelseMottatt": "2024-06-02T22:00:00.000+00:00",
+        "hoveddokument": "2024-06-03T14:45:02.015+00:00",
+        "journalfoert": "2024-06-04T08:34:43.308+00:00",
+        "opprettet": "2024-06-03T14:45:02.015+00:00"
+      },
+      "avsenderMottaker": {
+        "id": "12345678911",
+        "navn": "ÅPENBAR GYNGEHEST",
+        "type": "FNR"
+      },
+      "bruker": {
+        "id": "12345678911",
+        "type": "PERSON"
+      },
+      "dokumenter": [
+        {
+          "dokumentInfoId": 400000003,
+          "brevkode": "NAV 76-13.18",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "navn": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+              "stoerrelse": "240263",
+              "type": "PDFA",
+              "uuid": "d0ee5769-b148-4d04-964f-cf2e97f39029"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 400000003,
+          "tilknyttetSom": "HOVEDDOKUMENT",
+          "tittel": "Kontroll anmeldelse dokument"
+        }
+      ],
+      "innhold": "Kontroll anmeldelse dokument",
+      "journalfoerendeEnhet": "0814",
+      "journalfoertAvNavn": "Sak Saksbehandlersen",
+      "kanalreferanseId": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+      "mottakskanal": "NAV_NO",
+      "opprettetAvNavn": "srvskanmotreferanse",
+      "tilleggsopplysninger": {
+        "antallSider": "3",
+        "endorsernr": "03.06.2024_R511804379_6_1067",
+        "strekkodePostboks": "1400",
+        "referansenr": "20240530057015",
+        "fysiskPostboks": "1400"
+      }
+    },
+    {
+      "journalpostId": 400000004,
+      "type": "I",
+      "fagomraade": "ARS",
+      "fagomraadenavn": "Arbeidsrådgivning – skjermet",
+      "status": "J",
+      "saksrelasjon": {
+        "fagsystem": "FS22",
+        "sak": {
+          "applikasjon": "FS22",
+          "opprettetTid": "2018-02-02T09:51:44.213",
+          "tema": "KTR"
+        },
+        "sakId": 4
+      },
+      "relevanteDatoer": {
+        "forsendelseMottatt": "2024-06-02T22:00:00.000+00:00",
+        "hoveddokument": "2024-06-03T14:45:02.015+00:00",
+        "journalfoert": "2024-06-04T08:34:43.308+00:00",
+        "opprettet": "2024-06-03T14:45:02.015+00:00"
+      },
+      "avsenderMottaker": {
+        "id": "12345678911",
+        "navn": "ÅPENBAR GYNGEHEST",
+        "type": "FNR"
+      },
+      "bruker": {
+        "id": "12345678911",
+        "type": "PERSON"
+      },
+      "dokumenter": [
+        {
+          "dokumentInfoId": 400000004,
+          "brevkode": "NAV 76-13.18",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "navn": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+              "stoerrelse": "240263",
+              "type": "PDFA",
+              "uuid": "d0ee5769-b148-4d04-964f-cf2e97f39029"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 400000004,
+          "tilknyttetSom": "HOVEDDOKUMENT",
+          "tittel": "Arbeidsrådgivning – skjermet dokument"
+        }
+      ],
+      "innhold": "Arbeidsrådgivning – skjermet dokument",
+      "journalfoerendeEnhet": "0814",
+      "journalfoertAvNavn": "Sak Saksbehandlersen",
+      "kanalreferanseId": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+      "mottakskanal": "NAV_NO",
+      "opprettetAvNavn": "srvskanmotreferanse",
+      "tilleggsopplysninger": {
+        "antallSider": "3",
+        "endorsernr": "03.06.2024_R511804379_6_1067",
+        "strekkodePostboks": "1400",
+        "referansenr": "20240530057015",
+        "fysiskPostboks": "1400"
+      }
+    },
+    {
+      "journalpostId": 400000005,
+      "type": "I",
+      "fagomraade": "ARP",
+      "fagomraadenavn": "Arbeidsrådgivning – psykologtester",
+      "status": "J",
+      "saksrelasjon": {
+        "fagsystem": "FS22",
+        "sak": {
+          "applikasjon": "FS22",
+          "opprettetTid": "2018-02-02T09:51:44.213",
+          "tema": "KTR"
+        },
+        "sakId": 5
+      },
+      "relevanteDatoer": {
+        "forsendelseMottatt": "2024-06-02T22:00:00.000+00:00",
+        "hoveddokument": "2024-06-03T14:45:02.015+00:00",
+        "journalfoert": "2024-06-04T08:34:43.308+00:00",
+        "opprettet": "2024-06-03T14:45:02.015+00:00"
+      },
+      "avsenderMottaker": {
+        "id": "12345678911",
+        "navn": "ÅPENBAR GYNGEHEST",
+        "type": "FNR"
+      },
+      "bruker": {
+        "id": "12345678911",
+        "type": "PERSON"
+      },
+      "dokumenter": [
+        {
+          "dokumentInfoId": 400000005,
+          "brevkode": "NAV 76-13.18",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "navn": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+              "stoerrelse": "240263",
+              "type": "PDFA",
+              "uuid": "d0ee5769-b148-4d04-964f-cf2e97f39029"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 400000005,
+          "tilknyttetSom": "HOVEDDOKUMENT",
+          "tittel": "Arbeidsrådgivning – psykologtester dokument"
+        }
+      ],
+      "innhold": "Arbeidsrådgivning – psykologtester dokument",
+      "journalfoerendeEnhet": "0814",
+      "journalfoertAvNavn": "Sak Saksbehandlersen",
+      "kanalreferanseId": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+      "mottakskanal": "NAV_NO",
+      "opprettetAvNavn": "srvskanmotreferanse",
+      "tilleggsopplysninger": {
+        "antallSider": "3",
+        "endorsernr": "03.06.2024_R511804379_6_1067",
+        "strekkodePostboks": "1400",
+        "referansenr": "20240530057015",
+        "fysiskPostboks": "1400"
+      }
+    },
+    {
+      "journalpostId": 400000006,
+      "type": "I",
+      "fagomraade": "BBF",
+      "fagomraadenavn": "Barnebortføring",
+      "status": "J",
+      "saksrelasjon": {
+        "fagsystem": "FS22",
+        "sak": {
+          "applikasjon": "FS22",
+          "opprettetTid": "2018-02-02T09:51:44.213",
+          "tema": "KTR"
+        },
+        "sakId": 5
+      },
+      "relevanteDatoer": {
+        "forsendelseMottatt": "2024-06-02T22:00:00.000+00:00",
+        "hoveddokument": "2024-06-03T14:45:02.015+00:00",
+        "journalfoert": "2024-06-04T08:34:43.308+00:00",
+        "opprettet": "2024-06-03T14:45:02.015+00:00"
+      },
+      "avsenderMottaker": {
+        "id": "12345678911",
+        "navn": "ÅPENBAR GYNGEHEST",
+        "type": "FNR"
+      },
+      "bruker": {
+        "id": "12345678911",
+        "type": "PERSON"
+      },
+      "dokumenter": [
+        {
+          "dokumentInfoId": 400000006,
+          "brevkode": "NAV 76-13.18",
+          "fildetaljer": [
+            {
+              "format": "ARKIV",
+              "navn": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+              "stoerrelse": "240263",
+              "type": "PDFA",
+              "uuid": "d0ee5769-b148-4d04-964f-cf2e97f39029"
+            }
+          ],
+          "kategori": "IS",
+          "logiskVedlegg": [],
+          "originalJournalpostId": 400000006,
+          "tilknyttetSom": "HOVEDDOKUMENT",
+          "tittel": "Barnebortføring dokument"
+        }
+      ],
+      "innhold": "Barnebortføring dokument",
+      "journalfoerendeEnhet": "0814",
+      "journalfoertAvNavn": "Sak Saksbehandlersen",
+      "kanalreferanseId": "REFERANSE_03.06.2024_R511804379_6_1067.pdf",
+      "mottakskanal": "NAV_NO",
+      "opprettetAvNavn": "srvskanmotreferanse",
+      "tilleggsopplysninger": {
+        "antallSider": "3",
+        "endorsernr": "03.06.2024_R511804379_6_1067",
+        "strekkodePostboks": "1400",
+        "referansenr": "20240530057015",
+        "fysiskPostboks": "1400"
+      }
+    }
+  ],
+  "antallRader": 6,
+  "totaltAntallRader": 6,
+  "page": 1,
+  "totalPages": 1,
+  "nextPage": ""
+}
