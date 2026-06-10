@@ -34,7 +34,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 669261555,
           "status": "FERDIGSTILT",
           "tilknyttetSom": "HOVEDDOKUMENT",
@@ -46,7 +45,6 @@
       "journalfoertAvNavn": "srvtiltak-tilsagns",
       "kanalreferanseId": "393380-tilsagnsbrev",
       "opprettetAvNavn": "srvtiltak-tilsagns",
-      "tilleggsopplysninger": {},
       "utsendingskanal": "NAV_NO"
     },
     {
@@ -86,7 +84,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 663874521,
           "tilknyttetSom": "HOVEDDOKUMENT",
           "tittel": "MASKERT_FELT"
@@ -146,7 +143,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 645976198,
           "status": "FERDIGSTILT",
           "tilknyttetSom": "HOVEDDOKUMENT",
@@ -158,7 +154,6 @@
       "journalfoertAvNavn": "srvtiltak-tilsagns",
       "kanalreferanseId": "368449-tilsagnsbrev",
       "opprettetAvNavn": "srvtiltak-tilsagns",
-      "tilleggsopplysninger": {},
       "utsendingskanal": "NAV_NO"
     }
   ],

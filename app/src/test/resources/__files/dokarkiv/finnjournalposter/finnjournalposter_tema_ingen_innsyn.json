@@ -44,7 +44,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 400000001,
           "tilknyttetSom": "HOVEDDOKUMENT",
           "tittel": "Foreldreskap dokument"
@@ -108,7 +107,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 400000002,
           "tilknyttetSom": "HOVEDDOKUMENT",
           "tittel": "Kontroll dokument"
@@ -172,7 +170,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 400000003,
           "tilknyttetSom": "HOVEDDOKUMENT",
           "tittel": "Kontroll anmeldelse dokument"
@@ -236,7 +233,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 400000004,
           "tilknyttetSom": "HOVEDDOKUMENT",
           "tittel": "Arbeidsrådgivning – skjermet dokument"
@@ -300,7 +296,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 400000005,
           "tilknyttetSom": "HOVEDDOKUMENT",
           "tittel": "Arbeidsrådgivning – psykologtester dokument"
@@ -364,7 +359,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 400000006,
           "tilknyttetSom": "HOVEDDOKUMENT",
           "tittel": "Barnebortføring dokument"
