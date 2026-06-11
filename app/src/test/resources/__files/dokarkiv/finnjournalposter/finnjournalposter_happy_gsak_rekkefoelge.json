@@ -43,7 +43,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 400000000,
           "status": "FERDIGSTILT",
           "tilknyttetSom": "HOVEDDOKUMENT",
@@ -61,7 +60,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 400000000,
           "status": "FERDIGSTILT",
           "tilknyttetSom": "VEDLEGG",
@@ -79,7 +77,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 400000000,
           "rekkefoelge": 1,
           "status": "FERDIGSTILT",
@@ -92,7 +89,6 @@
       "journalfoertAvNavn": "srvtiltak-tilsagns",
       "kanalreferanseId": "393380-tilsagnsbrev",
       "opprettetAvNavn": "srvtiltak-tilsagns",
-      "tilleggsopplysninger": {},
       "utsendingskanal": "NAV_NO"
     },
     {
@@ -135,7 +131,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "originalJournalpostId": 400000001,
           "status": "FERDIGSTILT",
           "tilknyttetSom": "HOVEDDOKUMENT",
@@ -153,7 +148,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "rekkefoelge": 2,
           "originalJournalpostId": 400000001,
           "status": "FERDIGSTILT",
@@ -172,7 +166,6 @@
             }
           ],
           "kategori": "IS",
-          "logiskVedlegg": [],
           "rekkefoelge": 1,
           "originalJournalpostId": 400000001,
           "status": "FERDIGSTILT",
@@ -185,7 +178,6 @@
       "journalfoertAvNavn": "srvtiltak-tilsagns",
       "kanalreferanseId": "368449-tilsagnsbrev",
       "opprettetAvNavn": "srvtiltak-tilsagns",
-      "tilleggsopplysninger": {},
       "utsendingskanal": "NAV_NO"
     }
   ],
