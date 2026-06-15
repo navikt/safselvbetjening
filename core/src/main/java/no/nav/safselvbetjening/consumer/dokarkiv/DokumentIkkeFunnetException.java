@@ -4,7 +4,7 @@ import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 
 public class DokumentIkkeFunnetException extends ConsumerFunctionalException {
 
-	public DokumentIkkeFunnetException(String message, Throwable cause) {
-		super(message, cause);
+	public DokumentIkkeFunnetException(String message) {
+		super(message);
 	}
 }

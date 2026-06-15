@@ -3,6 +3,7 @@ package no.nav.safselvbetjening.dokumentoversikt;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
+import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.dokarkiv.Basedata;
 import no.nav.safselvbetjening.consumer.dokarkiv.DokarkivConsumer;
 import no.nav.safselvbetjening.consumer.dokarkiv.Saker;
@@ -22,8 +23,6 @@ import no.nav.safselvbetjening.service.IdentService;
 import no.nav.safselvbetjening.service.SakService;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -31,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.concurrent.StructuredTaskScope;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static java.util.Collections.emptySet;
@@ -59,7 +58,6 @@ class DokumentoversiktSelvbetjeningService {
 	private final DokarkivConsumer dokarkivConsumer;
 	private final ArkivJournalpostMapper arkivJournalpostMapper;
 	private final UtledTilgangService utledTilgangService;
-	private final SafSelvbetjeningProperties safSelvbetjeningProperties;
 
 	public DokumentoversiktSelvbetjeningService(IdentService identService,
 												SakService sakService,
@@ -72,7 +70,6 @@ class DokumentoversiktSelvbetjeningService {
 		this.dokarkivConsumer = dokarkivConsumer;
 		this.arkivJournalpostMapper = arkivJournalpostMapper;
 		this.utledTilgangService = utledTilgangService;
-		this.safSelvbetjeningProperties = safSelvbetjeningProperties;
 	}
 
 	Basedata queryBasedata(final String ident, final List<String> tema, final DataFetchingEnvironment environment) {
@@ -98,34 +95,32 @@ class DokumentoversiktSelvbetjeningService {
 		return queryFilterJournalposter(basedata, tema, pensjonsaker, FERDIGSTILTE_JOURNALSTATUSER);
 	}
 
-	private Journalpostdata queryFilterJournalposter(Basedata basedata, List<String> tema, Map<Long, Pensjonsak> pensjonsaker, List<JournalStatusCode> journalStatusCodeList) {
+	private Journalpostdata queryFilterJournalposter(Basedata basedata,
+													 List<String> tema,
+													 Map<Long, Pensjonsak> pensjonsaker,
+													 List<JournalStatusCode> journalStatusCodeList) {
 		final BrukerIdenter brukerIdenter = basedata.brukerIdenter();
 		final Saker saker = basedata.saker();
 
-		// Kaller alltid finnJournalposter selv om bruker ikke har arkivsaker
-		// Dette i tilfelle bruker kun har innsendte søknader
-		Mono<List<ArkivJournalpost>> arkivsakJournalposter =
-				dokarkivConsumer.finnJournalposter(finnArkivsakJournalposterRequest(saker, journalStatusCodeList, brukerIdenter.getFoedselsnummer()), emptySet())
-						.map(ArkivJournalposter::journalposter)
-						.switchIfEmpty(Mono.just(List.of()));
-
-		Mono<List<ArkivJournalpost>> psakJournalposter =
-				Mono.just(saker.pensjonsaker().isEmpty())
-						.flatMap(emptyPensjonsaker -> {
-							if (emptyPensjonsaker) {
-								return Mono.empty();
-							}
-							return dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, journalStatusCodeList), emptySet());
-						})
-						.map(ArkivJournalposter::journalposter)
-						.switchIfEmpty(Mono.just(List.of()));
-
-		List<ArkivJournalpost> arkivJournalposter = Flux.merge(arkivsakJournalposter, psakJournalposter)
-				.flatMapIterable(Function.identity())
-				.collectList()
-				.blockOptional().orElse(List.of());
-
+		List<ArkivJournalpost> arkivJournalposter = finnJournalposter(journalStatusCodeList, saker, brukerIdenter);
 		return mapOgFiltrerJournalposter(tema, brukerIdenter, pensjonsaker, arkivJournalposter);
+	}
+
+	private List<ArkivJournalpost> finnJournalposter(List<JournalStatusCode> journalStatusCodeList, Saker saker, BrukerIdenter brukerIdenter) {
+		try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.<ArkivJournalposter>allSuccessfulOrThrow())) {
+			// Kaller alltid finnJournalposter selv om bruker ikke har arkivsaker
+			// Dette i tilfelle bruker kun har innsendte søknader
+			scope.fork(() -> dokarkivConsumer.finnJournalposter(finnArkivsakJournalposterRequest(saker, journalStatusCodeList, brukerIdenter.getFoedselsnummer()), emptySet()));
+			if (!saker.pensjonsaker().isEmpty()) {
+				scope.fork(() -> dokarkivConsumer.finnJournalposter(finnPensjonJournalposterRequest(saker, journalStatusCodeList), emptySet()));
+			}
+			return scope.join()
+					.map(StructuredTaskScope.Subtask::get)
+					.flatMap(arkivJournalposter -> arkivJournalposter.journalposter().stream())
+					.toList();
+		} catch (InterruptedException e) {
+			throw new ConsumerTechnicalException("Klarte ikke kalle finnJournalposter", e);
+		}
 	}
 
 	/*

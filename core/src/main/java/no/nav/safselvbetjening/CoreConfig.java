@@ -6,18 +6,10 @@ import io.micrometer.core.instrument.config.MeterFilterReply;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.tilgang.UtledTilgangService;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
-import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.client5.http.config.ConnectionConfig;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
-import org.apache.hc.client5.http.io.HttpClientConnectionManager;
-import org.apache.hc.core5.http.io.SocketConfig;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.resilience.annotation.EnableResilientMethods;
 
 import java.net.URI;
@@ -26,7 +18,6 @@ import java.time.ZoneId;
 
 import static io.micrometer.core.instrument.config.MeterFilterReply.ACCEPT;
 import static io.micrometer.core.instrument.config.MeterFilterReply.DENY;
-import static org.apache.hc.core5.util.Timeout.ofSeconds;
 
 @Slf4j
 @EnableResilientMethods
@@ -36,33 +27,6 @@ import static org.apache.hc.core5.util.Timeout.ofSeconds;
 public class CoreConfig {
 
 	public static final Clock SYSTEM_CLOCK = Clock.system(ZoneId.of("Europe/Oslo"));
-
-	@Bean
-	ClientHttpRequestFactory requestFactory(HttpClient httpClient) {
-		return new HttpComponentsClientHttpRequestFactory(httpClient);
-	}
-
-	@Bean
-	HttpClient httpClient(HttpClientConnectionManager httpClientConnectionManager) {
-		return HttpClients.custom()
-				.setConnectionManager(httpClientConnectionManager)
-				.build();
-	}
-
-	@Bean
-	HttpClientConnectionManager httpClientConnectionManager() {
-		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-
-		var readTimeout = SocketConfig.custom().setSoTimeout(ofSeconds(60)).build();
-		connectionManager.setDefaultSocketConfig(readTimeout);
-		connectionManager.setDefaultConnectionConfig(ConnectionConfig.custom()
-				.setConnectTimeout(ofSeconds(5))
-				.build());
-		connectionManager.setMaxTotal(400);
-		connectionManager.setDefaultMaxPerRoute(100);
-
-		return connectionManager;
-	}
 
 	@Bean
 	MeterFilter meterFilter(SafSelvbetjeningProperties safSelvbetjeningProperties) {
