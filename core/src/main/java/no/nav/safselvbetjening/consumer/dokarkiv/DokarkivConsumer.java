@@ -33,7 +33,6 @@ public class DokarkivConsumer {
 	private static final String DOKARKIV_METADATA = "dokarkivmetadata";
 	private static final String DOKARKIV_DOKUMENTOVERSIKT = "dokarkivdokumentoversikt";
 	private static final String DOKARKIV_HENTDOKUMENT = "dokarkivhentdokument";
-	private static final String SERVICE_NAME = "dokarkiv";
 
 	private final RestClient restClient;
 	private final String targetScope;
@@ -142,16 +141,14 @@ public class DokarkivConsumer {
 
 	private void handleError(ClientHttpResponse response) throws IOException {
 		String body = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
-		String feilmelding = "Kall mot %s feilet %s med status=%s, body=%s"
-				.formatted(SERVICE_NAME,
-						response.getStatusCode().is4xxClientError() ? "funksjonelt" : "teknisk",
-						response.getStatusCode(), body);
 		if (response.getStatusCode().is4xxClientError()) {
 			if (NOT_FOUND.isSameCodeAs(response.getStatusCode())) {
 				throw new JournalpostIkkeFunnetException(format("Journalpost ikke funnet i Joark. status=%s", response.getStatusCode()));
 			}
-			throw new ConsumerFunctionalException(feilmelding);
+			throw new ConsumerFunctionalException("Kall mot dokarkiv feilet funksjonelt med status=%s, body=%s"
+					.formatted(response.getStatusCode(), body));
 		}
-		throw new ConsumerTechnicalException(feilmelding);
+		throw new ConsumerTechnicalException("Kall mot dokarkiv feilet teknisk med status=%s, body=%s"
+				.formatted(response.getStatusCode(), body));
 	}
 }

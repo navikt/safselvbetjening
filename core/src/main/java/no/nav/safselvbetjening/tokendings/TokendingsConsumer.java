@@ -62,12 +62,12 @@ public class TokendingsConsumer {
 	private void handleError(ClientHttpResponse response) throws IOException {
 		String body = new String(response.getBody().readAllBytes(), UTF_8);
 		if (response.getStatusCode().is4xxClientError()) {
-			throw new TokenException(
+			throw new TokenFunctionalException(
 					format("Klarte ikke hente token fra Tokendings. Feilet med statuskode=%s Feilmelding=%s",
 							response.getStatusCode().value(), response));
 		}
 		throw new TokenTechnicalException(
-				format("Kall mot Tokendings feilet med feilmelding=%s", body));
+				format("Kall mot Tokendings feilet teknisk med feilmelding=%s", body));
 	}
 
 	String clientAssertion() {

@@ -2,9 +2,9 @@ package no.nav.safselvbetjening.tokendings;
 
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 
-public class TokenException extends ConsumerFunctionalException {
+public class TokenFunctionalException extends ConsumerFunctionalException {
 
-	public TokenException(String message) {
+	public TokenFunctionalException(String message) {
 		super(message);
 	}
 }

@@ -2,7 +2,6 @@ package no.nav.safselvbetjening.dokumentoversikt;
 
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.dokarkiv.Basedata;
 import no.nav.safselvbetjening.consumer.dokarkiv.DokarkivConsumer;
@@ -63,8 +62,7 @@ class DokumentoversiktSelvbetjeningService {
 												SakService sakService,
 												DokarkivConsumer dokarkivConsumer,
 												ArkivJournalpostMapper arkivJournalpostMapper,
-												UtledTilgangService utledTilgangService,
-												SafSelvbetjeningProperties safSelvbetjeningProperties) {
+												UtledTilgangService utledTilgangService) {
 		this.identService = identService;
 		this.sakService = sakService;
 		this.dokarkivConsumer = dokarkivConsumer;

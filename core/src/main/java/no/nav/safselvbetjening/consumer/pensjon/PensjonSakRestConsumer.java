@@ -79,12 +79,11 @@ public class PensjonSakRestConsumer {
 
 	private void handleError(ClientHttpResponse response) throws IOException {
 		String body = new String(response.getBody().readAllBytes(), UTF_8);
-		String feilmelding = "Kall mot pensjon feilet %s med status=%s, body=%s"
-				.formatted(response.getStatusCode().is4xxClientError() ? "funksjonelt" : "teknisk",
-						response.getStatusCode(), body);
 		if (response.getStatusCode().is4xxClientError()) {
-			throw new ConsumerFunctionalException(feilmelding);
+			throw new ConsumerFunctionalException("Kall mot pensjon feilet funksjonelt med status=%s, body=%s"
+					.formatted(response.getStatusCode(), body));
 		}
-		throw new ConsumerTechnicalException(feilmelding);
+		throw new ConsumerTechnicalException("Kall mot pensjon feilet teknisk med status=%s, body=%s"
+				.formatted(response.getStatusCode(), body));
 	}
 }
