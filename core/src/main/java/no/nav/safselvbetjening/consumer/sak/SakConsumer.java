@@ -60,14 +60,14 @@ public class SakConsumer {
 				.attribute(TARGET_SCOPE, sakScope)
 				.accept(APPLICATION_JSON)
 				.retrieve()
-				.onStatus(HttpStatusCode::isError, (request, response) -> {
-					String feilmelding = "Henting av saker for bruker feilet %s med statuskode=%s og feilmelding=%s.";
+				.onStatus(HttpStatusCode::isError, (_, response) -> {
 					ProblemDetail problemDetail = jsonMapper.readValue(response.getBody(), ProblemDetail.class);
-
 					if (response.getStatusCode().is4xxClientError()) {
-						throw new ConsumerFunctionalException(feilmelding.formatted("funksjonelt", response.getStatusCode(), problemDetail));
+						throw new ConsumerFunctionalException("Henting av saker for bruker feilet funksjonelt med statuskode=%s og feilmelding=%s."
+								.formatted(response.getStatusCode(), problemDetail));
 					} else {
-						throw new ConsumerTechnicalException(feilmelding.formatted("teknisk", response.getStatusCode(), problemDetail));
+						throw new ConsumerTechnicalException("Henting av saker for bruker feilet teknisk med statuskode=%s og feilmelding=%s."
+								.formatted(response.getStatusCode(), problemDetail));
 					}
 				})
 				.body(new ParameterizedTypeReference<>() {

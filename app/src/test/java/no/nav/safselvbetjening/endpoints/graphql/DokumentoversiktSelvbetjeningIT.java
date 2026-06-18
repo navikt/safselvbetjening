@@ -38,6 +38,7 @@ import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
 public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
@@ -371,7 +372,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldGetPartialDokumentoversiktWhenPensjonSakFails() throws Exception {
 		happyStubs();
-		stubPensjonssaker("hentpensjonssaker_error.json");
+		stubPensjonssaker("hentpensjonssaker_error.json", INTERNAL_SERVER_ERROR);
 		stubFagarkiv("finnjournalposter_missing_pen.json");
 
 		ResponseEntity<GraphQLResponse> response = callDokumentoversikt("dokumentoversiktselvbetjening_all.query");
@@ -383,7 +384,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(data.getTema()).hasSize(1);
 		Sakstema foreldrepenger = data.getTema().getFirst();
 
-		verify(1, getRequestedFor(urlEqualTo(HENT_PENSJONSSAKER_PATH)));
+		verify(4, getRequestedFor(urlEqualTo(HENT_PENSJONSSAKER_PATH)));
 		assertThat(foreldrepenger.getJournalposter()).hasSize(2);
 	}
 
@@ -644,7 +645,6 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	private void happyStubs() {
-		stubAzure();
 		stubTokenx();
 		stubNaisTexasToken();
 		stubPdlGenerell();
@@ -655,7 +655,6 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	private void happyStubs(String fagarkivFilename) {
-		stubAzure();
 		stubTokenx();
 		stubNaisTexasToken();
 		stubPdlGenerell();
@@ -666,7 +665,6 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	private void happyStubs(String fagarkivFilename, String sakFilename) {
-		stubAzure();
 		stubTokenx();
 		stubNaisTexasToken();
 		stubPdlGenerell();
@@ -677,7 +675,6 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	}
 
 	private void happyStubWithInnsyn(String fileName) {
-		stubAzure();
 		stubTokenx();
 		stubNaisTexasToken();
 		stubPdlGenerell();

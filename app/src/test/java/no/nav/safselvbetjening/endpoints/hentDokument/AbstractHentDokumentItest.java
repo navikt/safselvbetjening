@@ -60,7 +60,7 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 
 	@BeforeEach
 	void setUp() {
-		stubAzure();
+		stubNaisTexasToken();
 	}
 
 	protected Consumer<String, HoveddokumentLest> setupKafkaConsumer() {

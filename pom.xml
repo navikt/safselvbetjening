@@ -44,7 +44,6 @@
 		<logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
 		<token-support.version>6.0.4</token-support.version>
 		<resilience4j.version>2.4.0</resilience4j.version>
-		<context-propagation.version>1.2.1</context-propagation.version>
 		<kafka-avro-serializer.version>7.9.5</kafka-avro-serializer.version>
 		<teamdokumenthandtering-avro-schemas.version>1.1.6</teamdokumenthandtering-avro-schemas.version>
 
@@ -114,18 +113,8 @@
 			</dependency>
 			<dependency>
 				<groupId>io.github.resilience4j</groupId>
-				<artifactId>resilience4j-reactor</artifactId>
-				<version>${resilience4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.resilience4j</groupId>
 				<artifactId>resilience4j-micrometer</artifactId>
 				<version>${resilience4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.micrometer</groupId>
-				<artifactId>context-propagation</artifactId>
-				<version>${context-propagation.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.confluent</groupId>
@@ -176,6 +165,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<argLine>--enable-preview</argLine>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -201,6 +193,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
+					<enablePreview>true</enablePreview>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>

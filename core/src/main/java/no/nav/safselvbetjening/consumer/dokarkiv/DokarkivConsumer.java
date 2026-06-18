@@ -1,77 +1,56 @@
 package no.nav.safselvbetjening.consumer.dokarkiv;
 
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
-import io.github.resilience4j.reactor.retry.RetryOperator;
-import io.github.resilience4j.retry.Retry;
-import io.github.resilience4j.retry.RetryRegistry;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
-import no.nav.safselvbetjening.consumer.CallIdExchangeFilterFunction;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalposter;
 import no.nav.safselvbetjening.consumer.dokarkiv.safintern.FinnJournalposterRequest;
 import no.nav.safselvbetjening.tilgang.TilgangVariantFormat;
-import org.springframework.boot.http.codec.autoconfigure.HttpCodecsProperties;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClient;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import static java.lang.String.format;
-import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
-import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_DOKARKIV;
+import static no.nav.safselvbetjening.consumer.token.NaisTexasRequestInterceptor.TARGET_SCOPE;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
-import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
 @Slf4j
 @Component
 public class DokarkivConsumer {
-	// resilience4j instanser (se application.properties)
+
 	private static final String DOKARKIV_METADATA = "dokarkivmetadata";
 	private static final String DOKARKIV_DOKUMENTOVERSIKT = "dokarkivdokumentoversikt";
 	private static final String DOKARKIV_HENTDOKUMENT = "dokarkivhentdokument";
-	private final WebClient webClient;
-	private final CircuitBreaker dokarkivDokumentoversiktCircuitBreaker;
-	private final CircuitBreaker dokarkivHentdokumentCircuitBreaker;
-	private final CircuitBreaker dokarkivMetadataCircuitBreaker;
-	private final Retry dokarkivDokumentoversiktRetry;
-	private final Retry dokarkivHentdokumentRetry;
-	private final Retry dokarkivMetadataRetry;
+
+	private final RestClient restClient;
+	private final String targetScope;
 
 	public DokarkivConsumer(final SafSelvbetjeningProperties safSelvbetjeningProperties,
-							final HttpCodecsProperties httpCodecsProperties,
-							final WebClient webClient,
-							final CircuitBreakerRegistry circuitBreakerRegistry,
-							final RetryRegistry retryRegistry) {
+							final RestClient restClientTexas) {
 		SafSelvbetjeningProperties.AzureEndpoint dokarkiv = safSelvbetjeningProperties.getEndpoints().getDokarkiv();
-		this.webClient = webClient.mutate()
+		this.restClient = restClientTexas.mutate()
 				.baseUrl(dokarkiv.getUrl())
-				.filter(new CallIdExchangeFilterFunction(NAV_CALLID))
-				.exchangeStrategies(ExchangeStrategies.builder()
-						.codecs(clientCodecConfigurer ->
-								clientCodecConfigurer.defaultCodecs()
-										.maxInMemorySize((int) httpCodecsProperties.getMaxInMemorySize().toBytes())
-						)
-						.build())
+				.defaultStatusHandler(HttpStatusCode::isError, (_, res) -> handleError(res))
 				.build();
-		this.dokarkivDokumentoversiktCircuitBreaker = circuitBreakerRegistry.circuitBreaker(DOKARKIV_DOKUMENTOVERSIKT);
-		this.dokarkivHentdokumentCircuitBreaker = circuitBreakerRegistry.circuitBreaker(DOKARKIV_HENTDOKUMENT);
-		this.dokarkivMetadataCircuitBreaker = circuitBreakerRegistry.circuitBreaker(DOKARKIV_METADATA);
-		this.dokarkivDokumentoversiktRetry = retryRegistry.retry(DOKARKIV_DOKUMENTOVERSIKT);
-		this.dokarkivHentdokumentRetry = retryRegistry.retry(DOKARKIV_HENTDOKUMENT);
-		this.dokarkivMetadataRetry = retryRegistry.retry(DOKARKIV_METADATA);
+		this.targetScope = dokarkiv.getScope();
 	}
 
-	public Mono<ArkivJournalposter> finnJournalposter(FinnJournalposterRequest request, Set<String> fields) {
-		return webClient.post()
+	@CircuitBreaker(name = DOKARKIV_DOKUMENTOVERSIKT)
+	@Retryable(includes = {ConsumerTechnicalException.class, ResourceAccessException.class})
+	public ArkivJournalposter finnJournalposter(FinnJournalposterRequest request, Set<String> fields) {
+		return restClient.post()
 				.uri(uriBuilder -> {
 					uriBuilder.path("/finnjournalposter");
 					if (!fields.isEmpty()) {
@@ -79,32 +58,17 @@ public class DokarkivConsumer {
 					}
 					return uriBuilder.build();
 				})
-				.bodyValue(request)
-				.attributes(clientRegistrationId(CLIENT_REGISTRATION_DOKARKIV))
+				.body(request)
+				.attribute(TARGET_SCOPE, targetScope)
 				.accept(APPLICATION_JSON)
 				.retrieve()
-				.bodyToMono(ArkivJournalposter.class)
-				.onErrorMap(error -> mapFinnJournalposterError(error, request))
-				.transformDeferred(CircuitBreakerOperator.of(dokarkivDokumentoversiktCircuitBreaker))
-				.transformDeferred(RetryOperator.of(dokarkivDokumentoversiktRetry));
+				.body(ArkivJournalposter.class);
 	}
 
-	private Throwable mapFinnJournalposterError(Throwable error, FinnJournalposterRequest request) {
-		if (error instanceof WebClientResponseException webException) {
-			if (webException.getStatusCode().is4xxClientError()) {
-				return new ConsumerFunctionalException(format("finnJournalposter feilet funksjonelt. status=%s, request=%s. Feilmelding=%s",
-						webException.getStatusCode(), request, webException.getMessage()));
-			} else {
-				return new ConsumerTechnicalException(format("finnJournalposter feilet teknisk. status=%s, request=%s. Feilmelding=%s",
-						webException.getStatusCode(), request, webException.getMessage()), webException);
-			}
-		} else {
-			return new ConsumerTechnicalException("finnJournalposter feilet med ukjent teknisk feil", error);
-		}
-	}
-
+	@CircuitBreaker(name = DOKARKIV_METADATA)
+	@Retryable(includes = {ConsumerTechnicalException.class, ResourceAccessException.class})
 	public ArkivJournalpost journalpost(String journalpostId, String dokumentInfoId, Set<String> fields) {
-		return webClient.get()
+		return restClient.get()
 				.uri(uriBuilder -> {
 					uriBuilder.pathSegment("journalpost", "journalpostId", "{journalpostId}", "dokumentInfoId", "{dokumentInfoId}");
 					if (!fields.isEmpty()) {
@@ -112,36 +76,32 @@ public class DokarkivConsumer {
 					}
 					return uriBuilder.build(journalpostId, dokumentInfoId);
 				})
-				.attributes(clientRegistrationId(CLIENT_REGISTRATION_DOKARKIV))
+				.attribute(TARGET_SCOPE, targetScope)
 				.accept(APPLICATION_JSON)
-				.retrieve()
-				.bodyToMono(ArkivJournalpost.class)
-				.onErrorMap(error -> mapHentJournalpostError(error, journalpostId, dokumentInfoId))
-				.transformDeferred(CircuitBreakerOperator.of(dokarkivMetadataCircuitBreaker))
-				.transformDeferred(RetryOperator.of(dokarkivMetadataRetry))
-				.block();
+				.exchange((_, res) -> {
+					if (res.getStatusCode().is2xxSuccessful()) {
+						return res.bodyTo(ArkivJournalpost.class);
+					} else if (NOT_FOUND.isSameCodeAs(res.getStatusCode())) {
+						throw new JournalpostIkkeFunnetException(
+								format("Journalpost med journalpostId=%s, dokumentInfoId=%s ikke funnet i Joark", journalpostId, dokumentInfoId));
+					} else if (res.getStatusCode().is4xxClientError()) {
+						String body = res.bodyTo(String.class);
+						throw new ConsumerFunctionalException(
+								format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%s, dokumentInfoId=%s, body=%s",
+										res.getStatusCode(), journalpostId, dokumentInfoId, body));
+					} else {
+						String body = res.bodyTo(String.class);
+						throw new ConsumerTechnicalException(
+								format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s, dokumentInfoId=%s, body=%s",
+										res.getStatusCode(), journalpostId, dokumentInfoId, body));
+					}
+				});
 	}
 
-	private Throwable mapHentJournalpostError(Throwable error, String journalpostId, String dokumentInfoId) {
-		if (error instanceof WebClientResponseException.NotFound notFound) {
-			return new JournalpostIkkeFunnetException(format("Journalpost med journalpostId=%s, dokumentInfoId=%s ikke funnet i Joark.",
-					journalpostId, dokumentInfoId), notFound);
-		}
-		if (error instanceof WebClientResponseException webException) {
-			if (webException.getStatusCode().is4xxClientError()) {
-				return new ConsumerFunctionalException(format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
-						webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()));
-			} else {
-				return new ConsumerTechnicalException(format("hentJournalpost feilet teknisk. status=%s, journalpostId=%s, dokumentInfoId=%s. Feilmelding=%s",
-						webException.getStatusCode(), journalpostId, dokumentInfoId, webException.getMessage()), webException);
-			}
-		}
-		return new ConsumerTechnicalException(format("hentJournalpost feilet med ukjent teknisk feil. journalpostId=%s, dokumentInfoId=%s",
-				journalpostId, dokumentInfoId), error);
-	}
-
+	@CircuitBreaker(name = DOKARKIV_METADATA)
+	@Retryable(includes = {ConsumerTechnicalException.class, ResourceAccessException.class})
 	public ArkivJournalpost journalpost(long journalpostId, Set<String> fields) {
-		return webClient.get()
+		return restClient.get()
 				.uri(uriBuilder -> {
 					uriBuilder.pathSegment("journalpost", "journalpostId", "{journalpostId}");
 					if (!fields.isEmpty()) {
@@ -149,63 +109,46 @@ public class DokarkivConsumer {
 					}
 					return uriBuilder.build(journalpostId);
 				})
-				.attributes(clientRegistrationId(CLIENT_REGISTRATION_DOKARKIV))
+				.attribute(TARGET_SCOPE, targetScope)
 				.accept(APPLICATION_JSON)
 				.retrieve()
-				.bodyToMono(ArkivJournalpost.class)
-				.onErrorMap(error -> handleErrorJournalpost(error, journalpostId))
-				.transformDeferred(CircuitBreakerOperator.of(dokarkivMetadataCircuitBreaker))
-				.transformDeferred(RetryOperator.of(dokarkivMetadataRetry))
-				.block();
+				.body(ArkivJournalpost.class);
 	}
 
-	private Throwable handleErrorJournalpost(Throwable error, long journalpostId) {
-		if (error instanceof WebClientResponseException.NotFound notFound) {
-			return new JournalpostIkkeFunnetException(format("Journalpost med journalpostId=%d ikke funnet i Joark.", journalpostId), notFound);
-		}
-		if (error instanceof WebClientResponseException webException) {
-			if (webException.getStatusCode().is4xxClientError()) {
-				return new ConsumerFunctionalException(format("hentJournalpost feilet funksjonelt. status=%s, journalpostId=%d. Feilmelding=%s",
-						webException.getStatusCode(), journalpostId, webException.getMessage()));
-			} else {
-				return new ConsumerTechnicalException(format("hentJournalpost feilet teknisk. status=%s, journalpostId=%d. Feilmelding=%s",
-						webException.getStatusCode(), journalpostId, webException.getMessage()), webException);
-			}
-		}
-		return new ConsumerTechnicalException(format("hentJournalpost feilet med ukjent teknisk feil. journalpostId=%d", journalpostId), error);
-	}
-
+	@CircuitBreaker(name = DOKARKIV_HENTDOKUMENT)
+	@Retryable(includes = {ConsumerTechnicalException.class, ResourceAccessException.class})
 	public HentDokumentResponseTo hentDokument(final String dokumentInfoId, final TilgangVariantFormat variantFormat) {
-		return webClient.get()
+		return restClient.get()
 				.uri(uriBuilder -> uriBuilder.path("/hentdokument/{dokumentInfoId}/{variantFormat}")
 						.build(dokumentInfoId, variantFormat.name()))
-				.attributes(clientRegistrationId(CLIENT_REGISTRATION_DOKARKIV))
+				.attribute(TARGET_SCOPE, targetScope)
 				.accept(APPLICATION_PDF)
-				.exchangeToMono(clientResponse -> {
-					if (clientResponse.statusCode().is2xxSuccessful()) {
-						return clientResponse.bodyToMono(byte[].class)
-								.map(responseBytes -> HentDokumentResponseTo.builder()
-										.dokument(responseBytes)
-										.mediaType(clientResponse.headers().asHttpHeaders().getContentType())
-										.build());
+				.exchange((_, res) -> {
+					if (res.getStatusCode().is2xxSuccessful()) {
+						return HentDokumentResponseTo.builder()
+								.dokument(res.bodyTo(byte[].class))
+								.mediaType(res.getHeaders().getContentType())
+								.build();
+					} else if (NOT_FOUND.isSameCodeAs(res.getStatusCode())) {
+						throw new DokumentIkkeFunnetException("Fant ikke dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat);
+					} else if (res.getStatusCode().is4xxClientError()) {
+						throw new ConsumerFunctionalException("Funksjonell feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat);
 					} else {
-						return clientResponse.createError();
+						throw new ConsumerTechnicalException("Teknisk feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat);
 					}
-				})
-				.onErrorMap(error -> handleErrorHentDokument(error, dokumentInfoId, variantFormat))
-				.transformDeferred(CircuitBreakerOperator.of(dokarkivHentdokumentCircuitBreaker))
-				.transformDeferred(RetryOperator.of(dokarkivHentdokumentRetry))
-				.block();
+				});
 	}
 
-	private Throwable handleErrorHentDokument(Throwable error, String dokumentInfoId, TilgangVariantFormat variantFormat) {
-		if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-			if (error instanceof WebClientResponseException.NotFound) {
-				return new DokumentIkkeFunnetException("Fant ikke dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
+	private void handleError(ClientHttpResponse response) throws IOException {
+		String body = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+		if (response.getStatusCode().is4xxClientError()) {
+			if (NOT_FOUND.isSameCodeAs(response.getStatusCode())) {
+				throw new JournalpostIkkeFunnetException(format("Journalpost ikke funnet i Joark. status=%s", response.getStatusCode()));
 			}
-			return new ConsumerFunctionalException("Funksjonell feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
-		} else {
-			return new ConsumerTechnicalException("Teknisk feil mot hentDokument for dokument med dokumentInfoId=" + dokumentInfoId + ", variantFormat=" + variantFormat, error);
+			throw new ConsumerFunctionalException("Kall mot dokarkiv feilet funksjonelt med status=%s, body=%s"
+					.formatted(response.getStatusCode(), body));
 		}
+		throw new ConsumerTechnicalException("Kall mot dokarkiv feilet teknisk med status=%s, body=%s"
+				.formatted(response.getStatusCode(), body));
 	}
 }

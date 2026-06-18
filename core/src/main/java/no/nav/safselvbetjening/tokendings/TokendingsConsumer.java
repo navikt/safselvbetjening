@@ -1,7 +1,5 @@
 package no.nav.safselvbetjening.tokendings;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.json.JsonMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
@@ -9,13 +7,14 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClient;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
@@ -23,27 +22,24 @@ import java.util.UUID;
 import static com.nimbusds.jose.JOSEObjectType.JWT;
 import static com.nimbusds.jose.JWSAlgorithm.RS256;
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static no.nav.safselvbetjening.cache.CacheConfig.TOKENDINGS_CACHE;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 @Component
 public class TokendingsConsumer {
 
-	private final WebClient webClient;
+	private final RestClient restClient;
 	private final TokendingsProperties tokendingsProperties;
-	private final JsonMapper jsonMapper;
 
-	public TokendingsConsumer(WebClient webClient,
-							  TokendingsProperties tokendingsProperties,
-							  JsonMapper jsonMapper) {
-		this.webClient = webClient.mutate()
+	public TokendingsConsumer(RestClient.Builder restClientBuilder,
+							  TokendingsProperties tokendingsProperties) {
+		this.restClient = restClientBuilder
 				.baseUrl(tokendingsProperties.getTokenEndpoint())
-				.defaultHeader(CONTENT_TYPE, APPLICATION_FORM_URLENCODED_VALUE)
+				.defaultStatusHandler(HttpStatusCode::isError, (_, res) -> handleError(res))
 				.build();
 		this.tokendingsProperties = tokendingsProperties;
-		this.jsonMapper = jsonMapper;
 	}
 
 	@Cacheable(value = TOKENDINGS_CACHE, key = "T(no.nav.safselvbetjening.tokendings.TokendingsConsumer).hashedCacheKey(#subjectToken, #scope)")
@@ -56,32 +52,22 @@ public class TokendingsConsumer {
 		formMultiValueData.add("subject_token", subjectToken);
 		formMultiValueData.add("audience", scope);
 
-		String responseJson = webClient.post()
-				.body(BodyInserters.fromFormData(formMultiValueData))
+		return restClient.post()
+				.contentType(APPLICATION_FORM_URLENCODED)
+				.body(formMultiValueData)
 				.retrieve()
-				.bodyToMono(String.class)
-				.onErrorMap(this::mapError)
-				.block();
-
-		try {
-			return jsonMapper.readValue(responseJson, TokenResponse.class);
-		} catch (JacksonException e) {
-			throw new TokenException(format("Klarte ikke parse token fra Azure. Feilmelding=%s", e.getMessage()), e);
-		}
+				.body(TokenResponse.class);
 	}
 
-	private Throwable mapError(Throwable error) {
-		if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-			return new TokenException(
+	private void handleError(ClientHttpResponse response) throws IOException {
+		String body = new String(response.getBody().readAllBytes(), UTF_8);
+		if (response.getStatusCode().is4xxClientError()) {
+			throw new TokenFunctionalException(
 					format("Klarte ikke hente token fra Tokendings. Feilet med statuskode=%s Feilmelding=%s",
-							response.getStatusCode().value(),
-							response.getMessage()),
-					error);
-		} else {
-			return new TokenTechnicalException(
-					format("Kall mot Tokendings feilet med feilmelding=%s", error.getMessage()),
-					error);
+							response.getStatusCode().value(), response));
 		}
+		throw new TokenTechnicalException(
+				format("Kall mot Tokendings feilet teknisk med feilmelding=%s", body));
 	}
 
 	String clientAssertion() {

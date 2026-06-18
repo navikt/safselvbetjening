@@ -123,14 +123,6 @@ public abstract class AbstractItest {
 		}
 	}
 
-	protected void stubAzure() {
-		stubFor(post("/azure_token")
-				.willReturn(aResponse()
-						.withStatus(OK.value())
-						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("azure/token_response.json")));
-	}
-
 	protected void stubTokenx() {
 		stubFor(post("/tokenx")
 				.willReturn(aResponse()
@@ -172,13 +164,21 @@ public abstract class AbstractItest {
 	}
 
 	protected void stubPensjonssaker() {
-		stubPensjonssaker("hentpensjonssaker_happy.json");
+		stubPensjonssaker("hentpensjonssaker_happy.json", OK);
 	}
 
 	protected void stubPensjonssaker(final String fil) {
 		stubFor(get(HENT_PENSJONSSAKER_PATH)
 				.willReturn(aResponse()
 						.withStatus(OK.value())
+						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+						.withBodyFile("psak/" + fil)));
+	}
+
+	protected void stubPensjonssaker(final String fil, HttpStatus httpStatus) {
+		stubFor(get(HENT_PENSJONSSAKER_PATH)
+				.willReturn(aResponse()
+						.withStatus(httpStatus.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("psak/" + fil)));
 	}

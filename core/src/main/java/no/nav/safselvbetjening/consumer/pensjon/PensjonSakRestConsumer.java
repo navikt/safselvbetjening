@@ -1,31 +1,27 @@
 package no.nav.safselvbetjening.consumer.pensjon;
 
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
-import io.github.resilience4j.reactor.retry.RetryOperator;
-import io.github.resilience4j.retry.Retry;
-import io.github.resilience4j.retry.RetryRegistry;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
-import no.nav.safselvbetjening.consumer.CallIdExchangeFilterFunction;
 import no.nav.safselvbetjening.consumer.ConsumerFunctionalException;
 import no.nav.safselvbetjening.consumer.ConsumerTechnicalException;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClient;
 
+import java.io.IOException;
 import java.util.List;
 
-import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
-import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
-import static no.nav.safselvbetjening.azure.AzureProperties.CLIENT_REGISTRATION_PENSJON;
+import static no.nav.safselvbetjening.consumer.token.NaisTexasRequestInterceptor.TARGET_SCOPE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
 @Slf4j
 @Component
@@ -33,81 +29,61 @@ public class PensjonSakRestConsumer {
 
 	private static final String PENSJON_INSTANCE = "pensjon";
 
-	private final WebClient webClient;
-	private final CircuitBreaker circuitBreaker;
-	private final Retry retry;
+	private final RestClient restClient;
+	private final String targetScope;
 
 	public PensjonSakRestConsumer(
 			final SafSelvbetjeningProperties safSelvbetjeningProperties,
-			final WebClient webClient,
-			final CircuitBreakerRegistry circuitBreakerRegistry,
-			final RetryRegistry retryRegistry) {
-		this.webClient = webClient.mutate()
+			final RestClient restClientTexas) {
+		this.restClient = restClientTexas.mutate()
 				.baseUrl(safSelvbetjeningProperties.getEndpoints().getPensjon().getUrl())
 				.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-				.filter(new CallIdExchangeFilterFunction(NAV_CALLID))
+				.defaultStatusHandler(HttpStatusCode::isError, (_, res) -> handleError(res))
 				.build();
-		this.circuitBreaker = circuitBreakerRegistry.circuitBreaker(PENSJON_INSTANCE);
-		this.retry = retryRegistry.retry(PENSJON_INSTANCE);
+		this.targetScope = safSelvbetjeningProperties.getEndpoints().getPensjon().getScope();
 	}
 
+	@CircuitBreaker(name = PENSJON_INSTANCE)
+	@Retryable(includes = {ConsumerTechnicalException.class, ResourceAccessException.class})
 	public HentBrukerForSakResponseTo hentBrukerForSak(final String sakId) {
-		var result = webClient.get()
+		var result = restClient.get()
 				.uri("/pip/hentBrukerOgEnhetstilgangerForSak/v1")
-				.attributes(clientRegistrationId(CLIENT_REGISTRATION_PENSJON))
 				.header("sakId", sakId)
+				.attribute(TARGET_SCOPE, targetScope)
 				.retrieve()
-				.bodyToMono(HentBrukerForSakResponseTo.class)
-				.onErrorMap(this::mapHentBrukerForSakError)
-				.transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
-				.transformDeferred(RetryOperator.of(retry))
-				.block();
+				.body(HentBrukerForSakResponseTo.class);
 
 		if (result == null || result.fnr() == null || result.fnr().isEmpty()) {
 			throw new PensjonsakIkkeFunnetException("hentBrukerForSak returnerte tomt fødselsnummer for sakId=" + sakId + ". " +
-													"Dette betyr at saken ikke finnes eller at ingen personer er tilknyttet denne saken i pesys");
+					"Dette betyr at saken ikke finnes eller at ingen personer er tilknyttet denne saken i pesys");
 		} else {
 			return result;
 		}
 	}
 
-	private Throwable mapHentBrukerForSakError(Throwable error) {
-		if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-			return new ConsumerFunctionalException(format("hentBrukerForSak feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), response.getMessage()), error);
-		} else {
-			return new ConsumerTechnicalException(format("hentBrukerForSak feilet teknisk. Feilmelding=%s", error.getMessage()), error);
-		}
-	}
-
+	@CircuitBreaker(name = PENSJON_INSTANCE)
+	@Retryable(includes = {ConsumerTechnicalException.class, ResourceAccessException.class})
 	public List<Pensjonsak> hentPensjonssaker(final String personident) {
 		if (isBlank(personident)) {
 			return emptyList();
 		}
 
-		return webClient.get()
+		return restClient.get()
 				.uri("/sak/sammendrag")
-				.attributes(clientRegistrationId(CLIENT_REGISTRATION_PENSJON))
 				.header("fnr", personident)
+				.attribute(TARGET_SCOPE, targetScope)
 				.retrieve()
-				.bodyToMono(new ParameterizedTypeReference<List<Pensjonsak>>() {
-				})
-				.onErrorMap(this::mapHentPensjonssakerError)
-				.transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
-				.transformDeferred(RetryOperator.of(retry))
-				.block();
+				.body(new ParameterizedTypeReference<>() {
+				});
 	}
 
-	private Throwable mapHentPensjonssakerError(Throwable error) {
-		if (error instanceof WebClientResponseException response && response.getStatusCode().is4xxClientError()) {
-			if (error instanceof WebClientResponseException.NotFound) {
-				return new ConsumerFunctionalException(
-						format("hentPensjonssaker feilet funksjonelt (person ikke funnet). Statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error);
-			}
-			return new ConsumerFunctionalException(
-					format("hentPensjonssaker feilet funksjonelt med statuskode=%s. Feilmelding=%s", response.getStatusCode(), error.getMessage()), error);
-		} else {
-			return new ConsumerTechnicalException(format("hentPensjonssaker feilet teknisk. Feilmelding=%s", error.getMessage()), error);
+	private void handleError(ClientHttpResponse response) throws IOException {
+		String body = new String(response.getBody().readAllBytes(), UTF_8);
+		if (response.getStatusCode().is4xxClientError()) {
+			throw new ConsumerFunctionalException("Kall mot pensjon feilet funksjonelt med status=%s, body=%s"
+					.formatted(response.getStatusCode(), body));
 		}
+		throw new ConsumerTechnicalException("Kall mot pensjon feilet teknisk med status=%s, body=%s"
+				.formatted(response.getStatusCode(), body));
 	}
-
 }
