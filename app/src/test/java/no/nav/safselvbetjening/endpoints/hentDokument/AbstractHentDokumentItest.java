@@ -159,8 +159,8 @@ public abstract class AbstractHentDokumentItest extends AbstractItest {
 		return callHentDokument(BRUKER_ID);
 	}
 
-	protected ResponseEntity<String> callHentDokumentAsFullmektig() {
-		return callHentDokument(FULLMEKTIG_ID);
+	protected ResponseEntity<String> callHentDokumentAsRepresentant() {
+		return callHentDokument(REPRESENTANT_ID);
 	}
 
 	protected ResponseEntity<String> callHentDokument(String innloggetBrukerId) {

@@ -159,8 +159,8 @@ abstract class AbstractJournalpostItest extends AbstractItest {
 		return queryJournalpostById("journalpost_by_id_all.query", BRUKER_ID);
 	}
 
-	protected ResponseEntity<GraphQLResponse> queryJournalpostByIdAsFullmektig() {
-		return queryJournalpostById("journalpost_by_id_all.query", FULLMEKTIG_ID);
+	protected ResponseEntity<GraphQLResponse> queryJournalpostByIdAsRepresentant() {
+		return queryJournalpostById("journalpost_by_id_all.query", REPRESENTANT_ID);
 	}
 
 	protected ResponseEntity<GraphQLResponse> queryJournalpostById(String innloggetBrukerId) {

@@ -1,0 +1,32 @@
+[
+  {
+    "id": 180000000,
+    "tema": "FOR",
+    "applikasjon": "FS38",
+    "aktoerId": "1012345678911",
+    "orgnr": null,
+    "fagsakNr": "10000000",
+    "opprettetAv": "srvtest",
+    "opprettetTidspunkt": "2021-04-16T14:52:07.432+02:00"
+  },
+  {
+    "id": 21000000,
+    "tema": "AAP",
+    "applikasjon": "AO01",
+    "aktoerId": "1012345678911",
+    "orgnr": null,
+    "fagsakNr": "10000001",
+    "opprettetAv": "srvtest",
+    "opprettetTidspunkt": "2021-04-16T14:52:07.432+02:00"
+  },
+  {
+    "id": 130000000,
+    "tema": "BAR",
+    "applikasjon": "BARNETRYGD",
+    "aktoerId": "1012345678911",
+    "orgnr": null,
+    "fagsakNr": "10000002",
+    "opprettetAv": "srvtest",
+    "opprettetTidspunkt": "2021-04-16T14:52:07.432+02:00"
+  }
+]

@@ -36,11 +36,11 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	 */
 	@Test
 	void skalFinneJournalpostByIdHvisPaaloggetBrukerErFullmektigMedGyldigFullmakt() {
-		stubReprApiFullmakt("repr-api-fullmakt-tema-hje.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-tema-hje.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
@@ -58,11 +58,11 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	 */
 	@Test
 	void skalFinneUtgaaendeNavNoJournalpostByIdHvisPaaloggetBrukerErFullmektigMedGyldigFullmakt() {
-		stubReprApiFullmakt("repr-api-fullmakt-tema-hje.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-tema-hje.json");
 		stubDokarkivJournalpost("1c-journalpost-ok_utgaaende.json");
 		stubPdlGenerell();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
@@ -82,13 +82,13 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	 */
 	@Test
 	void skalFinneJournalpostByIdHvisDokumentTilknyttetPensjonSakHarTemaMedGyldigFullmakt() {
-		stubReprApiFullmakt("repr-api-fullmakt-tema-ufo.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-tema-ufo.json");
 		stubDokarkivJournalpost("1c-journalpost-pensjon-ok.json");
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
 		stubPensjonssaker("pensjon-sak-sammendrag-generell.json");
 		stubPdlGenerell();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
@@ -111,7 +111,7 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktDekkerJournalpostTemaOgIkkePensjonssakTema() {
-		stubReprApiFullmakt("repr-api-fullmakt-tema-pen.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-tema-pen.json");
 		stubDokarkivJournalpost("1c-journalpost-pensjon-ok.json");
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
 		// UFO pensjonssak
@@ -119,7 +119,7 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 		// PEN journalpost
 		stubPdlGenerell();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertGraphQlForbiddenError(response, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
 	}
@@ -130,12 +130,12 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktIkkeDekkerTemaDokumentetGjelder() {
-		stubReprApiFullmakt("repr-api-fullmakt-tema-pen.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-tema-pen.json");
 		// tema HJE fra dokarkiv
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertGraphQlForbiddenError(response, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
 	}
@@ -146,12 +146,12 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktIkkeFinnes() {
-		stubReprApiFullmakt("repr-api-fullmakt-empty.json");
+		stubReprApiRepresentasjon("repr-api-empty.json");
 
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertGraphQlForbiddenError(response, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
@@ -163,10 +163,10 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktGjelderEnAnnenBrukerEnnDetDokumentetGjelder() {
 		stubPdlGenerell();
-		stubReprApiFullmakt("repr-api-fullmakt-feil-bruker.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-feil-bruker.json");
 		stubDokarkivJournalpost();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertGraphQlForbiddenError(response, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
@@ -177,11 +177,11 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisReprApiReturnerer4xxFeil() {
-		stubReprApiFullmakt(FORBIDDEN);
+		stubReprApiRepresentasjon(FORBIDDEN);
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertGraphQlForbiddenError(response, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
@@ -192,11 +192,11 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisReprApiReturnerer5xxFeil() {
-		stubReprApiFullmakt(INTERNAL_SERVER_ERROR);
+		stubReprApiRepresentasjon(INTERNAL_SERVER_ERROR);
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertGraphQlForbiddenError(response, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
@@ -207,11 +207,11 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisReprApiReturnererUgyldigJson() {
-		stubReprApiFullmakt("repr-api-fullmakt-invalid.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-invalid.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertGraphQlForbiddenError(response, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
@@ -222,11 +222,11 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisReprApiReturnererJsonUtenArray() {
-		stubReprApiFullmakt("repr-api-fullmakt-invalid-no-array.json");
+		stubReprApiRepresentasjon("repr-api-invalid-no-array.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertGraphQlForbiddenError(response, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
 	}
@@ -237,11 +237,11 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisReprApiReturnererJsonUtenTema() {
-		stubReprApiFullmakt("repr-api-fullmakt-ingen-tema.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-ingen-tema.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		assertGraphQlForbiddenError(response, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
@@ -254,11 +254,11 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktDekkerJournalpostTemaOgIkkeSakTema() {
-		stubReprApiFullmakt("repr-api-fullmakt-tema-hje.json");
-		stubDokarkivJournalpost("ukj-journalpost-tema-forskjellig-fra-fullmakt.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-tema-hje.json");
+		stubDokarkivJournalpost("ukj-journalpost-tema-forskjellig-fra-representasjon.json");
 		stubPdlGenerell();
 
-		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsFullmektig();
+		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertGraphQlForbiddenError(response, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
 	}

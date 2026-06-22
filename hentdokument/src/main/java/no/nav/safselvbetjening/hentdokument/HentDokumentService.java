@@ -8,13 +8,16 @@ import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpost;
 import no.nav.safselvbetjening.consumer.pensjon.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.Journalpost;
-import no.nav.safselvbetjening.fullmektig.Fullmakt;
+import no.nav.safselvbetjening.representasjon.Fullmakt;
 import no.nav.safselvbetjening.hentdokument.audit.HentDokumentAudit;
 import no.nav.safselvbetjening.metrics.DokumentCounter;
+import no.nav.safselvbetjening.representasjon.Representasjon;
+import no.nav.safselvbetjening.representasjon.Representasjonsforhold;
+import no.nav.safselvbetjening.representasjon.Vergemaal;
 import no.nav.safselvbetjening.schemas.HoveddokumentLest;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
-import no.nav.safselvbetjening.tilgang.FullmaktInvalidException;
+import no.nav.safselvbetjening.tilgang.RepresentasjonInvalidException;
 import no.nav.safselvbetjening.tilgang.HentTilgangDokumentException;
 import no.nav.safselvbetjening.tilgang.Ident;
 import no.nav.safselvbetjening.tilgang.NoValidTokensException;
@@ -42,6 +45,7 @@ import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_INGEN_GYLDIG_TOKEN;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_VERGEMAAL_GJELDER_IKKE_FOR_TEMA;
 import static no.nav.safselvbetjening.DenyReasonFactory.lagFeilmeldingForDokument;
 import static no.nav.safselvbetjening.DenyReasonFactory.lagFeilmeldingForJournalpost;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
@@ -50,7 +54,7 @@ import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_IKKE
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_UGYLDIG_VARIANTFORMAT;
 import static no.nav.safselvbetjening.tilgang.TilgangVariantFormat.ARKIV;
 import static no.nav.safselvbetjening.tilgang.TilgangVariantFormat.SLADDET;
-import static no.nav.safselvbetjening.tilgang.TilgangsvalideringService.validerFullmaktForTema;
+import static no.nav.safselvbetjening.tilgang.TilgangsvalideringService.validerRepresentasjonForTema;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
@@ -60,6 +64,7 @@ public class HentDokumentService {
 	public static final String DENY_REASON_INGEN_GYLDIG_TOKEN = "ingen_gyldig_token";
 	public static final String DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN = "bruker_matcher_ikke_token";
 	public static final String DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA = "fullmakt_gjelder_ikke_tema";
+	public static final String DENY_REASON_VERGEMAAL_GJELDER_IKKE_FOR_TEMA = "vergemaal_gjelder_ikke_tema";
 	public static final Set<String> HENTDOKUMENT_TILGANG_FIELDS = Set.of(
 			"journalpostId", "fagomraade", "status", "type", "skjerming", "mottakskanal", "utsendingskanal", "innsyn",
 			"bruker", "avsenderMottaker", "relevanteDatoer", "saksrelasjon",
@@ -128,47 +133,61 @@ public class HentDokumentService {
 		}
 
 		try {
-			Optional<Fullmakt> fullmaktOptional = tilgangsvalideringService.validerInnloggetBrukerOgFinnFullmakt(brukerIdenter,
+			Optional<Representasjon> representasjonOpt = tilgangsvalideringService.validerInnloggetBrukerOgFinnRepresentasjon(brukerIdenter,
 					hentdokumentRequest.getTokenValidationContext());
-			Optional<Pensjonsak> pensjonsakOpt = hentPensjonssak(brukerIdenter.getAktivFolkeregisterident(), arkivJournalpost, fullmaktOptional);
+			Optional<Pensjonsak> pensjonsakOpt = hentPensjonssak(brukerIdenter.getAktivFolkeregisterident(), arkivJournalpost, representasjonOpt);
 			Journalpost journalpost = hentDokumentTilgangMapper.map(arkivJournalpost, Long.parseLong(hentdokumentRequest.getDokumentInfoId()),
 					hentdokumentRequest.getVariantFormat(), brukerIdenter, pensjonsakOpt);
 			String gjeldendeTema = journalpost.getTilgang().getGjeldendeTema();
-			fullmaktOptional.ifPresent(fullmakt -> {
-				validerFullmaktForTema(fullmakt, gjeldendeTema, fullmaktPresentAndValidAuditLog(hentdokumentRequest, gjeldendeTema));
-			});
+			Optional<Representasjonsforhold> bruktRepresentasjonsforhold = representasjonOpt.map(representasjon ->
+					validerRepresentasjonForTema(representasjon, gjeldendeTema, representasjonPresentAndValidTeamLog(hentdokumentRequest, gjeldendeTema)));
 
 			TilgangJournalpost tilgangJournalpost = journalpost.getTilgang();
 			TilgangVariantFormat variantFormat = utledTilgangHentDokument(tilgangJournalpost, brukerIdenter.getIdenter(), Long.parseLong(hentdokumentRequest.getDokumentInfoId()), hentdokumentRequest.getVariantFormat());
-			recordFullmaktAuditLog(fullmaktOptional, hentdokumentRequest);
+			recordFullmaktAuditLog(bruktRepresentasjonsforhold, hentdokumentRequest);
 			dokumentCounter.registrerAlderDokumentMetrikk(arkivJournalpost.relevanteDatoer().opprettet());
 
-			return new Tilgangskontroll(journalpost, variantFormat, fullmaktOptional);
+			return new Tilgangskontroll(journalpost, variantFormat, bruktRepresentasjonsforhold);
 		} catch (NoValidTokensException e) {
 			throw new HentTilgangDokumentException(DENY_REASON_INGEN_GYLDIG_TOKEN, FEILMELDING_INGEN_GYLDIG_TOKEN);
 		} catch (UserNotMatchingTokenException e) {
-			secureLog.warn("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}) Innlogget bruker med ident={} matcher ikke bruker på journalpost og har ingen fullmakt. brukerIdenter={}",
+			secureLog.warn("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}) Innlogget bruker med ident={} matcher ikke bruker på journalpost og har ingen representasjon. brukerIdenter={}",
 					hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(),
 					e.getIdent(), e.getIdenter());
 			throw new HentTilgangDokumentException(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
-		} catch (FullmaktInvalidException e) {
-			secureLog.warn("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}, tema={}) Innlogget bruker med ident={} har fullmakt som ikke dekker tema for dokument tilhørende bruker={}. Tilgang er avvist",
-					hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), e.getGjeldendeTema(),
-					e.getFullmakt().fullmektig(), e.getFullmakt().fullmaktsgiver());
-			throw new HentTilgangDokumentException(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
+		} catch (RepresentasjonInvalidException e) {
+			switch (e.getRepresentasjonsforhold()) {
+				case Fullmakt fullmakt -> {
+						secureLog.warn("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}, tema={}) Innlogget bruker med ident={} har fullmakt som ikke dekker tema for dokument tilhørende bruker={}. Tilgang er avvist",
+						hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), e.getGjeldendeTema(),
+						fullmakt.fullmektig(), fullmakt.fullmaktsgiver());
+					throw new HentTilgangDokumentException(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
+				}
+				case Vergemaal vergemaal -> {
+						secureLog.warn("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}, tema={}) Innlogget bruker med ident={} har vergemål som ikke dekker tema for dokument tilhørende bruker={}. Tilgang er avvist",
+						hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), e.getGjeldendeTema(),
+						vergemaal.verge(), vergemaal.vergehaver());
+					throw new HentTilgangDokumentException(DENY_REASON_VERGEMAAL_GJELDER_IKKE_FOR_TEMA, FEILMELDING_VERGEMAAL_GJELDER_IKKE_FOR_TEMA);
+				}
+			}
 		}
 	}
 
-	private static Consumer<Fullmakt> fullmaktPresentAndValidAuditLog(HentdokumentRequest hentdokumentRequest, String gjeldendeTema) {
-		return fullmakt -> {
-			secureLog.info("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}, tema={}) Innlogget bruker med ident={} bruker fullmakt med tema={} for dokument tilhørende bruker={}",
-					hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), gjeldendeTema,
-					fullmakt.fullmektig(), fullmakt.tema(), fullmakt.fullmaktsgiver());
+	private static Consumer<Representasjonsforhold> representasjonPresentAndValidTeamLog(HentdokumentRequest hentdokumentRequest, String gjeldendeTema) {
+		return representasjonsforhold -> {
+			switch (representasjonsforhold) {
+				case Fullmakt fullmakt -> secureLog.info("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}, tema={}) Innlogget bruker med ident={} bruker fullmakt med tema={} for dokument tilhørende bruker={}",
+						hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), gjeldendeTema,
+						fullmakt.fullmektig(), fullmakt.tema(), fullmakt.fullmaktsgiver());
+				case Vergemaal vergemaal -> secureLog.info("hentdokument(journalpostId={}, dokumentInfoId={}, variantFormat={}, tema={}) Innlogget bruker med ident={} bruker vergemål med tema={} for dokument tilhørende bruker={}",
+						hentdokumentRequest.getJournalpostId(), hentdokumentRequest.getDokumentInfoId(), hentdokumentRequest.getVariantFormat(), gjeldendeTema,
+						vergemaal.verge(), vergemaal.tema(), vergemaal.vergehaver());
+			}
 		};
 	}
 
-	public void recordFullmaktAuditLog(Optional<Fullmakt> fullmaktOpt, HentdokumentRequest hentdokumentRequest) {
-		fullmaktOpt.ifPresentOrElse(fullmakt -> audit.logSomFullmektig(fullmakt, hentdokumentRequest),
+	public void recordFullmaktAuditLog(Optional<Representasjonsforhold> bruktRepresentasjonsforhold, HentdokumentRequest hentdokumentRequest) {
+		bruktRepresentasjonsforhold.ifPresentOrElse(representasjonsforhold -> audit.logSomRepresentant(representasjonsforhold, hentdokumentRequest),
 				() -> audit.logSomBruker(hentdokumentRequest, tilgangsvalideringService.getPidOrSubFromRequest(hentdokumentRequest.getTokenValidationContext())));
 	}
 
@@ -239,8 +258,8 @@ public class HentDokumentService {
 		}
 	}
 
-	private Optional<Pensjonsak> hentPensjonssak(String bruker, ArkivJournalpost arkivJournalpost, Optional<Fullmakt> fullmaktOpt) {
-		if (fullmaktOpt.isPresent()) {
+	private Optional<Pensjonsak> hentPensjonssak(String bruker, ArkivJournalpost arkivJournalpost, Optional<Representasjon> representasjon) {
+		if (representasjon.isPresent()) {
 			if (arkivJournalpost.isTilknyttetSak() && arkivJournalpost.saksrelasjon().isPensjonsak()) {
 				return pensjonSakRestConsumer.hentPensjonssaker(bruker)
 						.stream().filter(p -> p.sakId().equals(arkivJournalpost.saksrelasjon().sakId()))

@@ -1,0 +1,21 @@
+{
+  "fullmakt": [
+    {
+      "fullmaktsgiver": null,
+      "fullmektig": null,
+      "leserettigheter": [
+        null
+      ],
+      "skriverettigheter": []
+    }
+  ],
+  "vergemaal": [
+    {
+      "vergehaver": null,
+      "verge": null,
+      "leserettigheter": [
+        null
+      ]
+    }
+  ]
+}

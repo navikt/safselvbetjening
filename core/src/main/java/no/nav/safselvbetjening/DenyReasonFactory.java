@@ -25,6 +25,7 @@ public class DenyReasonFactory {
 	public static final String FEILMELDING_INGEN_GYLDIG_TOKEN = "Ingen gyldige tokens i Authorization-headeren.";
 	public static final String FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN = "Bruker på journalpost tilhører ikke bruker i token. Innlogget bruker har heller ingen fullmakt overfor journalpost tilhørende bruker.";
 	public static final String FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA = "Innlogget bruker har fullmakt overfor bruker, men fullmakten gjelder ikke for journalposten sitt tema.";
+	public static final String FEILMELDING_VERGEMAAL_GJELDER_IKKE_FOR_TEMA = "Innlogget bruker har vergemål overfor bruker, men vergemålet gjelder ikke for journalposten sitt tema.";
 
 
 	public static String lagFeilmeldingForJournalpost(TilgangDenyReason grunn) {

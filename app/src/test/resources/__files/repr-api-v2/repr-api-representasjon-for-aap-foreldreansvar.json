@@ -1,0 +1,30 @@
+{
+  "fullmakt": [
+    {
+      "fullmaktsgiver": "12345678911",
+      "fullmektig": "22222222222",
+      "leserettigheter": [
+        "AAP"
+      ],
+      "skriverettigheter": []
+    }
+  ],
+  "vergemaal": [
+    {
+      "vergehaver": "12345678911",
+      "verge": "22222222222",
+      "leserettigheter": [
+        "FOR"
+      ]
+    }
+  ],
+  "foreldreansvar": [
+    {
+      "barn": "12345678911",
+      "forelder": "22222222222",
+      "leserettigheter": [
+        "BAR"
+      ]
+    }
+  ]
+}

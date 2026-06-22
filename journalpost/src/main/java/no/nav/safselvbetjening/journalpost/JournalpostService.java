@@ -8,12 +8,15 @@ import no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMappe
 import no.nav.safselvbetjening.consumer.pensjon.PensjonSakRestConsumer;
 import no.nav.safselvbetjening.consumer.pensjon.Pensjonsak;
 import no.nav.safselvbetjening.domain.Journalpost;
-import no.nav.safselvbetjening.fullmektig.Fullmakt;
 import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.graphql.GraphQLRequestContext;
+import no.nav.safselvbetjening.representasjon.Fullmakt;
+import no.nav.safselvbetjening.representasjon.Representasjon;
+import no.nav.safselvbetjening.representasjon.Representasjonsforhold;
+import no.nav.safselvbetjening.representasjon.Vergemaal;
 import no.nav.safselvbetjening.service.BrukerIdenter;
 import no.nav.safselvbetjening.service.IdentService;
-import no.nav.safselvbetjening.tilgang.FullmaktInvalidException;
+import no.nav.safselvbetjening.tilgang.RepresentasjonInvalidException;
 import no.nav.safselvbetjening.tilgang.NoValidTokensException;
 import no.nav.safselvbetjening.tilgang.TilgangsvalideringService;
 import no.nav.safselvbetjening.tilgang.UserNotMatchingTokenException;
@@ -29,6 +32,7 @@ import java.util.function.Consumer;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_INGEN_GYLDIG_TOKEN;
+import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_VERGEMAAL_GJELDER_IKKE_FOR_TEMA;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_BRUKER_KAN_IKKE_UTLEDES;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_INGEN_TILGANG_TIL_JOURNALPOST;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FORBIDDEN;
@@ -69,15 +73,14 @@ public class JournalpostService {
 		}
 
 		try {
-			Optional<Fullmakt> fullmaktOptional = tilgangsvalideringService.validerInnloggetBrukerOgFinnFullmakt(brukerIdenter,
+			Optional<Representasjon> representasjonOpt = tilgangsvalideringService.validerInnloggetBrukerOgFinnRepresentasjon(brukerIdenter,
 					graphQLRequestContext.getTokenValidationContext());
 			Optional<Pensjonsak> pensjonsakOpt = hentPensjonssak(brukerIdenter.getAktivFolkeregisterident(), arkivJournalpost);
 			Journalpost journalpost = arkivJournalpostMapper.map(arkivJournalpost, brukerIdenter, pensjonsakOpt);
 			String gjeldendeTema = journalpost.getTilgang().getGjeldendeTema();
-			fullmaktOptional.ifPresent(fullmakt ->
-					TilgangsvalideringService.validerFullmaktForTema(fullmakt, gjeldendeTema,
-							fullmaktPresentAndValidAuditLog(journalpostId, gjeldendeTema)
-					));
+			representasjonOpt.ifPresent(representasjon -> TilgangsvalideringService.validerRepresentasjonForTema(representasjon, gjeldendeTema,
+					representasjonPresentAndValidTeamLog(journalpostId, gjeldendeTema))
+			);
 
 			var denyReasons = utledTilgangService.utledTilgangJournalpost(journalpost.getTilgang(), brukerIdenter.getIdenter());
 			if (!denyReasons.isEmpty()) {
@@ -91,14 +94,24 @@ public class JournalpostService {
 		} catch (NoValidTokensException e) {
 			throw GraphQLException.of(FORBIDDEN, environment, FEILMELDING_INGEN_GYLDIG_TOKEN);
 		} catch (UserNotMatchingTokenException e) {
-			secureLog.warn("journalpostById(journalpostId={}) Innlogget bruker med ident={} matcher ikke bruker på journalpost og har ingen fullmakt. brukerIdenter={}",
+			secureLog.warn("journalpostById(journalpostId={}) Innlogget bruker med ident={} matcher ikke bruker på journalpost og har ingen representasjon. brukerIdenter={}",
 					journalpostId, e.getIdent(), e.getIdenter());
 			throw GraphQLException.of(FORBIDDEN, environment, FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN);
-		} catch (FullmaktInvalidException e) {
-			secureLog.warn("journalpostById(journalpostId={}, tema={}) Innlogget bruker med ident={} har fullmakt som ikke dekker tema for dokument tilhørende bruker={}. Tilgang er avvist",
-					journalpostId, e.getGjeldendeTema(),
-					e.getFullmakt().fullmektig(), e.getFullmakt().fullmaktsgiver());
-			throw GraphQLException.of(FORBIDDEN, environment, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
+		} catch (RepresentasjonInvalidException e) {
+			switch (e.getRepresentasjonsforhold()) {
+				case Fullmakt fullmakt -> {
+						secureLog.warn("journalpostById(journalpostId={}, tema={}) Innlogget bruker med ident={} har fullmakt som ikke dekker tema for dokument tilhørende bruker={}. Tilgang er avvist",
+								journalpostId, e.getGjeldendeTema(),
+								fullmakt.fullmektig(), fullmakt.fullmaktsgiver());
+					throw GraphQLException.of(FORBIDDEN, environment, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
+				}
+				case Vergemaal vergemaal -> {
+						secureLog.warn("journalpostById(journalpostId={}, tema={}) Innlogget bruker med ident={} har vergemål som ikke dekker tema for dokument tilhørende bruker={}. Tilgang er avvist",
+								journalpostId, e.getGjeldendeTema(),
+								vergemaal.verge(), vergemaal.vergehaver());
+					throw GraphQLException.of(FORBIDDEN, environment, FEILMELDING_VERGEMAAL_GJELDER_IKKE_FOR_TEMA);
+				}
+			}
 		}
 	}
 
@@ -120,11 +133,18 @@ public class JournalpostService {
 		}
 	}
 
-	private static Consumer<Fullmakt> fullmaktPresentAndValidAuditLog(long journalpostId, String gjeldendeTema) {
-		return fullmakt -> {
-			secureLog.info("journalpostById(journalpostId={}, tema={}) Innlogget bruker med ident={} bruker fullmakt med tema={} for dokument tilhørende bruker={}",
-					journalpostId, gjeldendeTema,
-					fullmakt.fullmektig(), fullmakt.tema(), fullmakt.fullmaktsgiver());
+	private static Consumer<Representasjonsforhold> representasjonPresentAndValidTeamLog(long journalpostId, String gjeldendeTema) {
+		return representasjonsforhold -> {
+			switch (representasjonsforhold) {
+				case Fullmakt fullmakt ->
+						secureLog.info("journalpostById(journalpostId={}, tema={}) Innlogget bruker med ident={} bruker fullmakt med tema={} for journalpost tilhørende bruker={}",
+								journalpostId, gjeldendeTema,
+								fullmakt.fullmektig(), fullmakt.tema(), fullmakt.fullmaktsgiver());
+				case Vergemaal vergemaal ->
+						secureLog.info("journalpostById(journalpostId={}, tema={}) Innlogget bruker med ident={} bruker vergemål med tema={} for journalpost tilhørende bruker={}",
+								journalpostId, gjeldendeTema,
+								vergemaal.verge(), vergemaal.tema(), vergemaal.vergehaver());
+			}
 		};
 	}
 

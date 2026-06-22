@@ -11,6 +11,7 @@
         "sak": {
           "applikasjon": "FS22",
           "opprettetTid": "2018-02-02T09:51:44.213",
+          "aktoerId": "1012345678911",
           "tema": "FAR"
         },
         "sakId": 1
@@ -74,6 +75,7 @@
         "sak": {
           "applikasjon": "FS22",
           "opprettetTid": "2018-02-02T09:51:44.213",
+          "aktoerId": "1012345678911",
           "tema": "KTR"
         },
         "sakId": 2
@@ -137,7 +139,8 @@
         "sak": {
           "applikasjon": "FS22",
           "opprettetTid": "2018-02-02T09:51:44.213",
-          "tema": "KTR"
+          "aktoerId": "1012345678911",
+          "tema": "KTA"
         },
         "sakId": 3
       },
@@ -200,7 +203,8 @@
         "sak": {
           "applikasjon": "FS22",
           "opprettetTid": "2018-02-02T09:51:44.213",
-          "tema": "KTR"
+          "aktoerId": "1012345678911",
+          "tema": "ARS"
         },
         "sakId": 4
       },
@@ -263,7 +267,8 @@
         "sak": {
           "applikasjon": "FS22",
           "opprettetTid": "2018-02-02T09:51:44.213",
-          "tema": "KTR"
+          "aktoerId": "1012345678911",
+          "tema": "ARP"
         },
         "sakId": 5
       },
@@ -326,7 +331,8 @@
         "sak": {
           "applikasjon": "FS22",
           "opprettetTid": "2018-02-02T09:51:44.213",
-          "tema": "KTR"
+          "aktoerId": "1012345678911",
+          "tema": "BBF"
         },
         "sakId": 5
       },
