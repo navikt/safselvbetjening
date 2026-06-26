@@ -144,4 +144,24 @@ public class DokumentoversiktSelvbetjeningRepresentasjonIT extends AbstractDokum
 				.extracting(e -> e.getExtensions().getCode(), GraphQLResponse.Error::getMessage)
 				.containsOnly(tuple(UNAUTHORIZED.getText(), FEILMELDING_TOKEN_MISMATCH_INGEN_REPRESENTASJON));
 	}
+
+	@Test
+	void shouldReturnDokumentoversiktWithUnauthorizedWhenRepresentantDoesNotMatch() {
+		happyStubs();
+		stubFagarkiv("finnjournalposter_happy_for_aap_bar.json");
+		stubSak("saker_happy_for_aap_bar.json");
+		stubReprApiRepresentasjon("repr-api-representasjon-feil-representant.json");
+
+		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, URI.create("/graphql"));
+		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		GraphQLResponse graphQLResponse = response.getBody();
+		assertThat(graphQLResponse).isNotNull();
+
+		assertThat(requireNonNull(response.getBody()).getErrors())
+				.extracting(e -> e.getExtensions().getCode(), GraphQLResponse.Error::getMessage)
+				.containsOnly(tuple(UNAUTHORIZED.getText(), FEILMELDING_TOKEN_MISMATCH_INGEN_REPRESENTASJON));
+	}
 }

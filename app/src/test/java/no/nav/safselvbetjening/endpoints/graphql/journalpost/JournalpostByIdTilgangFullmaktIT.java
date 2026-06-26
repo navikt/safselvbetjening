@@ -6,8 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
-import java.util.List;
-
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_BRUKER_MATCHER_IKKE_TOKEN;
 import static no.nav.safselvbetjening.DenyReasonFactory.FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA;
 import static no.nav.safselvbetjening.domain.Journalposttype.I;
@@ -261,14 +259,5 @@ public class JournalpostByIdTilgangFullmaktIT extends AbstractJournalpostItest {
 		ResponseEntity<GraphQLResponse> response = queryJournalpostByIdAsRepresentant();
 
 		assertGraphQlForbiddenError(response, FEILMELDING_FULLMAKT_GJELDER_IKKE_FOR_TEMA);
-	}
-
-	private static void assertGraphQlForbiddenError(ResponseEntity<GraphQLResponse> response, String feilmelding) {
-		List<GraphQLResponse.Error> errors = response.getBody().getErrors();
-		assertThat(errors).isNotNull();
-		assertThat(errors).extracting(GraphQLResponse.Error::getMessage).contains(feilmelding);
-		assertThat(errors).extracting(GraphQLResponse.Error::getExtensions)
-				.extracting(GraphQLResponse.Extensions::getCode)
-				.contains("forbidden");
 	}
 }
