@@ -7,7 +7,9 @@ import static java.lang.String.format;
 @AllArgsConstructor
 public enum Headers {
 	HENT_DOKUMENT_FULLMAKT_HEADERS("AuditLog", "audit:access", "brukers dokument hentet av fullmektig"),
+	HENT_DOKUMENT_VERGE_HEADERS("AuditLog", "audit:access", "brukers dokument hentet av verge"),
 	DOKUMENTOVERSIKT_FULLMAKT_HEADERS("AuditLog", "audit:access", "brukers dokumentoversikt hentet av fullmektig"),
+	DOKUMENTOVERSIKT_VERGE_HEADERS("AuditLog", "audit:access", "brukers dokumentoversikt hentet av verge"),
 	HENT_DOKUMENT_EGEN_HEADERS("AuditLog", "audit:access", "brukers dokument hentet av bruker selv"),
 	DOKUMENTOVERSIKT_EGEN_HEADERS("AuditLog", "audit:access", "dokumentoversikten til bruker hentet av bruker selv");
 

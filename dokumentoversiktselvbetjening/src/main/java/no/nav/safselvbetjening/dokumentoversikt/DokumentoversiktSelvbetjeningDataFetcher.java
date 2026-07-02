@@ -14,8 +14,8 @@ import no.nav.safselvbetjening.domain.Fagsak;
 import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Tema;
-import no.nav.safselvbetjening.fullmektig.Fullmakt;
-import no.nav.safselvbetjening.fullmektig.FullmektigService;
+import no.nav.safselvbetjening.representasjon.Representasjon;
+import no.nav.safselvbetjening.representasjon.RepresentasjonService;
 import no.nav.safselvbetjening.graphql.GraphQLException;
 import no.nav.safselvbetjening.graphql.GraphQLRequestContext;
 import no.nav.security.token.support.core.jwt.JwtToken;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,7 +33,6 @@ import static java.util.Collections.emptyList;
 import static no.nav.safselvbetjening.CoreConfig.SYSTEM_CLOCK;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CALL_ID;
 import static no.nav.safselvbetjening.MDCUtils.MDC_CONSUMER_ID;
-import static no.nav.safselvbetjening.MDCUtils.MDC_FULLMAKT_TEMA;
 import static no.nav.safselvbetjening.MDCUtils.getConsumerIdFromToken;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_PID;
 import static no.nav.safselvbetjening.TokenClaims.CLAIM_SUB;
@@ -42,7 +42,7 @@ import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_IDENT_ER_UGY
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_KUNNE_IKKE_HENTE_INTERN_REQUESTCONTEXT;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_MIDLERTIDIG_TEKNISK_FEIL;
 import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_TOKEN_MANGLER_I_HEADER;
-import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_TOKEN_MISMATCH_INGEN_FULLMAKT;
+import static no.nav.safselvbetjening.graphql.ErrorCode.FEILMELDING_TOKEN_MISMATCH_INGEN_REPRESENTASJON;
 import static no.nav.safselvbetjening.graphql.ErrorCode.SERVER_ERROR;
 import static no.nav.safselvbetjening.graphql.ErrorCode.UNAUTHORIZED;
 import static no.nav.safselvbetjening.graphql.GraphQLRequestContext.KEY;
@@ -59,7 +59,7 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 	private final FagsakQueryService fagsakQueryService;
 	private final FagsakJournalposterQueryService fagsakJournalposterQueryService;
 	private final JournalposterQueryService journalposterQueryService;
-	private final FullmektigService fullmektigService;
+	private final RepresentasjonService representasjonService;
 	private final DokumentoversiktAudit audit;
 
 	DokumentoversiktSelvbetjeningDataFetcher(DokumentoversiktSelvbetjeningService dokumentoversiktSelvbetjeningService,
@@ -68,14 +68,14 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 											 FagsakQueryService fagsakQueryService,
 											 FagsakJournalposterQueryService fagsakJournalposterQueryService,
 											 JournalposterQueryService journalposterQueryService,
-											 FullmektigService fullmektigService) {
+											 RepresentasjonService representasjonService) {
 		this.dokumentoversiktSelvbetjeningService = dokumentoversiktSelvbetjeningService;
 		this.temaQueryService = temaQueryService;
 		this.temaJournalposterQueryService = temaJournalposterQueryService;
 		this.fagsakQueryService = fagsakQueryService;
 		this.fagsakJournalposterQueryService = fagsakJournalposterQueryService;
 		this.journalposterQueryService = journalposterQueryService;
-		this.fullmektigService = fullmektigService;
+		this.representasjonService = representasjonService;
 		this.audit = new DokumentoversiktAudit(SYSTEM_CLOCK);
 	}
 
@@ -88,13 +88,13 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 			MDC.put(MDC_CONSUMER_ID, getConsumerIdFromToken(graphQLRequestContext.getTokenValidationContext()));
 			final String identArgument = environment.getArgument("ident");
 			validateIdentArgument(identArgument, environment);
-			Optional<Fullmakt> fullmakt = validerInnloggetBrukerOgSjekkFullmakt(identArgument, environment, graphQLRequestContext);
-			final List<String> tema = temaArgumentEllerFullmakt(environment, fullmakt);
+			Optional<Representasjon> representasjon = validerInnloggetBrukerOgSjekkRepresentasjon(identArgument, environment, graphQLRequestContext);
+			final List<String> tema = temaArgumentEllerRepresentasjon(environment, representasjon);
 
 			DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
 			if (selectionSet.containsAnyOf("tema", "fagsak", "journalposter")) {
 				Dokumentoversikt dokumentoversikt = fetchDokumentoversikt(identArgument, tema, environment);
-				recordAuditLog(fullmakt, identArgument);
+				recordAuditLog(representasjon, identArgument);
 				return DataFetcherResult.newResult()
 						.data(dokumentoversikt)
 						.build();
@@ -191,20 +191,19 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		}
 	}
 
-	private Optional<Fullmakt> validerInnloggetBrukerOgSjekkFullmakt(String identArgument, DataFetchingEnvironment environment,
-																	 GraphQLRequestContext graphQLRequestContext) {
+	private Optional<Representasjon> validerInnloggetBrukerOgSjekkRepresentasjon(String identArgument, DataFetchingEnvironment environment,
+																				 GraphQLRequestContext graphQLRequestContext) {
 		JwtToken subjectJwt = graphQLRequestContext.getTokenValidationContext().getFirstValidToken();
 		if (subjectJwt == null) {
 			throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MANGLER_I_HEADER);
 		}
 		if (!subjectJwt.getJwtTokenClaims().containsClaim(CLAIM_PID, identArgument) &&
 				!subjectJwt.getJwtTokenClaims().containsClaim(CLAIM_SUB, identArgument)) {
-			Optional<Fullmakt> fullmakt = fullmektigService.finnFullmakt(subjectJwt, identArgument);
-			if (fullmakt.isPresent()) {
-				MDC.put(MDC_FULLMAKT_TEMA, fullmakt.get().tema().toString());
-				return fullmakt;
+			Optional<Representasjon> representasjon = representasjonService.finnRepresentasjon(subjectJwt, identArgument);
+			if (representasjon.isPresent()) {
+				return representasjon;
 			} else {
-				throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MISMATCH_INGEN_FULLMAKT);
+				throw GraphQLException.of(UNAUTHORIZED, environment, FEILMELDING_TOKEN_MISMATCH_INGEN_REPRESENTASJON);
 			}
 		}
 		return Optional.empty();
@@ -216,12 +215,12 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 				.collect(Collectors.toMap(Pensjonsak::sakId, Function.identity(), (a, b) -> a));
 	}
 
-	static List<String> temaArgumentEllerFullmakt(DataFetchingEnvironment environment, Optional<Fullmakt> fullmakt) {
+	static List<String> temaArgumentEllerRepresentasjon(DataFetchingEnvironment environment, Optional<Representasjon> representasjon) {
 		final List<String> temaArgument = temaArgumentEllerDefault(environment);
-		if (fullmakt.isPresent()) {
-			List<String> fullmaktTema = fullmakt.get().tema();
+		if (representasjon.isPresent()) {
+			Set<String> representasjonTema = representasjon.get().alleTema();
 			return temaArgument.stream()
-					.filter(fullmaktTema::contains)
+					.filter(representasjonTema::contains)
 					.toList();
 		}
 		return temaArgument;
@@ -232,7 +231,13 @@ public class DokumentoversiktSelvbetjeningDataFetcher implements DataFetcher<Obj
 		return temaArgument.isEmpty() ? Tema.tillattInnsynNavNoString() : temaArgument;
 	}
 
-	private void recordAuditLog(Optional<Fullmakt> fullmaktOpt, String ident) {
-		fullmaktOpt.ifPresentOrElse(audit::logSomFullmektig, () -> audit.logSomBruker(ident));
+	private void recordAuditLog(Optional<Representasjon> representasjonOpt, String ident) {
+		if (representasjonOpt.isPresent()) {
+			Representasjon representasjon = representasjonOpt.get();
+			representasjon.vergemaal().ifPresent(audit::logSomRepresentant);
+			representasjon.fullmakt().ifPresent(audit::logSomRepresentant);
+		} else {
+			audit.logSomBruker(ident);
+		}
 	}
 }

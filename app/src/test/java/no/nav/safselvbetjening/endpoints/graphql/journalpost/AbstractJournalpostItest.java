@@ -155,12 +155,21 @@ abstract class AbstractJournalpostItest extends AbstractItest {
 						true));
 	}
 
+	protected static void assertGraphQlForbiddenError(ResponseEntity<GraphQLResponse> response, String feilmelding) {
+		List<GraphQLResponse.Error> errors = response.getBody().getErrors();
+		assertThat(errors).isNotNull();
+		assertThat(errors).extracting(GraphQLResponse.Error::getMessage).contains(feilmelding);
+		assertThat(errors).extracting(GraphQLResponse.Error::getExtensions)
+				.extracting(GraphQLResponse.Extensions::getCode)
+				.contains("forbidden");
+	}
+
 	protected ResponseEntity<GraphQLResponse> queryJournalpostById() {
 		return queryJournalpostById("journalpost_by_id_all.query", BRUKER_ID);
 	}
 
-	protected ResponseEntity<GraphQLResponse> queryJournalpostByIdAsFullmektig() {
-		return queryJournalpostById("journalpost_by_id_all.query", FULLMEKTIG_ID);
+	protected ResponseEntity<GraphQLResponse> queryJournalpostByIdAsRepresentant() {
+		return queryJournalpostById("journalpost_by_id_all.query", REPRESENTANT_ID);
 	}
 
 	protected ResponseEntity<GraphQLResponse> queryJournalpostById(String innloggetBrukerId) {

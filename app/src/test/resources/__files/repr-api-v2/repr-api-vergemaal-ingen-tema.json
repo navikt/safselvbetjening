@@ -1,0 +1,18 @@
+{
+  "fullmakt": [],
+  "vergemaal": [
+    {
+      "vergehaver": "12345678911",
+      "verge": "22222222222",
+      "leserettigheter": [
+      ]
+    },
+    {
+      "vergehaver": "23232323232",
+      "verge": "22222222222",
+      "leserettigheter": [
+        "BAR"
+      ]
+    }
+  ]
+}

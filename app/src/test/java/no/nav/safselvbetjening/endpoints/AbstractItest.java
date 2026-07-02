@@ -45,7 +45,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @AutoConfigureTestRestTemplate
 public abstract class AbstractItest {
 
-	protected static final String FULLMEKTIG_ID = "22222222222";
+	protected static final String REPRESENTANT_ID = "22222222222";
 	protected static final String HENT_PENSJONSSAKER_PATH = "/pensjon/api/sak/sammendrag";
 	protected static final String HENT_BRUKER_FOR_PENSJONSSAK_PATH = "/pensjon/api/pip/hentBrukerOgEnhetstilgangerForSak/v1";
 
@@ -220,20 +220,20 @@ public abstract class AbstractItest {
 		}
 	}
 
-	protected void stubReprApiFullmakt() {
-		stubReprApiFullmakt("repr-api-fullmakt-empty.json");
+	protected void stubReprApiRepresentasjon() {
+		stubReprApiRepresentasjon("repr-api-empty.json");
 	}
 
-	protected void stubReprApiFullmakt(final String fil) {
-		stubFor(get("/repr-api/api/v2/eksternbruker/fullmakt/kan-representere")
+	protected void stubReprApiRepresentasjon(final String fil) {
+		stubFor(get("/repr-api/api/v2/eksternbruker/kan-representere")
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBodyFile("repr-api-v2/" + fil)));
 	}
 
-	protected void stubReprApiFullmakt(HttpStatus httpStatus) {
-		stubFor(get("/repr-api/api/v2/eksternbruker/fullmakt/kan-representere")
+	protected void stubReprApiRepresentasjon(HttpStatus httpStatus) {
+		stubFor(get("/repr-api/api/v2/eksternbruker/kan-representere")
 				.willReturn(aResponse()
 						.withStatus(httpStatus.value())
 						.withBody("error " + httpStatus)));

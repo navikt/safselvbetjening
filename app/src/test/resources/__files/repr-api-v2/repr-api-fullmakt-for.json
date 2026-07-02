@@ -1,18 +1,21 @@
-[
-  {
-    "fullmaktsgiver": "12345678911",
-    "fullmektig": "22222222222",
-    "leserettigheter": [
-      "FOR"
-    ],
-    "skriverettigheter": []
-  },
-  {
-    "fullmaktsgiver": "23232323232",
-    "fullmektig": "22222222222",
-    "leserettigheter": [
-      "BAR"
-    ],
-    "skriverettigheter": []
-  }
-]
+{
+  "fullmakt": [
+    {
+      "fullmaktsgiver": "12345678911",
+      "fullmektig": "22222222222",
+      "leserettigheter": [
+        "FOR"
+      ],
+      "skriverettigheter": []
+    },
+    {
+      "fullmaktsgiver": "23232323232",
+      "fullmektig": "22222222222",
+      "leserettigheter": [
+        "BAR"
+      ],
+      "skriverettigheter": []
+    }
+  ],
+  "vergemaal": []
+}

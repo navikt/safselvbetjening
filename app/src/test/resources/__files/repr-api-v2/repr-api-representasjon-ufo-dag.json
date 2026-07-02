@@ -1,0 +1,21 @@
+{
+  "fullmakt": [
+    {
+      "fullmaktsgiver": "12345678911",
+      "fullmektig": "22222222222",
+      "leserettigheter": [
+        "UFO"
+      ],
+      "skriverettigheter": []
+    }
+  ],
+  "vergemaal": [
+    {
+      "vergehaver": "12345678911",
+      "verge": "22222222222",
+      "leserettigheter": [
+        "DAG"
+      ]
+    }
+  ]
+}

@@ -35,12 +35,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalHenteDokumentHvisPaaloggetBrukerErFullmektigMedGyldigFullmakt() {
-		stubReprApiFullmakt("repr-api-fullmakt-tema-hje.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-tema-hje.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertOkArkivResponse(responseEntity);
 		HoveddokumentLest hoveddokumentLest = readFromHoveddokumentLestTopic();
@@ -55,12 +55,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalHenteUtgaaendeNavNoDokumentOgIkkeSendeHoveddokumentLestHendelseHvisPaaloggetBrukerErFullmektigMedGyldigFullmakt() {
-		stubReprApiFullmakt("repr-api-fullmakt-tema-hje.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-tema-hje.json");
 		stubDokarkivJournalpost("1c-hentdokument-utgaaende-ok.json");
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertOkArkivResponse(responseEntity);
 		HoveddokumentLest hoveddokumentLest = readFromHoveddokumentLestTopic();
@@ -75,14 +75,14 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalHenteDokumentHvisDokumentTilknyttetPensjonSakHarTemaMedGyldigFullmakt() {
-		stubReprApiFullmakt("repr-api-fullmakt-tema-ufo.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-tema-ufo.json");
 		stubDokarkivJournalpost("1c-hentdokument-pensjon-ok.json");
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
 		stubPensjonssaker("pensjon-sak-sammendrag-generell.json");
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertOkArkivResponse(responseEntity);
 		HoveddokumentLest hoveddokumentLest = readFromHoveddokumentLestTopic();
@@ -98,7 +98,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktDekkerJournalpostTemaOgIkkePensjonssakTema() {
-		stubReprApiFullmakt("repr-api-fullmakt-tema-pen.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-tema-pen.json");
 		stubDokarkivJournalpost("1c-hentdokument-pensjon-ok.json");
 		stubPensjonHentBrukerForSak("pensjon-hentbrukerforsak-generell.json");
 		// UFO pensjonssak
@@ -107,7 +107,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA));
@@ -120,12 +120,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktIkkeDekkerTemaDokumentetGjelder() {
-		stubReprApiFullmakt("repr-api-fullmakt-tema-pen.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-tema-pen.json");
 		// tema HJE fra dokarkiv
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA));
@@ -138,12 +138,12 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktIkkeFinnes() {
-		stubReprApiFullmakt("repr-api-fullmakt-empty.json");
+		stubReprApiRepresentasjon("repr-api-empty.json");
 
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
@@ -157,10 +157,10 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktGjelderEnAnnenBrukerEnnDetDokumentetGjelder() {
 		stubPdlGenerell();
-		stubReprApiFullmakt("repr-api-fullmakt-feil-bruker.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-feil-bruker.json");
 		stubDokarkivJournalpost();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
@@ -173,11 +173,11 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisReprApiReturnerer4xxFeil() {
-		stubReprApiFullmakt(FORBIDDEN);
+		stubReprApiRepresentasjon(FORBIDDEN);
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
@@ -190,11 +190,11 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisReprApiReturnerer5xxFeil() {
-		stubReprApiFullmakt(INTERNAL_SERVER_ERROR);
+		stubReprApiRepresentasjon(INTERNAL_SERVER_ERROR);
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
@@ -207,11 +207,11 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisReprApiReturnererUgyldigJson() {
-		stubReprApiFullmakt("repr-api-fullmakt-invalid.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-invalid.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
@@ -224,11 +224,11 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisReprApiReturnererJsonUtenArray() {
-		stubReprApiFullmakt("repr-api-fullmakt-invalid-no-array.json");
+		stubReprApiRepresentasjon("repr-api-invalid-no-array.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
@@ -241,11 +241,11 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisReprApiReturnererJsonUtenTema() {
-		stubReprApiFullmakt("repr-api-fullmakt-ingen-tema.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-ingen-tema.json");
 		stubDokarkivJournalpost();
 		stubPdlGenerell();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_BRUKER_MATCHER_IKKE_TOKEN));
@@ -259,11 +259,11 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	 */
 	@Test
 	void skalGiForbiddenFeilHvisFullmaktDekkerJournalpostTemaOgIkkeSakTema() {
-		stubReprApiFullmakt("repr-api-fullmakt-tema-hje.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-tema-hje.json");
 		stubDokarkivJournalpost("ukj-hentdokument-journalpost-sak-forskjellig-tema-forbidden.json");
 		stubPdlGenerell();
 
-		ResponseEntity<String> responseEntity = callHentDokumentAsFullmektig();
+		ResponseEntity<String> responseEntity = callHentDokumentAsRepresentant();
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FULLMAKT_GJELDER_IKKE_FOR_TEMA));

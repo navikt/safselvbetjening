@@ -1,4 +1,4 @@
-package no.nav.safselvbetjening.endpoints.graphql;
+package no.nav.safselvbetjening.endpoints.graphql.dokumentoversiktselvbetjening;
 
 import no.nav.safselvbetjening.domain.DokumentInfo;
 import no.nav.safselvbetjening.domain.Dokumentoversikt;
@@ -7,7 +7,7 @@ import no.nav.safselvbetjening.domain.Journalpost;
 import no.nav.safselvbetjening.domain.Sakstema;
 import no.nav.safselvbetjening.domain.Sakstype;
 import no.nav.safselvbetjening.domain.Tema;
-import no.nav.safselvbetjening.endpoints.AbstractItest;
+import no.nav.safselvbetjening.endpoints.graphql.GraphQLResponse;
 import no.nav.safselvbetjening.graphql.GraphQLRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,6 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -41,11 +40,7 @@ import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
-public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
-	private static final String BRUKER_ID = "12345678911";
-	private static final String BRUKER_NAVN = "HARRY POTTER";
-	private static final String UKJENT_MOTTAKER = "Ukjent mottaker";
-	private static final String UKJENT_AVSENDER = "Ukjent avsender";
+public class DokumentoversiktSelvbetjeningIT extends AbstractDokumentoversiktSelvbetjeningItest {
 
 	@Test
 	void shouldGetDokumentoversiktWhenAllQueried() throws Exception {
@@ -123,9 +118,9 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(dokumentoversikt.getJournalposter()).hasSize(3);
 		dokumentoversikt.getJournalposter().sort(Comparator.comparing(Journalpost::getJournalpostId));
 		List<Journalpost> journalposts = dokumentoversikt.getJournalposter();
-		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, UKJENT_MOTTAKER);
-		doAssertJournalpost(journalposts.get(1), "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK, UKJENT_MOTTAKER);
-		doAssertJournalpost(journalposts.get(2), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, UKJENT_AVSENDER);
+		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, AbstractDokumentoversiktSelvbetjeningItest.UKJENT_MOTTAKER);
+		doAssertJournalpost(journalposts.get(1), "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK, AbstractDokumentoversiktSelvbetjeningItest.UKJENT_MOTTAKER);
+		doAssertJournalpost(journalposts.get(2), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, AbstractDokumentoversiktSelvbetjeningItest.UKJENT_AVSENDER);
 	}
 
 	@Test
@@ -143,8 +138,8 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		List<Journalpost> journalposts = dokumentoversikt.getTema().getFirst().getJournalposter();
 		assertThat(journalposts).hasSize(2);
 		journalposts.sort(Comparator.comparing(Journalpost::getJournalpostId));
-		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
-		doAssertJournalpost(journalposts.get(1), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, BRUKER_NAVN);
+		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, AbstractDokumentoversiktSelvbetjeningItest.BRUKER_NAVN);
+		doAssertJournalpost(journalposts.get(1), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, AbstractDokumentoversiktSelvbetjeningItest.BRUKER_NAVN);
 	}
 
 	@Test
@@ -162,7 +157,7 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		List<Journalpost> journalposts = dokumentoversikt.getFagsak().getFirst().getJournalposter();
 		assertThat(journalposts).hasSize(1);
 		journalposts.sort(Comparator.comparing(Journalpost::getJournalpostId));
-		doAssertJournalpost(journalposts.getFirst(), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
+		doAssertJournalpost(journalposts.getFirst(), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, AbstractDokumentoversiktSelvbetjeningItest.BRUKER_NAVN);
 	}
 
 	@Test
@@ -263,9 +258,9 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	private void assertJournalposterQuery(List<Journalpost> journalposts) {
 		assertThat(journalposts).hasSize(3);
 		journalposts.sort(Comparator.comparing(Journalpost::getJournalpostId));
-		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, BRUKER_NAVN);
-		doAssertJournalpost(journalposts.get(1), "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK, BRUKER_NAVN);
-		doAssertJournalpost(journalposts.get(2), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, BRUKER_NAVN);
+		doAssertJournalpost(journalposts.get(0), "FOR", "SØKNAD_FORELDREPENGER_FØDSEL", "fp-12345", "FS38", FAGSAK, AbstractDokumentoversiktSelvbetjeningItest.BRUKER_NAVN);
+		doAssertJournalpost(journalposts.get(1), "UFO", "Søknad om Uføretrygd", "21998969", "PP01", FAGSAK, AbstractDokumentoversiktSelvbetjeningItest.BRUKER_NAVN);
+		doAssertJournalpost(journalposts.get(2), "FOR", "Bekreftelse fra Arbeidsgiver ifbm foreldrepenger", null, null, GENERELL_SAK, AbstractDokumentoversiktSelvbetjeningItest.BRUKER_NAVN);
 	}
 
 	private void doAssertJournalpost(Journalpost jp, String tema, String tittel, String fagsakId, String fagsaksystem, Sakstype sakstype, String navn) {
@@ -461,10 +456,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldGetDokumentoversiktWhenTokenNotMatchingQueryIdentAndFullmaktExistsForTema() throws Exception {
 		happyStubs("finnjournalposter_happy_gsak.json");
-		stubReprApiFullmakt("repr-api-fullmakt-for.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-for.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(OK);
@@ -484,10 +479,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		happyStubs();
 		stubFagarkiv("finnjournalposter_happy_for_aap.json");
 		stubSak("saker_happy_for_aap.json");
-		stubReprApiFullmakt("repr-api-fullmakt-for-aap.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-for-aap.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_for.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(OK);
@@ -505,10 +500,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	void shouldGetEmptyDokumentoversiktWhenTokenNotMatchingQueryIdentAndFullmaktDoesNotCoverTemaArgumentInQuery() throws Exception {
 		happyStubs();
 		stubFagarkiv("finnjournalposter_happy_bar.json");
-		stubReprApiFullmakt("repr-api-fullmakt-for-aap.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-for-aap.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_bar.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(OK);
@@ -522,10 +517,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndWrongFullmakt() throws Exception {
 		stubTokenx();
-		stubReprApiFullmakt("repr-api-fullmakt-feil-bruker.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-feil-bruker.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -536,10 +531,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturns4xx() throws Exception {
 		stubTokenx();
-		stubReprApiFullmakt(HttpStatus.FORBIDDEN);
+		stubReprApiRepresentasjon(HttpStatus.FORBIDDEN);
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -550,10 +545,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturns5xx() throws Exception {
 		stubTokenx();
-		stubReprApiFullmakt(HttpStatus.INTERNAL_SERVER_ERROR);
+		stubReprApiRepresentasjon(HttpStatus.INTERNAL_SERVER_ERROR);
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -564,10 +559,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturnsInvalidJson() throws Exception {
 		stubTokenx();
-		stubReprApiFullmakt("repr-api-fullmakt-invalid.json");
+		stubReprApiRepresentasjon("repr-api-fullmakt-invalid.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -578,10 +573,10 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturnsInvalidJsonNoArray() throws Exception {
 		stubTokenx();
-		stubReprApiFullmakt("repr-api-fullmakt-invalid-no-array.json");
+		stubReprApiRepresentasjon("repr-api-invalid-no-array.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -603,9 +598,9 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndNoFullmakt() throws Exception {
 		stubTokenx();
-		stubReprApiFullmakt();
+		stubReprApiRepresentasjon();
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -616,9 +611,9 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndIngenFullmaktOmraader() throws Exception {
 		stubTokenx();
-		stubReprApiFullmakt("repr-api-fullmakt-empty.json");
+		stubReprApiRepresentasjon("repr-api-empty.json");
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(FULLMEKTIG_ID), POST, new URI("/graphql"));
+		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));
 		ResponseEntity<GraphQLResponse> response = restTemplate.exchange(requestEntity, GraphQLResponse.class);
 
 		assertThat(requireNonNull(response.getBody()).getErrors())
@@ -642,57 +637,5 @@ public class DokumentoversiktSelvbetjeningIT extends AbstractItest {
 		assertThat(requireNonNull(response.getBody()).getErrors())
 				.extracting(e -> e.getExtensions().getCode())
 				.contains(BAD_REQUEST.getText());
-	}
-
-	private void happyStubs() {
-		stubTokenx();
-		stubNaisTexasToken();
-		stubPdlGenerell();
-		stubSak();
-		stubPensjonssaker();
-		stubFagarkiv();
-		stubReprApiFullmakt();
-	}
-
-	private void happyStubs(String fagarkivFilename) {
-		stubTokenx();
-		stubNaisTexasToken();
-		stubPdlGenerell();
-		stubSak();
-		stubPensjonssaker();
-		stubFagarkiv(fagarkivFilename);
-		stubReprApiFullmakt();
-	}
-
-	private void happyStubs(String fagarkivFilename, String sakFilename) {
-		stubTokenx();
-		stubNaisTexasToken();
-		stubPdlGenerell();
-		stubSak(sakFilename);
-		stubPensjonssaker();
-		stubFagarkiv(fagarkivFilename);
-		stubReprApiFullmakt();
-	}
-
-	private void happyStubWithInnsyn(String fileName) {
-		stubTokenx();
-		stubNaisTexasToken();
-		stubPdlGenerell();
-		stubSak();
-		stubPensjonssaker();
-		stubFagarkiv(fileName);
-		stubReprApiFullmakt();
-	}
-
-	private ResponseEntity<GraphQLResponse> callDokumentoversikt(final String queryfile) throws URISyntaxException {
-		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/" + queryfile), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(BRUKER_ID), POST, new URI("/graphql"));
-		return restTemplate.exchange(requestEntity, GraphQLResponse.class);
-	}
-
-	private ResponseEntity<GraphQLResponse> callDokumentoversiktSubToken(final String queryfile) throws URISyntaxException {
-		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/" + queryfile), null, null);
-		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeadersSubToken(BRUKER_ID), POST, new URI("/graphql"));
-		return restTemplate.exchange(requestEntity, GraphQLResponse.class);
 	}
 }
