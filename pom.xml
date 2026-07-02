@@ -44,7 +44,7 @@
 		<logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
 		<token-support.version>6.0.4</token-support.version>
 		<resilience4j.version>2.4.0</resilience4j.version>
-		<kafka-avro-serializer.version>7.9.5</kafka-avro-serializer.version>
+		<kafka-avro-serializer.version>8.3.0</kafka-avro-serializer.version>
 		<teamdokumenthandtering-avro-schemas.version>1.1.6</teamdokumenthandtering-avro-schemas.version>
 
 		<wiremock-spring-boot.version>4.2.1</wiremock-spring-boot.version>
