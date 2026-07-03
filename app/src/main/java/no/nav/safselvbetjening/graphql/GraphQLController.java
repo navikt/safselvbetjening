@@ -62,7 +62,7 @@ public class GraphQLController {
 		this.cache = (Cache<String, PreparsedDocumentEntry>) requireNonNull(cache).getNativeCache();
 	}
 
-	@PostMapping(value = {"/graphql", "/graphql/"}, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/graphql", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Map<String, Object> graphQLRequest(@RequestBody final GraphQLRequest request, final WebRequest webRequest) {
 		ExecutionResult executionResult =
