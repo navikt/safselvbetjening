@@ -57,7 +57,12 @@ public class HentDokumentController {
 		this.tokenValidationContextHolder = tokenValidationContextHolder;
 	}
 
-	@GetMapping(value = { "hentdokument/{journalpostId}/{dokumentInfoId}", "hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}" })
+	@GetMapping(value = {
+			"hentdokument/{journalpostId}/{dokumentInfoId}",
+			"hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}",
+			"hentdokument/{journalpostId}/{dokumentInfoId}/",
+			"hentdokument/{journalpostId}/{dokumentInfoId}/{variantFormat}/",
+	})
 	public ResponseEntity<byte[]> hentDokument(
 			@PathVariable String journalpostId,
 			@PathVariable String dokumentInfoId,
