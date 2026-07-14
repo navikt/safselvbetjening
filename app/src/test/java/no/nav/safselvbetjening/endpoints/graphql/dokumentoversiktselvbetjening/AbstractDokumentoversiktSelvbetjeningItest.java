@@ -18,7 +18,7 @@ public class AbstractDokumentoversiktSelvbetjeningItest extends AbstractItest {
 	protected static final String UKJENT_AVSENDER = "Ukjent avsender";
 
 	protected void happyStubs() {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubNaisTexasToken();
 		stubPdlGenerell();
 		stubSak();
@@ -28,7 +28,7 @@ public class AbstractDokumentoversiktSelvbetjeningItest extends AbstractItest {
 	}
 
 	protected void happyStubs(String fagarkivFilename) {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubNaisTexasToken();
 		stubPdlGenerell();
 		stubSak();
@@ -38,7 +38,7 @@ public class AbstractDokumentoversiktSelvbetjeningItest extends AbstractItest {
 	}
 
 	protected void happyStubs(String fagarkivFilename, String sakFilename) {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubNaisTexasToken();
 		stubPdlGenerell();
 		stubSak(sakFilename);
@@ -48,7 +48,7 @@ public class AbstractDokumentoversiktSelvbetjeningItest extends AbstractItest {
 	}
 
 	protected void happyStubWithInnsyn(String fileName) {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubNaisTexasToken();
 		stubPdlGenerell();
 		stubSak();

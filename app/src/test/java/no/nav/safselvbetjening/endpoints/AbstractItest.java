@@ -123,16 +123,16 @@ public abstract class AbstractItest {
 		}
 	}
 
-	protected void stubTokenx() {
-		stubFor(post("/tokenx")
+	protected void stubNaisTexasToken() {
+		stubFor(post("/nais-texas")
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBodyFile("azure/token_response.json")));
+						.withBodyFile("nais-texas/token_response.json")));
 	}
 
-	protected void stubNaisTexasToken() {
-		stubFor(post("/nais-texas")
+	protected void stubNaisTexasExchangeToken() {
+		stubFor(post("/nais-texas-exchange")
 				.willReturn(aResponse()
 						.withStatus(OK.value())
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)

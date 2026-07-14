@@ -3,14 +3,14 @@ package no.nav.safselvbetjening.representasjon;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.safselvbetjening.SafSelvbetjeningProperties;
 import no.nav.safselvbetjening.representasjon.api.RepresentasjonsforholdDto;
-import no.nav.safselvbetjening.tokendings.TokenResponse;
-import no.nav.safselvbetjening.tokendings.TokendingsConsumer;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import static no.nav.safselvbetjening.MDCUtils.getCallId;
 import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
+import static no.nav.safselvbetjening.consumer.token.NaisTexasRequestInterceptor.TARGET_SCOPE;
+import static no.nav.safselvbetjening.consumer.token.NaisTexasRequestInterceptor.TOKEN_FOR_EXCHANGE;
 
 /// Klient for [repr-api](https://repr-api.intern.nav.no/swagger-ui/index.html?urls.primaryName=v2#/Representasjon/hentAktiveRepresentasjonsforholdHvorIdentErRepresentantGruppertPaaDenRepresenterte)
 @Slf4j
@@ -18,26 +18,25 @@ import static no.nav.safselvbetjening.NavHeaders.NAV_CALLID;
 public class RepresentasjonConsumer {
 
 	private final SafSelvbetjeningProperties.TokenXEndpoint reprApi;
-	private final TokendingsConsumer tokendingsConsumer;
 	private final RestClient restClient;
 
 	public RepresentasjonConsumer(RestClient restClientTexas,
-								  SafSelvbetjeningProperties safSelvbetjeningProperties,
-								  TokendingsConsumer tokendingsConsumer) {
+								  SafSelvbetjeningProperties safSelvbetjeningProperties) {
 		this.reprApi = safSelvbetjeningProperties.getEndpoints().getReprApi();
-		this.tokendingsConsumer = tokendingsConsumer;
 		this.restClient = restClientTexas.mutate()
 				.baseUrl(reprApi.getUrl())
 				.build();
 	}
 
 	public RepresentasjonsforholdDto representasjonsForhold(String representantSubjectJwt) {
-		TokenResponse exchange = tokendingsConsumer.exchange(representantSubjectJwt, reprApi.getScope());
 		return restClient.get()
 				.uri("/api/v2/eksternbruker/kan-representere")
 				.headers(h -> {
-					h.setBearerAuth(exchange.accessToken());
 					h.set(NAV_CALLID, getCallId());
+				})
+				.attributes(a -> {
+					a.put(TOKEN_FOR_EXCHANGE, representantSubjectJwt);
+					a.put(TARGET_SCOPE, reprApi.getScope());
 				})
 				.exchange((_, res) -> {
 					if (res.getStatusCode().isError()) {

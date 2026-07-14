@@ -17,6 +17,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class NaisTexasRequestInterceptor implements ClientHttpRequestInterceptor {
 
 	public static final String TARGET_SCOPE = "targetScope";
+	public static final String TOKEN_FOR_EXCHANGE = "tokenForExchange";
 	private final NaisTexasConsumer naisTexasConsumer;
 
 	public NaisTexasRequestInterceptor(NaisTexasConsumer naisTexasConsumer) {
@@ -29,7 +30,12 @@ public class NaisTexasRequestInterceptor implements ClientHttpRequestInterceptor
 
 		if (attributes.containsKey(TARGET_SCOPE)) {
 			String targetScope = (String) attributes.get(TARGET_SCOPE);
-			request.getHeaders().setBearerAuth(naisTexasConsumer.getSystemToken(targetScope));
+			if(attributes.containsKey(TOKEN_FOR_EXCHANGE)) {
+				String accessToken = (String) attributes.get(TOKEN_FOR_EXCHANGE);
+				request.getHeaders().setBearerAuth(naisTexasConsumer.exchangeForTokenX(accessToken, targetScope));
+			} else {
+				request.getHeaders().setBearerAuth(naisTexasConsumer.getSystemToken(targetScope));
+			}
 		}
 
 		request.getHeaders().add(NAV_CALLID, getMDCCallId());

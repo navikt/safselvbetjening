@@ -16,7 +16,7 @@ public class JournalpostByIdTilgangRepresentasjonIT extends AbstractJournalpostI
 	@BeforeEach
 	void setUp() {
 		super.setUp();
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 	}
 
 	/// Hvis pålogget bruker er 22222222222 (A) og journalposten tilhører 12345678911 (B) så skal man undersøke om bruker A har representasjon overfor bruker B

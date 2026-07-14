@@ -47,6 +47,7 @@ abstract class AbstractJournalpostItest extends AbstractItest {
 	@BeforeEach
 	void setUp() {
 		stubNaisTexasToken();
+		stubNaisTexasExchangeToken();
 	}
 
 	protected static void assertInngaaendeJournalpost(Journalpost journalpost) {
