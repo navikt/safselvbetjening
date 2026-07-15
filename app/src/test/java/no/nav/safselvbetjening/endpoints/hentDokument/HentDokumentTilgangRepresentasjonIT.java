@@ -19,7 +19,7 @@ public class HentDokumentTilgangRepresentasjonIT extends AbstractHentDokumentIte
 	@BeforeEach
 	void setUp() {
 		super.setUp();
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 	}
 
 	/// Hvis pålogget bruker er 22222222222 (A) og dokumentet tilhører 12345678911 (B) så skal man undersøke om bruker A har vergemål overfor bruker B

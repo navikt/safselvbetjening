@@ -25,7 +25,6 @@ public class JournalpostByIdTilgangVergemaalIT extends AbstractJournalpostItest 
 	@BeforeEach
 	void setUp() {
 		super.setUp();
-		stubTokenx();
 	}
 
 	/**

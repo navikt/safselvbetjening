@@ -82,7 +82,7 @@ public class DokumentoversiktSelvbetjeningVergemaalIT extends AbstractDokumentov
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndWrongVergemaal() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon("repr-api-vergemaal-feil-bruker.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
@@ -96,7 +96,7 @@ public class DokumentoversiktSelvbetjeningVergemaalIT extends AbstractDokumentov
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndVergemaalReturns4xx() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon(HttpStatus.FORBIDDEN);
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
@@ -110,7 +110,7 @@ public class DokumentoversiktSelvbetjeningVergemaalIT extends AbstractDokumentov
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndVergemaalReturns5xx() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon(HttpStatus.INTERNAL_SERVER_ERROR);
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
@@ -124,7 +124,7 @@ public class DokumentoversiktSelvbetjeningVergemaalIT extends AbstractDokumentov
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndVergemaalReturnsInvalidJson() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon("repr-api-vergemaal-invalid.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
@@ -138,7 +138,7 @@ public class DokumentoversiktSelvbetjeningVergemaalIT extends AbstractDokumentov
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndVergemaalReturnsInvalidJsonNoArray() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon("repr-api-invalid-no-array.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
@@ -163,7 +163,7 @@ public class DokumentoversiktSelvbetjeningVergemaalIT extends AbstractDokumentov
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndNoVergemaal() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon();
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));
@@ -176,7 +176,7 @@ public class DokumentoversiktSelvbetjeningVergemaalIT extends AbstractDokumentov
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndIngenVergemaalOmraader() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon("repr-api-vergemaal-empty.json");
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));

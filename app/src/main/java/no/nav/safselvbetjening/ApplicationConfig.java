@@ -1,6 +1,5 @@
 package no.nav.safselvbetjening;
 
-import no.nav.safselvbetjening.tokendings.TokendingsProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -8,7 +7,6 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @EnableConfigurationProperties(value = {
 		SafSelvbetjeningProperties.class,
-		TokendingsProperties.class,
 		NaisProperties.class
 })
 @Import(CoreConfig.class)

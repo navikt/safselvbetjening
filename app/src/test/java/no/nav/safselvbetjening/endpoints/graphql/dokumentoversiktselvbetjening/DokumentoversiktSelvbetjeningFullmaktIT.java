@@ -82,7 +82,7 @@ public class DokumentoversiktSelvbetjeningFullmaktIT extends AbstractDokumentove
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndWrongFullmakt() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon("repr-api-fullmakt-feil-bruker.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
@@ -96,7 +96,7 @@ public class DokumentoversiktSelvbetjeningFullmaktIT extends AbstractDokumentove
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturns4xx() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon(HttpStatus.FORBIDDEN);
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
@@ -110,7 +110,7 @@ public class DokumentoversiktSelvbetjeningFullmaktIT extends AbstractDokumentove
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturns5xx() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon(HttpStatus.INTERNAL_SERVER_ERROR);
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
@@ -124,7 +124,7 @@ public class DokumentoversiktSelvbetjeningFullmaktIT extends AbstractDokumentove
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturnsInvalidJson() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon("repr-api-fullmakt-invalid.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
@@ -138,7 +138,7 @@ public class DokumentoversiktSelvbetjeningFullmaktIT extends AbstractDokumentove
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndFullmaktReturnsInvalidJsonNoArray() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon("repr-api-invalid-no-array.json");
 
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
@@ -163,7 +163,7 @@ public class DokumentoversiktSelvbetjeningFullmaktIT extends AbstractDokumentove
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndNoFullmakt() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon();
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));
@@ -176,7 +176,7 @@ public class DokumentoversiktSelvbetjeningFullmaktIT extends AbstractDokumentove
 
 	@Test
 	void shouldReturnUnauthorizedWhenTokenNotMatchingQueryIdentAndIngenFullmaktOmraader() throws Exception {
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 		stubReprApiRepresentasjon("repr-api-empty.json");
 		GraphQLRequest request = new GraphQLRequest(stringFromClasspath("queries/dokumentoversiktselvbetjening_all.query"), null, null);
 		RequestEntity<GraphQLRequest> requestEntity = new RequestEntity<>(request, httpHeaders(REPRESENTANT_ID), POST, new URI("/graphql"));

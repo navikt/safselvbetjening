@@ -24,7 +24,7 @@ public class HentDokumentTilgangFullmaktIT extends AbstractHentDokumentItest {
 	@BeforeEach
 	void setUp() {
 		super.setUp();
-		stubTokenx();
+		stubNaisTexasExchangeToken();
 	}
 
 	/**
