@@ -24,11 +24,6 @@
   ],
   "ACCESS_POLICY_INBOUND_RULES": [
     {
-      "app": "tokenx-token-generator",
-      "namespace": "nais",
-      "cluster": "dev-gcp"
-    },
-    {
       "app": "bidrag-bidragskalkulator-api",
       "namespace": "bidrag",
       "cluster": "dev-gcp"
