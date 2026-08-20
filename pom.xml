@@ -47,7 +47,7 @@
 		<kafka-avro-serializer.version>7.9.5</kafka-avro-serializer.version>
 		<teamdokumenthandtering-avro-schemas.version>1.1.6</teamdokumenthandtering-avro-schemas.version>
 
-		<wiremock-spring-boot.version>4.2.1</wiremock-spring-boot.version>
+		<wiremock-spring-boot.version>4.2.2</wiremock-spring-boot.version>
 
 		<!-- plugins -->
 		<maven-toolchains-plugin.version>3.2.0</maven-toolchains-plugin.version>
