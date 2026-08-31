@@ -93,7 +93,7 @@ class TilgangJournalpostTest {
 	@EnumSource(value = TilgangInnsyn.class, names = {
 			"SKJULES_BRUKERS_ONSKE", "SKJULES_INNSKRENKET_PARTSINNSYN", "SKJULES_FEILSENDT", "SKJULES_ORGAN_INTERNT", "SKJULES_BRUKERS_SIKKERHET"
 	})
-	void shouldReturnFalseForInnsynSkjulesWhenVises(TilgangInnsyn innsyn) {
+	void shouldReturnFalseForInnsynVisesWhenSkjules(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
 				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK)
@@ -117,7 +117,7 @@ class TilgangJournalpostTest {
 
 	@ParameterizedTest
 	@EnumSource(value = TilgangInnsyn.class, names = {"VISES_MASKINELT_GODKJENT", "VISES_MANUELT_GODKJENT", "VISES_FORVALTNINGSNOTAT"})
-	void shouldReturnFalseForInnsynVisesWhenSkjules(TilgangInnsyn innsyn) {
+	void shouldReturnFalseForInnsynSkjulesWhenVises(TilgangInnsyn innsyn) {
 		TilgangJournalpost tilgangJournalpost = TilgangJournalpost.builder()
 				.datoOpprettet(LocalDateTime.now())
 				.mottakskanal(TilgangMottakskanal.IKKE_SKANNING_IKKE_TEKNISK)
