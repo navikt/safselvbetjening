@@ -24,7 +24,7 @@ import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.MOTTATT;
 
 /**
- * Regler for tilgangskontroll for journalposter: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
+ * Regler for tilgangskontroll for journalposter: https://confluence.adeo.no/spaces/BOA/pages/413995730/safselvbetjening+-+Regler+for+innsyn
  */
 public class UtledTilgangService {
 	public static final LocalDateTime TIDLIGST_INNSYN_DATO = LocalDate.of(2016, 6, 4).atStartOfDay();
