@@ -64,7 +64,7 @@ public class UtledTilgangService {
 		if (isJournalpostGDPRRestricted(journalpost)) { // 1f
 			feilmeldinger.add(DENY_REASON_POL_GDPR);
 		}
-		if (!isJournalpostNotatXNORForvaltningsnotat(journalpost)) { // 1g
+		if (isJournalpostNotatWithoutInnsynVises(journalpost)) { // 1g
 			feilmeldinger.add(DENY_REASON_NOTAT);
 		}
 		if (isJournalpostInnsynSkjules(journalpost)) { // 1i
@@ -207,17 +207,13 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 1g) Hvis journalpost er notat må hoveddokumentet være markert som "forvaltningsnotat" eller
-	 * innsyn bør begynne med VISES_* for å vise journalposten.
+	 * 1g) Pålogget bruker får ikke se notater, med mindre  k_innsyn = VISES_*
 	 */
-	boolean isJournalpostNotatXNORForvaltningsnotat(TilgangJournalpost journalpost) {
-		Optional<TilgangDokument> hoveddokument = journalpost.getDokumenter().stream()
-				.filter(TilgangDokument::hoveddokument).findFirst();
-		if (TilgangJournalposttype.NOTAT == journalpost.getJournalposttype() && hoveddokument.isPresent()) {
-			boolean isForvaltningsnotat = FORVALTNINGSNOTAT.equals(hoveddokument.get().kategori());
-			return isForvaltningsnotat || journalpost.innsynVises();
+	boolean isJournalpostNotatWithoutInnsynVises(TilgangJournalpost journalpost) {
+		if (TilgangJournalposttype.NOTAT != journalpost.getJournalposttype()) {
+			return false;
 		}
-		return true;
+		return !journalpost.innsynVises();
 	}
 
 	/**

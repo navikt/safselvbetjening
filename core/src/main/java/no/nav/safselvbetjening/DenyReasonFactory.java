@@ -15,7 +15,7 @@ public class DenyReasonFactory {
 	public static final String FEILMELDING_FEILREGISTRERT = "fordi journalposten er feilregistrert.";
 	public static final String FEILMELDING_TEMAER_UNNTATT_INNSYN = "fordi journalposten er markert som kontrollsak eller farskapssak.";
 	public static final String FEILMELDING_GDPR = "ihht. GDPR.";
-	public static final String FEILMELDING_FORVALTNINGSNOTAT = "fordi journalposten er et notat, men hoveddokumentet er ikke et forvaltningsnotat.";
+	public static final String FEILMELDING_NOTAT = "fordi journalposten er et notat.";
 	public static final String FEILMELDING_SKJULT = "fordi journalposten er skjult.";
 	public static final String FEILMELDING_SKANNET = "fordi dokumentet er skannet.";
 	public static final String FEILMELDING_TEKNISK_DOKUMENT = "fordi dokumentet er mottatt fra/sendt til en teknisk kanal.";
@@ -44,7 +44,7 @@ public class DenyReasonFactory {
 			case DENY_REASON_FEILREGISTRERT -> FEILMELDING_FEILREGISTRERT;
 			case DENY_REASON_TEMAER_UNNTATT_INNSYN -> FEILMELDING_TEMAER_UNNTATT_INNSYN;
 			case DENY_REASON_POL_GDPR -> FEILMELDING_GDPR;
-			case DENY_REASON_NOTAT -> FEILMELDING_FORVALTNINGSNOTAT;
+			case DENY_REASON_NOTAT -> FEILMELDING_NOTAT;
 			case DENY_REASON_SKJULT_INNSYN -> FEILMELDING_SKJULT;
 			case DENY_REASON_SKANNET_DOKUMENT -> FEILMELDING_SKANNET;
 			case DENY_REASON_TEKNISK_DOKUMENT -> FEILMELDING_TEKNISK_DOKUMENT;
