@@ -237,7 +237,7 @@ public class UtledTilgangService {
 			return true;
 		}
 		if (avsenderMottakerId == null) {
-			return false;
+			return tilgangJournalpost.innsynVises();
 		}
 
 		return idents.contains(avsenderMottakerId) || tilgangJournalpost.innsynVises();

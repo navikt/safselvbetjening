@@ -238,7 +238,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 
 	/**
 	 * Tilgangsregel: 2a
-	 * Hvis dokumentet ikke har innlogget bruker som avsender så skal det returneres en Forbidden feil
+	 * Hvis dokumentet ikke har innlogget bruker som avsender så skal det returneres en Forbidden feil unntatt hvis innsyn VISES_*
 	 */
 	@Test
 	void skalGiForbiddenHvisBrukerIkkeErAvsender() {
@@ -250,6 +250,37 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
 		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_IKKE_AVSENDER_MOTTAKER.reason));
 		assertThat(responseEntity.getBody()).contains(FEILMELDING_ANNEN_PART);
+	}
+
+	/**
+	 * Tilgangsregel: 2a
+	 * Hvis dokumentet ikke har innlogget bruker som avsender så skal det returneres en Forbidden feil unntatt hvis innsyn VISES_*
+	 */
+	@Test
+	void skalGiForbiddenHvisBrukerIkkeErAvsenderOgAvsenderErNull() {
+		stubDokarkivJournalpost("2a-hentdokument-bruker-avsender-null-forbidden.json");
+		stubPdlGenerell();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_IKKE_AVSENDER_MOTTAKER.reason));
+		assertThat(responseEntity.getBody()).contains(FEILMELDING_ANNEN_PART);
+	}
+
+	/**
+	 * Tilgangsregel: 2a
+	 * Hvis dokumentet ikke har innlogget bruker som avsender så skal det returneres en Forbidden feil unntatt hvis innsyn VISES_*
+	 */
+	@Test
+	void skalHenteDokumentHvisBrukerIkkeErAvsenderOgAvsenderErNullOgInnsynVises() {
+		stubDokarkivJournalpost("2a-hentdokument-bruker-avsender-null-vises-ok.json");
+		stubPdlGenerell();
+		stubHentDokumentDokarkiv();
+
+		ResponseEntity<String> responseEntity = callHentDokument();
+
+		assertOkArkivResponse(responseEntity);
 	}
 
 	/**

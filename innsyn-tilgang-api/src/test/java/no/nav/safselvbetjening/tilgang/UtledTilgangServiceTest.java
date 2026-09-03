@@ -491,7 +491,7 @@ class UtledTilgangServiceTest {
 		assertThat(actual).isFalse();
 	}
 
-	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
+	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises. Med mindre K_INNSYN = VISES_*
 	@Test
 	void shouldReturnFalseWhenAvsenderMottakerIdIsNull() {
 		TilgangJournalpost journalpost = baseTilgangJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER)
@@ -500,7 +500,16 @@ class UtledTilgangServiceTest {
 		assertThat(actual).isFalse();
 	}
 
-	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
+	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises. Med mindre K_INNSYN = VISES_*
+	@Test
+	void shouldReturnTrueWhenAvsenderMottakerIdIsNullAndInnsynVises() {
+		TilgangJournalpost journalpost = baseTilgangJournalpost(TEMA_DAGPENGER, VISES_MANUELT_GODKJENT)
+				.avsenderMottakerId(null).build();
+		boolean actual = utledTilgangService.isAvsenderMottakerPart(journalpost, defaultBrukerIdenter());
+		assertThat(actual).isTrue();
+	}
+
+	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises. Med mindre K_INNSYN = VISES_*
 	@Test
 	void shouldReturnFalseWhenAvsenderMottakerIdIsAnnenPart() {
 		TilgangJournalpost journalpost = baseTilgangJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER)
