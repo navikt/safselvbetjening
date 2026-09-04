@@ -257,7 +257,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 	 * Hvis dokumentet ikke har innlogget bruker som avsender så skal det returneres en Forbidden feil unntatt hvis innsyn VISES_*
 	 */
 	@Test
-	void skalGiForbiddenHvisBrukerIkkeErAvsenderOgAvsenderErNull() {
+	void skalGiForbiddenHvisAvsenderIdErNull() {
 		stubDokarkivJournalpost("2a-hentdokument-bruker-avsender-null-forbidden.json");
 		stubPdlGenerell();
 
@@ -273,7 +273,7 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 	 * Hvis dokumentet ikke har innlogget bruker som avsender så skal det returneres en Forbidden feil unntatt hvis innsyn VISES_*
 	 */
 	@Test
-	void skalHenteDokumentHvisBrukerIkkeErAvsenderOgAvsenderErNullOgInnsynVises() {
+	void skalHenteDokumentHvisAvsenderErNullOgInnsynVises() {
 		stubDokarkivJournalpost("2a-hentdokument-bruker-avsender-null-vises-ok.json");
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();

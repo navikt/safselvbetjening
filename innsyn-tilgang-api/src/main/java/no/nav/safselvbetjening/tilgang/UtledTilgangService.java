@@ -228,7 +228,7 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 2a) Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises
+	 * 2a) Dokumenter som er sendt til/fra andre parter enn bruker vises kun dersom K_INNSYN = VISES_*
 	 */
 	boolean isAvsenderMottakerPart(TilgangJournalpost tilgangJournalpost, Set<Ident> idents) {
 		final Ident avsenderMottakerId = tilgangJournalpost.getAvsenderMottakerId();
