@@ -44,6 +44,8 @@ import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.defaultBru
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.tilgangDokument;
 import static no.nav.safselvbetjening.tilgang.UtledTilgangTestObjects.tilgangVariant;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
+import static org.junit.jupiter.params.provider.EnumSource.Mode.INCLUDE;
 
 class UtledTilgangServiceTest {
 
@@ -491,31 +493,43 @@ class UtledTilgangServiceTest {
 		assertThat(actual).isFalse();
 	}
 
-	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises. Med mindre K_INNSYN = VISES_*
-	@Test
-	void shouldReturnFalseWhenAvsenderMottakerIdIsNull() {
-		TilgangJournalpost journalpost = baseTilgangJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER)
+	// 2a - Dokumenter som er sendt til/fra andre parter enn bruker vises kun dersom K_INNSYN = VISES_*
+	@ParameterizedTest
+	@EnumSource(value = TilgangInnsyn.class, mode = EXCLUDE, names = {"VISES_MASKINELT_GODKJENT", "VISES_MANUELT_GODKJENT", "VISES_FORVALTNINGSNOTAT"})
+	void shouldReturnFalseWhenAvsenderMottakerIdIsNull(TilgangInnsyn tilgangInnsyn) {
+		TilgangJournalpost journalpost = baseTilgangJournalpost(TEMA_DAGPENGER, tilgangInnsyn)
 				.avsenderMottakerId(null).build();
 		boolean actual = utledTilgangService.isAvsenderMottakerPart(journalpost, defaultBrukerIdenter());
 		assertThat(actual).isFalse();
 	}
 
-	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises. Med mindre K_INNSYN = VISES_*
-	@Test
-	void shouldReturnTrueWhenAvsenderMottakerIdIsNullAndInnsynVises() {
-		TilgangJournalpost journalpost = baseTilgangJournalpost(TEMA_DAGPENGER, VISES_MANUELT_GODKJENT)
+	// 2a - Dokumenter som er sendt til/fra andre parter enn bruker vises kun dersom K_INNSYN = VISES_*
+	@ParameterizedTest
+	@EnumSource(value = TilgangInnsyn.class, mode = INCLUDE, names = {"VISES_MASKINELT_GODKJENT", "VISES_MANUELT_GODKJENT", "VISES_FORVALTNINGSNOTAT"})
+	void shouldReturnTrueWhenAvsenderMottakerIdIsNullAndInnsynVises(TilgangInnsyn tilgangInnsyn) {
+		TilgangJournalpost journalpost = baseTilgangJournalpost(TEMA_DAGPENGER, tilgangInnsyn)
 				.avsenderMottakerId(null).build();
 		boolean actual = utledTilgangService.isAvsenderMottakerPart(journalpost, defaultBrukerIdenter());
 		assertThat(actual).isTrue();
 	}
 
-	//	2a - Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises. Med mindre K_INNSYN = VISES_*
+	// 2a - Dokumenter som er sendt til/fra andre parter enn bruker vises kun dersom K_INNSYN = VISES_*
 	@Test
 	void shouldReturnFalseWhenAvsenderMottakerIdIsAnnenPart() {
 		TilgangJournalpost journalpost = baseTilgangJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER)
 				.avsenderMottakerId(ANNEN_PART).build();
 		boolean actual = utledTilgangService.isAvsenderMottakerPart(journalpost, defaultBrukerIdenter());
 		assertThat(actual).isFalse();
+	}
+
+	// 2a - Dokumenter som er sendt til/fra andre parter enn bruker vises kun dersom K_INNSYN = VISES_*
+	@ParameterizedTest
+	@EnumSource(value = TilgangInnsyn.class, mode = INCLUDE, names = {"VISES_MASKINELT_GODKJENT", "VISES_MANUELT_GODKJENT", "VISES_FORVALTNINGSNOTAT"})
+	void shouldReturnTrueWhenAvsenderMottakerIdIsAnnenPartAndInnsynVises(TilgangInnsyn tilgangInnsyn) {
+		TilgangJournalpost journalpost = baseTilgangJournalpost(TEMA_DAGPENGER, tilgangInnsyn)
+				.avsenderMottakerId(ANNEN_PART).build();
+		boolean actual = utledTilgangService.isAvsenderMottakerPart(journalpost, defaultBrukerIdenter());
+		assertThat(actual).isTrue();
 	}
 
 	//	2b - Bruker får ikke se skannede dokumenter, med mindre K_INNSYN = VISES_*
