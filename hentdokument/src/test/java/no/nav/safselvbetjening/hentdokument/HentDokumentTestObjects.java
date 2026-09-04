@@ -104,7 +104,7 @@ public class HentDokumentTestObjects {
 				.build();
 	}
 
-	public static ArkivDokumentinfo arkivDokumentinfo(String variantFormat) {
+	private static ArkivDokumentinfo arkivDokumentinfo(String variantFormat) {
 		return new ArkivDokumentinfo(40000000L, TILKNYTTET_SOM_HOVEDDOKUMENT, SkjermingTypeCode.ARK.name(), FORVALTNINGSNOTAT, null, null,
 				List.of(new ArkivFildetaljer(SkjermingTypeCode.ARK.name(), variantFormat, null, null, null)), null, null, false);
 	}
