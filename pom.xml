@@ -47,7 +47,6 @@
 		<kafka-avro-serializer.version>8.3.1</kafka-avro-serializer.version>
 		<!-- Eksplisitt avro.versjon kan fjernes når kafka-avro-serializer bruker Avro 1.12.2 eller nyere. -->
 		<avro.version>1.12.2</avro.version>
-		<avro.serializable.classes>no.nav.safselvbetjening.schemas.HoveddokumentLest</avro.serializable.classes>
 		<teamdokumenthandtering-avro-schemas.version>2.0.0</teamdokumenthandtering-avro-schemas.version>
 
 		<wiremock-spring-boot.version>4.2.2</wiremock-spring-boot.version>
@@ -175,18 +174,6 @@
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<configuration>
 					<argLine>--enable-preview</argLine>
-					<systemPropertyVariables>
-						<org.apache.avro.SERIALIZABLE_CLASSES>${avro.serializable.classes}</org.apache.avro.SERIALIZABLE_CLASSES>
-					</systemPropertyVariables>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<systemPropertyVariables>
-						<org.apache.avro.SERIALIZABLE_CLASSES>${avro.serializable.classes}</org.apache.avro.SERIALIZABLE_CLASSES>
-					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 			<plugin>
