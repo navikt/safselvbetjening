@@ -36,7 +36,7 @@ final class ArkivJournalpostTestObjects {
 	static final String BRUKER_IDENT = "12345678911";
 	static final String ARKIVSAK_AKTOER_ID = "32345678911";
 	static final String ARKIVSAKSYSTEM_GOSYS = "FS22";
-	static final String KATEGORI_FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
+	static final String KATEGORI_SED = "SED";
 	static final OffsetDateTime ARKIVJOURNALPOST_DATO_OPPRETTET = LocalDate.of(2018, Month.FEBRUARY, 23).atStartOfDay().atOffset(ZoneOffset.of("+00:00"));
 	static final OffsetDateTime ARKIVJOURNALPOST_DATO_JOURNALFOERT = LocalDate.of(2019, Month.JANUARY, 18).atStartOfDay().atOffset(ZoneOffset.of("+00:00"));
 	static final OffsetDateTime ARKIVJOURNALPOST_DATO_EKSPEDERT = LocalDate.of(2020, Month.JANUARY, 18).atStartOfDay().atOffset(ZoneOffset.of("+00:00"));
@@ -159,12 +159,12 @@ final class ArkivJournalpostTestObjects {
 	}
 
 	static ArkivDokumentinfo hoveddokumentArkivDokumentinfo() {
-		return new ArkivDokumentinfo(HOVEDDOKUMENT_DOKUMENT_INFO_ID, TILKNYTTET_SOM_HOVEDDOKUMENT, SkjermingTypeCode.ARK.name(), KATEGORI_FORVALTNINGSNOTAT, false, null,
+		return new ArkivDokumentinfo(HOVEDDOKUMENT_DOKUMENT_INFO_ID, TILKNYTTET_SOM_HOVEDDOKUMENT, SkjermingTypeCode.ARK.name(), KATEGORI_SED, false, null,
 				List.of(new ArkivFildetaljer(SkjermingTypeCode.ARK.name(), VariantFormatCode.ARKIV.name(), HOVEDDOKUMENT_FIL_STOERRELSE, HOVEDDOKUMENT_FILTYPE, HOVEDDOKUMENT_FIL_UUID)), HOVEDDOKUMENT_TITTEL, HOVEDDOKUMENT_BREVKODE, true);
 	}
 
 	static ArkivDokumentinfo vedleggArkivDokumentinfo() {
-		return new ArkivDokumentinfo(VEDLEGG_DOKUMENT_INFO_ID, TILKNYTTET_SOM_VEDLEGG, SkjermingTypeCode.ARK.name(), KATEGORI_FORVALTNINGSNOTAT, null, null,
+		return new ArkivDokumentinfo(VEDLEGG_DOKUMENT_INFO_ID, TILKNYTTET_SOM_VEDLEGG, SkjermingTypeCode.ARK.name(), KATEGORI_SED, null, null,
 				List.of(new ArkivFildetaljer(SkjermingTypeCode.ARK.name(), VariantFormatCode.ARKIV.name(), VEDLEGG_FIL_STOERRELSE, VEDLEGG_FIL_TYPE, VEDLEGG_FIL_UUID)), VEDLEGG_TITTEL, VEDLEGG_BREVKODE, null);
 	}
 

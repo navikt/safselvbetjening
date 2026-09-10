@@ -29,7 +29,6 @@ import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.MOTTATT;
 public class UtledTilgangService {
 	public static final LocalDateTime TIDLIGST_INNSYN_DATO = LocalDate.of(2016, 6, 4).atStartOfDay();
 	public static final Set<String> GJELDENDE_TEMA_UNNTATT_INNSYN = Set.of("FAR", "KTR", "KTA", "ARS", "ARP", "BBF");
-	private static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
 	private static final Set<String> GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING = Set.of("PEN", "UFO");
 
 	public UtledTilgangService() {

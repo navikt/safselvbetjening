@@ -50,7 +50,7 @@ import static org.junit.jupiter.params.provider.EnumSource.Mode.INCLUDE;
 class UtledTilgangServiceTest {
 
 	private static final LocalDateTime FOER_TIDLIGSTE_INNSYNSDATO = UtledTilgangService.TIDLIGST_INNSYN_DATO.minusMinutes(1);
-	private static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
+	private static final String SED = "SED";
 	private static final String SKAN_IM = "SKAN_IM";
 	private static final String SKAN_NETS = "SKAN_NETS";
 	private static final String SKAN_PEN = "SKAN_PEN";
@@ -466,7 +466,7 @@ class UtledTilgangServiceTest {
 				.dokumenter(List.of(
 						TilgangDokument.builder()
 								.skjerming(INGEN_SKJERMING)
-								.kategori(FORVALTNINGSNOTAT)
+								.kategori(SED)
 								.build()))
 				.build();
 		boolean actual = utledTilgangService.isJournalpostNotatWithoutInnsynVises(journalpost);

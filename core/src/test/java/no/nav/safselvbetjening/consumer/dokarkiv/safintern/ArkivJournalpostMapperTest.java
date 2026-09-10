@@ -52,7 +52,7 @@ import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpo
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.INNHOLD;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.JOURNALPOST_ID;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.KANAL_REFERANSE_ID;
-import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.KATEGORI_FORVALTNINGSNOTAT;
+import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.KATEGORI_SED;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.PENSJON_FAGSAKID;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.TEMA;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.TEMA_PENSJON_ALDERSPENSJON;
@@ -310,7 +310,7 @@ class ArkivJournalpostMapperTest {
 		// tilgang mapping
 		assertThat(hoveddokument.isHoveddokument()).isTrue();
 		TilgangDokument tilgangDokument = journalpost.getTilgang().getDokumenter().getFirst();
-		assertThat(tilgangDokument.kategori()).isEqualTo(KATEGORI_FORVALTNINGSNOTAT);
+		assertThat(tilgangDokument.kategori()).isEqualTo(KATEGORI_SED);
 		assertThat(tilgangDokument.kassert()).isFalse();
 		assertTilgangsVarianter(tilgangDokument.dokumentvarianter());
 	}
