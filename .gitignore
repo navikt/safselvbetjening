@@ -4,3 +4,9 @@ target/
 # IntelliJ IDEA
 .idea/
 *.iml
+
+# misc
+.*.sw?
+*.vim
+TAGS
+tags

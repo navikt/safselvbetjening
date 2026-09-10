@@ -29,13 +29,13 @@
     "id": "12345678911",
     "type": "PERSON"
   },
-  "innsyn": null,
+  "innsyn": "VISES_MANUELT_GODKJENT",
   "dokumenter": [
     {
       "dokumentInfoId": 410000000,
       "kassert": null,
       "skjerming": null,
-      "kategori": "GENERELT_NOTAT",
+      "kategori": "SED",
       "fildetaljer": [
         {
           "format": "ARKIV",

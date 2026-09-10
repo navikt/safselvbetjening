@@ -50,7 +50,7 @@ import static org.junit.jupiter.params.provider.EnumSource.Mode.INCLUDE;
 class UtledTilgangServiceTest {
 
 	private static final LocalDateTime FOER_TIDLIGSTE_INNSYNSDATO = UtledTilgangService.TIDLIGST_INNSYN_DATO.minusMinutes(1);
-	private static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
+	private static final String SED = "SED";
 	private static final String SKAN_IM = "SKAN_IM";
 	private static final String SKAN_NETS = "SKAN_NETS";
 	private static final String SKAN_PEN = "SKAN_PEN";
@@ -458,19 +458,34 @@ class UtledTilgangServiceTest {
 		assertThat(actual).isTrue();
 	}
 
-	//	1g - Bruker får ikke innsyn i notater (jp.type = N) med mindre det er et forvaltningsnotat
+	//	1g - Bruker får i utgangspunktet ikke innsyn i notater (jp.type = N)
 	@Test
-	void shouldReturnTrueWhenForvaltningsnotat() {
+	void shouldReturnTrueWhenNotat() {
 		TilgangJournalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER)
 				.journalposttype(NOTAT)
 				.dokumenter(List.of(
 						TilgangDokument.builder()
 								.skjerming(INGEN_SKJERMING)
-								.kategori(FORVALTNINGSNOTAT)
+								.kategori(SED)
 								.build()))
 				.build();
-		boolean actual = utledTilgangService.isJournalpostNotatXNORForvaltningsnotat(journalpost);
+		boolean actual = utledTilgangService.isJournalpostNotatWithoutInnsynVises(journalpost);
 		assertThat(actual).isTrue();
+	}
+
+	//	1g - Bruker får innsyn i notater (jp.type = N) dersom det er markert med VISES_*
+	@ParameterizedTest
+	@EnumSource(value = TilgangInnsyn.class, names = {"VISES_FORVALTNINGSNOTAT", "VISES_MANUELT_GODKJENT", "VISES_MASKINELT_GODKJENT"})
+	void shouldReturnFalseWhenNotatAndStartsWithVises(TilgangInnsyn innsyn) {
+		TilgangJournalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, innsyn)
+				.journalposttype(NOTAT)
+				.dokumenter(List.of(
+							TilgangDokument.builder()
+							.skjerming(INGEN_SKJERMING)
+							.build()))
+				.build();
+		boolean actual = utledTilgangService.isJournalpostNotatWithoutInnsynVises(journalpost);
+		assertThat(actual).isFalse();
 	}
 
 	//	1i) Bruker kan ikke få se journalposter som innsyn begynner med SKJULES_*

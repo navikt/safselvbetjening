@@ -276,21 +276,23 @@ Returnerer:
 * `403 Forbidden` - Dokumentet tilhører ikke bruker i token og/eller ingen fullmakt finnes. Ingen tilgang til dokumentet basert på [regler](https://confluence.adeo.no/pages/viewpage.action?pageId=377182021).
 * `404 Not Found` - Dokumentet eller metadata tilhørende dokumentet finnes ikke. Bruker finnes ikke.
 
-| Nav-Reason-Code           | Beskrivelse                                                                                                                                             |
-|:--------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ingen_partsinnsyn         | Bruker må være part for å se journalposter                                                                                                              |
-| opprettet_for_innsynsdato | Bruker får ikke se journalposter som er opprettet før 04.06.2016                                                                                        |
-| skannet_dokument          | Bruker får ikke se skannede dokumenter                                                                                                                  |
-| gdpr                      | Dokumenter som er begrenset ihht. gdpr                                                                                                                  |
-| kassert_dokument          | Kasserte dokumenter skal ikke vises                                                                                                                     |
-| ugyldig_journalstatus     | Bruker får kun se midlertidige og ferdigstilte journalposter                                                                                            |
-| feilregistrert            | Bruker får ikke se feilregistrerte journalposter                                                                                                        |
-| temaer_unntatt_innsyn     | Bruker får ikke innsyn i temaer unntatt innsyn (kontrollsaker og farskapssaker)                                                                         |
-| forvaltningsnotat         | Bruker får ikke innsyn i notater med mindre det er et forvaltningsnotat                                                                                 |
-| annen_part                | Dokumenter som er sendt til/fra andre parter enn bruker, skal ikke vises                                                                                |
-| bruker_matcher_ikke_token | Bruker på dokumentet matcher ikke bruker i token                                                                                                        |
-| skjult_innsyn             | Innsynsreglene styrer utvalget av journalposter og dokumenter som en innlogget bruker får innsyn i på nav.no. Bruker får ikke se skjulte journalposter. |
-| fullmakt_gjelder_ikke_tema| Innlogget bruker har fullmakt for bruker, men tema i fullmakten gjelder ikke tema på dokumentet.                                                        |
+| Nav-Reason-Code            | Beskrivelse                                                                                                                                             |
+|:---------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ingen_partsinnsyn          | Bruker må være part for å se journalposter                                                                                                              |
+| ikke_avsender_mottaker     | Tilgang avvist fordi dokumentet er sendt til/fra andre parter enn bruker.                                                                               |
+| foer_innsynsdato           | Tilgang avvist fordi journalposten er opprettet før tidligste innsynsdato (04.06.2016).                                                                 |
+| ugyldig_journalstatus      | Tilgang avvist fordi journalposten ikke har status ferdigstilt eller midlertidig.                                                                       |
+| feilregistrert             | Tilgang avvist fordi journalposten er feilregistrert.                                                                                                   |
+| temaer_unntatt_innsyn      | Tilgang avvist fordi journalposten er markert som kontrollsak eller farskapssak.                                                                        |
+| pol_gdpr                   | Tilgang avvist ihht. GDPR.                                                                                                                              |
+| notat                      | Tilgang avvist fordi journalposten er et notat.                                                                                                         |
+| bruker_matcher_ikke_token  | Bruker på dokumentet matcher ikke bruker i token.                                                                                                       |
+| skjult_innsyn              | Innsynsreglene styrer utvalget av journalposter og dokumenter som en innlogget bruker får innsyn i på nav.no. Bruker får ikke se skjulte journalposter. |
+| fullmakt_gjelder_ikke_tema | Innlogget bruker har fullmakt for bruker, men tema i fullmakten gjelder ikke tema på dokumentet.                                                        |
+| skannet_dokument           | Tilgang avvist fordi dokumentet er skannet.                                                                                                             |
+| teknisk_dokument           | Tilgang avvist fordi dokumentet er mottatt fra/sendt til en teknisk kanal.                                                                              |
+| ugyldig_variantformat      | Variantformat må være enten SLADDET eller ARKIV.                                                                                                        |
+| kassert_dokument           | Tilgang avvist fordi dokumentet er kassert.                                                                                                             |
 
 
 ## Utvikling

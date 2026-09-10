@@ -28,7 +28,7 @@ import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.AKTOE
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.AVSENDER_MOTTAKER_ID;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.DATO_JOURNALFOERT;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.DATO_OPPRETTET;
-import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.FORVALTNINGSNOTAT;
+import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.SED;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.IDENT;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.JOURNALPOST_ID;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.TEMA;
@@ -78,7 +78,7 @@ class HentDokumentTilgangMapperTest {
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().getFirst();
 		assertThat(dokumentInfo.isHoveddokument()).isTrue();
 		TilgangDokument tilgangDokument = tilgang.getDokumenter().getFirst();
-		assertThat(tilgangDokument.kategori()).isEqualTo(FORVALTNINGSNOTAT);
+		assertThat(tilgangDokument.kategori()).isEqualTo(SED);
 		assertThat(tilgangDokument.kassert()).isFalse();
 
 		TilgangVariant tilgangVariant = tilgangDokument.dokumentvarianter().getFirst();
@@ -116,7 +116,7 @@ class HentDokumentTilgangMapperTest {
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().getFirst();
 		assertThat(dokumentInfo.isHoveddokument()).isTrue();
 		TilgangDokument tilgangDokument = tilgang.getDokumenter().getFirst();
-		assertThat(tilgangDokument.kategori()).isEqualTo(FORVALTNINGSNOTAT);
+		assertThat(tilgangDokument.kategori()).isEqualTo(SED);
 		assertThat(tilgangDokument.kassert()).isFalse();
 
 		TilgangVariant tilgangVariant = tilgangDokument.dokumentvarianter().getFirst();
@@ -151,7 +151,7 @@ class HentDokumentTilgangMapperTest {
 		DokumentInfo dokumentInfo = journalpost.getDokumenter().getFirst();
 		assertThat(dokumentInfo.isHoveddokument()).isTrue();
 		TilgangDokument tilgangDokument = tilgang.getDokumenter().getFirst();
-		assertThat(tilgangDokument.kategori()).isEqualTo(FORVALTNINGSNOTAT);
+		assertThat(tilgangDokument.kategori()).isEqualTo(SED);
 		assertThat(tilgangDokument.kassert()).isFalse();
 
 		TilgangVariant tilgangVariant = tilgangDokument.dokumentvarianter().getFirst();

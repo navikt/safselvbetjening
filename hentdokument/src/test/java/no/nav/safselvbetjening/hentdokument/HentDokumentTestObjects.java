@@ -40,7 +40,7 @@ public class HentDokumentTestObjects {
 	static final String ARKIVSAKSYSTEM_PENSJON = "PEN";
 	static final String TEMA = "FAR";
 	static final String TEMA_PENSJON_UFO = "UFO";
-	static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
+	static final String SED = "SED";
 	static final OffsetDateTime DATO_OPPRETTET = LocalDate.of(2018, Month.FEBRUARY, 23).atStartOfDay().atOffset(ZoneOffset.of("+00:00"));
 	static final OffsetDateTime DATO_JOURNALFOERT = LocalDate.of(2020, Month.JANUARY, 18).atStartOfDay().atOffset(ZoneOffset.of("+00:00"));
 
@@ -104,8 +104,8 @@ public class HentDokumentTestObjects {
 				.build();
 	}
 
-	public static ArkivDokumentinfo arkivDokumentinfo(String variantFormat) {
-		return new ArkivDokumentinfo(40000000L, TILKNYTTET_SOM_HOVEDDOKUMENT, SkjermingTypeCode.ARK.name(), FORVALTNINGSNOTAT, null, null,
+	private static ArkivDokumentinfo arkivDokumentinfo(String variantFormat) {
+		return new ArkivDokumentinfo(40000000L, TILKNYTTET_SOM_HOVEDDOKUMENT, SkjermingTypeCode.ARK.name(), SED, null, null,
 				List.of(new ArkivFildetaljer(SkjermingTypeCode.ARK.name(), variantFormat, null, null, null)), null, null, false);
 	}
 

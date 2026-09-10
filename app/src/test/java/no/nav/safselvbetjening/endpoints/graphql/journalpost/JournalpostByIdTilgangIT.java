@@ -223,11 +223,11 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 
 	/**
 	 * Tilgangsregel: 1g
-	 * Bruker kan ikke se notater med mindre notatet er et FORVALTNINGSNOTAT (kategori på dokumentet)
+	 * Bruker kan ikke se notater med mindre k_innsyn = VISES_*
 	 */
 	@Test
-	void skalGiForbiddenHvisJournalpostIkkeErForvaltningsnotat() {
-		stubDokarkivJournalpost("1g-journalpost-ikke-forvaltningsnotat-forbidden.json");
+	void skalGiForbiddenHvisJournalpostErNotat() {
+		stubDokarkivJournalpost("1g-journalpost-notat-forbidden.json");
 		stubPdlGenerell();
 
 		ResponseEntity<GraphQLResponse> response = queryJournalpostById();
@@ -242,11 +242,11 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 
 	/**
 	 * Tilgangsregel: 1g
-	 * Bruker kan ikke se notater med mindre notatet er et FORVALTNINGSNOTAT (kategori på dokumentet)
+	 * Bruker kan ikke se notater med mindre k_innsyn = VISES_*
 	 */
 	@Test
-	void skalHenteJournalpostHvisJournalpostErForvaltningsnotat() {
-		stubDokarkivJournalpost("1g-journalpost-forvaltningsnotat-ok.json");
+	void skalHenteJournalpostHvisJournalpostErNotatOgInnsynVises() {
+		stubDokarkivJournalpost("1g-journalpost-notat-innsyn-vises-ok.json");
 		stubPdlGenerell();
 
 		ResponseEntity<GraphQLResponse> response = queryJournalpostById();

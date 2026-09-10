@@ -24,12 +24,11 @@ import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.MOTTATT;
 
 /**
- * Regler for tilgangskontroll for journalposter: https://confluence.adeo.no/pages/viewpage.action?pageId=377182021
+ * Regler for tilgangskontroll for journalposter: https://confluence.adeo.no/spaces/BOA/pages/413995730/safselvbetjening+-+Regler+for+innsyn
  */
 public class UtledTilgangService {
 	public static final LocalDateTime TIDLIGST_INNSYN_DATO = LocalDate.of(2016, 6, 4).atStartOfDay();
 	public static final Set<String> GJELDENDE_TEMA_UNNTATT_INNSYN = Set.of("FAR", "KTR", "KTA", "ARS", "ARP", "BBF");
-	private static final String FORVALTNINGSNOTAT = "FORVALTNINGSNOTAT";
 	private static final Set<String> GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING = Set.of("PEN", "UFO");
 
 	public UtledTilgangService() {
@@ -64,7 +63,7 @@ public class UtledTilgangService {
 		if (isJournalpostGDPRRestricted(journalpost)) { // 1f
 			feilmeldinger.add(DENY_REASON_POL_GDPR);
 		}
-		if (!isJournalpostNotatXNORForvaltningsnotat(journalpost)) { // 1g
+		if (isJournalpostNotatWithoutInnsynVises(journalpost)) { // 1g
 			feilmeldinger.add(DENY_REASON_NOTAT);
 		}
 		if (isJournalpostInnsynSkjules(journalpost)) { // 1i
@@ -207,17 +206,13 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 1g) Hvis journalpost er notat må hoveddokumentet være markert som "forvaltningsnotat" eller
-	 * innsyn bør begynne med VISES_* for å vise journalposten.
+	 * 1g) Pålogget bruker får ikke se notater, med mindre  k_innsyn = VISES_*
 	 */
-	boolean isJournalpostNotatXNORForvaltningsnotat(TilgangJournalpost journalpost) {
-		Optional<TilgangDokument> hoveddokument = journalpost.getDokumenter().stream()
-				.filter(TilgangDokument::hoveddokument).findFirst();
-		if (TilgangJournalposttype.NOTAT == journalpost.getJournalposttype() && hoveddokument.isPresent()) {
-			boolean isForvaltningsnotat = FORVALTNINGSNOTAT.equals(hoveddokument.get().kategori());
-			return isForvaltningsnotat || journalpost.innsynVises();
+	boolean isJournalpostNotatWithoutInnsynVises(TilgangJournalpost journalpost) {
+		if (TilgangJournalposttype.NOTAT != journalpost.getJournalposttype()) {
+			return false;
 		}
-		return true;
+		return !journalpost.innsynVises();
 	}
 
 	/**
