@@ -49,7 +49,7 @@
 		<avro.version>1.12.2</avro.version>
 		<teamdokumenthandtering-avro-schemas.version>2.0.0</teamdokumenthandtering-avro-schemas.version>
 
-		<wiremock-spring-boot.version>4.2.2</wiremock-spring-boot.version>
+		<wiremock-spring-boot.version>4.2.3</wiremock-spring-boot.version>
 
 		<!-- plugins -->
 		<maven-toolchains-plugin.version>3.2.0</maven-toolchains-plugin.version>
