@@ -84,9 +84,11 @@ class UtledTilgangServiceTest {
 		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_SKJULT_INNSYN);
 	}
 
-	@Test
-	void shouldReturnInnsynsdatoReasonWhenJournalpostJournaldatoFoerOpprettetDato() {
-		var tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER)
+	@ParameterizedTest
+	@EnumSource(value = TilgangInnsyn.class, names = {"VISES_MASKINELT_GODKJENT", "VISES_MANUELT_GODKJENT", "VISES_FORVALTNINGSNOTAT", "BRUK_STANDARDREGLER"})
+	void shouldReturnInnsynsdatoReasonWhenJournalpostJournaldatoFoerOpprettetDato(TilgangInnsyn innsyn) {
+		var tilgang = utledTilgangService.utledTilgangJournalpost(baseJournalfoertJournalpost(TEMA_DAGPENGER, innsyn)
+				.datoOpprettet(UtledTilgangService.TIDLIGST_INNSYN_DATO)
 				.journalfoertDato(FOER_TIDLIGSTE_INNSYNSDATO)
 				.build(), defaultBrukerIdenter());
 		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO);
@@ -110,9 +112,13 @@ class UtledTilgangServiceTest {
 		assertThat(tilgang).isEmpty();
 	}
 
-	@Test
-	void shouldReturnInnsynsdatoWhenJournalpostDokumentFoerOpprettetDato() {
-		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, BRUK_STANDARDREGLER).journalfoertDato(FOER_TIDLIGSTE_INNSYNSDATO).build(),
+	@ParameterizedTest
+	@EnumSource(value = TilgangInnsyn.class, names = {"VISES_MASKINELT_GODKJENT", "VISES_MANUELT_GODKJENT", "VISES_FORVALTNINGSNOTAT", "BRUK_STANDARDREGLER"})
+	void shouldReturnInnsynsdatoWhenJournalpostDokumentFoerOpprettetDato(TilgangInnsyn innsyn) {
+		var tilgang = utledTilgangService.utledTilgangDokument(baseJournalfoertJournalpost(TEMA_DAGPENGER, innsyn)
+						.datoOpprettet(UtledTilgangService.TIDLIGST_INNSYN_DATO)
+						.journalfoertDato(FOER_TIDLIGSTE_INNSYNSDATO)
+						.build(),
 				tilgangDokument(), tilgangVariant(), defaultBrukerIdenter());
 		assertThat(tilgang).containsExactly(TilgangDenyReason.DENY_REASON_FOER_INNSYNSDATO);
 	}
@@ -282,51 +288,82 @@ class UtledTilgangServiceTest {
 	}
 
 	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
-	// Journalført før innsynsdato
-	@Test
-	void shouldReturnFalseWhenJournalfoertBeforeInnsynsdatoAndStartedWithVises() {
+	// Opprettet og journalført før innsynsdato, uavhengig av innsyn
+	@ParameterizedTest
+	@EnumSource(TilgangInnsyn.class)
+	void shouldReturnTrueWhenOpprettetAndJournalfoertBeforeInnsynsdato(TilgangInnsyn innsyn) {
 		final LocalDateTime journalfoertDato = LocalDateTime.of(2016, 5, 6, 0, 0);
-		TilgangJournalpost journalpost = TilgangJournalpost.builder()
-				.datoOpprettet(journalfoertDato)
-				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
-				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
-				.journalfoertDato(journalfoertDato)
-				.innsyn(VISES_MANUELT_GODKJENT)
-				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
-		assertThat(actual).isFalse();
-	}
-
-	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
-	// Journalført før innsynsdato og hvis innsyn er BRUK_STANDARDREGLER.
-	@Test
-	void shouldReturnTrueWhenJournalfoertBeforeInnsynsdatoAndInnsynWithBrukStandardRegler() {
-		final LocalDateTime journalfoertDato = LocalDateTime.of(2016, 5, 6, 0, 0);
-		TilgangJournalpost journalpost = TilgangJournalpost.builder()
+		TilgangJournalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, innsyn)
 				.datoOpprettet(journalfoertDato)
 				.journalfoertDato(journalfoertDato)
-				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
-				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
-				.innsyn(BRUK_STANDARDREGLER)
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
+		boolean actual = utledTilgangService.isJournalpostBeforeInnsynsdatoAndTemaNotPensjonUforetrygd(journalpost);
 		assertThat(actual).isTrue();
 	}
 
 	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
-	// Journalført før innsynsdato og hvis innsyn er null.
-	@Test
-	void shouldReturnTrueWhenJournalfoertBeforeInnsynsdatoAndInnsynIsNull() {
-		final LocalDateTime journalfoertDato = LocalDateTime.of(2016, 5, 6, 0, 0);
-		TilgangJournalpost journalpost = TilgangJournalpost.builder()
-				.innsyn(BRUK_STANDARDREGLER)
-				.datoOpprettet(journalfoertDato)
-				.journalfoertDato(journalfoertDato)
-				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
-				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
+	// Kun journalføringsdato er før innsynsdato, uavhengig av innsyn
+	@ParameterizedTest
+	@EnumSource(TilgangInnsyn.class)
+	void shouldReturnTrueWhenOnlyJournalfoertBeforeInnsynsdato(TilgangInnsyn innsyn) {
+		TilgangJournalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, innsyn)
+				.datoOpprettet(UtledTilgangService.TIDLIGST_INNSYN_DATO)
+				.journalfoertDato(FOER_TIDLIGSTE_INNSYNSDATO)
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
-		assertThat(actual).isTrue();
+
+		assertThat(utledTilgangService.isJournalpostBeforeInnsynsdatoAndTemaNotPensjonUforetrygd(journalpost)).isTrue();
+	}
+
+	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
+	// Kun opprettelsesdato er før innsynsdato, uavhengig av innsyn
+	@ParameterizedTest
+	@EnumSource(TilgangInnsyn.class)
+	void shouldReturnTrueWhenOnlyOpprettetBeforeInnsynsdato(TilgangInnsyn innsyn) {
+		TilgangJournalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, innsyn)
+				.datoOpprettet(FOER_TIDLIGSTE_INNSYNSDATO)
+				.journalfoertDato(UtledTilgangService.TIDLIGST_INNSYN_DATO)
+				.build();
+
+		assertThat(utledTilgangService.isJournalpostBeforeInnsynsdatoAndTemaNotPensjonUforetrygd(journalpost)).isTrue();
+	}
+
+	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
+	// Manglende journalføringsdato, opprettelsesdato før innsynsdato avviser innsyn
+	@ParameterizedTest
+	@EnumSource(TilgangInnsyn.class)
+	void shouldReturnTrueWhenOpprettetBeforeInnsynsdatoAndJournalfoertDatoIsNull(TilgangInnsyn innsyn) {
+		TilgangJournalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, innsyn)
+				.datoOpprettet(FOER_TIDLIGSTE_INNSYNSDATO)
+				.journalfoertDato(null)
+				.build();
+
+		assertThat(utledTilgangService.isJournalpostBeforeInnsynsdatoAndTemaNotPensjonUforetrygd(journalpost)).isTrue();
+	}
+
+	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
+	// Begge datoer er nøyaktig på innsynsdato, datoregelen avviser ikke innsyn
+	@ParameterizedTest
+	@EnumSource(TilgangInnsyn.class)
+	void shouldReturnFalseWhenOpprettetAndJournalfoertAtInnsynsdato(TilgangInnsyn innsyn) {
+		TilgangJournalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, innsyn)
+				.datoOpprettet(UtledTilgangService.TIDLIGST_INNSYN_DATO)
+				.journalfoertDato(UtledTilgangService.TIDLIGST_INNSYN_DATO)
+				.build();
+
+		assertThat(utledTilgangService.isJournalpostBeforeInnsynsdatoAndTemaNotPensjonUforetrygd(journalpost)).isFalse();
+	}
+
+	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
+	// Manglende journalføringsdato og opprettelsesdato nøyaktig på innsynsdato, datoregelen avviser ikke innsyn
+	@ParameterizedTest
+	@EnumSource(TilgangInnsyn.class)
+	void shouldReturnFalseWhenOpprettetAtInnsynsdatoAndJournalfoertDatoIsNull(TilgangInnsyn innsyn) {
+		TilgangJournalpost journalpost = baseJournalfoertJournalpost(TEMA_DAGPENGER, innsyn)
+				.datoOpprettet(UtledTilgangService.TIDLIGST_INNSYN_DATO)
+				.journalfoertDato(null)
+				.build();
+
+		assertThat(utledTilgangService.isJournalpostBeforeInnsynsdatoAndTemaNotPensjonUforetrygd(journalpost)).isFalse();
 	}
 
 	//	1b - Bruker får ikke se journalposter som er opprettet før 04.06.2016
@@ -340,7 +377,7 @@ class UtledTilgangServiceTest {
 				.mottakskanal(IKKE_SKANNING_IKKE_TEKNISK)
 				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.build();
-		boolean actual = utledTilgangService.isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
+		boolean actual = utledTilgangService.isJournalpostBeforeInnsynsdatoAndTemaNotPensjonUforetrygd(journalpost);
 		assertThat(actual).isTrue();
 	}
 
@@ -358,7 +395,7 @@ class UtledTilgangServiceTest {
 				.utsendingskanal(TilgangUtsendingskanal.IKKE_TEKNISK)
 				.tema(tema)
 				.build();
-		boolean actual = new UtledTilgangService().isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost);
+		boolean actual = new UtledTilgangService().isJournalpostBeforeInnsynsdatoAndTemaNotPensjonUforetrygd(journalpost);
 		assertThat(actual).isFalse();
 	}
 

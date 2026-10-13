@@ -19,7 +19,6 @@ import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_TEKN
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_TEMAER_UNNTATT_INNSYN;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_UGYLDIG_JOURNALSTATUS;
 import static no.nav.safselvbetjening.tilgang.TilgangDenyReason.DENY_REASON_UGYLDIG_VARIANTFORMAT;
-import static no.nav.safselvbetjening.tilgang.TilgangInnsyn.BRUK_STANDARDREGLER;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.FERDIGSTILT;
 import static no.nav.safselvbetjening.tilgang.TilgangJournalstatus.MOTTATT;
 
@@ -48,7 +47,7 @@ public class UtledTilgangService {
 		if (!isBrukerPart(journalpost, brukerIdenter)) { // 1a
 			feilmeldinger.add(DENY_REASON_IKKE_AVSENDER_MOTTAKER);
 		}
-		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost)) { // 1b
+		if (isJournalpostBeforeInnsynsdatoAndTemaNotPensjonUforetrygd(journalpost)) { // 1b
 			feilmeldinger.add(DENY_REASON_FOER_INNSYNSDATO);
 		}
 		if (!isJournalpostFerdigstiltOrMidlertidig(journalpost)) { // 1c
@@ -87,7 +86,7 @@ public class UtledTilgangService {
 		if (!isAvsenderMottakerPart(journalpost, brukerIdenter)) {
 			feilmeldinger.add(DENY_REASON_IKKE_AVSENDER_MOTTAKER);
 		}
-		if (isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(journalpost)) {
+		if (isJournalpostBeforeInnsynsdatoAndTemaNotPensjonUforetrygd(journalpost)) {
 			feilmeldinger.add(DENY_REASON_FOER_INNSYNSDATO);
 		}
 		if (isSkannetDokumentAndInnsynIsNotVises(journalpost)) {
@@ -139,27 +138,18 @@ public class UtledTilgangService {
 	}
 
 	/**
-	 * 1b) Bruker får ikke se journalposter som er journalført før 04.06.2016 med mindre innsyn begynner med VISES_* eller
-	 * de har tema PEN eller UFO.
+	 * 1b) Bruker får ikke se journalposter som er opprettet eller journalført før 04.06.2016,
+	 * med mindre de har tema PEN eller UFO.
 	 */
-	boolean isJournalfoertDatoOrOpprettetDatoBeforeInnsynsdatoAndInnsynIsNotVisesOrTemaPensjonUforetrygd(TilgangJournalpost journalpost) {
+	boolean isJournalpostBeforeInnsynsdatoAndTemaNotPensjonUforetrygd(TilgangJournalpost journalpost) {
 		if (journalpost.getTema() != null && GJELDENDE_TEMA_UNNTATT_DATO_BEGRENSING.contains(journalpost.getTema())) {
 			return false;
 		}
 
 		if (journalpost.getJournalfoertDato() == null) {
-			if (BRUK_STANDARDREGLER == journalpost.getInnsyn()) {
-				return journalpost.getDatoOpprettet().isBefore(TIDLIGST_INNSYN_DATO);
-			}
-			return journalpost.getDatoOpprettet().isBefore(TIDLIGST_INNSYN_DATO) && !journalpost.innsynVises();
-		} else {
-			if (BRUK_STANDARDREGLER == journalpost.getInnsyn()) {
-				return (journalpost.getJournalfoertDato().isBefore(TIDLIGST_INNSYN_DATO) ||
-						journalpost.getDatoOpprettet().isBefore(TIDLIGST_INNSYN_DATO));
-			}
-			return (journalpost.getJournalfoertDato().isBefore(TIDLIGST_INNSYN_DATO) ||
-					journalpost.getDatoOpprettet().isBefore(TIDLIGST_INNSYN_DATO)) && !journalpost.innsynVises();
+			return journalpost.getDatoOpprettet().isBefore(TIDLIGST_INNSYN_DATO);
 		}
+		return journalpost.getJournalfoertDato().isBefore(TIDLIGST_INNSYN_DATO) || journalpost.getDatoOpprettet().isBefore(TIDLIGST_INNSYN_DATO);
 	}
 
 	/**
