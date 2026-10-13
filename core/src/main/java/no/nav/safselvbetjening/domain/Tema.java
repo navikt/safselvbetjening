@@ -13,6 +13,7 @@ public enum Tema {
 	AAP("Arbeidsavklaringspenger"),
 	AAR("Aa-registeret"),
 	AGR("Ajourhold – grunnopplysninger"),
+	AVP("Aktivitetspenger"),
 	BAR("Barnetrygd"),
 	BID("Bidrag"),
 	BIL("Bil"),
