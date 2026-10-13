@@ -276,5 +276,9 @@ public enum FagomradeCode {
 	/**
 	 * Innsyn etter personopplysningsloven
 	 */
-	POI
+	POI,
+	/**
+	 * Aktivitetspenger
+	 */
+	AVP
 }
