@@ -280,7 +280,7 @@ Returnerer:
 |:---------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ingen_partsinnsyn          | Bruker må være part for å se journalposter                                                                                                              |
 | ikke_avsender_mottaker     | Tilgang avvist fordi dokumentet er sendt til/fra andre parter enn bruker.                                                                               |
-| foer_innsynsdato           | Tilgang avvist fordi journalposten er opprettet før tidligste innsynsdato (04.06.2016).                                                                 |
+| foer_innsynsdato           | Tilgang avvist fordi journalposten er opprettet eller journalført før tidligste innsynsdato (04.06.2016).                                               |
 | ugyldig_journalstatus      | Tilgang avvist fordi journalposten ikke har status ferdigstilt eller midlertidig.                                                                       |
 | feilregistrert             | Tilgang avvist fordi journalposten er feilregistrert.                                                                                                   |
 | temaer_unntatt_innsyn      | Tilgang avvist fordi journalposten er markert som kontrollsak eller farskapssak.                                                                        |

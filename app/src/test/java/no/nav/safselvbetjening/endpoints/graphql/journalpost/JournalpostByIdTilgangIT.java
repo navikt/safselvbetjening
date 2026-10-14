@@ -82,20 +82,25 @@ public class JournalpostByIdTilgangIT extends AbstractJournalpostItest {
 	/**
 	 * Tilgangsregel: 1b
 	 * Selvbetjening viser ikke journalposter før en hardkodet dato, se UtledTilgangService.TIDLIGST_INNSYN_DATO
-	 * Hvis innsyn flagget er satt til en vises verdi og det skal vises så returneres journalposten
+	 * Innsynsflagget VISES_* overstyrer ikke datoregelen.
 	 */
 	@Test
-	void skalHenteJournalpostHvisInnsynVisesSelvOmEldreEnnInnsynsdato() {
-		stubDokarkivJournalpost("1b-journalpost-innsyn-vises-ok.json");
+	void skalGiForbiddenHvisJournalpostEldreEnnInnsynsdatoOgInnsynVises() {
+		stubDokarkivJournalpost("1b-journalpost-innsyn-vises-forbidden.json");
 		stubPdlGenerell();
 
 		ResponseEntity<GraphQLResponse> response = queryJournalpostById();
 
 		assertThat(response.getStatusCode()).isEqualTo(OK);
 		GraphQLResponse graphQLResponse = response.getBody();
+
 		assertThat(graphQLResponse).isNotNull();
-		Journalpost journalpost = graphQLResponse.getData().getJournalpostById();
-		assertThat(journalpost.getJournalpostId()).isNotNull();
+		assertThat(graphQLResponse.getErrors())
+				.extracting(e -> e.getExtensions().getCode())
+				.contains(ErrorCode.FORBIDDEN.getText());
+
+		assertThat(graphQLResponse.getData()).isNotNull();
+		assertThat(graphQLResponse.getData().getJournalpostById()).isNull();
 	}
 
 	/**

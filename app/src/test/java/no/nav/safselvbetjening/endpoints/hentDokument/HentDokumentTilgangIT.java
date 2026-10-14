@@ -57,18 +57,19 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 	 * Selvbetjening viser ikke dokumenter som er enten opprettet før eller journalført før 04.06.2016.
 	 * Unntak:
 	 * - tema er PEN eller UFO
-	 * - innsynsflagget er satt til en VISES_-verdi
 	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
 	 */
 	@Test
-	void skalHenteDokumentHvisInnsynVisesSelvOmEldreEnnInnsynsdato() {
-		stubDokarkivJournalpost("1b-hentdokument-innsyn-vises-ok.json");
+	void skalIkkeHenteDokumentHvisInnsynVisesOgEldreEnnInnsynsdato() {
+		stubDokarkivJournalpost("1b-hentdokument-innsyn-vises-forbidden.json");
 		stubPdlGenerell();
 		stubHentDokumentDokarkiv();
 
 		ResponseEntity<String> responseEntity = callHentDokument();
 
-		assertOkArkivResponse(responseEntity);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+		assertThat(responseEntity.getHeaders().get(NAV_REASON_CODE)).isEqualTo(singletonList(DENY_REASON_FOER_INNSYNSDATO.reason));
+		assertThat(responseEntity.getBody()).contains(FEILMELDING_INNSYNSDATO);
 	}
 
 	/**
@@ -76,7 +77,6 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 	 * Selvbetjening viser ikke dokumenter som er enten opprettet før eller journalført før 04.06.2016.
 	 * Unntak:
 	 * - tema er PEN eller UFO
-	 * - innsynsflagget er satt til en VISES_-verdi
 	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
 	 */
 	@Test
@@ -97,7 +97,6 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 	 * Selvbetjening viser ikke dokumenter som er enten opprettet før eller journalført før 04.06.2016.
 	 * Unntak:
 	 * - tema er PEN eller UFO
-	 * - innsynsflagget er satt til en VISES_-verdi
 	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
 	 */
 	@Test
@@ -118,7 +117,6 @@ public class HentDokumentTilgangIT extends AbstractHentDokumentItest {
 	 * Selvbetjening viser ikke dokumenter som er enten opprettet før eller journalført før 04.06.2016.
 	 * Unntak:
 	 * - tema er PEN eller UFO
-	 * - innsynsflagget er satt til en VISES_-verdi
 	 * @see no.nav.safselvbetjening.tilgang.UtledTilgangService Hardkodet dato
 	 */
 	@Test
