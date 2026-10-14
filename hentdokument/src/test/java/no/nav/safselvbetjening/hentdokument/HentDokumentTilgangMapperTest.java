@@ -17,20 +17,20 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static no.nav.safselvbetjening.consumer.dokarkiv.domain.FagomradeCode.PEN;
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.VariantFormatCode.SLADDET;
 import static no.nav.safselvbetjening.domain.Journalposttype.I;
 import static no.nav.safselvbetjening.domain.Journalposttype.U;
 import static no.nav.safselvbetjening.domain.Journalstatus.EKSPEDERT;
 import static no.nav.safselvbetjening.domain.Journalstatus.MOTTATT;
 import static no.nav.safselvbetjening.domain.Kanal.NAV_NO;
+import static no.nav.safselvbetjening.domain.Tema.PEN;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.AKTOER_ID;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.AVSENDER_MOTTAKER_ID;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.DATO_JOURNALFOERT;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.DATO_OPPRETTET;
-import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.SED;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.IDENT;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.JOURNALPOST_ID;
+import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.SED;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.TEMA;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.TEMA_PENSJON_UFO;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTestObjects.arkivJournalpost;

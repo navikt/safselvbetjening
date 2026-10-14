@@ -1,6 +1,5 @@
 package no.nav.safselvbetjening.consumer.dokarkiv.safintern;
 
-import no.nav.safselvbetjening.consumer.dokarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.InnsynCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
@@ -22,10 +21,13 @@ import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode.I;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper.TILKNYTTET_SOM_HOVEDDOKUMENT;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostMapper.TILKNYTTET_SOM_VEDLEGG;
+import static no.nav.safselvbetjening.domain.Tema.HJE;
+import static no.nav.safselvbetjening.domain.Tema.PEN;
+import static no.nav.safselvbetjening.domain.Tema.UFO;
 
 final class ArkivJournalpostTestObjects {
 	static final String JOURNALPOST_ID = "40000000";
-	static final String TEMA = FagomradeCode.HJE.name();
+	static final String TEMA_HJE = HJE.name();
 	static final String INNHOLD = "Søknad om hjelpemidler";
 	static final String KANAL_REFERANSE_ID = "11111111-2222-3333-4444-555555555555";
 	static final String FAGSAKNR = "9000";
@@ -57,11 +59,12 @@ final class ArkivJournalpostTestObjects {
 	static final String VEDLEGG_BREVKODE = "L7";
 	static final String VEDLEGG_FIL_STOERRELSE = "2048";
 	static final String VEDLEGG_FIL_TYPE = "PDFA";
+
 	// pensjon spesifikt
 	static final String ARKIVSAKSYSTEM_PENSJON = "PEN";
 	static final Long PENSJON_FAGSAKID = 2000000L;
-	static final String TEMA_PENSJON_ALDERSPENSJON = FagomradeCode.PEN.name();
-	static final String TEMA_PENSJON_UFORETRYGD = FagomradeCode.UFO.name();
+	static final String TEMA_PENSJON_ALDERSPENSJON = PEN.name();
+	static final String TEMA_PENSJON_UFORETRYGD = UFO.name();
 
 	static ArkivJournalpost.ArkivJournalpostBuilder baseArkivJournalpost() {
 		return ArkivJournalpost.builder()
@@ -71,7 +74,7 @@ final class ArkivJournalpostTestObjects {
 				.status(JournalStatusCode.M.name())
 				.mottakskanal(MottaksKanalCode.NAV_NO.name())
 				.relevanteDatoer(new ArkivRelevanteDatoer(ARKIVJOURNALPOST_DATO_OPPRETTET, ARKIVJOURNALPOST_DATO_JOURNALFOERT, ARKIVJOURNALPOST_DATO_EKSPEDERT, ARKIVJOURNALPOST_DATO_MOTTATT, ARKIVJOURNALPOST_DATO_DOKUMENT, ARKIVJOURNALPOST_DATO_RETUR, ARKIVJOURNALPOST_DATO_SENDT_PRINT))
-				.fagomraade(FagomradeCode.HJE.name())
+				.fagomraade(TEMA_HJE)
 				.innhold(INNHOLD)
 				.kanalreferanseId(KANAL_REFERANSE_ID);
 	}
@@ -85,7 +88,7 @@ final class ArkivJournalpostTestObjects {
 						.sakId(ARKIVSAK_ID)
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(true)
-						.sak(new ArkivSak(TEMA, ARKIVSAK_AKTOER_ID, null, FAGSAKNR, APPLIKASJON))
+						.sak(new ArkivSak(TEMA_HJE, ARKIVSAK_AKTOER_ID, null, FAGSAKNR, APPLIKASJON))
 						.build())
 				.dokumenter(List.of(hoveddokumentArkivDokumentinfo(), vedleggArkivDokumentinfo()))
 				.build();
@@ -101,7 +104,7 @@ final class ArkivJournalpostTestObjects {
 						.sakId(ARKIVSAK_ID)
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(true)
-						.sak(new ArkivSak(TEMA, ARKIVSAK_AKTOER_ID, null, FAGSAKNR, APPLIKASJON))
+						.sak(new ArkivSak(TEMA_HJE, ARKIVSAK_AKTOER_ID, null, FAGSAKNR, APPLIKASJON))
 						.build())
 				.dokumenter(List.of(hoveddokumentArkivDokumentinfo(), vedleggArkivDokumentinfo()))
 				.build();
@@ -120,7 +123,7 @@ final class ArkivJournalpostTestObjects {
 						.sakId(ARKIVSAK_ID)
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(true)
-						.sak(new ArkivSak(TEMA, ARKIVSAK_AKTOER_ID, null, FAGSAKNR, APPLIKASJON))
+						.sak(new ArkivSak(TEMA_HJE, ARKIVSAK_AKTOER_ID, null, FAGSAKNR, APPLIKASJON))
 						.build())
 				.dokumenter(List.of(hoveddokumentArkivDokumentinfo(), vedleggArkivDokumentinfo()))
 				.build();
@@ -152,7 +155,7 @@ final class ArkivJournalpostTestObjects {
 						.sakId(ARKIVSAK_ID)
 						.fagsystem(ARKIVSAKSYSTEM_GOSYS)
 						.feilregistrert(true)
-						.sak(new ArkivSak(TEMA, ARKIVSAK_AKTOER_ID, null, FAGSAKNR, APPLIKASJON))
+						.sak(new ArkivSak(TEMA_HJE, ARKIVSAK_AKTOER_ID, null, FAGSAKNR, APPLIKASJON))
 						.build())
 				.dokumenter(List.of(hoveddokumentArkivDokumentinfo(), vedleggArkivDokumentinfo()))
 				.build();

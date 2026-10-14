@@ -54,7 +54,7 @@ import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpo
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.KANAL_REFERANSE_ID;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.KATEGORI_SED;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.PENSJON_FAGSAKID;
-import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.TEMA;
+import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.TEMA_HJE;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.TEMA_PENSJON_ALDERSPENSJON;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.TEMA_PENSJON_UFORETRYGD;
 import static no.nav.safselvbetjening.consumer.dokarkiv.safintern.ArkivJournalpostTestObjects.VEDLEGG_BREVKODE;
@@ -105,7 +105,7 @@ class ArkivJournalpostMapperTest {
 		assertThat(journalpost.getJournalposttype()).isEqualTo(I);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(MOTTATT);
 		assertThat(journalpost.getKanal()).isEqualTo(NAV_NO);
-		assertThat(journalpost.getTema()).isEqualTo(TEMA);
+		assertThat(journalpost.getTema()).isEqualTo(TEMA_HJE);
 		assertThat(journalpost.getTittel()).isEqualTo(INNHOLD);
 		assertThat(journalpost.getEksternReferanseId()).isEqualTo(KANAL_REFERANSE_ID);
 		assertThat(journalpost.getSak().getFagsakId()).isEqualTo(FAGSAKNR);
@@ -144,7 +144,7 @@ class ArkivJournalpostMapperTest {
 		assertThat(journalpost.getJournalposttype()).isEqualTo(U);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(EKSPEDERT);
 		assertThat(journalpost.getKanal()).isEqualTo(SDP);
-		assertThat(journalpost.getTema()).isEqualTo(TEMA);
+		assertThat(journalpost.getTema()).isEqualTo(TEMA_HJE);
 		assertThat(journalpost.getTittel()).isEqualTo(INNHOLD);
 		assertThat(journalpost.getEksternReferanseId()).isEqualTo(KANAL_REFERANSE_ID);
 		assertThat(journalpost.getSak().getFagsakId()).isEqualTo(FAGSAKNR);
@@ -226,7 +226,7 @@ class ArkivJournalpostMapperTest {
 		assertThat(journalpost.getJournalposttype()).isEqualTo(I);
 		assertThat(journalpost.getJournalstatus()).isEqualTo(MOTTATT);
 		assertThat(journalpost.getKanal()).isEqualTo(NAV_NO);
-		assertThat(journalpost.getTema()).isEqualTo(TEMA);
+		assertThat(journalpost.getTema()).isEqualTo(TEMA_HJE);
 		assertThat(journalpost.getTittel()).isEqualTo(INNHOLD);
 		assertThat(journalpost.getEksternReferanseId()).isEqualTo(KANAL_REFERANSE_ID);
 		assertThat(journalpost.getSak().getFagsakId()).isEqualTo(FAGSAKNR);
@@ -264,7 +264,7 @@ class ArkivJournalpostMapperTest {
 
 		TilgangSak tilgangSak = tilgang.getTilgangSak();
 		assertThat(tilgangSak.getIdent()).isEqualTo(Ident.of(ARKIVSAK_AKTOER_ID));
-		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
+		assertThat(tilgangSak.getTema()).isEqualTo(TEMA_HJE);
 		assertThat(tilgangSak.isFeilregistrert()).isTrue();
 	}
 
@@ -380,7 +380,7 @@ class ArkivJournalpostMapperTest {
 
 		TilgangSak tilgangSak = tilgang.getTilgangSak();
 		assertThat(tilgangSak.getIdent()).isEqualTo(Ident.of(ARKIVSAK_AKTOER_ID));
-		assertThat(tilgangSak.getTema()).isEqualTo(TEMA);
+		assertThat(tilgangSak.getTema()).isEqualTo(TEMA_HJE);
 		assertThat(tilgangSak.isFeilregistrert()).isTrue();
 	}
 
