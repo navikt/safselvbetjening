@@ -1,6 +1,5 @@
 package no.nav.safselvbetjening.hentdokument;
 
-import no.nav.safselvbetjening.consumer.dokarkiv.domain.FagomradeCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.InnsynCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode;
 import no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalpostTypeCode;
@@ -27,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static no.nav.safselvbetjening.consumer.dokarkiv.domain.JournalStatusCode.E;
+import static no.nav.safselvbetjening.domain.Tema.PEN;
 import static no.nav.safselvbetjening.hentdokument.HentDokumentTilgangMapper.TILKNYTTET_SOM_HOVEDDOKUMENT;
 
 public class HentDokumentTestObjects {
@@ -52,7 +52,7 @@ public class HentDokumentTestObjects {
 				.status(JournalStatusCode.M.name())
 				.mottakskanal(MottaksKanalCode.NAV_NO.name())
 				.relevanteDatoer(new ArkivRelevanteDatoer(DATO_OPPRETTET, DATO_JOURNALFOERT, null, null, null, null, null))
-				.fagomraade(FagomradeCode.PEN.name());
+				.fagomraade(PEN.name());
 	}
 
 	public static ArkivJournalpost arkivJournalpost() {
