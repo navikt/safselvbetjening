@@ -112,6 +112,11 @@
       "app": "familie-integrasjoner",
       "namespace": "teamfamilie",
       "cluster": "dev-fss"
+    },
+    {
+      "app": "familie-integrasjoner",
+      "namespace": "teamfamilie",
+      "cluster": "dev-gcp"
     }
   ]
 }
